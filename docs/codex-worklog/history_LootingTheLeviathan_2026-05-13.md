@@ -143,3 +143,24 @@ Git status unavailable.
 - Summary: 원인을 분석해 보니 `15_pc-environment`는 문서 구조에는 있었지만 읽기 순서, intake, ready check, active plan 입력 문서 목록 어디에도 필수 단계로 연결되지 않았다. 그래서 `agent-harness`에는 환경 문서 게이트를 추가했고, `LTL-harness`에는 실제 로컬 툴체인 문서를 생성해 Godot/Node/Python/Git/WSL 경로와 버전, PowerShell 실행 정책 이슈, 자주 쓰는 명령을 기록했다.
 - Plan impact: 이후 로컬 툴 의존 작업은 환경 문서가 없으면 Ready 상태가 아니도록 문서 흐름을 강화했다.
 - Verification: Godot/Node/Python/Git/WSL 버전 및 경로를 셸 명령으로 수집했고, `rg`로 README/AGENTS/intake/template 문서가 `15_pc-environment`를 직접 참조하도록 갱신됐는지 확인했다.
+
+## 2026-05-13 입력 피드백 흐름 정리와 fixture 강화
+
+- Intent: controller 피드백이 누적 summary에 묶이는 문제를 정리하고, invalid target 방어와 fixture 기반 replay 검증을 추가.
+- Files or areas touched:
+  - `app-LTL/src/action-result.js`
+  - `app-LTL/src/combat-controller.js`
+  - `app-LTL/src/domain/run-simulator.js`
+  - `app-LTL/src/telemetry/telemetry.js`
+  - `app-LTL/prototype/domain/RunSimulator.gd`
+  - `app-LTL/prototype/telemetry/Telemetry.gd`
+  - `app-LTL/tests/p0_replay.test.js`
+  - `app-LTL/tests/p1_core_loop.test.js`
+  - `app-LTL/tests/p2_control_slice.test.js`
+  - `LTL-harness/docs/14_references/04_input_feedback_flow.md`
+  - `LTL-harness/docs/02_DESIGN.md`
+  - `LTL-harness/docs/03_TECH_STACK.md`
+  - `.gitignore`
+- Summary: P0 fixture 파일을 실제로 읽는 테스트를 추가했고, P1/P2에는 out-of-range target 방어 테스트를 넣었다. 이후 `action-result.js`를 추가해 HUD/조작 피드백을 누적 summary가 아니라 `beforeSummary -> afterSummary diff`로 계산하도록 바꿨다. JS와 GDScript telemetry에 `invalid_target_inputs`를 추가하고, 하네스에는 controller/HUD 구현자가 그대로 따라갈 수 있는 순차적 입력-피드백 메모를 남겼다. 마지막으로 루트에 git 저장소를 초기화하고 로컬 author를 `tigal3052@gmail.com` 기준으로 설정한 뒤 첫 커밋을 만들었다.
+- Plan impact: P2 이후 controller 구현의 기준을 “누적 telemetry”와 “직전 액션 결과”로 분리하는 방향으로 명확히 고정했다.
+- Verification: `node --test` 18개 테스트 통과를 확인했다. `git init -b main`, `git config user.email`, `git config user.name`, `git commit`을 수행했고 커밋 해시는 `decb418`이다.

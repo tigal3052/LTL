@@ -5,37 +5,42 @@ Date: 2026-05-13
 
 ## Completion Summary
 
-`LTL-harness`에 실제 로컬 툴체인 문서를 추가했고, `agent-harness`가 프로젝트 전용 하네스로 전환될 때 `15_pc-environment`를 필수로 작성하고 참조하도록 게이트를 보강했다. 이제 Godot 경로 같은 로컬 의존 정보를 매 세션 다시 찾지 않고 문서에서 바로 참조할 수 있다.
+로컬 환경 문서 체계를 고정한 데 이어, 입력 피드백 흐름을 공통 모듈로 분리하고 fixture 기반 replay 검증을 강화했다. 또한 루트에 git 저장소를 초기화하고 첫 커밋까지 만들었다.
 
 ## Actual Outputs
 
-- `LTL-harness/docs/15_pc-environment/00_README.md`
-- `LTL-harness/docs/15_pc-environment/01_local_toolchain.youngsoon.md`
-- `LTL-harness/README.md`
-- `LTL-harness/00_AGENTS.md`
-- `agent-harness/README.md`
-- `agent-harness/00_AGENTS.md`
-- `agent-harness/docs/09_PROJECT_INTAKE.md`
-- `agent-harness/docs/11_exec-plans/01_active/_TEMPLATE-active.md`
-- `agent-harness/docs/15_pc-environment/00_README.md`
-- `agent-harness/docs/15_pc-environment/01_toolchain-paths._template.md`
+- `app-LTL/src/action-result.js`
+- `app-LTL/src/combat-controller.js`
+- `app-LTL/src/domain/run-simulator.js`
+- `app-LTL/src/telemetry/telemetry.js`
+- `app-LTL/prototype/domain/RunSimulator.gd`
+- `app-LTL/prototype/telemetry/Telemetry.gd`
+- `app-LTL/tests/p0_replay.test.js`
+- `app-LTL/tests/p1_core_loop.test.js`
+- `app-LTL/tests/p2_control_slice.test.js`
+- `LTL-harness/docs/14_references/04_input_feedback_flow.md`
+- `LTL-harness/docs/02_DESIGN.md`
+- `LTL-harness/docs/03_TECH_STACK.md`
+- `.gitignore`
 
 ## Changes From Plan
 
-- 단순히 LTL 프로젝트 문서만 추가하는 대신, 누락 원인이 하네스 흐름 자체에 있다는 점을 확인해 `agent-harness`의 읽기 순서, intake, planning gate, active template까지 함께 수정했다.
+- `last action feedback` 계산을 controller 내부 임시 판단으로 두지 않고, future controller에서도 재사용할 수 있는 공통 diff 규칙으로 올렸다.
+- JS 쪽 수정만이 아니라 GDScript mirror의 telemetry/invalid target 계약도 함께 맞췄다.
 
 ## Verification Results
 
-- `& 'D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe' --version`으로 Godot 버전을 확인했다.
-- `node --version`, `python --version`, `git --version`, `wsl --version`, `Get-Command ...`로 주요 툴 경로와 버전을 수집했다.
-- `rg`로 수정된 README/AGENTS/intake/active template 문서들이 `15_pc-environment`를 직접 참조하는지 확인했다.
+- `node --test` 결과 18개 테스트 전부 통과.
+- fixture 파일 `basic_clear.json`, `empty_queue_repair.json`를 직접 읽는 replay 테스트 통과.
+- `git init -b main` 후 `git commit -m "feat: add environment docs and input feedback flow"` 성공.
+- 현재 커밋: `decb418`
 
 ## Blockers Or Unverified Areas
 
-- OS 하드웨어 사양 일부는 현재 권한 제한 때문에 `Get-CimInstance`로 수집하지 못했다.
+- GitHub 원격 저장소는 이 세션에서 만들지 않았다. 현재는 로컬 git 저장소와 로컬 커밋만 완료된 상태다.
 - Godot headless replay의 `signal 11` 크래시는 여전히 별도 이슈로 남아 있다.
 
 ## Remaining Gaps
 
-- 필요하면 `LTL-harness/docs/15_pc-environment/`에 Android SDK, Flutter, PostgreSQL, Docker 같은 추가 툴체인 문서를 더 세분화할 수 있다.
-- 다음 구현 작업부터는 active plan 문서에 참조 환경 문서를 실제로 적는 습관을 유지해야 한다.
+- `CombatController` 계약을 실제 Godot `PrototypeController.gd`와 HUD 구현으로 연결
+- 원격 GitHub 저장소가 필요하면 인증 가능한 도구/토큰 상태에서 `LTL` 이름으로 별도 생성
