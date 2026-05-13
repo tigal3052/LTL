@@ -1,0 +1,7 @@
+{
+  "seed": 20260513,
+  "node": { "shield": 0.75, "health": 0, "weakness": ["red"] },
+  "inputLog": [
+    { "tick": 1, "target": 0, "input": "click" }
+  ]
+}

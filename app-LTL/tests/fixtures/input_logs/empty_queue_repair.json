@@ -1,0 +1,9 @@
+{
+  "seed": 1,
+  "queueCapacity": 0,
+  "inputLog": [
+    { "tick": 1, "target": 0, "input": "click" },
+    { "tick": 2, "target": 0, "input": "click" },
+    { "tick": 3, "target": 0, "input": "click" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "app-ltl",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "replay": "node src/tools/replay-runner.js tests/fixtures/input_logs/basic_clear.json"
+  }
+}

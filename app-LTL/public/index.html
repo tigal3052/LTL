@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Looting The Leviathan P0/P1 Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", Pretendard, sans-serif;
+      background: #111418;
+      color: #e8edf2;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      background:
+        linear-gradient(180deg, rgba(23, 30, 34, 0.95), rgba(12, 14, 18, 1)),
+        repeating-linear-gradient(120deg, rgba(128, 96, 58, 0.16), rgba(128, 96, 58, 0.16) 10px, transparent 10px, transparent 28px);
+    }
+    main {
+      width: min(1100px, calc(100vw - 40px));
+      min-height: calc(100vh - 40px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: minmax(0, calc(100vh - 40px)) auto auto;
+      gap: 18px;
+    }
+    .combat {
+      display: grid;
+      grid-template-rows: minmax(0, 7fr) minmax(0, 3fr);
+      border: 1px solid #35414d;
+      background: #171d23;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .top {
+      display: grid;
+      grid-template-columns: 3fr 7fr;
+      border-bottom: 1px solid #35414d;
+      min-height: 0;
+    }
+    .character, .backpack, .terrain {
+      padding: 18px;
+      min-height: 0;
+    }
+    .character {
+      border-right: 1px solid #35414d;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 14px;
+      min-height: 0;
+    }
+    .miner {
+      width: 110px;
+      height: 210px;
+      position: relative;
+    }
+    .miner::before {
+      content: "";
+      position: absolute;
+      inset: 38px 28px 0;
+      border-radius: 46px 46px 20px 20px;
+      background: linear-gradient(#384650, #20272d);
+      border: 2px solid #8fa2ad;
+    }
+    .miner::after {
+      content: "";
+      position: absolute;
+      width: 94px;
+      height: 18px;
+      right: -42px;
+      top: 88px;
+      background: linear-gradient(90deg, #7fc9ff, #f6c762);
+      box-shadow: 0 0 22px #f6c762;
+      transform: rotate(16deg);
+    }
+    .backpack-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, minmax(0, 1fr));
+      gap: 8px;
+      height: 100%;
+    }
+    .slot {
+      border: 1px solid #3c4a55;
+      background: #202932;
+      min-height: 0;
+    }
+    .item {
+      background: #334351;
+      border-color: #d5a84d;
+      box-shadow: inset 0 0 0 2px rgba(246, 199, 98, 0.2);
+    }
+    .terrain {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 14px;
+      min-height: 0;
+    }
+    .terrain-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      min-height: 0;
+    }
+    .tile {
+      border: 1px solid #4b5c68;
+      display: grid;
+      place-items: center;
+      background: #27303a;
+      font-weight: 700;
+      min-height: 0;
+    }
+    .red { color: #ff756b; box-shadow: inset 0 -5px #8f312e; }
+    .blue { color: #73bcff; box-shadow: inset 0 -5px #275d91; }
+    .purple { color: #c79aff; box-shadow: inset 0 -5px #5f3a91; }
+    .green { color: #8bdd74; box-shadow: inset 0 -5px #3f7533; }
+    .hit {
+      outline: 3px solid #f6c762;
+      background: #443820;
+    }
+    .hovered {
+      outline: 3px solid #8ce1ff;
+      outline-offset: -3px;
+    }
+    .disabled {
+      opacity: 0.45;
+      filter: saturate(0.6);
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 15px;
+      color: #b9c5cf;
+    }
+    button {
+      justify-self: start;
+      border: 1px solid #6d7d8b;
+      background: #26313b;
+      color: #e8edf2;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+    pre {
+      margin: 0;
+      padding: 16px;
+      background: #0e1216;
+      border: 1px solid #35414d;
+      overflow: auto;
+      min-height: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="combat" aria-label="P0/P1 combat demo">
+      <div class="top">
+        <div class="character">
+          <div class="miner" aria-hidden="true"></div>
+          <strong>등반자 / 채굴기</strong>
+        </div>
+        <div class="backpack">
+          <div class="backpack-grid" id="backpack"></div>
+        </div>
+      </div>
+      <div class="terrain">
+        <div class="hud">
+          <span id="queue-label">Queue: red, blue, purple, green</span>
+          <span id="feedback-label">Feedback: idle</span>
+          <span>Seed: 20260513</span>
+        </div>
+        <div class="terrain-grid" id="terrain"></div>
+      </div>
+    </section>
+    <button id="run">Reset P2 Slice</button>
+    <pre id="output"></pre>
+  </main>
+  <script>
+    const terrain = document.querySelector("#terrain");
+    const backpack = document.querySelector("#backpack");
+    const output = document.querySelector("#output");
+    const queueLabel = document.querySelector("#queue-label");
+    const feedbackLabel = document.querySelector("#feedback-label");
+    const colors = ["red", "blue", "purple", "green"];
+    const state = {
+      tick: 1,
+      queue: ["red", "blue", "purple", "green"],
+      hoveredTile: null,
+      disabledUntil: Array.from({ length: 30 }, () => -1),
+      holdTimer: null,
+      summary: null
+    };
+
+    for (let i = 0; i < 64; i += 1) {
+      const slot = document.createElement("div");
+      slot.className = "slot" + ([2, 3, 10, 18, 19, 27, 36].includes(i) ? " item" : "");
+      backpack.append(slot);
+    }
+    for (let i = 0; i < 30; i += 1) {
+      const tile = document.createElement("div");
+      tile.className = `tile ${colors[i % colors.length]}`;
+      tile.textContent = i + 1;
+      tile.dataset.index = i;
+      tile.addEventListener("mouseenter", () => hoverTile(i));
+      tile.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        hoverTile(i);
+        fireShot();
+        startHold();
+      });
+      tile.addEventListener("mouseup", stopHold);
+      tile.addEventListener("mouseleave", stopHold);
+      terrain.append(tile);
+    }
+
+    window.addEventListener("mouseup", stopHold);
+
+    function createSummary() {
+      return {
+        run_id: "seed-20260513",
+        seed: 20260513,
+        stage_index: 0,
+        node_type: "normal",
+        shots_fired: 0,
+        shots_hit_match: 0,
+        shots_hit_mismatch: 0,
+        shots_invalid_tile_cooldown: 0,
+        shots_fired_empty_queue: 0,
+        queue_generated: 4,
+        queue_consumed: 0,
+        queue_wasted: 0,
+        durability_loss_count: 0,
+        repair_count: 0,
+        clear_time_sec: null,
+        fail_time_sec: null,
+        result: "running"
+      };
+    }
+
+    function hoverTile(index) {
+      state.hoveredTile = index;
+      for (const tile of terrain.children) {
+        tile.classList.toggle("hovered", Number(tile.dataset.index) === index);
+      }
+    }
+
+    function setFeedback(message) {
+      feedbackLabel.textContent = `Feedback: ${message}`;
+    }
+
+    function renderState() {
+      queueLabel.textContent = `Queue: ${state.queue.join(", ") || "empty"}`;
+      output.textContent = JSON.stringify(state.summary, null, 2);
+      for (const tile of terrain.children) {
+        const index = Number(tile.dataset.index);
+        tile.classList.toggle("disabled", state.disabledUntil[index] > state.tick);
+      }
+    }
+
+    function fireShot() {
+      if (state.hoveredTile == null) {
+        setFeedback("no_target");
+        return;
+      }
+
+      state.summary.shots_fired += 1;
+      const tile = terrain.children[state.hoveredTile];
+      const isDisabled = state.disabledUntil[state.hoveredTile] > state.tick;
+
+      if (state.queue.length === 0) {
+        state.summary.shots_fired_empty_queue += 1;
+        state.summary.durability_loss_count += 1;
+        setFeedback("empty_queue");
+      } else {
+        state.summary.queue_consumed += 1;
+        state.queue.shift();
+
+        if (isDisabled) {
+          state.summary.shots_invalid_tile_cooldown += 1;
+          setFeedback("invalid_cooldown");
+        } else {
+          state.summary.shots_hit_match += 1;
+          state.disabledUntil[state.hoveredTile] = state.tick + 10;
+          terrain.querySelectorAll(".hit").forEach((node) => node.classList.remove("hit"));
+          tile.classList.add("hit");
+          setFeedback("fired");
+        }
+      }
+
+      state.tick += 2;
+      renderState();
+    }
+
+    function startHold() {
+      stopHold();
+      state.holdTimer = window.setInterval(fireShot, 100);
+    }
+
+    function stopHold() {
+      if (state.holdTimer !== null) {
+        window.clearInterval(state.holdTimer);
+        state.holdTimer = null;
+      }
+    }
+
+    function resetDemo() {
+      stopHold();
+      state.tick = 1;
+      state.queue = ["red", "blue", "purple", "green"];
+      state.hoveredTile = null;
+      state.disabledUntil = Array.from({ length: 30 }, () => -1);
+      state.summary = createSummary();
+      terrain.querySelectorAll(".tile").forEach((tile) => {
+        tile.classList.remove("hit", "hovered", "disabled");
+      });
+      setFeedback("idle");
+      renderState();
+    }
+
+    document.querySelector("#run").addEventListener("click", resetDemo);
+    resetDemo();
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "fixed_tick_sec": 0.05,
+  "hold_fire_interval_sec": 0.1,
+  "tile_cooldown_ticks": 10,
+  "queue_capacity": 8,
+  "repair_threshold": 3,
+  "pin_thresholds": [0.25, 0.5, 0.75, 1.0],
+  "damage": {
+    "red": { "shield": 0.5, "health": 1.2 },
+    "blue": { "shield": 1.5, "health": 0.75 },
+    "purple": { "shield": 0.75, "health": 0.75 },
+    "green": { "shield": 0, "health": 1.0 }
+  }
+}
