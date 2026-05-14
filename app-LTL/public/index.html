@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Looting The Leviathan P0/P1 Demo</title>
+  <title>Looting The Leviathan P1/P3 Demo</title>
   <style>
     :root {
       color-scheme: dark;
@@ -46,6 +46,7 @@
     .character, .backpack, .terrain {
       padding: 18px;
       min-height: 0;
+      position: relative;
     }
     .character {
       border-right: 1px solid #35414d;
@@ -90,17 +91,49 @@
       border: 1px solid #3c4a55;
       background: #202932;
       min-height: 0;
+      transition: filter 0.2s;
     }
     .item {
       background: #334351;
       border-color: #d5a84d;
       box-shadow: inset 0 0 0 2px rgba(246, 199, 98, 0.2);
     }
+    .frozen {
+      filter: grayscale(0.8) hue-rotate(180deg) brightness(1.2);
+    }
     .terrain {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
-      gap: 14px;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      gap: 10px;
       min-height: 0;
+    }
+    .node-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .bar-bg {
+      background: #202932;
+      border: 1px solid #35414d;
+      height: 16px;
+      width: 100%;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      transition: width 0.1s linear;
+    }
+    .bar-fill.shield { background: #73bcff; }
+    .bar-fill.hp { background: #ff756b; }
+    .bar-text {
+      position: absolute;
+      top: 0px;
+      left: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
+      line-height: 16px;
     }
     .terrain-grid {
       display: grid;
@@ -108,6 +141,7 @@
       grid-template-rows: repeat(3, minmax(0, 1fr));
       gap: 8px;
       min-height: 0;
+      position: relative;
     }
     .tile {
       border: 1px solid #4b5c68;
@@ -116,14 +150,16 @@
       background: #27303a;
       font-weight: 700;
       min-height: 0;
+      transition: background 0.1s;
     }
     .red { color: #ff756b; box-shadow: inset 0 -5px #8f312e; }
     .blue { color: #73bcff; box-shadow: inset 0 -5px #275d91; }
     .purple { color: #c79aff; box-shadow: inset 0 -5px #5f3a91; }
     .green { color: #8bdd74; box-shadow: inset 0 -5px #3f7533; }
+    
     .hit {
       outline: 3px solid #f6c762;
-      background: #443820;
+      background: #443820 !important;
     }
     .hovered {
       outline: 3px solid #8ce1ff;
@@ -139,7 +175,27 @@
       gap: 16px;
       font-size: 15px;
       color: #b9c5cf;
+      align-items: center;
     }
+    .queue-container {
+      display: flex;
+      gap: 4px;
+      height: 20px;
+      width: 190px;
+      background: #171d23;
+      border: 1px solid #35414d;
+      padding: 2px;
+    }
+    .queue-block {
+      width: 20px;
+      height: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .queue-block.red { background: #ff756b; }
+    .queue-block.blue { background: #73bcff; }
+    .queue-block.purple { background: #c79aff; }
+    .queue-block.green { background: #8bdd74; }
+
     button {
       justify-self: start;
       border: 1px solid #6d7d8b;
@@ -157,71 +213,744 @@
       overflow: auto;
       min-height: 0;
     }
+    .floating-text {
+      position: fixed;
+      font-weight: 800;
+      font-size: 18px;
+      pointer-events: none;
+      animation: floatUp 1s ease-out forwards;
+      z-index: 200;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      transform: translate(-50%, -50%);
+    }
+    @keyframes floatUp {
+      0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -40px) scale(1.2); opacity: 0; }
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      display: none;
+    }
+    .overlay h1 { color: #f6c762; margin:0; font-size: 48px; }
   </style>
 </head>
 <body>
   <main>
-    <section class="combat" aria-label="P0/P1 combat demo">
+    <section class="combat" aria-label="P1/P3 combat demo">
       <div class="top">
         <div class="character">
           <div class="miner" aria-hidden="true"></div>
           <strong>등반자 / 채굴기</strong>
+          <div style="font-size: 12px; text-align:center;">
+             <span id="time-label">Time: 60s</span><br>
+             <span id="pin-label">Pins: 4</span>
+          </div>
+          <button type="button" id="freeze-test">빙결 테스트</button>
+          <button type="button" id="mono-color-mode">동일 색 모드 (끔)</button>
         </div>
         <div class="backpack">
           <div class="backpack-grid" id="backpack"></div>
         </div>
       </div>
       <div class="terrain">
+        <!-- 노드 마력장 및 체력바 -->
+        <div class="node-stats">
+          <div class="bar-bg">
+            <div id="shield-bar" class="bar-fill shield" style="width: 100%;"></div>
+            <div id="shield-text" class="bar-text">Shield: 500/500</div>
+          </div>
+          <div class="bar-bg">
+            <div id="hp-bar" class="bar-fill hp" style="width: 100%;"></div>
+            <div id="hp-text" class="bar-text">HP: 1000/1000</div>
+          </div>
+        </div>
+
         <div class="hud">
-          <span id="queue-label">Queue: red, blue, purple, green</span>
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span>Queue:</span>
+            <div class="queue-container" id="queue-container"></div>
+          </div>
           <span id="feedback-label">Feedback: idle</span>
           <span>Seed: 20260513</span>
         </div>
+        
         <div class="terrain-grid" id="terrain"></div>
+        <div id="game-over-overlay" class="overlay">
+          <h1 id="overlay-text">GAME OVER</h1>
+        </div>
       </div>
     </section>
-    <button id="run">Reset P2 Slice</button>
+    <div style="display: flex; gap: 10px; margin-top: 8px;">
+      <button id="start-btn" style="background:#f6c762; color:#111; font-weight:bold;">Start Game</button>
+      <button id="run">Reset Game</button>
+    </div>
     <pre id="output"></pre>
   </main>
   <script>
     const terrain = document.querySelector("#terrain");
     const backpack = document.querySelector("#backpack");
     const output = document.querySelector("#output");
-    const queueLabel = document.querySelector("#queue-label");
+    const queueContainer = document.querySelector("#queue-container");
     const feedbackLabel = document.querySelector("#feedback-label");
+    const shieldBar = document.querySelector("#shield-bar");
+    const shieldText = document.querySelector("#shield-text");
+    const hpBar = document.querySelector("#hp-bar");
+    const hpText = document.querySelector("#hp-text");
+    const timeLabel = document.querySelector("#time-label");
+    const pinLabel = document.querySelector("#pin-label");
+    const overlay = document.querySelector("#game-over-overlay");
+    const overlayText = document.querySelector("#overlay-text");
+    const monoColorBtn = document.querySelector("#mono-color-mode");
+
     const colors = ["red", "blue", "purple", "green"];
-    const state = {
-      tick: 1,
-      queue: ["red", "blue", "purple", "green"],
-      hoveredTile: null,
-      disabledUntil: Array.from({ length: 30 }, () => -1),
-      holdTimer: null,
-      summary: null
+    const MONO_COLOR_CYCLE = [null, "red", "blue", "purple", "green"];
+    
+    // --- Artifact Logic ---
+    const ArtifactTable = {
+      "basic_red": { shape: [[1,1]], energyType: "red", baseDamage: 50, baseCooldownTicks: 100, synergy: { type: "same_color", value: 30 } },
+      "basic_blue": { shape: [[1],[1]], energyType: "blue", baseDamage: 50, baseCooldownTicks: 100, synergy: { type: "same_color", value: 30 } },
+      "l_purple": { shape: [[1,0],[1,0],[1,1]], energyType: "purple", baseDamage: 60, baseCooldownTicks: 150, synergy: { type: "same_color", value: 40 } },
+      "square_green": { shape: [[1,1],[1,1]], energyType: "green", baseDamage: 80, baseCooldownTicks: 200, synergy: { type: "same_color", value: 50 } }
     };
 
-    for (let i = 0; i < 64; i += 1) {
-      const slot = document.createElement("div");
-      slot.className = "slot" + ([2, 3, 10, 18, 19, 27, 36].includes(i) ? " item" : "");
-      backpack.append(slot);
-    }
-    for (let i = 0; i < 30; i += 1) {
-      const tile = document.createElement("div");
-      tile.className = `tile ${colors[i % colors.length]}`;
-      tile.textContent = i + 1;
-      tile.dataset.index = i;
-      tile.addEventListener("mouseenter", () => hoverTile(i));
-      tile.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        hoverTile(i);
-        fireShot();
-        startHold();
-      });
-      tile.addEventListener("mouseup", stopHold);
-      tile.addEventListener("mouseleave", stopHold);
-      terrain.append(tile);
+    class Artifact {
+      constructor(id, tableId, data, x, y, rotation) {
+        this.instanceId = id;
+        this.tableId = tableId;
+        this.energyType = data.energyType;
+        this.baseDamage = data.baseDamage;
+        this.baseCooldownTicks = data.baseCooldownTicks;
+        this.synergyConfig = data.synergy;
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+        this.shape = this.rotateShape(data.shape, rotation);
+        this.currentCooldown = this.baseCooldownTicks;
+        this.synergyCooldownReduction = 0;
+        this.freezeTicks = 0;
+        this.isBroken = false;
+      }
+      rotateShape(shape, degrees) {
+        let result = shape;
+        for (let i = 0; i < (degrees % 360) / 90; i++) {
+          const rotated = Array.from({ length: result[0].length }, () => Array(result.length).fill(0));
+          for (let r = 0; r < result.length; r++) {
+            for (let c = 0; c < result[0].length; c++) {
+              rotated[c][result.length - 1 - r] = result[r][c];
+            }
+          }
+          result = rotated;
+        }
+        return result;
+      }
+      get effectiveCooldown() {
+        return Math.max(5, this.baseCooldownTicks - this.synergyCooldownReduction);
+      }
+      tick() {
+        if (this.isBroken) return null;
+        if (this.freezeTicks > 0) {
+          this.freezeTicks -= 1;
+          return null;
+        }
+        this.currentCooldown -= 1;
+        if (this.currentCooldown <= 0) {
+          this.currentCooldown = this.effectiveCooldown;
+          return this.energyType;
+        }
+        return null;
+      }
     }
 
-    window.addEventListener("mouseup", stopHold);
+    class InventoryModel {
+      constructor() {
+        this.width = 8;
+        this.height = 8;
+        this.artifacts = [];
+        this.grid = Array.from({ length: this.height }, () => Array(this.width).fill(null));
+        this.nextId = 1;
+      }
+      placeArtifact(tableId, x, y, rotation = 0) {
+        const data = ArtifactTable[tableId];
+        if (!data) return false;
+        const artifact = new Artifact(this.nextId++, tableId, data, x, y, rotation);
+        
+        for (let r = 0; r < artifact.shape.length; r++) {
+          for (let c = 0; c < artifact.shape[r].length; c++) {
+            if (artifact.shape[r][c] === 1) {
+              const gy = y + r, gx = x + c;
+              if (gx < 0 || gx >= this.width || gy < 0 || gy >= this.height || this.grid[gy][gx] !== null) return false;
+            }
+          }
+        }
+        this.artifacts.push(artifact);
+        for (let r = 0; r < artifact.shape.length; r++) {
+          for (let c = 0; c < artifact.shape[r].length; c++) {
+            if (artifact.shape[r][c] === 1) this.grid[y + r][x + c] = artifact.instanceId;
+          }
+        }
+        this.calculateSynergies();
+        return artifact.instanceId;
+      }
+      removeArtifact(instanceId) {
+        const idx = this.artifacts.findIndex(a => a.instanceId === instanceId);
+        if (idx === -1) return null;
+        const artifact = this.artifacts.splice(idx, 1)[0];
+        for (let r = 0; r < this.height; r++) {
+          for (let c = 0; c < this.width; c++) {
+            if (this.grid[r][c] === instanceId) {
+              this.grid[r][c] = null;
+            }
+          }
+        }
+        this.calculateSynergies();
+        return artifact;
+      }
+      calculateSynergies() {
+        for (const a of this.artifacts) a.synergyCooldownReduction = 0;
+        for (const a of this.artifacts) {
+          if (!a.synergyConfig || a.synergyConfig.type !== 'same_color') continue;
+          let adjacentMatches = new Set();
+          for (let r = 0; r < a.shape.length; r++) {
+            for (let c = 0; c < a.shape[r].length; c++) {
+              if (a.shape[r][c] === 1) {
+                const gy = a.y + r, gx = a.x + c;
+                [[gy-1,gx], [gy+1,gx], [gy,gx-1], [gy,gx+1]].forEach(([ny, nx]) => {
+                  if (ny >= 0 && ny < this.height && nx >= 0 && nx < this.width) {
+                    const neighborId = this.grid[ny][nx];
+                    if (neighborId !== null && neighborId !== a.instanceId) {
+                      const neighbor = this.artifacts.find(x => x.instanceId === neighborId);
+                      if (neighbor && neighbor.energyType === a.energyType) adjacentMatches.add(neighborId);
+                    }
+                  }
+                });
+              }
+            }
+          }
+          a.synergyCooldownReduction = adjacentMatches.size * a.synergyConfig.value;
+        }
+      }
+      tick() {
+        const energies = [];
+        for (const a of this.artifacts) {
+          const e = a.tick();
+          if (e) energies.push(e);
+        }
+        return energies;
+      }
+    }
+
+    // --- State ---
+    const MAX_SHIELD = 500;
+    const MAX_HP = 1000;
+    const TOTAL_TIME = 60;
+    const TICK_RATE = 50;
+
+    const state = {
+      tick: 1,
+      queue: [], 
+      inventory: new InventoryModel(),
+      hoveredTile: null,
+      disabledUntil: Array.from({ length: 30 }, () => -1),
+      terrainColors: Array.from({ length: 3 }, () => Array(10).fill("red")),
+      holdTimer: null,
+      gameTimer: null,
+      summary: null,
+      draggedArtifact: null,
+      nodeShield: MAX_SHIELD,
+      nodeHp: MAX_HP,
+      timeRemaining: TOTAL_TIME,
+      pins: 4,
+      gameOver: false,
+      gameWon: false,
+      gameStarted: false,
+      monoEnergyType: null
+    };
+
+    // --- Utils ---
+    function syncMonoColorButtonLabel() {
+      if (!monoColorBtn) return;
+      if (state.monoEnergyType == null) {
+        monoColorBtn.textContent = "동일 색 모드 (끔)";
+      } else {
+        const names = { red: "빨강", blue: "파랑", purple: "보라", green: "초록" };
+        monoColorBtn.textContent = `동일 색: ${names[state.monoEnergyType]}`;
+      }
+    }
+
+    function applyMonoColorMode() {
+      for (const a of state.inventory.artifacts) {
+        const def = ArtifactTable[a.tableId];
+        a.energyType =
+          state.monoEnergyType != null
+            ? state.monoEnergyType
+            : def
+              ? def.energyType
+              : a.energyType;
+      }
+      state.inventory.calculateSynergies();
+      renderBackpack();
+      syncMonoColorButtonLabel();
+    }
+
+    function getRandomColor() {
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function showFloatingText(text, x, y, color) {
+      const el = document.createElement('div');
+      el.className = 'floating-text';
+      el.textContent = text;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.color = color;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+
+    // --- Core Logic ---
+    function calculateDamage(energyType, tileColor, baseDamage) {
+      // 데미지 배율 공식 (일치: x2, 불일치: x0.2)
+      if (energyType === tileColor) {
+        return { shield: baseDamage * 2, hp: baseDamage * 2, type: 'match' };
+      } else {
+        return { shield: baseDamage * 0.2, hp: baseDamage * 0.2, type: 'mismatch' };
+      }
+    }
+
+    function applyDamage(dmg, x, y) {
+      if (state.gameOver || state.gameWon) return;
+
+      let actualShieldDmg = Math.min(state.nodeShield, dmg.shield);
+      state.nodeShield -= actualShieldDmg;
+      
+      let actualHpDmg = dmg.hp;
+      if (state.nodeShield <= 0) {
+         state.nodeHp -= actualHpDmg;
+      }
+      
+      const cleared = state.nodeHp <= 0;
+      if (cleared) {
+        state.nodeHp = 0;
+      }
+
+      showFloatingText(
+        dmg.type === 'match' ? 'Match!' : 'Mismatch',
+        x,
+        y,
+        dmg.type === 'match' ? '#f6c762' : '#8fa2ad'
+      );
+      
+      const statsEl = document.querySelector('.node-stats');
+      if (statsEl) {
+        const hpBarRect = statsEl.getBoundingClientRect();
+        const numX = hpBarRect.left + hpBarRect.width / 2;
+        const numY = hpBarRect.bottom + 20;
+        const textDmg = `-${Math.round(dmg.shield + dmg.hp)}`;
+        showFloatingText(textDmg, numX, numY, '#ff756b');
+      }
+
+      updateNodeStatsUI();
+
+      if (cleared) {
+        triggerWin();
+      }
+    }
+
+    // --- UI Updaters ---
+    function updateNodeStatsUI() {
+      shieldBar.style.width = `${(state.nodeShield / MAX_SHIELD) * 100}%`;
+      shieldText.textContent = `Shield: ${Math.round(state.nodeShield)}/${MAX_SHIELD}`;
+      
+      hpBar.style.width = `${(state.nodeHp / MAX_HP) * 100}%`;
+      hpText.textContent = `HP: ${Math.round(state.nodeHp)}/${MAX_HP}`;
+    }
+
+    function updateTimeUI() {
+      timeLabel.textContent = `Time: ${state.timeRemaining}s`;
+      pinLabel.textContent = `Pins: ${state.pins}`;
+      if (state.timeRemaining <= 5 && state.pins === 0) {
+        timeLabel.style.color = "#ff756b";
+      } else {
+        timeLabel.style.color = "#e8edf2";
+      }
+    }
+
+    function renderBackpack() {
+      backpack.innerHTML = "";
+      for (let r = 0; r < state.inventory.height; r++) {
+        for (let c = 0; c < state.inventory.width; c++) {
+          const slot = document.createElement("div");
+          const instanceId = state.inventory.grid[r][c];
+          if (instanceId !== null) {
+            const artifact = state.inventory.artifacts.find(a => a.instanceId === instanceId);
+            let colorHex = "#fff";
+            if (artifact.energyType === "red") colorHex = "#ff756b";
+            if (artifact.energyType === "blue") colorHex = "#73bcff";
+            if (artifact.energyType === "purple") colorHex = "#c79aff";
+            if (artifact.energyType === "green") colorHex = "#8bdd74";
+            
+            slot.className = "slot item";
+            if (artifact.freezeTicks > 0) {
+               slot.classList.add("frozen");
+               slot.title = `FROZEN (${Math.ceil(artifact.freezeTicks/(1000/TICK_RATE))}s)`;
+            } else {
+               slot.title = `${artifact.energyType} | CD: ${artifact.effectiveCooldown} (Base ${artifact.baseCooldownTicks} - Syn ${artifact.synergyCooldownReduction})`;
+            }
+            slot.style.borderColor = colorHex;
+            slot.style.boxShadow = `inset 0 0 0 2px ${colorHex}40`;
+          } else {
+            slot.className = "slot";
+          }
+          slot.dataset.r = r;
+          slot.dataset.c = c;
+          slot.addEventListener("mousedown", handleBackpackClick);
+          backpack.append(slot);
+        }
+      }
+    }
+
+    // UI Drag interactions
+    function handleBackpackClick(e) {
+      if (state.gameOver || state.gameWon || state.gameStarted) return;
+      e.preventDefault();
+      const r = parseInt(e.currentTarget.dataset.r);
+      const c = parseInt(e.currentTarget.dataset.c);
+
+      if (state.draggedArtifact === null) {
+        const instanceId = state.inventory.grid[r][c];
+        if (instanceId !== null) {
+          const removed = state.inventory.removeArtifact(instanceId);
+          state.draggedArtifact = {
+            tableId: removed.tableId,
+            rotation: removed.rotation,
+            shape: removed.shape,
+            energyType: removed.energyType
+          };
+          renderGhost(e.clientX, e.clientY);
+          renderBackpack();
+        }
+      } else {
+        const successId = state.inventory.placeArtifact(state.draggedArtifact.tableId, c, r, state.draggedArtifact.rotation);
+        if (successId !== false) {
+          state.draggedArtifact = null;
+          hideGhost();
+          renderBackpack();
+        }
+      }
+    }
+
+    window.addEventListener("mousemove", (e) => {
+      window.lastMouseX = e.clientX;
+      window.lastMouseY = e.clientY;
+      if (state.draggedArtifact) {
+        renderGhost(e.clientX, e.clientY);
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if ((e.key === 'r' || e.key === 'R') && state.draggedArtifact) {
+        state.draggedArtifact.rotation = (state.draggedArtifact.rotation + 90) % 360;
+        const dummy = new Artifact(0, state.draggedArtifact.tableId, ArtifactTable[state.draggedArtifact.tableId], 0, 0, state.draggedArtifact.rotation);
+        state.draggedArtifact.shape = dummy.shape;
+        renderGhost(window.lastMouseX || 0, window.lastMouseY || 0);
+      }
+    });
+
+    function renderGhost(x, y) {
+      let ghost = document.getElementById("ghost");
+      if (!ghost) {
+        ghost = document.createElement("div");
+        ghost.id = "ghost";
+        ghost.style.position = "fixed";
+        ghost.style.pointerEvents = "none";
+        ghost.style.zIndex = "100";
+        document.body.appendChild(ghost);
+      }
+      ghost.style.display = "grid";
+      ghost.style.left = (x + 10) + "px";
+      ghost.style.top = (y + 10) + "px";
+      
+      const shape = state.draggedArtifact.shape;
+      ghost.style.gridTemplateColumns = `repeat(${shape[0].length}, 40px)`;
+      ghost.style.gridTemplateRows = `repeat(${shape.length}, 40px)`;
+      ghost.style.gap = "8px";
+      ghost.innerHTML = "";
+      
+      let colorHex = "#fff";
+      const et = state.draggedArtifact.energyType;
+      if (et === "red") colorHex = "#ff756b";
+      if (et === "blue") colorHex = "#73bcff";
+      if (et === "purple") colorHex = "#c79aff";
+      if (et === "green") colorHex = "#8bdd74";
+      
+      for (let r = 0; r < shape.length; r++) {
+        for (let c = 0; c < shape[r].length; c++) {
+          const cell = document.createElement("div");
+          if (shape[r][c] === 1) {
+            cell.className = "slot item";
+            cell.style.borderColor = colorHex;
+            cell.style.boxShadow = `inset 0 0 0 2px ${colorHex}40`;
+            cell.style.background = "rgba(51, 67, 81, 0.8)";
+            cell.style.borderStyle = "solid";
+            cell.style.borderWidth = "1px";
+          } else {
+            cell.style.visibility = "hidden";
+          }
+          ghost.append(cell);
+        }
+      }
+    }
+
+    function hideGhost() {
+      const ghost = document.getElementById("ghost");
+      if (ghost) ghost.style.display = "none";
+    }
+
+    function updateQueueUI() {
+      queueContainer.innerHTML = "";
+      state.queue.forEach(q => {
+         const block = document.createElement('div');
+         block.className = `queue-block ${q}`;
+         queueContainer.appendChild(block);
+      });
+    }
+
+    function scrollTerrain() {
+      for(let r=0; r<3; r++) {
+        for(let c=9; c>0; c--) {
+          state.terrainColors[r][c] = state.terrainColors[r][c-1];
+        }
+        state.terrainColors[r][0] = getRandomColor();
+      }
+      
+      // Shift disabled status right
+      const newDisabled = Array(30).fill(-1);
+      for(let r=0; r<3; r++) {
+        for(let c=9; c>0; c--) {
+           newDisabled[r*10 + c] = state.disabledUntil[r*10 + (c-1)];
+        }
+      }
+      state.disabledUntil = newDisabled;
+      
+      if(state.hoveredTile !== null) {
+         // Optionally, keep cursor visually in same place but target new tile
+      }
+      renderTerrain(); // 지형을 실시간으로 업데이트
+    }
+
+    function initTerrain() {
+      terrain.innerHTML = "";
+      for (let i = 0; i < 30; i += 1) {
+        const tile = document.createElement("div");
+        tile.textContent = i + 1;
+        tile.dataset.index = i;
+        
+        tile.addEventListener("mouseenter", () => hoverTile(i));
+        tile.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          hoverTile(i);
+          fireShot(event.clientX, event.clientY);
+          startHold();
+        });
+        tile.addEventListener("mouseup", stopHold);
+        tile.addEventListener("mouseleave", () => {
+          stopHold();
+          if (state.hoveredTile === i) {
+            state.hoveredTile = null;
+            tile.classList.remove("hovered");
+          }
+        });
+        terrain.append(tile);
+      }
+    }
+
+    function renderTerrain() {
+      if (terrain.children.length === 0) initTerrain();
+      for (let i = 0; i < 30; i += 1) {
+        const r = Math.floor(i/10);
+        const c = i % 10;
+        const color = state.terrainColors[r][c];
+        const tile = terrain.children[i];
+        
+        let newClass = `tile ${color}`;
+        if (state.hoveredTile === i) newClass += " hovered";
+        if (state.disabledUntil[i] > state.tick) newClass += " disabled";
+        if (tile.classList.contains("hit")) newClass += " hit";
+        tile.className = newClass;
+      }
+    }
+
+    function hoverTile(index) {
+      if (state.gameOver || state.gameWon) return;
+      state.hoveredTile = index;
+      for (const tile of terrain.children) {
+        tile.classList.toggle("hovered", Number(tile.dataset.index) === index);
+      }
+    }
+
+    function fireShot(x, y) {
+      if (state.gameOver || state.gameWon || !state.gameStarted) return;
+      if (state.hoveredTile == null) {
+        setFeedback("no_target");
+        return;
+      }
+
+      state.summary.shots_fired += 1;
+      const tile = terrain.children[state.hoveredTile];
+      const r = Math.floor(state.hoveredTile / 10);
+      const c = state.hoveredTile % 10;
+      const tileColor = state.terrainColors[r][c];
+      const isDisabled = state.disabledUntil[state.hoveredTile] > state.tick;
+
+      // Ensure fallback coordinates for mouse hold if mouse hasn't moved
+      const fx = x || window.lastMouseX || (tile.getBoundingClientRect().left + 20);
+      const fy = y || window.lastMouseY || (tile.getBoundingClientRect().top + 20);
+
+      if (state.queue.length === 0) {
+        state.summary.shots_fired_empty_queue += 1;
+        state.summary.durability_loss_count += 1;
+        setFeedback("empty_queue");
+        showFloatingText("Empty!", fx, fy, "#ff756b");
+      } else {
+        state.summary.queue_consumed += 1;
+        const energyType = state.queue.shift();
+
+        if (isDisabled) {
+          state.summary.shots_invalid_tile_cooldown += 1;
+          setFeedback("invalid_cooldown");
+          showFloatingText("Invalid", fx, fy, "#8fa2ad");
+        } else {
+          // Identify baseDamage from any artifact of this type (approximation for prototype)
+          const refArt = Object.values(ArtifactTable).find(a => a.energyType === energyType);
+          const baseDmg = refArt ? refArt.baseDamage : 50;
+          
+          const dmg = calculateDamage(energyType, tileColor, baseDmg);
+          
+          if (dmg.type === 'match') state.summary.shots_hit_match += 1;
+          else state.summary.shots_hit_mismatch += 1;
+
+          applyDamage(dmg, fx, fy);
+
+          state.disabledUntil[state.hoveredTile] = state.tick + 10; // 0.5초 쿨타임
+          terrain.querySelectorAll(".hit").forEach((node) => node.classList.remove("hit"));
+          tile.classList.add("hit");
+          setTimeout(() => tile.classList.remove("hit"), 150);
+          setFeedback("fired");
+        }
+      }
+
+      updateQueueUI();
+      renderTerrain(); // Refresh disabled states
+    }
+
+    function startHold() {
+      stopHold();
+      state.holdTimer = window.setInterval(() => fireShot(null, null), 100);
+    }
+
+    function stopHold() {
+      if (state.holdTimer !== null) {
+        window.clearInterval(state.holdTimer);
+        state.holdTimer = null;
+      }
+    }
+
+    function setFeedback(message) {
+      feedbackLabel.textContent = `Feedback: ${message}`;
+    }
+
+    function triggerWin() {
+      triggerGameOver(true);
+    }
+
+    function triggerGameOver(isWin) {
+      state.gameOver = !isWin;
+      state.gameWon = isWin;
+      stopHold();
+      if(state.gameTimer !== null) clearInterval(state.gameTimer);
+      overlayText.textContent = isWin ? "STAGE CLEAR" : "GAME OVER";
+      overlayText.style.color = isWin ? "#8bdd74" : "#ff756b";
+      overlay.style.display = "flex";
+      state.summary.result = isWin ? "clear" : "fail";
+      state.summary[isWin ? "clear_time_sec" : "fail_time_sec"] = TOTAL_TIME - state.timeRemaining;
+      output.textContent = JSON.stringify(state.summary, null, 2);
+    }
+
+    function checkTimeProgress() {
+      if(state.gameOver || state.gameWon) return;
+      state.timeRemaining -= 1;
+      let t = state.timeRemaining;
+      
+      let newPins = 4;
+      if(t <= 45) newPins = 3;
+      if(t <= 30) newPins = 2;
+      if(t <= 15) newPins = 1;
+      if(t <= 5) newPins = 0;
+      
+      if (state.pins !== newPins) {
+        state.pins = newPins;
+        showFloatingText(`Pin Break! (${newPins} left)`, window.innerWidth/2, 100, '#f6c762');
+      }
+      
+      if(t <= 0) {
+         triggerGameOver(false);
+      }
+      updateTimeUI();
+    }
+
+    function gameTick() {
+      if (state.gameOver || state.gameWon || !state.gameStarted) return;
+      state.tick += 1;
+      
+      // Every 1 second (20 ticks at 50ms)
+      if (state.tick % (1000 / TICK_RATE) === 0) {
+        scrollTerrain();
+        checkTimeProgress();
+      }
+
+      const energies = state.inventory.tick();
+      let queueChanged = false;
+      for (const e of energies) {
+        state.summary.queue_generated += 1;
+        if (state.queue.length < 8) {
+          state.queue.push(e);
+          queueChanged = true;
+        } else {
+          state.summary.queue_wasted += 1;
+        }
+      }
+      
+      // Update UI only if needed to save perf, though backpack needs ticks for freeze state
+      if (state.tick % 5 === 0 || energies.length > 0) {
+         renderBackpack();
+      }
+      if (queueChanged) updateQueueUI();
+      
+      // Update stats and terrain
+      output.textContent = JSON.stringify(state.summary, null, 2);
+      
+      // Clean up hit states manually
+      if (state.tick % 2 === 0) {
+         for(let i=0; i<30; i++) {
+           if(state.disabledUntil[i] <= state.tick) {
+             const tile = terrain.children[i];
+             if(tile && tile.classList.contains("disabled")) tile.classList.remove("disabled");
+           }
+         }
+      }
+    }
+
+    function startGameLoop() {
+      if (state.gameTimer !== null) window.clearInterval(state.gameTimer);
+      state.gameTimer = window.setInterval(gameTick, TICK_RATE);
+    }
 
     function createSummary() {
       return {
@@ -234,7 +963,7 @@
         shots_hit_mismatch: 0,
         shots_invalid_tile_cooldown: 0,
         shots_fired_empty_queue: 0,
-        queue_generated: 4,
+        queue_generated: 0,
         queue_consumed: 0,
         queue_wasted: 0,
         durability_loss_count: 0,
@@ -245,87 +974,83 @@
       };
     }
 
-    function hoverTile(index) {
-      state.hoveredTile = index;
-      for (const tile of terrain.children) {
-        tile.classList.toggle("hovered", Number(tile.dataset.index) === index);
-      }
-    }
-
-    function setFeedback(message) {
-      feedbackLabel.textContent = `Feedback: ${message}`;
-    }
-
-    function renderState() {
-      queueLabel.textContent = `Queue: ${state.queue.join(", ") || "empty"}`;
-      output.textContent = JSON.stringify(state.summary, null, 2);
-      for (const tile of terrain.children) {
-        const index = Number(tile.dataset.index);
-        tile.classList.toggle("disabled", state.disabledUntil[index] > state.tick);
-      }
-    }
-
-    function fireShot() {
-      if (state.hoveredTile == null) {
-        setFeedback("no_target");
-        return;
-      }
-
-      state.summary.shots_fired += 1;
-      const tile = terrain.children[state.hoveredTile];
-      const isDisabled = state.disabledUntil[state.hoveredTile] > state.tick;
-
-      if (state.queue.length === 0) {
-        state.summary.shots_fired_empty_queue += 1;
-        state.summary.durability_loss_count += 1;
-        setFeedback("empty_queue");
-      } else {
-        state.summary.queue_consumed += 1;
-        state.queue.shift();
-
-        if (isDisabled) {
-          state.summary.shots_invalid_tile_cooldown += 1;
-          setFeedback("invalid_cooldown");
-        } else {
-          state.summary.shots_hit_match += 1;
-          state.disabledUntil[state.hoveredTile] = state.tick + 10;
-          terrain.querySelectorAll(".hit").forEach((node) => node.classList.remove("hit"));
-          tile.classList.add("hit");
-          setFeedback("fired");
-        }
-      }
-
-      state.tick += 2;
-      renderState();
-    }
-
-    function startHold() {
-      stopHold();
-      state.holdTimer = window.setInterval(fireShot, 100);
-    }
-
-    function stopHold() {
-      if (state.holdTimer !== null) {
-        window.clearInterval(state.holdTimer);
-        state.holdTimer = null;
-      }
-    }
-
     function resetDemo() {
       stopHold();
+      if (state.gameTimer !== null) window.clearInterval(state.gameTimer);
+      
       state.tick = 1;
-      state.queue = ["red", "blue", "purple", "green"];
+      state.queue = [];
+      state.inventory = new InventoryModel();
+      state.inventory.placeArtifact("basic_red", 0, 0, 0);
+      state.inventory.placeArtifact("basic_red", 0, 1, 0); 
+      state.inventory.placeArtifact("basic_blue", 3, 0, 90);
+      state.inventory.placeArtifact("l_purple", 0, 4, 0);
+      state.inventory.placeArtifact("square_green", 4, 4, 0);
+
       state.hoveredTile = null;
       state.disabledUntil = Array.from({ length: 30 }, () => -1);
+      for(let r=0; r<3; r++) {
+        for(let c=0; c<10; c++) state.terrainColors[r][c] = getRandomColor();
+      }
+      
+      state.nodeShield = MAX_SHIELD;
+      state.nodeHp = MAX_HP;
+      state.timeRemaining = TOTAL_TIME;
+      state.pins = 4;
+      state.gameOver = false;
+      state.gameWon = false;
+      state.gameStarted = false;
+      overlay.style.display = "none";
+      
       state.summary = createSummary();
-      terrain.querySelectorAll(".tile").forEach((tile) => {
-        tile.classList.remove("hit", "hovered", "disabled");
-      });
+      
       setFeedback("idle");
-      renderState();
+      renderBackpack();
+      updateQueueUI();
+      updateNodeStatsUI();
+      updateTimeUI();
+      renderTerrain();
+      applyMonoColorMode();
+      startGameLoop();
     }
 
     document.querySelector("#run").addEventListener("click", resetDemo);
+    
+    document.querySelector("#start-btn").addEventListener("click", () => {
+       if (!state.gameStarted && !state.gameOver && !state.gameWon) {
+          state.gameStarted = true;
+          setFeedback("Game Started!");
+       }
+    });
+
+    document.querySelector("#freeze-test").addEventListener("click", () => {
+       const active = state.inventory.artifacts;
+       if(active.length > 0) {
+         const target = active[Math.floor(Math.random() * active.length)];
+         target.freezeTicks = 60; // 3 seconds frozen
+         renderBackpack();
+         showFloatingText("FROZEN!", window.innerWidth/2, 200, "#73bcff");
+       }
+    });
+
+    if (monoColorBtn) {
+      monoColorBtn.addEventListener("click", () => {
+        let i = MONO_COLOR_CYCLE.indexOf(state.monoEnergyType);
+        if (i === -1) i = 0;
+        state.monoEnergyType = MONO_COLOR_CYCLE[(i + 1) % MONO_COLOR_CYCLE.length];
+        applyMonoColorMode();
+        const names = { red: "빨강", blue: "파랑", purple: "보라", green: "초록" };
+        const msg =
+          state.monoEnergyType == null
+            ? "유물 색: 기본(종류별)"
+            : `모든 유물 → ${names[state.monoEnergyType]}`;
+        showFloatingText(msg, window.innerWidth / 2, 160, "#f6c762");
+      });
+    }
+
+    window.addEventListener("mouseup", stopHold);
+
+    // Initial start
     resetDemo();
   </script>
 </body>
