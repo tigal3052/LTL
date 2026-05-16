@@ -3,6 +3,8 @@ import { MiningResolver } from "./mining-resolver.js";
 import { createSeededRng } from "./seeded-rng.js";
 import { Telemetry } from "../telemetry/telemetry.js";
 import { deriveActionResult } from "../action-result.js";
+import { InventoryModel } from "./inventory-model.js";
+import { HazardModel } from "./hazard-model.js";
 
 const ENERGIES = ["red", "blue", "purple", "green"];
 
@@ -32,6 +34,9 @@ export class RunSimulator {
       disabledUntil: -1
     }));
 
+    this.inventory = new InventoryModel(8, 8);
+    this.hazard = new HazardModel(this.inventory);
+
     this.prefillQueue(queueCapacity);
   }
 
@@ -42,8 +47,23 @@ export class RunSimulator {
     this.telemetry.syncQueueStats(this.energyQueue);
   }
 
+  advanceTicks(targetTick) {
+    while (this.tick < targetTick) {
+      this.tick += 1;
+      const energies = this.inventory.tick();
+      for (const energy of energies) {
+        if (this.energyQueue.push(energy)) {
+          this.telemetry.increment("queue_generated");
+        } else {
+          this.telemetry.increment("queue_generated");
+          this.telemetry.increment("queue_wasted");
+        }
+      }
+    }
+  }
+
   applyInput(input) {
-    this.tick = input.tick;
+    this.advanceTicks(input.tick);
 
     if (this.result !== "running" || this.repairRequired || input.input !== "click") {
       return this.snapshot();

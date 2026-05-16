@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Looting The Leviathan P1/P3 Demo</title>
+  <title>Looting The Leviathan P4 미니 런 데모</title>
   <style>
     :root {
       color-scheme: dark;
@@ -92,6 +92,23 @@
       background: #202932;
       min-height: 0;
       transition: filter 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .slot .cd-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.45);
+      pointer-events: none;
+    }
+    .slot .cd-bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #73bcff, #8bdd74);
+      transition: width 0.05s linear;
     }
     .item {
       background: #334351;
@@ -239,11 +256,180 @@
       display: none;
     }
     .overlay h1 { color: #f6c762; margin:0; font-size: 48px; }
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 10, 14, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .sheet {
+      width: min(920px, 100%);
+      max-height: min(640px, 90vh);
+      overflow: auto;
+      border: 1px solid #35414d;
+      background: #141a21;
+      padding: 22px 24px 26px;
+      border-radius: 10px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+    }
+    .sheet h2 { margin: 0 0 10px; color: #f6c762; font-size: 22px; }
+    .sheet p { margin: 0 0 16px; color: #b9c5cf; line-height: 1.45; font-size: 14px; }
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .node-card {
+      border: 1px solid #4b5c68;
+      background: #1b232c;
+      padding: 14px 14px 16px;
+      cursor: pointer;
+      text-align: left;
+      color: inherit;
+      font: inherit;
+      border-radius: 8px;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+    .node-card:hover {
+      border-color: #8ce1ff;
+      transform: translateY(-2px);
+    }
+    .node-card .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #26313b;
+      color: #b9c5cf;
+      margin-bottom: 8px;
+    }
+    .node-card .name { font-weight: 800; font-size: 16px; margin-bottom: 6px; color: #e8edf2; }
+    .node-card .meta { font-size: 12px; color: #8fa2ad; line-height: 1.4; }
+    .reward-list { margin: 12px 0 18px; padding-left: 18px; color: #e8edf2; }
+    .reward-list li { margin-bottom: 6px; }
+    .sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .mini-run-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      font-size: 14px;
+      color: #b9c5cf;
+      margin-bottom: 8px;
+    }
+    .mini-run-bar strong { color: #f6c762; }
+    #phase-banner {
+      display: none;
+      padding: 10px 14px;
+      border: 1px solid #6d7d8b;
+      background: #1f2a34;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #e8edf2;
+    }
+    #phase-banner strong { color: #f6c762; }
+    .loot-bar {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 130;
+      padding: 14px 20px 18px;
+      background: linear-gradient(180deg, rgba(14, 18, 22, 0.92), rgba(10, 12, 16, 0.98));
+      border-top: 1px solid #35414d;
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+    }
+    .loot-bar h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #f6c762;
+    }
+    .loot-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+    .reward-staging {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1;
+      min-height: 52px;
+      padding: 10px;
+      border: 1px dashed #4b5c68;
+      border-radius: 8px;
+      background: #141a21;
+    }
+    .reward-chip {
+      border: 1px solid #6d7d8b;
+      background: #26313b;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: grab;
+      font-size: 13px;
+      user-select: none;
+    }
+    .reward-chip.selected {
+      outline: 2px solid #f6c762;
+      border-color: #f6c762;
+    }
+    .reward-chip.red { border-color: #ff756b; color: #ff756b; }
+    .reward-chip.blue { border-color: #73bcff; color: #73bcff; }
+    .reward-chip.purple { border-color: #c79aff; color: #c79aff; }
+    .reward-chip.green { border-color: #8bdd74; color: #8bdd74; }
+    .trash-zone {
+      width: 88px;
+      height: 72px;
+      border: 2px dashed #6d4a4a;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      color: #ff9a8f;
+      background: #241818;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .trash-zone.active {
+      border-color: #ff756b;
+      background: #3a1e1e;
+      box-shadow: inset 0 0 12px rgba(255, 117, 107, 0.35);
+    }
+    .loot-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .loot-hint {
+      flex: 1;
+      font-size: 12px;
+      color: #8fa2ad;
+      margin: 0;
+    }
+    .backpack.editable {
+      outline: 2px solid rgba(246, 199, 98, 0.35);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
   <main>
-    <section class="combat" aria-label="P1/P3 combat demo">
+    <div class="mini-run-bar" id="mini-run-bar" aria-live="polite">
+      <span>미니 런: <strong id="mini-run-phase-label">노드 선택</strong></span>
+      <span>스테이지 <strong id="mini-run-stage-label">1</strong> / <strong id="mini-run-max-label">5</strong></span>
+      <span id="mini-run-node-label">노드: —</span>
+    </div>
+    <section class="combat" aria-label="P4 미니 런 전투">
       <div class="top">
         <div class="character">
           <div class="miner" aria-hidden="true"></div>
@@ -287,771 +473,36 @@
         </div>
       </div>
     </section>
-    <div style="display: flex; gap: 10px; margin-top: 8px;">
+    <div id="node-overlay" class="sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="node-overlay-title">
+      <div class="sheet">
+        <h2 id="node-overlay-title">다음 노드 선택</h2>
+        <p>정박 노드는 항상 후보에 포함됩니다. 스테이지가 올라갈수록 마력장·체력·시간 압박이 비선형으로 강해집니다.</p>
+        <div class="node-grid" id="node-card-root"></div>
+      </div>
+    </div>
+    <div id="phase-banner" role="status"></div>
+    <div id="loot-bar" class="loot-bar" aria-labelledby="loot-bar-title">
+      <h3 id="loot-bar-title">보상 획득 · 가방 배치</h3>
+        <div class="loot-row">
+          <div class="reward-staging" id="reward-staging" aria-label="미배치 보상"></div>
+          <div class="trash-zone" id="trash-zone" title="드래그 중인 유물을 여기에 놓으면 버립니다">🗑️<br>휴지통</div>
+        </div>
+      <div class="loot-actions">
+        <p class="loot-hint">보상·가방 유물을 클릭해 들어 올린 뒤 칸에 배치하거나 휴지통에 버리세요. <strong>R</strong> 키로 회전.</p>
+        <button type="button" id="claim-rewards-btn" disabled style="background:#8bdd74; color:#111; font-weight:bold;">모든 보상 처리 후 계속</button>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 8px; align-items: center;">
       <button id="start-btn" style="background:#f6c762; color:#111; font-weight:bold;">Start Game</button>
       <button id="run">Reset Game</button>
     </div>
     <pre id="output"></pre>
   </main>
-  <script>
-    const terrain = document.querySelector("#terrain");
-    const backpack = document.querySelector("#backpack");
-    const output = document.querySelector("#output");
-    const queueContainer = document.querySelector("#queue-container");
-    const feedbackLabel = document.querySelector("#feedback-label");
-    const shieldBar = document.querySelector("#shield-bar");
-    const shieldText = document.querySelector("#shield-text");
-    const hpBar = document.querySelector("#hp-bar");
-    const hpText = document.querySelector("#hp-text");
-    const timeLabel = document.querySelector("#time-label");
-    const pinLabel = document.querySelector("#pin-label");
-    const overlay = document.querySelector("#game-over-overlay");
-    const overlayText = document.querySelector("#overlay-text");
-    const monoColorBtn = document.querySelector("#mono-color-mode");
-
-    const colors = ["red", "blue", "purple", "green"];
-    const MONO_COLOR_CYCLE = [null, "red", "blue", "purple", "green"];
-    
-    // --- Artifact Logic ---
-    const ArtifactTable = {
-      "basic_red": { shape: [[1,1]], energyType: "red", baseDamage: 50, baseCooldownTicks: 100, synergy: { type: "same_color", value: 30 } },
-      "basic_blue": { shape: [[1],[1]], energyType: "blue", baseDamage: 50, baseCooldownTicks: 100, synergy: { type: "same_color", value: 30 } },
-      "l_purple": { shape: [[1,0],[1,0],[1,1]], energyType: "purple", baseDamage: 60, baseCooldownTicks: 150, synergy: { type: "same_color", value: 40 } },
-      "square_green": { shape: [[1,1],[1,1]], energyType: "green", baseDamage: 80, baseCooldownTicks: 200, synergy: { type: "same_color", value: 50 } }
-    };
-
-    class Artifact {
-      constructor(id, tableId, data, x, y, rotation) {
-        this.instanceId = id;
-        this.tableId = tableId;
-        this.energyType = data.energyType;
-        this.baseDamage = data.baseDamage;
-        this.baseCooldownTicks = data.baseCooldownTicks;
-        this.synergyConfig = data.synergy;
-        this.x = x;
-        this.y = y;
-        this.rotation = rotation;
-        this.shape = this.rotateShape(data.shape, rotation);
-        this.currentCooldown = this.baseCooldownTicks;
-        this.synergyCooldownReduction = 0;
-        this.freezeTicks = 0;
-        this.isBroken = false;
-      }
-      rotateShape(shape, degrees) {
-        let result = shape;
-        for (let i = 0; i < (degrees % 360) / 90; i++) {
-          const rotated = Array.from({ length: result[0].length }, () => Array(result.length).fill(0));
-          for (let r = 0; r < result.length; r++) {
-            for (let c = 0; c < result[0].length; c++) {
-              rotated[c][result.length - 1 - r] = result[r][c];
-            }
-          }
-          result = rotated;
-        }
-        return result;
-      }
-      get effectiveCooldown() {
-        return Math.max(5, this.baseCooldownTicks - this.synergyCooldownReduction);
-      }
-      tick() {
-        if (this.isBroken) return null;
-        if (this.freezeTicks > 0) {
-          this.freezeTicks -= 1;
-          return null;
-        }
-        this.currentCooldown -= 1;
-        if (this.currentCooldown <= 0) {
-          this.currentCooldown = this.effectiveCooldown;
-          return this.energyType;
-        }
-        return null;
-      }
-    }
-
-    class InventoryModel {
-      constructor() {
-        this.width = 8;
-        this.height = 8;
-        this.artifacts = [];
-        this.grid = Array.from({ length: this.height }, () => Array(this.width).fill(null));
-        this.nextId = 1;
-      }
-      placeArtifact(tableId, x, y, rotation = 0) {
-        const data = ArtifactTable[tableId];
-        if (!data) return false;
-        const artifact = new Artifact(this.nextId++, tableId, data, x, y, rotation);
-        
-        for (let r = 0; r < artifact.shape.length; r++) {
-          for (let c = 0; c < artifact.shape[r].length; c++) {
-            if (artifact.shape[r][c] === 1) {
-              const gy = y + r, gx = x + c;
-              if (gx < 0 || gx >= this.width || gy < 0 || gy >= this.height || this.grid[gy][gx] !== null) return false;
-            }
-          }
-        }
-        this.artifacts.push(artifact);
-        for (let r = 0; r < artifact.shape.length; r++) {
-          for (let c = 0; c < artifact.shape[r].length; c++) {
-            if (artifact.shape[r][c] === 1) this.grid[y + r][x + c] = artifact.instanceId;
-          }
-        }
-        this.calculateSynergies();
-        return artifact.instanceId;
-      }
-      removeArtifact(instanceId) {
-        const idx = this.artifacts.findIndex(a => a.instanceId === instanceId);
-        if (idx === -1) return null;
-        const artifact = this.artifacts.splice(idx, 1)[0];
-        for (let r = 0; r < this.height; r++) {
-          for (let c = 0; c < this.width; c++) {
-            if (this.grid[r][c] === instanceId) {
-              this.grid[r][c] = null;
-            }
-          }
-        }
-        this.calculateSynergies();
-        return artifact;
-      }
-      calculateSynergies() {
-        for (const a of this.artifacts) a.synergyCooldownReduction = 0;
-        for (const a of this.artifacts) {
-          if (!a.synergyConfig || a.synergyConfig.type !== 'same_color') continue;
-          let adjacentMatches = new Set();
-          for (let r = 0; r < a.shape.length; r++) {
-            for (let c = 0; c < a.shape[r].length; c++) {
-              if (a.shape[r][c] === 1) {
-                const gy = a.y + r, gx = a.x + c;
-                [[gy-1,gx], [gy+1,gx], [gy,gx-1], [gy,gx+1]].forEach(([ny, nx]) => {
-                  if (ny >= 0 && ny < this.height && nx >= 0 && nx < this.width) {
-                    const neighborId = this.grid[ny][nx];
-                    if (neighborId !== null && neighborId !== a.instanceId) {
-                      const neighbor = this.artifacts.find(x => x.instanceId === neighborId);
-                      if (neighbor && neighbor.energyType === a.energyType) adjacentMatches.add(neighborId);
-                    }
-                  }
-                });
-              }
-            }
-          }
-          a.synergyCooldownReduction = adjacentMatches.size * a.synergyConfig.value;
-        }
-      }
-      tick() {
-        const energies = [];
-        for (const a of this.artifacts) {
-          const e = a.tick();
-          if (e) energies.push(e);
-        }
-        return energies;
-      }
-    }
-
-    // --- State ---
-    const MAX_SHIELD = 500;
-    const MAX_HP = 1000;
-    const TOTAL_TIME = 60;
-    const TICK_RATE = 50;
-
-    const state = {
-      tick: 1,
-      queue: [], 
-      inventory: new InventoryModel(),
-      hoveredTile: null,
-      disabledUntil: Array.from({ length: 30 }, () => -1),
-      terrainColors: Array.from({ length: 3 }, () => Array(10).fill("red")),
-      holdTimer: null,
-      gameTimer: null,
-      summary: null,
-      draggedArtifact: null,
-      nodeShield: MAX_SHIELD,
-      nodeHp: MAX_HP,
-      timeRemaining: TOTAL_TIME,
-      pins: 4,
-      gameOver: false,
-      gameWon: false,
-      gameStarted: false,
-      monoEnergyType: null
-    };
-
-    // --- Utils ---
-    function syncMonoColorButtonLabel() {
-      if (!monoColorBtn) return;
-      if (state.monoEnergyType == null) {
-        monoColorBtn.textContent = "동일 색 모드 (끔)";
-      } else {
-        const names = { red: "빨강", blue: "파랑", purple: "보라", green: "초록" };
-        monoColorBtn.textContent = `동일 색: ${names[state.monoEnergyType]}`;
-      }
-    }
-
-    function applyMonoColorMode() {
-      for (const a of state.inventory.artifacts) {
-        const def = ArtifactTable[a.tableId];
-        a.energyType =
-          state.monoEnergyType != null
-            ? state.monoEnergyType
-            : def
-              ? def.energyType
-              : a.energyType;
-      }
-      state.inventory.calculateSynergies();
-      renderBackpack();
-      syncMonoColorButtonLabel();
-    }
-
-    function getRandomColor() {
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    function showFloatingText(text, x, y, color) {
-      const el = document.createElement('div');
-      el.className = 'floating-text';
-      el.textContent = text;
-      el.style.left = x + 'px';
-      el.style.top = y + 'px';
-      el.style.color = color;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1000);
-    }
-
-    // --- Core Logic ---
-    function calculateDamage(energyType, tileColor, baseDamage) {
-      // 데미지 배율 공식 (일치: x2, 불일치: x0.2)
-      if (energyType === tileColor) {
-        return { shield: baseDamage * 2, hp: baseDamage * 2, type: 'match' };
-      } else {
-        return { shield: baseDamage * 0.2, hp: baseDamage * 0.2, type: 'mismatch' };
-      }
-    }
-
-    function applyDamage(dmg, x, y) {
-      if (state.gameOver || state.gameWon) return;
-
-      let actualShieldDmg = Math.min(state.nodeShield, dmg.shield);
-      state.nodeShield -= actualShieldDmg;
-      
-      let actualHpDmg = dmg.hp;
-      if (state.nodeShield <= 0) {
-         state.nodeHp -= actualHpDmg;
-      }
-      
-      const cleared = state.nodeHp <= 0;
-      if (cleared) {
-        state.nodeHp = 0;
-      }
-
-      showFloatingText(
-        dmg.type === 'match' ? 'Match!' : 'Mismatch',
-        x,
-        y,
-        dmg.type === 'match' ? '#f6c762' : '#8fa2ad'
-      );
-      
-      const statsEl = document.querySelector('.node-stats');
-      if (statsEl) {
-        const hpBarRect = statsEl.getBoundingClientRect();
-        const numX = hpBarRect.left + hpBarRect.width / 2;
-        const numY = hpBarRect.bottom + 20;
-        const textDmg = `-${Math.round(dmg.shield + dmg.hp)}`;
-        showFloatingText(textDmg, numX, numY, '#ff756b');
-      }
-
-      updateNodeStatsUI();
-
-      if (cleared) {
-        triggerWin();
-      }
-    }
-
-    // --- UI Updaters ---
-    function updateNodeStatsUI() {
-      shieldBar.style.width = `${(state.nodeShield / MAX_SHIELD) * 100}%`;
-      shieldText.textContent = `Shield: ${Math.round(state.nodeShield)}/${MAX_SHIELD}`;
-      
-      hpBar.style.width = `${(state.nodeHp / MAX_HP) * 100}%`;
-      hpText.textContent = `HP: ${Math.round(state.nodeHp)}/${MAX_HP}`;
-    }
-
-    function updateTimeUI() {
-      timeLabel.textContent = `Time: ${state.timeRemaining}s`;
-      pinLabel.textContent = `Pins: ${state.pins}`;
-      if (state.timeRemaining <= 5 && state.pins === 0) {
-        timeLabel.style.color = "#ff756b";
-      } else {
-        timeLabel.style.color = "#e8edf2";
-      }
-    }
-
-    function renderBackpack() {
-      backpack.innerHTML = "";
-      for (let r = 0; r < state.inventory.height; r++) {
-        for (let c = 0; c < state.inventory.width; c++) {
-          const slot = document.createElement("div");
-          const instanceId = state.inventory.grid[r][c];
-          if (instanceId !== null) {
-            const artifact = state.inventory.artifacts.find(a => a.instanceId === instanceId);
-            let colorHex = "#fff";
-            if (artifact.energyType === "red") colorHex = "#ff756b";
-            if (artifact.energyType === "blue") colorHex = "#73bcff";
-            if (artifact.energyType === "purple") colorHex = "#c79aff";
-            if (artifact.energyType === "green") colorHex = "#8bdd74";
-            
-            slot.className = "slot item";
-            if (artifact.freezeTicks > 0) {
-               slot.classList.add("frozen");
-               slot.title = `FROZEN (${Math.ceil(artifact.freezeTicks/(1000/TICK_RATE))}s)`;
-            } else {
-               slot.title = `${artifact.energyType} | CD: ${artifact.effectiveCooldown} (Base ${artifact.baseCooldownTicks} - Syn ${artifact.synergyCooldownReduction})`;
-            }
-            slot.style.borderColor = colorHex;
-            slot.style.boxShadow = `inset 0 0 0 2px ${colorHex}40`;
-          } else {
-            slot.className = "slot";
-          }
-          slot.dataset.r = r;
-          slot.dataset.c = c;
-          slot.addEventListener("mousedown", handleBackpackClick);
-          backpack.append(slot);
-        }
-      }
-    }
-
-    // UI Drag interactions
-    function handleBackpackClick(e) {
-      if (state.gameOver || state.gameWon || state.gameStarted) return;
-      e.preventDefault();
-      const r = parseInt(e.currentTarget.dataset.r);
-      const c = parseInt(e.currentTarget.dataset.c);
-
-      if (state.draggedArtifact === null) {
-        const instanceId = state.inventory.grid[r][c];
-        if (instanceId !== null) {
-          const removed = state.inventory.removeArtifact(instanceId);
-          state.draggedArtifact = {
-            tableId: removed.tableId,
-            rotation: removed.rotation,
-            shape: removed.shape,
-            energyType: removed.energyType
-          };
-          renderGhost(e.clientX, e.clientY);
-          renderBackpack();
-        }
-      } else {
-        const successId = state.inventory.placeArtifact(state.draggedArtifact.tableId, c, r, state.draggedArtifact.rotation);
-        if (successId !== false) {
-          state.draggedArtifact = null;
-          hideGhost();
-          renderBackpack();
-        }
-      }
-    }
-
-    window.addEventListener("mousemove", (e) => {
-      window.lastMouseX = e.clientX;
-      window.lastMouseY = e.clientY;
-      if (state.draggedArtifact) {
-        renderGhost(e.clientX, e.clientY);
-      }
-    });
-
-    window.addEventListener("keydown", (e) => {
-      if ((e.key === 'r' || e.key === 'R') && state.draggedArtifact) {
-        state.draggedArtifact.rotation = (state.draggedArtifact.rotation + 90) % 360;
-        const dummy = new Artifact(0, state.draggedArtifact.tableId, ArtifactTable[state.draggedArtifact.tableId], 0, 0, state.draggedArtifact.rotation);
-        state.draggedArtifact.shape = dummy.shape;
-        renderGhost(window.lastMouseX || 0, window.lastMouseY || 0);
-      }
-    });
-
-    function renderGhost(x, y) {
-      let ghost = document.getElementById("ghost");
-      if (!ghost) {
-        ghost = document.createElement("div");
-        ghost.id = "ghost";
-        ghost.style.position = "fixed";
-        ghost.style.pointerEvents = "none";
-        ghost.style.zIndex = "100";
-        document.body.appendChild(ghost);
-      }
-      ghost.style.display = "grid";
-      ghost.style.left = (x + 10) + "px";
-      ghost.style.top = (y + 10) + "px";
-      
-      const shape = state.draggedArtifact.shape;
-      ghost.style.gridTemplateColumns = `repeat(${shape[0].length}, 40px)`;
-      ghost.style.gridTemplateRows = `repeat(${shape.length}, 40px)`;
-      ghost.style.gap = "8px";
-      ghost.innerHTML = "";
-      
-      let colorHex = "#fff";
-      const et = state.draggedArtifact.energyType;
-      if (et === "red") colorHex = "#ff756b";
-      if (et === "blue") colorHex = "#73bcff";
-      if (et === "purple") colorHex = "#c79aff";
-      if (et === "green") colorHex = "#8bdd74";
-      
-      for (let r = 0; r < shape.length; r++) {
-        for (let c = 0; c < shape[r].length; c++) {
-          const cell = document.createElement("div");
-          if (shape[r][c] === 1) {
-            cell.className = "slot item";
-            cell.style.borderColor = colorHex;
-            cell.style.boxShadow = `inset 0 0 0 2px ${colorHex}40`;
-            cell.style.background = "rgba(51, 67, 81, 0.8)";
-            cell.style.borderStyle = "solid";
-            cell.style.borderWidth = "1px";
-          } else {
-            cell.style.visibility = "hidden";
-          }
-          ghost.append(cell);
-        }
-      }
-    }
-
-    function hideGhost() {
-      const ghost = document.getElementById("ghost");
-      if (ghost) ghost.style.display = "none";
-    }
-
-    function updateQueueUI() {
-      queueContainer.innerHTML = "";
-      state.queue.forEach(q => {
-         const block = document.createElement('div');
-         block.className = `queue-block ${q}`;
-         queueContainer.appendChild(block);
-      });
-    }
-
-    function scrollTerrain() {
-      for(let r=0; r<3; r++) {
-        for(let c=9; c>0; c--) {
-          state.terrainColors[r][c] = state.terrainColors[r][c-1];
-        }
-        state.terrainColors[r][0] = getRandomColor();
-      }
-      
-      // Shift disabled status right
-      const newDisabled = Array(30).fill(-1);
-      for(let r=0; r<3; r++) {
-        for(let c=9; c>0; c--) {
-           newDisabled[r*10 + c] = state.disabledUntil[r*10 + (c-1)];
-        }
-      }
-      state.disabledUntil = newDisabled;
-      
-      if(state.hoveredTile !== null) {
-         // Optionally, keep cursor visually in same place but target new tile
-      }
-      renderTerrain(); // 지형을 실시간으로 업데이트
-    }
-
-    function initTerrain() {
-      terrain.innerHTML = "";
-      for (let i = 0; i < 30; i += 1) {
-        const tile = document.createElement("div");
-        tile.textContent = i + 1;
-        tile.dataset.index = i;
-        
-        tile.addEventListener("mouseenter", () => hoverTile(i));
-        tile.addEventListener("mousedown", (event) => {
-          event.preventDefault();
-          hoverTile(i);
-          fireShot(event.clientX, event.clientY);
-          startHold();
-        });
-        tile.addEventListener("mouseup", stopHold);
-        tile.addEventListener("mouseleave", () => {
-          stopHold();
-          if (state.hoveredTile === i) {
-            state.hoveredTile = null;
-            tile.classList.remove("hovered");
-          }
-        });
-        terrain.append(tile);
-      }
-    }
-
-    function renderTerrain() {
-      if (terrain.children.length === 0) initTerrain();
-      for (let i = 0; i < 30; i += 1) {
-        const r = Math.floor(i/10);
-        const c = i % 10;
-        const color = state.terrainColors[r][c];
-        const tile = terrain.children[i];
-        
-        let newClass = `tile ${color}`;
-        if (state.hoveredTile === i) newClass += " hovered";
-        if (state.disabledUntil[i] > state.tick) newClass += " disabled";
-        if (tile.classList.contains("hit")) newClass += " hit";
-        tile.className = newClass;
-      }
-    }
-
-    function hoverTile(index) {
-      if (state.gameOver || state.gameWon) return;
-      state.hoveredTile = index;
-      for (const tile of terrain.children) {
-        tile.classList.toggle("hovered", Number(tile.dataset.index) === index);
-      }
-    }
-
-    function fireShot(x, y) {
-      if (state.gameOver || state.gameWon || !state.gameStarted) return;
-      if (state.hoveredTile == null) {
-        setFeedback("no_target");
-        return;
-      }
-
-      state.summary.shots_fired += 1;
-      const tile = terrain.children[state.hoveredTile];
-      const r = Math.floor(state.hoveredTile / 10);
-      const c = state.hoveredTile % 10;
-      const tileColor = state.terrainColors[r][c];
-      const isDisabled = state.disabledUntil[state.hoveredTile] > state.tick;
-
-      // Ensure fallback coordinates for mouse hold if mouse hasn't moved
-      const fx = x || window.lastMouseX || (tile.getBoundingClientRect().left + 20);
-      const fy = y || window.lastMouseY || (tile.getBoundingClientRect().top + 20);
-
-      if (state.queue.length === 0) {
-        state.summary.shots_fired_empty_queue += 1;
-        state.summary.durability_loss_count += 1;
-        setFeedback("empty_queue");
-        showFloatingText("Empty!", fx, fy, "#ff756b");
-      } else {
-        state.summary.queue_consumed += 1;
-        const energyType = state.queue.shift();
-
-        if (isDisabled) {
-          state.summary.shots_invalid_tile_cooldown += 1;
-          setFeedback("invalid_cooldown");
-          showFloatingText("Invalid", fx, fy, "#8fa2ad");
-        } else {
-          // Identify baseDamage from any artifact of this type (approximation for prototype)
-          const refArt = Object.values(ArtifactTable).find(a => a.energyType === energyType);
-          const baseDmg = refArt ? refArt.baseDamage : 50;
-          
-          const dmg = calculateDamage(energyType, tileColor, baseDmg);
-          
-          if (dmg.type === 'match') state.summary.shots_hit_match += 1;
-          else state.summary.shots_hit_mismatch += 1;
-
-          applyDamage(dmg, fx, fy);
-
-          state.disabledUntil[state.hoveredTile] = state.tick + 10; // 0.5초 쿨타임
-          terrain.querySelectorAll(".hit").forEach((node) => node.classList.remove("hit"));
-          tile.classList.add("hit");
-          setTimeout(() => tile.classList.remove("hit"), 150);
-          setFeedback("fired");
-        }
-      }
-
-      updateQueueUI();
-      renderTerrain(); // Refresh disabled states
-    }
-
-    function startHold() {
-      stopHold();
-      state.holdTimer = window.setInterval(() => fireShot(null, null), 100);
-    }
-
-    function stopHold() {
-      if (state.holdTimer !== null) {
-        window.clearInterval(state.holdTimer);
-        state.holdTimer = null;
-      }
-    }
-
-    function setFeedback(message) {
-      feedbackLabel.textContent = `Feedback: ${message}`;
-    }
-
-    function triggerWin() {
-      triggerGameOver(true);
-    }
-
-    function triggerGameOver(isWin) {
-      state.gameOver = !isWin;
-      state.gameWon = isWin;
-      stopHold();
-      if(state.gameTimer !== null) clearInterval(state.gameTimer);
-      overlayText.textContent = isWin ? "STAGE CLEAR" : "GAME OVER";
-      overlayText.style.color = isWin ? "#8bdd74" : "#ff756b";
-      overlay.style.display = "flex";
-      state.summary.result = isWin ? "clear" : "fail";
-      state.summary[isWin ? "clear_time_sec" : "fail_time_sec"] = TOTAL_TIME - state.timeRemaining;
-      output.textContent = JSON.stringify(state.summary, null, 2);
-    }
-
-    function checkTimeProgress() {
-      if(state.gameOver || state.gameWon) return;
-      state.timeRemaining -= 1;
-      let t = state.timeRemaining;
-      
-      let newPins = 4;
-      if(t <= 45) newPins = 3;
-      if(t <= 30) newPins = 2;
-      if(t <= 15) newPins = 1;
-      if(t <= 5) newPins = 0;
-      
-      if (state.pins !== newPins) {
-        state.pins = newPins;
-        showFloatingText(`Pin Break! (${newPins} left)`, window.innerWidth/2, 100, '#f6c762');
-      }
-      
-      if(t <= 0) {
-         triggerGameOver(false);
-      }
-      updateTimeUI();
-    }
-
-    function gameTick() {
-      if (state.gameOver || state.gameWon || !state.gameStarted) return;
-      state.tick += 1;
-      
-      // Every 1 second (20 ticks at 50ms)
-      if (state.tick % (1000 / TICK_RATE) === 0) {
-        scrollTerrain();
-        checkTimeProgress();
-      }
-
-      const energies = state.inventory.tick();
-      let queueChanged = false;
-      for (const e of energies) {
-        state.summary.queue_generated += 1;
-        if (state.queue.length < 8) {
-          state.queue.push(e);
-          queueChanged = true;
-        } else {
-          state.summary.queue_wasted += 1;
-        }
-      }
-      
-      // Update UI only if needed to save perf, though backpack needs ticks for freeze state
-      if (state.tick % 5 === 0 || energies.length > 0) {
-         renderBackpack();
-      }
-      if (queueChanged) updateQueueUI();
-      
-      // Update stats and terrain
-      output.textContent = JSON.stringify(state.summary, null, 2);
-      
-      // Clean up hit states manually
-      if (state.tick % 2 === 0) {
-         for(let i=0; i<30; i++) {
-           if(state.disabledUntil[i] <= state.tick) {
-             const tile = terrain.children[i];
-             if(tile && tile.classList.contains("disabled")) tile.classList.remove("disabled");
-           }
-         }
-      }
-    }
-
-    function startGameLoop() {
-      if (state.gameTimer !== null) window.clearInterval(state.gameTimer);
-      state.gameTimer = window.setInterval(gameTick, TICK_RATE);
-    }
-
-    function createSummary() {
-      return {
-        run_id: "seed-20260513",
-        seed: 20260513,
-        stage_index: 0,
-        node_type: "normal",
-        shots_fired: 0,
-        shots_hit_match: 0,
-        shots_hit_mismatch: 0,
-        shots_invalid_tile_cooldown: 0,
-        shots_fired_empty_queue: 0,
-        queue_generated: 0,
-        queue_consumed: 0,
-        queue_wasted: 0,
-        durability_loss_count: 0,
-        repair_count: 0,
-        clear_time_sec: null,
-        fail_time_sec: null,
-        result: "running"
-      };
-    }
-
-    function resetDemo() {
-      stopHold();
-      if (state.gameTimer !== null) window.clearInterval(state.gameTimer);
-      
-      state.tick = 1;
-      state.queue = [];
-      state.inventory = new InventoryModel();
-      state.inventory.placeArtifact("basic_red", 0, 0, 0);
-      state.inventory.placeArtifact("basic_red", 0, 1, 0); 
-      state.inventory.placeArtifact("basic_blue", 3, 0, 90);
-      state.inventory.placeArtifact("l_purple", 0, 4, 0);
-      state.inventory.placeArtifact("square_green", 4, 4, 0);
-
-      state.hoveredTile = null;
-      state.disabledUntil = Array.from({ length: 30 }, () => -1);
-      for(let r=0; r<3; r++) {
-        for(let c=0; c<10; c++) state.terrainColors[r][c] = getRandomColor();
-      }
-      
-      state.nodeShield = MAX_SHIELD;
-      state.nodeHp = MAX_HP;
-      state.timeRemaining = TOTAL_TIME;
-      state.pins = 4;
-      state.gameOver = false;
-      state.gameWon = false;
-      state.gameStarted = false;
-      overlay.style.display = "none";
-      
-      state.summary = createSummary();
-      
-      setFeedback("idle");
-      renderBackpack();
-      updateQueueUI();
-      updateNodeStatsUI();
-      updateTimeUI();
-      renderTerrain();
-      applyMonoColorMode();
-      startGameLoop();
-    }
-
-    document.querySelector("#run").addEventListener("click", resetDemo);
-    
-    document.querySelector("#start-btn").addEventListener("click", () => {
-       if (!state.gameStarted && !state.gameOver && !state.gameWon) {
-          state.gameStarted = true;
-          setFeedback("Game Started!");
-       }
-    });
-
-    document.querySelector("#freeze-test").addEventListener("click", () => {
-       const active = state.inventory.artifacts;
-       if(active.length > 0) {
-         const target = active[Math.floor(Math.random() * active.length)];
-         target.freezeTicks = 60; // 3 seconds frozen
-         renderBackpack();
-         showFloatingText("FROZEN!", window.innerWidth/2, 200, "#73bcff");
-       }
-    });
-
-    if (monoColorBtn) {
-      monoColorBtn.addEventListener("click", () => {
-        let i = MONO_COLOR_CYCLE.indexOf(state.monoEnergyType);
-        if (i === -1) i = 0;
-        state.monoEnergyType = MONO_COLOR_CYCLE[(i + 1) % MONO_COLOR_CYCLE.length];
-        applyMonoColorMode();
-        const names = { red: "빨강", blue: "파랑", purple: "보라", green: "초록" };
-        const msg =
-          state.monoEnergyType == null
-            ? "유물 색: 기본(종류별)"
-            : `모든 유물 → ${names[state.monoEnergyType]}`;
-        showFloatingText(msg, window.innerWidth / 2, 160, "#f6c762");
-      });
-    }
-
-    window.addEventListener("mouseup", stopHold);
-
-    // Initial start
-    resetDemo();
-  </script>
+  <p id="dev-hint" style="margin:8px 0 0;font-size:12px;color:#8fa2ad">
+    ES 모듈 데모 — <code>app-LTL</code>에서 <code>npm run dev</code> 후
+    <a href="http://localhost:5173/public/index.html">http://localhost:5173/public/index.html</a> 로 여세요.
+    (파일 더블클릭 <code>file://</code> 은 모듈 로드가 막혀 멈춘 것처럼 보입니다.)
+  </p>
+  <script type="module" src="../src/ui/mini-run-app.js"></script>
 </body>
 </html>

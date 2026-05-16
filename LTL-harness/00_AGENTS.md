@@ -33,6 +33,7 @@ Looting The Leviathan의 프로젝트 하네스입니다. 모든 에이전트와
 
 ## Definition of Done
 
+- `docs/11_exec-plans/01_active/`의 마일스톤 계획서는 완료 처리 시에도 **삭제하거나 `02_completed/`로 이동하지 않는다**. 같은 단계의 결과는 `docs/11_exec-plans/02_completed/`에 `*_completed.md` 이름의 **별도 완료 보고서**만 추가한다.
 - 해당 단계의 GUT 단위/통합 테스트가 통과한다.
 - 동일 seed와 동일 input log로 결과가 재현된다.
 - 텔레메트리 필수 필드가 누락되지 않는다.

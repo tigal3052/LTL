@@ -1,4 +1,4 @@
-﻿# P4. 미니 런과 스케일링
+# P4. 미니 런과 스케일링
 
 ## 목표
 
@@ -6,11 +6,12 @@
 
 ## 산출물
 
-- `NodeGenerator.gd`
-- `RewardResolver.gd`
-- `RunProgression.gd`
+- `NodeGenerator.gd` (Node.js/JS 로직으로 구현 예정)
+- `RewardResolver.gd` (Node.js/JS 로직으로 구현 예정)
+- `RunProgression.gd` (Node.js/JS 로직으로 구현 예정)
 - `NodeTable.json`
 - mini-run telemetry report
+- **`app-LTL/public/index.html` 연동 업데이트** (UI에 노드 선택 화면 및 보상 렌더링 반영)
 
 ## TDD 대상
 
@@ -24,4 +25,5 @@
 
 - 3스테이지 미니 런을 자동으로 20회 실행할 수 있다.
 - clear/time_over 분포, 적중률, 큐 누수율, 수리 횟수가 리포트된다.
+- **`index.html`에서 사용자가 브라우저를 통해 직접 미니 런(노드 선택 -> 전투 -> 보상)을 체험하고 시각적으로 확인할 수 있다.**
 - M0 재설계 게이트에서 유지/폐기할 도메인 계약을 판단할 수 있다.

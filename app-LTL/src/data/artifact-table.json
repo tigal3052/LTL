@@ -1,0 +1,62 @@
+{
+  "basic_red": {
+    "id": "basic_red",
+    "name": "Red Generator",
+    "shape": [
+      [1, 1]
+    ],
+    "energyType": "red",
+    "baseCooldownTicks": 100,
+    "synergy": {
+      "type": "same_color",
+      "effect": "cooldown_reduction",
+      "value": 2
+    }
+  },
+  "basic_blue": {
+    "id": "basic_blue",
+    "name": "Blue Generator",
+    "shape": [
+      [1],
+      [1]
+    ],
+    "energyType": "blue",
+    "baseCooldownTicks": 100,
+    "synergy": {
+      "type": "same_color",
+      "effect": "cooldown_reduction",
+      "value": 2
+    }
+  },
+  "l_purple": {
+    "id": "l_purple",
+    "name": "Purple Reactor",
+    "shape": [
+      [1, 0],
+      [1, 0],
+      [1, 1]
+    ],
+    "energyType": "purple",
+    "baseCooldownTicks": 100,
+    "synergy": {
+      "type": "same_color",
+      "effect": "cooldown_reduction",
+      "value": 2
+    }
+  },
+  "square_green": {
+    "id": "square_green",
+    "name": "Green Core",
+    "shape": [
+      [1, 1],
+      [1, 1]
+    ],
+    "energyType": "green",
+    "baseCooldownTicks": 100,
+    "synergy": {
+      "type": "same_color",
+      "effect": "cooldown_reduction",
+      "value": 2
+    }
+  }
+}

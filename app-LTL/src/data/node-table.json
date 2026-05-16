@@ -1,0 +1,53 @@
+{
+  "nodes": [
+    {
+      "id": "normal",
+      "label": "정박 노드",
+      "weakness": [],
+      "pickWeight": 0,
+      "shieldMul": 1,
+      "healthMul": 1,
+      "alwaysOffer": true
+    },
+    {
+      "id": "crimson_vein",
+      "label": "적동 맥",
+      "weakness": ["red"],
+      "pickWeight": 35,
+      "shieldMul": 1.05,
+      "healthMul": 1.02
+    },
+    {
+      "id": "azure_fault",
+      "label": "청동 단층",
+      "weakness": ["blue"],
+      "pickWeight": 35,
+      "shieldMul": 1.02,
+      "healthMul": 1.05
+    },
+    {
+      "id": "violet_cluster",
+      "label": "보라 군집",
+      "weakness": ["purple"],
+      "pickWeight": 28,
+      "shieldMul": 1.08,
+      "healthMul": 1
+    },
+    {
+      "id": "verdant_core",
+      "label": "녹색 핵",
+      "weakness": ["green"],
+      "pickWeight": 28,
+      "shieldMul": 1,
+      "healthMul": 1.08
+    },
+    {
+      "id": "twin_resonance",
+      "label": "이중 공명",
+      "weakness": ["red", "blue"],
+      "pickWeight": 14,
+      "shieldMul": 1.1,
+      "healthMul": 1.1
+    }
+  ]
+}
