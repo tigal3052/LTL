@@ -8,7 +8,9 @@ function createController(options = {}) {
   const simulator = new RunSimulator({
     seed: 20260513,
     queueCapacity: 4,
-    node: { shield: 3, health: 2, weakness: ["red"] },
+    // P2는 조작/쿨다운 검증이 목적이므로 첫 발 즉시 클리어되지 않도록
+    // 브라우저 데모에 가까운 충분한 내구도를 사용한다.
+    node: { shield: 500, health: 1000, weakness: ["red"] },
     ...options.simulator
   });
 

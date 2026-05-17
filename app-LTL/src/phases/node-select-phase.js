@@ -1,38 +1,4 @@
-import { attachCombatPreview } from "./combat-phase.js";
-import { offerNodeChoices } from "../vocabulary/node/offer-node-choices.js";
-import { PHASE } from "./phase-tags.js";
-import nodeTable from "../data/node-table.json" with { type: "json" };
-
-export function enterNodeSelect({ seed, stageIndex, maxStages, inventory }) {
-  return {
-    tag: PHASE.NODE_SELECT,
-    seed,
-    stageIndex,
-    maxStages,
-    inventory,
-    candidates: offerNodeChoices({ seed, stageIndex, table: nodeTable }),
-    pendingRewards: [],
-    lastClearWeakness: [],
-    lastNodeLabel: "",
-    held: null
-  };
-}
-
-export function reduceNodeSelect(phase, event) {
-  if (event.type !== "choose_node") return phase;
-  const choice = phase.candidates[event.index];
-  if (!choice) return phase;
-
-  return attachCombatPreview({
-    tag: PHASE.COMBAT_START,
-    seed: phase.seed,
-    stageIndex: phase.stageIndex,
-    maxStages: phase.maxStages,
-    inventory: phase.inventory,
-    chosenNode: choice,
-    lastClearWeakness: [...choice.combat.weakness],
-    lastNodeLabel: choice.label,
-    pendingRewards: [],
-    held: null
-  });
-}
+// 플레이어가 다음 전투에서 마주할 노드 후보와 약점을 읽고 하나를 선택하는 화면 상태를 설명한다.
+// 플레이어는 항상 기본 노드와 seed로 정해진 추가 후보를 같은 순서로 본다.
+// 플레이어는 후보를 선택하면 선택한 노드의 약점과 전투 수치가 다음 전투 상태로 이어진다고 기대한다.
+// 이 파일은 아직 실행 코드를 갖지 않고, 노드 선택 phase가 공개해야 할 상태 문장만 고정한다.

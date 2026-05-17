@@ -247,11 +247,15 @@ function runFireShot(x, y) {
     setFeedback("invalid_cooldown");
     showFloatingText("Invalid", fx, fy, "#8fa2ad");
   } else if (outcome === "fired" && damage) {
+    const damageLabel =
+      damage.type === "match" ? "Match!" : damage.type === "normal" ? "Normal" : "Mismatch";
+    const damageColor =
+      damage.type === "match" ? "#f6c762" : damage.type === "normal" ? "#e8edf2" : "#8fa2ad";
     showFloatingText(
-      damage.type === "match" ? "Match!" : "Mismatch",
+      damageLabel,
       fx,
       fy,
-      damage.type === "match" ? "#f6c762" : "#8fa2ad"
+      damageColor
     );
     const statsEl = document.querySelector(".node-stats");
     if (statsEl) {

@@ -164,3 +164,57 @@ Git status unavailable.
 - Summary: P0 fixture 파일을 실제로 읽는 테스트를 추가했고, P1/P2에는 out-of-range target 방어 테스트를 넣었다. 이후 `action-result.js`를 추가해 HUD/조작 피드백을 누적 summary가 아니라 `beforeSummary -> afterSummary diff`로 계산하도록 바꿨다. JS와 GDScript telemetry에 `invalid_target_inputs`를 추가하고, 하네스에는 controller/HUD 구현자가 그대로 따라갈 수 있는 순차적 입력-피드백 메모를 남겼다. 마지막으로 루트에 git 저장소를 초기화하고 로컬 author를 `tigal3052@gmail.com` 기준으로 설정한 뒤 첫 커밋을 만들었다.
 - Plan impact: P2 이후 controller 구현의 기준을 “누적 telemetry”와 “직전 액션 결과”로 분리하는 방향으로 명확히 고정했다.
 - Verification: `node --test` 18개 테스트 통과를 확인했다. `git init -b main`, `git config user.email`, `git config user.name`, `git commit`을 수행했고 커밋 해시는 `decb418`이다.
+
+## 2026-05-13 12:25:15
+
+<!-- codex-worklog-signature: 2b4a34979f69aa469a8ee4c35c967910c22409f3b03c465d39e83932ae2947a9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+AA .gitignore
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-13 12:25:20
+
+<!-- codex-worklog-signature: 7967bc16880c2e05aa622481d38d49c5b2128fb5545c3a023adadd958065823d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+AA .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-13.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-13 12:25:27
+
+<!-- codex-worklog-signature: 1980ae5a3a24b3093fc5ad981ca1985a64cdab620772fb841b66c0ffdf92c77b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-13.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-13 12:25:42
+
+<!-- codex-worklog-signature: e631c75b509d9fbaa863fa9c000f54a7e4a80759f58ee49f68009f5ed477863b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-13.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.

@@ -32,8 +32,8 @@ export function checkTimeProgress(combat) {
       timeRemaining: 0,
       summary: {
         ...next.summary,
-        result: "fail",
-        fail_time_sec: combat.stageInitialTime - timeRemaining
+        result: "time_over",
+        fail_time_sec: combat.tick / Math.max(1, combat.ticksPerSecond ?? 20)
       }
     };
   }

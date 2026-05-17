@@ -9,6 +9,7 @@ export function createRunSummary({ seed, stageIndex }) {
     shots_hit_mismatch: 0,
     shots_invalid_tile_cooldown: 0,
     shots_fired_empty_queue: 0,
+    invalid_target_inputs: 0,
     queue_generated: 0,
     queue_consumed: 0,
     queue_wasted: 0,

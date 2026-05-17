@@ -1,51 +1,5 @@
-import { createCombatRuntime } from "../vocabulary/combat/create-combat-runtime.js";
-import { combatToDisplay } from "../vocabulary/node/combat-to-display.js";
-import { PHASE } from "./phase-tags.js";
-
-function buildCombatRuntime(phase) {
-  const display = combatToDisplay(phase.chosenNode.combat);
-  return createCombatRuntime({
-    display,
-    seed: phase.seed,
-    stageIndex: phase.stageIndex
-  });
-}
-
-/** 노드 확정 직후 — Start 전에도 지형·스탯을 보여 준다. */
-export function attachCombatPreview(phase) {
-  if (!phase.chosenNode) return phase;
-  return {
-    ...phase,
-    combat: buildCombatRuntime(phase),
-    held: null
-  };
-}
-
-export function enterCombat(phase) {
-  if (!phase.chosenNode) {
-    return phase;
-  }
-  return {
-    tag: PHASE.COMBAT,
-    seed: phase.seed,
-    stageIndex: phase.stageIndex,
-    maxStages: phase.maxStages,
-    inventory: phase.inventory,
-    chosenNode: phase.chosenNode,
-    lastClearWeakness: phase.lastClearWeakness ?? [],
-    lastNodeLabel: phase.lastNodeLabel ?? "",
-    combat: buildCombatRuntime(phase),
-    held: null
-  };
-}
-
-export function reduceCombat(phase, event) {
-  if (event.type === "set_hovered_tile") {
-    if (!phase.combat) return phase;
-    return {
-      ...phase,
-      combat: { ...phase.combat, hoveredTile: event.index }
-    };
-  }
-  return phase;
-}
+// 플레이어가 가방에서 생성된 에너지를 큐로 받아 지형 약점에 발사하는 전투 상태를 설명한다.
+// 플레이어는 선택한 노드의 약점이 전투 판정에 그대로 사용된다고 기대한다.
+// 플레이어는 전투 중 가방을 수정하지 못하고, 큐와 시간과 핀 상태만 전투 입력으로 바꾼다.
+// 플레이어는 클리어 순간 같은 inventory가 보상 phase로 보존된다고 기대한다.
+// 이 파일은 아직 실행 코드를 갖지 않고, 전투 phase가 보존해야 할 상태 문장만 고정한다.

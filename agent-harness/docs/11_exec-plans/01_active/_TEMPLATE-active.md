@@ -209,8 +209,8 @@
 
 ## Completion Handoff
 
-> 구현과 검증이 끝나면 `02_completed/`에 같은 파일명으로 완료 문서를 만든다.
+> 구현과 검증이 끝나면 **`02_completed/`에 완료 보고서만 새로 만든다.** `01_active/`의 이 계획서는 **삭제·이동하지 않는다**(완료 후에도 계획·승인·범위의 기록으로 남김). completed 파일명은 프로젝트 규칙에 따르되, active와 동일 경로로 덮어쓰지 않는다.
 
-- [ ] active 문서 최신화
-- [ ] completed 문서 생성
+- [ ] 이 active 문서 최종 상태로 갱신(결정 이력·체크리스트 반영)
+- [ ] `docs/11_exec-plans/02_completed/`에 별도 완료 문서 생성(상단에 이 파일의 `01_active/...` 경로를 **관련 active 문서**로 기입)
 - [ ] 기술 부채가 있으면 `00_tech-debt-tracker.md` 반영

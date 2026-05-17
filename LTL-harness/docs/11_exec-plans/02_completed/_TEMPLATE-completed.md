@@ -1,5 +1,7 @@
 # Completed Milestone Template
 
+**관련 active 계획서(유지)**: `docs/11_exec-plans/01_active/[동일 단계 파일명].md` — 계획서는 `01_active`에 그대로 두고, 이 파일만 `02_completed`에 새로 만든다.
+
 ## Completion Summary
 
 - What was actually implemented

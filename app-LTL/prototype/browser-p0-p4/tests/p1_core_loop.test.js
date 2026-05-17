@@ -2,8 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { EnergyQueue } from "../src/domain/energy-queue.js";
+import { BASE_COOLDOWN_TICKS } from "../src/domain/game-tuning.js";
+import { InventoryModel } from "../src/domain/inventory-model.js";
 import { MiningResolver } from "../src/domain/mining-resolver.js";
 import { RunSimulator } from "../src/domain/run-simulator.js";
+import { calculateDamage } from "../src/vocabulary/combat/calculate-damage.js";
 
 test("energy queue counts generated, consumed, and wasted energy", () => {
   const queue = new EnergyQueue(2);
@@ -35,6 +38,23 @@ test("matching pulse deals bonus damage and mismatch is penalized", () => {
   assert.equal(match.outcome, "match");
   assert.equal(mismatch.outcome, "mismatch");
   assert.ok(match.damage.shield > mismatch.damage.shield);
+});
+
+test("browser combat damage follows core combat spec for vulnerable, normal, and mismatch tiles", () => {
+  const match = calculateDamage("red", "red", ["red"]);
+  assert.equal(match.type, "match");
+  assert.ok(Math.abs(match.shield - 0.75) < 1e-9);
+  assert.ok(Math.abs(match.hp - 1.8) < 1e-9);
+
+  const normal = calculateDamage("red", "blue", ["red"]);
+  assert.equal(normal.type, "normal");
+  assert.ok(Math.abs(normal.shield - 0.5) < 1e-9);
+  assert.ok(Math.abs(normal.hp - 1.2) < 1e-9);
+
+  const mismatch = calculateDamage("blue", "red", ["red"]);
+  assert.equal(mismatch.type, "mismatch");
+  assert.ok(Math.abs(mismatch.shield - 0.2) < 1e-9);
+  assert.ok(Math.abs(mismatch.hp - 0.5) < 1e-9);
 });
 
 test("same tile is invalid while disabled", () => {
@@ -87,4 +107,25 @@ test("out-of-range target input is ignored without crashing", () => {
   assert.equal(snapshot.summary.invalid_target_inputs, 1);
   assert.equal(snapshot.summary.queue_consumed, 0);
   assert.equal(snapshot.action.feedback, "invalid_target");
+});
+
+test("run simulator uses injected inventory state for queue generation", () => {
+  const inventory = new InventoryModel(8, 8);
+  inventory.placeArtifact("basic_red", 0, 0, 0);
+
+  const simulator = new RunSimulator({
+    seed: 1,
+    queueCapacity: 0,
+    timeLimitTicks: BASE_COOLDOWN_TICKS + 5,
+    node: { shield: 10, health: 10, weakness: ["red"] },
+    inventory
+  });
+
+  const snapshot = simulator.applyInput({
+    tick: BASE_COOLDOWN_TICKS + 1,
+    target: 0,
+    input: "click"
+  });
+
+  assert.ok(snapshot.summary.queue_generated > 0);
 });
