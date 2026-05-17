@@ -838,3 +838,58 @@ No implementation history has been recorded yet.
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-17 21:01:42
+
+<!-- codex-worklog-signature: e519c610010a77cf2d8def9fc9dc676d55d64803b4d94c5af7271433de9d4bb4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  LTL-harness/00_AGENTS.md
+A  LTL-harness/docs/00_tech-debt-tracker.md
+M  LTL-harness/docs/11_exec-plans/01_active/06b_post_M0_implementation_handoff.md
+M  LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md
+A  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
+A  LTL-harness/docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md
+M  LTL-harness/docs/11_exec-plans/02_completed/_TEMPLATE-completed.md
+M  agent-harness/00_AGENTS.md
+M  agent-harness/docs/11_exec-plans/01_active/_TEMPLATE-active.md
+M  agent-harness/docs/11_exec-plans/02_completed/_TEMPLATE-completed.md
+A  agent-harness/examples/logic-calculator/calculator.js
+A  app-LTL/prototype/browser-p0-p4/package.json
+R  app-LTL/public/index.html -> app-LTL/prototype/browser-p0-p4/public/index.html
+R  app-LTL/src/action-result.js -> app-LTL/prototype/browser-p0-p4/src/action-result.js
+R  app-LTL/src/combat-controller.js -> app-LTL/prototype/browser-p0-p4/src/combat-controller.js
+R  app-LTL/src/data/artifact-table.json -> app-LTL/prototype/browser-p0-p4/src/data/artifact-table.json
+R  app-LTL/src/data/node-table.json -> app-LTL/prototype/browser-p0-p4/src/data/node-table.json
+R  app-LTL/src/domain/energy-queue.js -> app-LTL/prototype/browser-p0-p4/src/domain/energy-queue.js
+R  app-LTL/src/domain/game-tuning.js -> app-LTL/prototype/browser-p0-p4/src/domain/game-tuning.js
+R  app-LTL/src/domain/hazard-model.js -> app-LTL/prototype/browser-p0-p4/src/domain/hazard-model.js
+R  app-LTL/src/domain/inventory-model.js -> app-LTL/prototype/browser-p0-p4/src/domain/inventory-model.js
+R  app-LTL/src/domain/mining-resolver.js -> app-LTL/prototype/browser-p0-p4/src/domain/mining-resolver.js
+R  app-LTL/src/domain/node-generator.js -> app-LTL/prototype/browser-p0-p4/src/domain/node-generator.js
+R  app-LTL/src/domain/reward-resolver.js -> app-LTL/prototype/browser-p0-p4/src/domain/reward-resolver.js
+R  app-LTL/src/domain/run-progression.js -> app-LTL/prototype/browser-p0-p4/src/domain/run-progression.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/run-simulator.js
+R  app-LTL/src/domain/seeded-rng.js -> app-LTL/prototype/browser-p0-p4/src/domain/seeded-rng.js
+R  app-LTL/src/domain/stage-scaling.js -> app-LTL/prototype/browser-p0-p4/src/domain/stage-scaling.js
+R  app-LTL/src/models/artifact-table.js -> app-LTL/prototype/browser-p0-p4/src/models/artifact-table.js
+R  app-LTL/src/models/combat-simulator.js -> app-LTL/prototype/browser-p0-p4/src/models/combat-simulator.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-17 21:01:56
+
+<!-- codex-worklog-signature: 1ffbf716910202269984dff15fd3d6f84eb9c2dd21769548c60faf223071ecd0 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-17.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
