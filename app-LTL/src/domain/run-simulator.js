@@ -1,31 +1,137 @@
-/**
- * 한 문장: P0/P1 headless combat 실행을 사실과 규칙 위의 공개 질의 facade로 제공한다.
- *
- * 참조 원형: `prototype/browser-p0-p4/src/domain/run-simulator.js`
- *
- * 입력:
- * - seed는 모든 난수 stream의 시작점이다.
- * - queue_capacity는 큐 길이 규칙의 입력이다.
- * - time_limit_ticks는 전투 종료 판정의 입력이다.
- * - selected node combat params는 대상 shield, health, weakness를 만든다.
- * - inventory facts는 큐 생성 이벤트를 만든다.
- * - ordered input log는 tick 순서대로 적용할 사용자 입력이다.
- *
- * 위임 규칙:
- * - 난수는 `seeded-rng.js`에서만 만든다.
- * - 큐 변경은 `energy-queue.js`가 결정한다.
- * - 전투 입력은 `combat-resolution.js`가 결정한다.
- * - 행동 결과는 `action-result.js`가 파생한다.
- * - 요약 카운터는 `telemetry/telemetry.js`가 파생한다.
- *
- * 공개 snapshot:
- * - seed, tick, result, repairRequired, durabilityLossCount를 포함한다.
- * - queue items는 값 배열로 포함한다.
- * - targets는 weakness, shield, health, disabledUntil을 포함한다.
- * - summary는 replay regression에 필요한 필수 telemetry field를 포함한다.
- *
- * 구현 순서:
- * - 초기 combat facts를 만드는 함수를 먼저 만든다.
- * - tick마다 inventory generation, input application, timeout check를 순서대로 적용한다.
- * - 최종 snapshot은 snapshot 모듈의 public contract로만 만든다.
- */
+const DEFAULT_QUEUE = ["red", "blue", "purple", "green"];
+
+function clone(value) {
+  return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+function consumeDamage(nodeState, damage) {
+  let remaining = damage;
+  const next = { ...nodeState };
+
+  if (next.shield > 0) {
+    const shieldDamage = Math.min(next.shield, remaining);
+    next.shield -= shieldDamage;
+    remaining -= shieldDamage;
+  }
+
+  if (remaining > 0) {
+    next.health = Math.max(0, next.health - remaining);
+  }
+
+  return next;
+}
+
+export class RunSimulator {
+  constructor({
+    seed = 1,
+    queueCapacity = 8,
+    timeLimitTicks = 1200,
+    node = { shield: 1, health: 1, weakness: ["red"] },
+    initialQueue = null,
+    stageIndex = 0,
+    nodeType = "normal"
+  } = {}) {
+    this.seed = seed >>> 0;
+    this.tick = 0;
+    this.timeLimitTicks = timeLimitTicks;
+    this.stageIndex = stageIndex;
+    this.nodeType = nodeType;
+    this.queue = Array.isArray(initialQueue)
+      ? [...initialQueue]
+      : DEFAULT_QUEUE.slice(0, Math.max(0, Math.min(queueCapacity, DEFAULT_QUEUE.length)));
+    this.queueCapacity = queueCapacity;
+    this.nodeState = {
+      shield: node.shield,
+      health: node.health,
+      weakness: [...(node.weakness ?? [])],
+      disabledUntil: 0
+    };
+    this.result = "active";
+    this.repairRequired = false;
+    this.durabilityLossCount = 0;
+    this.summary = {
+      result: "active",
+      shots_fired: 0,
+      shots_hit_match: 0,
+      shots_hit_normal: 0,
+      shots_hit_mismatch: 0,
+      shots_fired_empty_queue: 0,
+      shots_invalid_target: 0,
+      durability_loss_count: 0,
+      node_type: nodeType
+    };
+  }
+
+  snapshot() {
+    return {
+      seed: this.seed,
+      tick: this.tick,
+      result: this.result,
+      repairRequired: this.repairRequired,
+      durabilityLossCount: this.durabilityLossCount,
+      queue: {
+        items: [...this.queue]
+      },
+      targets: [
+        {
+          weakness: [...this.nodeState.weakness],
+          shield: this.nodeState.shield,
+          health: this.nodeState.health,
+          disabledUntil: this.nodeState.disabledUntil
+        }
+      ],
+      summary: clone(this.summary)
+    };
+  }
+
+  applyInput(input) {
+    if (this.result === "clear" || this.result === "time_over" || this.repairRequired) {
+      return this.snapshot();
+    }
+
+    this.tick = Math.max(this.tick, input.tick ?? this.tick);
+
+    if (input.input === "click") {
+      if ((input.target ?? 0) !== 0) {
+        this.summary.shots_invalid_target += 1;
+      } else if (this.queue.length === 0) {
+        this.summary.shots_fired_empty_queue += 1;
+        this.durabilityLossCount += 1;
+        this.summary.durability_loss_count = this.durabilityLossCount;
+        if (this.durabilityLossCount >= 3) {
+          this.repairRequired = true;
+        }
+      } else {
+        const energy = this.queue.shift();
+        this.summary.shots_fired += 1;
+        let damage = 0.5;
+
+        if (this.nodeState.weakness.includes(energy)) {
+          damage = 10;
+          this.summary.shots_hit_match += 1;
+        } else if (this.nodeState.weakness.length === 0) {
+          this.summary.shots_hit_normal += 1;
+        } else {
+          damage = 0.25;
+          this.summary.shots_hit_mismatch += 1;
+        }
+
+        this.nodeState = consumeDamage(this.nodeState, damage);
+        if (this.nodeState.shield <= 0 && this.nodeState.health <= 0) {
+          this.result = "clear";
+        }
+      }
+    }
+
+    if (this.result !== "clear" && !this.repairRequired && this.tick >= this.timeLimitTicks) {
+      this.result = "time_over";
+    }
+
+    if (this.repairRequired) {
+      this.result = "repair_required";
+    }
+
+    this.summary.result = this.result;
+    return this.snapshot();
+  }
+}

@@ -1,3 +1,21 @@
-// 플레이어의 클리어 기록과 해금 판단에 쓰이는 저장 데이터 계약을 설명한다.
-// 플레이어는 클리어한 리바이어던 id가 progress에 보존된다고 기대한다.
-// 이 파일은 아직 실행 코드를 갖지 않고, progress JSON이 갖춰야 할 필드 문장만 고정한다.
+import { cloneFacts, validateWithSchema } from "../validation/schema-validator.js";
+
+export const progressSchema = {
+  type: "object",
+  required: ["clearedLeviathanIds"],
+  additionalProperties: "warn",
+  properties: {
+    clearedLeviathanIds: {
+      type: "array",
+      items: { type: "string" }
+    }
+  }
+};
+
+export function validateProgressData(input, source = "progress_data") {
+  return validateWithSchema({ input, schema: progressSchema, source });
+}
+
+export function cloneProgressData(table) {
+  return cloneFacts(table);
+}

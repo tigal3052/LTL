@@ -1,4 +1,35 @@
-// 플레이어의 입력 기록을 같은 seed와 같은 데이터 계약으로 다시 실행하는 재현 절차를 설명한다.
-// 플레이어는 같은 입력 로그가 언제나 같은 전투 결과와 같은 보상 흐름을 만든다고 기대한다.
-// 플레이어는 리플레이가 브라우저 프로토타입 규칙을 새 규칙으로 바꾸지 않고 검증만 하기를 기대한다.
-// 이 파일은 아직 실행 코드를 갖지 않고, M1 리플레이가 검증해야 할 행동 문장만 고정한다.
+import { createHeadlessRun } from "./headless-mini-run.js";
+
+export function runReplay({ fixture, ...config }) {
+  const run = createHeadlessRun({
+    ...config,
+    seed: fixture.seed,
+    leviathanId: fixture.leviathanId,
+    runIndex: fixture.runIndex ?? 0,
+    stageCount: fixture.stageCount,
+    runCount: fixture.runCount,
+    queueCapacity: fixture.queueCapacity ?? 8,
+    initialQueue: fixture.initialQueue ?? null
+  });
+
+  if ((fixture.inputLog?.length ?? 0) > 0 && run.snapshot().phase === "node_select") {
+    run.selectNode(fixture.candidateIndex ?? 0);
+  }
+
+  for (const input of fixture.inputLog ?? []) {
+    run.applyCombatInput(input);
+    const phase = run.snapshot().phase;
+    if (phase === "failed" || phase === "run_complete") {
+      break;
+    }
+  }
+
+  if (run.snapshot().phase === "reward_loot") {
+    run.claimRewards();
+  }
+
+  return {
+    finalSnapshot: run.snapshot(),
+    summary: run.replaySummary()
+  };
+}

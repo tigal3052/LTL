@@ -1,7 +1,7 @@
 import { parseJsonInput } from "../validation/schema-validator.js";
-import { validateNodeTable } from "../data/node-contract.js";
+import { validateLeviathanTable } from "../data/leviathan-contract.js";
 
-export function loadNodeTable({ input, source = "node_table" }) {
+export function loadLeviathanTable({ input, source = "leviathan_table" }) {
   const parsed = parseJsonInput(input, source);
   if (!parsed.ok) {
     return {
@@ -13,5 +13,5 @@ export function loadNodeTable({ input, source = "node_table" }) {
     };
   }
 
-  return validateNodeTable(parsed.value, source);
+  return validateLeviathanTable(parsed.value, source);
 }

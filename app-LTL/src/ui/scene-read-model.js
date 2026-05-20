@@ -1,3 +1,30 @@
-// 플레이어에게 보여줄 장면 상태를 phase 내부 구현이 아니라 읽기 모델로 전달하는 경계를 설명한다.
-// 플레이어는 화면이 내부 상태를 직접 바꾸지 않고 현재 phase의 공개 상태만 보여준다고 기대한다.
-// 이 파일은 아직 실행 코드를 갖지 않고, UI가 소비할 read model 문장만 고정한다.
+function clone(value) {
+  return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+export function createSceneReadModel(snapshot) {
+  return {
+    phase: snapshot.phase,
+    run: {
+      seed: snapshot.seed,
+      stageIndex: snapshot.stageIndex,
+      maxStages: snapshot.maxStages,
+      leviathanId: snapshot.leviathanId,
+      runIndex: snapshot.runIndex,
+      runComplete: snapshot.runComplete,
+      failed: snapshot.failed
+    },
+    inventory: clone(snapshot.inventory),
+    nodeSelect: snapshot.phase === "node_select" ? { candidates: clone(snapshot.candidates ?? []) } : null,
+    combat: snapshot.phase === "combat" ? clone(snapshot.combat) : null,
+    rewardLoot:
+      snapshot.phase === "reward_loot"
+        ? {
+            pendingRewards: clone(snapshot.pendingRewards ?? []),
+            held: snapshot.held ?? null,
+            lastNodeLabel: snapshot.lastNodeLabel ?? null
+          }
+        : null,
+    progress: clone(snapshot.progress)
+  };
+}

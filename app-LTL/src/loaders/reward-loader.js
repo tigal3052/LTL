@@ -1,7 +1,7 @@
 import { parseJsonInput } from "../validation/schema-validator.js";
-import { validateNodeTable } from "../data/node-contract.js";
+import { validateRewardTable } from "../data/reward-contract.js";
 
-export function loadNodeTable({ input, source = "node_table" }) {
+export function loadRewardTable({ input, source = "reward_table" }) {
   const parsed = parseJsonInput(input, source);
   if (!parsed.ok) {
     return {
@@ -13,5 +13,5 @@ export function loadNodeTable({ input, source = "node_table" }) {
     };
   }
 
-  return validateNodeTable(parsed.value, source);
+  return validateRewardTable(parsed.value, source);
 }

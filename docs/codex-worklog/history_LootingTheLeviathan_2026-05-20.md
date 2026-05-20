@@ -5,6 +5,22 @@ Date: 2026-05-20
 
 ## 2026-05-20
 
+- Intent: Implement the M1 core-domain stabilization plan inside an isolated worktree without depending on browser-only internals.
+- Files or areas touched: `.gitignore`, `app-LTL/src/data/*`, `app-LTL/src/loaders/*`, `app-LTL/src/domain/{seeded-rng,node-generator,reward-resolver,run-simulator,snapshot,stage-scaling}.js`, `app-LTL/src/process/{headless-mini-run,replay-process}.js`, `app-LTL/src/ui/scene-read-model.js`, `app-LTL/src/index.js`, `app-LTL/src/README.md`, `app-LTL/tests/m1_core_domain_stabilization.test.js`, `LTL-harness/docs/00_tech-debt-tracker.md`, `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md`
+- Summary: Added validator-backed loader contracts for artifact, node, reward, leviathan, and progress data; implemented a deterministic M1 headless run API with stable root/phase snapshots, replay summary output, and scene read-model projection; and locked the new contract boundary with focused tests that cover required-field rejection, reward transition, next-run branching, leviathan clear, and empty-queue repair pressure.
+- Plan impact: Executed the M1 worktree plan as a focused stabilization slice rather than trying to finish every future progression or inventory detail in one pass.
+- Verification status: Confirmed the new M1 contract test file fails first for missing exports, then passes after implementation. Full `npm test` still pending at this point in the log entry.
+
+## 2026-05-20
+
+- Intent: Carry the interview decisions for `mismatch attack` and `reward-phase last-artifact removal guard` into the M1 implementation and test suite.
+- Files or areas touched: `LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md`, `app-LTL/src/domain/{inventory-model,run-simulator,snapshot}.js`, `app-LTL/src/process/{headless-mini-run,replay-process}.js`, `app-LTL/tests/m1_core_domain_stabilization.test.js`
+- Summary: Added a paired match-vs-mismatch replay assertion path by allowing replay fixtures to override the initial combat queue, and implemented a minimal reward-phase inventory contract that permits temporary `held` repositioning of the last artifact while blocking finalization of an empty placed-inventory state via a guard restore.
+- Plan impact: Narrowed the remaining M1 gap from “documented interview decisions” to “implemented public contract behavior” for both deferred items.
+- Verification status: `node --test tests/m1_core_domain_stabilization.test.js` and full `npm test` both pass after the inventory/replay updates.
+
+## 2026-05-20
+
 - Intent: Snapshot the current workspace state, then stop tracking `agent-harness` and `LTL-harness` without deleting the local directories.
 - Files or areas touched: `.gitignore`, git index entries for `agent-harness/**` and `LTL-harness/**`
 - Summary: Created the snapshot commit `d128944`, then rebased the cleanup sequence onto the latest remote `main`, added root `.gitignore` rules for `agent-harness/` and `LTL-harness/`, and removed both directories from the git index using cached removal only. A post-rebase verification found a handful of remote-added tracked files still remaining under those directories, so a final cached removal pass was needed to fully clear the index. This leaves the local directories on disk while excluding them from future commits and ordinary rollback operations.

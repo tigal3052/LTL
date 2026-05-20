@@ -1,3 +1,37 @@
-// 플레이어가 받는 보상 아티팩트의 희귀도, 판매가, 모양, 색 계약을 설명한다.
-// 플레이어는 보상 데이터가 실제 가방 배치 가능한 아티팩트 데이터와 연결된다고 기대한다.
-// 이 파일은 아직 실행 코드를 갖지 않고, reward JSON이 갖춰야 할 필드 문장만 고정한다.
+import { cloneFacts, validateWithSchema } from "../validation/schema-validator.js";
+
+const ENERGY_TYPES = ["red", "blue", "purple", "green"];
+
+export const rewardSchema = {
+  type: "object",
+  required: ["id", "artifactId", "kind", "color", "qty"],
+  additionalProperties: "warn",
+  properties: {
+    id: { type: "string" },
+    artifactId: { type: "string" },
+    kind: { type: "string" },
+    color: { type: "string", enum: ENERGY_TYPES },
+    qty: { type: "number", integer: true, minimum: 1 }
+  }
+};
+
+export const rewardTableSchema = {
+  type: "object",
+  required: ["rewards"],
+  additionalProperties: "warn",
+  properties: {
+    rewards: {
+      type: "array",
+      minItems: 1,
+      items: rewardSchema
+    }
+  }
+};
+
+export function validateRewardTable(input, source = "reward_table") {
+  return validateWithSchema({ input, schema: rewardTableSchema, source });
+}
+
+export function cloneRewardTable(table) {
+  return cloneFacts(table);
+}

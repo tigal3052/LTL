@@ -1,32 +1,77 @@
-/**
- * 한 문장: seed, stage, node table, scaling facts에서 재현 가능한 노드 후보 목록을 파생한다.
- *
- * 참조 원형:
- * - `prototype/browser-p0-p4/src/domain/node-generator.js`
- * - `prototype/browser-p0-p4/tests/p4_mini_run.test.js`
- *
- * 입력 사실:
- * - `run_seed(seed)`는 후보 추첨의 루트 seed다.
- * - `stage_index(index)`는 현재 단계 번호다.
- * - `node_def(id, label)`는 후보가 될 수 있는 노드 정의다.
- * - `node_weight(id, weight)`는 기본 추첨 가중치다.
- * - `always_offer(id)`는 항상 첫 후보에 들어갈 기본 노드다.
- * - `node_weakness(id, energy_color)`는 후보 snapshot에 노출할 약점이다.
- * - `scaled_combat_params(stage_index, shield, health, time_limit_ticks)`는 stage-scaling 결과다.
- *
- * 규칙:
- * - normal/default 노드는 항상 첫 번째 후보가 된다.
- * - 추가 후보는 seed에서 파생한 stream으로 중복 없이 weighted pick한다.
- * - 후보의 shield, health, time_limit은 stage scaling과 node multiplier를 조합해 만든다.
- * - 같은 seed와 stage는 항상 같은 candidate id 순서를 반환한다.
- *
- * 구현 순서:
- * - always offer 후보를 먼저 확정한다.
- * - 남은 후보 pool과 weight table을 만든다.
- * - seeded weighted pick without replacement를 별도 질의로 만든다.
- * - 각 후보에 scaled combat params와 weakness facts를 붙인다.
- *
- * 금지 규칙:
- * - 이 파일은 노드 선택 전이를 수행하지 않는다.
- * - 이 파일은 전투 결과나 보상 결과를 읽지 않는다.
- */
+import { createSeededRng } from "./seeded-rng.js";
+import { computeStageCombatParams } from "./stage-scaling.js";
+
+const ENERGY_TYPES = ["red", "blue", "purple", "green"];
+
+function cloneNode(node) {
+  return {
+    id: node.id,
+    label: node.label,
+    weakness: [...(node.weakness ?? [])],
+    pickWeight: node.pickWeight ?? 0,
+    shieldMul: node.shieldMul ?? 1,
+    healthMul: node.healthMul ?? 1,
+    alwaysOffer: Boolean(node.alwaysOffer)
+  };
+}
+
+function weightedPickWithoutReplacement(rng, pool, count) {
+  const remaining = pool.map(cloneNode);
+  const picked = [];
+
+  while (picked.length < count && remaining.length > 0) {
+    const total = remaining.reduce((sum, node) => sum + (node.pickWeight ?? 0), 0);
+    if (total <= 0) break;
+    let roll = rng.next() * total;
+    let index = remaining.length - 1;
+
+    for (let i = 0; i < remaining.length; i += 1) {
+      roll -= remaining[i].pickWeight ?? 0;
+      if (roll <= 0) {
+        index = i;
+        break;
+      }
+    }
+
+    picked.push(remaining.splice(index, 1)[0]);
+  }
+
+  return picked;
+}
+
+export function generateNodeCandidates({
+  seed,
+  stageIndex,
+  table,
+  candidateCount = 3,
+  scalingOverrides = {}
+}) {
+  const rng = createSeededRng((seed >>> 0) ^ ((stageIndex + 1) * 0x9e3779b9));
+  const nodes = table.nodes ?? [];
+  const normal = nodes.find((node) => node.alwaysOffer || node.id === "normal");
+  if (!normal) {
+    throw new Error("node table must include a normal node.");
+  }
+
+  const base = computeStageCombatParams(stageIndex, scalingOverrides);
+  const extras = weightedPickWithoutReplacement(
+    rng,
+    nodes.filter((node) => !node.alwaysOffer && node.id !== "normal"),
+    Math.max(0, candidateCount - 1)
+  );
+
+  const candidates = [cloneNode(normal), ...extras].slice(0, candidateCount);
+  return candidates.map((candidate) => ({
+    ...candidate,
+    combat: {
+      shield: base.shield * candidate.shieldMul,
+      health: base.health * candidate.healthMul,
+      timeLimitTicks: base.timeLimitTicks,
+      weakness: [...candidate.weakness]
+    }
+  }));
+}
+
+export function isWeaknessEnergy(value) {
+  return ENERGY_TYPES.includes(value);
+}

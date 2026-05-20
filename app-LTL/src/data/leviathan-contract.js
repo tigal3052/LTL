@@ -1,3 +1,34 @@
-// 플레이어가 도전하는 리바이어던의 이름, 스테이지 수, 런 수 계약을 설명한다.
-// 플레이어는 리바이어던마다 몇 번의 런을 클리어해야 하는지 미리 알 수 있다고 기대한다.
-// 이 파일은 아직 실행 코드를 갖지 않고, leviathan JSON이 갖춰야 할 필드 문장만 고정한다.
+import { cloneFacts, validateWithSchema } from "../validation/schema-validator.js";
+
+export const leviathanSchema = {
+  type: "object",
+  required: ["id", "name", "stageCnt", "runCnt"],
+  additionalProperties: "warn",
+  properties: {
+    id: { type: "string" },
+    name: { type: "string" },
+    stageCnt: { type: "number", integer: true, minimum: 1 },
+    runCnt: { type: "number", integer: true, minimum: 1 }
+  }
+};
+
+export const leviathanTableSchema = {
+  type: "object",
+  required: ["leviathans"],
+  additionalProperties: "warn",
+  properties: {
+    leviathans: {
+      type: "array",
+      minItems: 1,
+      items: leviathanSchema
+    }
+  }
+};
+
+export function validateLeviathanTable(input, source = "leviathan_table") {
+  return validateWithSchema({ input, schema: leviathanTableSchema, source });
+}
+
+export function cloneLeviathanTable(table) {
+  return cloneFacts(table);
+}

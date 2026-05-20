@@ -5,31 +5,36 @@ Date: 2026-05-20
 
 ## Completion Summary
 
-Created a snapshot commit for the current workspace and then prepared the repository to stop tracking `agent-harness` and `LTL-harness` while keeping both directories locally.
+Implemented the M1 core-domain stabilization slice in an isolated worktree by turning the comment-only M1 boundary files into working loader contracts, stable headless-run snapshots, replay summaries, and scene read-model APIs.
 
 ## Actual Outputs
 
-- Created the snapshot commit `d128944`.
-- Added `.gitignore` rules for `agent-harness/` and `LTL-harness/`.
-- Removed both directories from the git index with cached deletion so the local working copies remain on disk.
-- Identified and removed a small set of rebase-surviving tracked files that still remained under those directories after the first cleanup pass.
-- Updated today's worklog plan and history for this git-tracking pass.
+- Added validator-backed contract modules for artifact, node, reward, leviathan, and progress data under `app-LTL/src/data/*-contract.js`.
+- Added loader entry points for those contracts under `app-LTL/src/loaders/*`.
+- Implemented deterministic M1 runtime boundaries in `app-LTL/src/process/headless-mini-run.js`, `app-LTL/src/process/replay-process.js`, `app-LTL/src/domain/snapshot.js`, and `app-LTL/src/ui/scene-read-model.js`.
+- Added focused M1 regression coverage in `app-LTL/tests/m1_core_domain_stabilization.test.js`.
+- Updated `app-LTL/src/README.md` and `LTL-harness/docs/00_tech-debt-tracker.md` to document what M1 now stabilizes versus what remains deferred.
+- Carried the interview addendum decisions into code by adding:
+  - paired `match` vs `mismatch` replay coverage
+  - reward-phase last-artifact `held` reposition support
+  - a guard that restores the last artifact instead of allowing an empty finalized inventory
 
 ## Changes From Plan
 
-- The task shifted away from the earlier documentation pass and became a repository-tracking cleanup task.
-- The user explicitly wanted git repository tracking removed for the two harness directories without deleting local files, so cached removal plus ignore rules replaced any filesystem deletion approach.
+- The implementation uses a lightweight deterministic simulator and reward resolver inside `app-LTL/src` rather than reusing the copied prototype wholesale, because several prototype dependencies in the local workspace are still comment-only scaffolds.
+- Replay coverage was expanded for the key branching paths in the plan, but the mismatch-attack and reward-phase last-artifact-removal scenarios remain deferred until the inventory/reward interaction layer is promoted further.
 
 ## Verification Results
 
-- `git status --short` showed `.gitignore` plus staged deletions for the two tracked directories after cached removal.
-- `git ls-files agent-harness LTL-harness` returned no tracked files, confirming the directories are no longer in the git index.
-- The local directories were intentionally preserved because the operation used cached removal only.
+- `node --test tests/m1_core_domain_stabilization.test.js` passes after first failing on missing exports and missing reward/inventory actions.
+- Full `npm test` passes for `app-LTL` with 9 tests green.
 
 ## Blockers Or Unverified Areas
 
-- Push status is still pending until the ignore/untrack follow-up commit is created and a remote push is attempted.
+- The current M1 slice still uses a placeholder inventory contract with no real artifact placement flow, so reward-phase removal/held-item guards are only documented, not fully executed end-to-end.
+- Contract files such as `domain/game-tuning.js` and the broader progression/meta layers remain outside this slice.
 
 ## Remaining Gaps
 
-- Record the final post-rebase cleanup of the remaining tracked harness files in one more commit and push that commit.
+- Add replay fixtures for mismatch-attack and reward-phase last-artifact-removal once inventory placement behavior is stabilized.
+- Expand the public contract coverage to the remaining comment-only M1 boundary modules that were not required for the current tests.

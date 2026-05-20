@@ -5,47 +5,46 @@ Date: 2026-05-20
 
 ## Active Work
 
-- Commit the current workspace state, then stop tracking `agent-harness` and `LTL-harness` in git while keeping the local directories in place and adding them to `.gitignore`.
+- Implement `LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md` inside `app-LTL` from an isolated worktree.
 
 ## Request Summary
 
-- The user asked us to commit the current state first.
-- After that, the user wants `agent-harness` and `LTL-harness` removed from the git repository's tracked contents without deleting the local directories.
-- The user also wants those two directories added to ignore rules so future commits and rollbacks do not include them.
+- The user asked us to create a worktree first.
+- After that, the user wants the M1 core-domain stabilization milestone implemented from the referenced execution plan.
 
 ## Scope
 
-- Update `.gitignore` at the repository root.
-- Make one commit for the current workspace snapshot.
-- Make a follow-up commit that removes the two directories from git tracking with cached removal only.
-- Push the resulting commits if repository/network access permits.
+- Stabilize `app-LTL` data contracts, validation, snapshot/read-model APIs, and replay-facing process boundaries.
+- Add or update automated tests that lock the M1 contract decisions before implementation code is added.
+- Update worklog and M1-facing documentation inside the worktree to reflect what was implemented and what remains deferred.
 
 ## Out of Scope
 
-- Deleting the local `agent-harness` or `LTL-harness` directories from disk.
-- Refactoring source code unrelated to git tracking/ignore behavior.
-- Reorganizing other tracked directories unless required by the user's request.
+- Restoring tracked status for `LTL-harness/` in the main repository.
+- Full Godot scene reconstruction or browser visual rework.
+- Narrative systems or full meta progression beyond the explicit M1 contract fields.
 
 ## Steps
 
-- Inspect current git status, branch, and ignore configuration.
-- Update today's worklog for the git-tracking request.
-- Stage and commit the full current workspace state.
-- Add ignore rules for `agent-harness/` and `LTL-harness/`, remove them from git tracking with cached removal, and commit that change.
-- Push the new commits if access is available; otherwise report the exact blocker.
+- Create and verify an isolated worktree branch for M1 implementation.
+- Review the M1 plan and current `app-LTL` code to map comment-only scaffolds vs existing logic.
+- Write failing tests for validator coverage, root/phase snapshots, and replay scenarios from the M0 matrix.
+- Implement the minimal production code needed to satisfy the new tests while keeping browser-prototype rules as the SoT baseline.
+- Update documentation and the tech-debt tracker to distinguish resolved M1 items from deferred work.
+- Run the focused test suite and record the results in the worklog completion note.
 
 ## Expected Outputs
 
-- A commit that snapshots the current workspace state.
-- `.gitignore` entries for `agent-harness/` and `LTL-harness/`.
-- A follow-up commit that removes those directories from git tracking while preserving them locally.
-- Updated worklog entries describing the git changes and any push result.
+- A worktree branch containing the M1 domain-contract implementation.
+- Validator-backed contracts for artifact, node, reward, leviathan, and progress data.
+- Stable public snapshot/read-model APIs plus replay coverage for the promoted M0 scenarios.
+- Updated docs/worklog entries that explain the implemented contract boundary and remaining deferred items.
 
 ## Verification Method
 
-- Use `git status --short` and `git ls-files` checks to confirm the directories are no longer tracked after cached removal.
-- Re-read `.gitignore` to confirm both directory rules are present.
-- Use `git log --oneline -2` and push output to confirm the requested commit sequence and remote update result.
+- Run `npm test` in `app-LTL` and confirm the new M1 contract tests fail first, then pass after implementation.
+- Re-read the exported public API files to confirm they no longer expose only placeholder comments.
+- Cross-check the resulting snapshot and replay outputs against the required fields and scenarios listed in the M1 plan.
 
 ## Plan Change Log
 
@@ -60,3 +59,4 @@ Date: 2026-05-20
 - 2026-05-20: Replaced the stale action-result task with a documentation task to complete P4/M0 execution-plan notes from source and interview evidence only.
 - 2026-05-20: Corrected the document target from `01_active` to `02_completed` after the user clarified the intended location for P4/M0 completion reports.
 - 2026-05-20: Replaced the documentation task with a git-tracking task to snapshot the current workspace and untrack `agent-harness` and `LTL-harness`.
+- 2026-05-20: Replaced the stale git-tracking task in the worktree with M1 core-domain stabilization implementation for `app-LTL`.
