@@ -17,3 +17,7 @@ data_*/
 mono_crash.*.json
 
 .cursor/
+
+# Keep local harness workspaces out of version control
+agent-harness/
+LTL-harness/

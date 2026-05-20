@@ -5,6 +5,14 @@ Date: 2026-05-20
 
 ## 2026-05-20
 
+- Intent: Snapshot the current workspace state, then stop tracking `agent-harness` and `LTL-harness` without deleting the local directories.
+- Files or areas touched: `.gitignore`, git index entries for `agent-harness/**` and `LTL-harness/**`
+- Summary: Created the snapshot commit `d128944`, then added root `.gitignore` rules for `agent-harness/` and `LTL-harness/` and removed both directories from the git index using cached removal only. This leaves the local directories on disk while excluding them from future commits and ordinary rollback operations.
+- Plan impact: Replaced the documentation-oriented task with a git hygiene task focused on repository tracking boundaries.
+- Verification status: Confirmed with `git ls-files agent-harness LTL-harness` that no tracked paths remain under either directory before the follow-up commit.
+
+## 2026-05-20
+
 - Intent: Move the P4/M0 completion write-ups from the active plan files into the completed-report directory after the user clarified the intended destination.
 - Files or areas touched: `LTL-harness/docs/11_exec-plans/01_active/05_P4_mini_run_and_scaling.md`, `LTL-harness/docs/11_exec-plans/01_active/06_M0_redesign_gate.md`, `LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md`, `LTL-harness/docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md`, `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md`, `docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md`
 - Summary: Removed the mistakenly inserted `Complete` sections from the two `01_active` milestone plans and recreated the same source-based content as standalone completed reports under `02_completed`, matching the existing P0-P2 reporting convention.
@@ -501,86 +509,197 @@ Date: 2026-05-20
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
 
-## 2026-05-20 15:57:07
+## 2026-05-20 15:41:25
 
-<!-- codex-worklog-signature: 5e8bd580e776e4f6e9f72e8830dd1dbf3e1bddc8589db7a47a630c40cf5f9906 -->
+<!-- codex-worklog-signature: 21c3c821c0e23549bd3307c9378a4e48016c7263bb4a4e0524ff17982487eb50 -->
 
 - Intent: Workspace files changed through Codex tooling.
 - Tool: Bash
 - Files or areas touched:
 ``text
 M  LTL-harness/00_AGENTS.md
-M  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
-M  LTL-harness/docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md
+A  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
+A  LTL-harness/docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md
 M  agent-harness/00_AGENTS.md
-M  app-LTL/prototype/browser-p0-p4/src/action-result.js
-M  app-LTL/prototype/browser-p0-p4/src/combat-controller.js
-M  app-LTL/prototype/browser-p0-p4/src/domain/energy-queue.js
-M  app-LTL/prototype/browser-p0-p4/src/domain/mining-resolver.js
-M  app-LTL/prototype/browser-p0-p4/src/domain/seeded-rng.js
-M  app-LTL/prototype/browser-p0-p4/src/telemetry/telemetry.js
-M  app-LTL/prototype/browser-p0-p4/src/tools/replay-runner.js
-A  app-LTL/src/README.md
-A  app-LTL/src/data/artifact-table.schema.js
-A  app-LTL/src/data/node-table.schema.js
-A  app-LTL/src/data/tuning.schema.js
-A  app-LTL/src/domain/combat-resolution.js
-A  app-LTL/src/domain/facts.js
-A  app-LTL/src/domain/game-tuning.js
-A  app-LTL/src/domain/inventory-model.js
-A  app-LTL/src/domain/node-generator.js
-A  app-LTL/src/domain/reward-resolver.js
-A  app-LTL/src/domain/rules.js
-A  app-LTL/src/domain/run-progression.js
-A  app-LTL/src/domain/run-simulator.js
-A  app-LTL/src/domain/snapshot.js
-A  app-LTL/src/domain/stage-scaling.js
-A  app-LTL/src/index.js
-A  app-LTL/src/loaders/artifact-loader.js
-A  app-LTL/src/loaders/node-loader.js
-A  app-LTL/src/process/headless-mini-run.js
+D  app-LTL/prototype/PrototypeController.gd
+D  app-LTL/prototype/PrototypeMain.tscn
+A  app-LTL/prototype/browser-p0-p4/package.json
+A  app-LTL/prototype/browser-p0-p4/public/index.html
+A  app-LTL/prototype/browser-p0-p4/src/action-result.js
+A  app-LTL/prototype/browser-p0-p4/src/combat-controller.js
+A  app-LTL/prototype/browser-p0-p4/src/data/artifact-table.json
+A  app-LTL/prototype/browser-p0-p4/src/data/node-table.json
+A  app-LTL/prototype/browser-p0-p4/src/domain/energy-queue.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/game-tuning.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/hazard-model.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/inventory-model.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/mining-resolver.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/node-generator.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/reward-resolver.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/run-progression.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/run-simulator.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/seeded-rng.js
+A  app-LTL/prototype/browser-p0-p4/src/domain/stage-scaling.js
+A  app-LTL/prototype/browser-p0-p4/src/models/artifact-table.js
+A  app-LTL/prototype/browser-p0-p4/src/models/combat-simulator.js
+A  app-LTL/prototype/browser-p0-p4/src/models/inventory.js
+A  app-LTL/prototype/browser-p0-p4/src/phases/combat-end-phase.js
+A  app-LTL/prototype/browser-p0-p4/src/phases/combat-phase.js
+A  app-LTL/prototype/browser-p0-p4/src/phases/combat-start-phase.js
+A  app-LTL/prototype/browser-p0-p4/src/phases/node-select-phase.js
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
 
-## 2026-05-20 15:57:52
+## 2026-05-20 15:41:30
 
-<!-- codex-worklog-signature: 3daac3a600e55b69e4454ea4a229e6854aefdf84c4460df73cd4c02a49e938ae -->
+<!-- codex-worklog-signature: 02dad6a9aace8918c242393729947dd856417bb5aa9e53932e5168a22b8aaf13 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 15:41:37
+
+<!-- codex-worklog-signature: da8b5e85a5863d536773a105d7610c98607357436fcb700e9b8fcbc81c838a1b -->
 
 - Intent: Workspace files changed through Codex tooling.
 - Tool: apply_patch
 - Files or areas touched:
 ``text
-M  LTL-harness/00_AGENTS.md
-M  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
-M  LTL-harness/docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md
-M  agent-harness/00_AGENTS.md
-M  app-LTL/prototype/browser-p0-p4/src/action-result.js
-M  app-LTL/prototype/browser-p0-p4/src/combat-controller.js
-M  app-LTL/prototype/browser-p0-p4/src/domain/energy-queue.js
-M  app-LTL/prototype/browser-p0-p4/src/domain/mining-resolver.js
-M  app-LTL/prototype/browser-p0-p4/src/domain/seeded-rng.js
-M  app-LTL/prototype/browser-p0-p4/src/telemetry/telemetry.js
-M  app-LTL/prototype/browser-p0-p4/src/tools/replay-runner.js
-A  app-LTL/src/README.md
-A  app-LTL/src/data/artifact-table.schema.js
-A  app-LTL/src/data/node-table.schema.js
-A  app-LTL/src/data/tuning.schema.js
-A  app-LTL/src/domain/combat-resolution.js
-A  app-LTL/src/domain/facts.js
-A  app-LTL/src/domain/game-tuning.js
-A  app-LTL/src/domain/inventory-model.js
-A  app-LTL/src/domain/node-generator.js
-A  app-LTL/src/domain/reward-resolver.js
-A  app-LTL/src/domain/rules.js
-A  app-LTL/src/domain/run-progression.js
-A  app-LTL/src/domain/run-simulator.js
-A  app-LTL/src/domain/snapshot.js
-A  app-LTL/src/domain/stage-scaling.js
-A  app-LTL/src/index.js
-A  app-LTL/src/loaders/artifact-loader.js
-A  app-LTL/src/loaders/node-loader.js
-A  app-LTL/src/process/headless-mini-run.js
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 15:41:41
+
+<!-- codex-worklog-signature: d1d42280343df7aa2978f65b6ff42697d977b0592667b38233044be4dfe6e0ed -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+D  LTL-harness/00_AGENTS.md
+D  LTL-harness/README.md
+D  LTL-harness/docs/00_PRODUCT_SENSE.md
+D  LTL-harness/docs/01_PLANS.md
+D  LTL-harness/docs/02_DESIGN.md
+D  LTL-harness/docs/03_TECH_STACK.md
+D  LTL-harness/docs/07_TEST_DRIVEN_DEV.md
+D  LTL-harness/docs/08_QUALITY_ASSURANCE.md
+D  LTL-harness/docs/09_DEPLOYMENT.md
+D  LTL-harness/docs/10_OPERATIONS.md
+D  LTL-harness/docs/11_exec-plans/01_active/01_P0_test_harness_and_logs.md
+D  LTL-harness/docs/11_exec-plans/01_active/02_P1_headless_core_loop.md
+D  LTL-harness/docs/11_exec-plans/01_active/03_P2_combat_control_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/04_P3_backpack_and_hazard_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/05_P4_mini_run_and_scaling.md
+D  LTL-harness/docs/11_exec-plans/01_active/06_M0_redesign_gate.md
+D  LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md
+D  LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md
+D  LTL-harness/docs/11_exec-plans/01_active/09_M3_reward_and_progression.md
+D  LTL-harness/docs/11_exec-plans/01_active/10_M4_node_routing.md
+D  LTL-harness/docs/11_exec-plans/01_active/11_M5_hazard_hierarchy.md
+D  LTL-harness/docs/11_exec-plans/01_active/12_M6_ui_ux_finalization.md
+D  LTL-harness/docs/11_exec-plans/01_active/13_M7_narrative_integration.md
+D  LTL-harness/docs/11_exec-plans/01_active/14_M8_vertical_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/15_M9_release_candidate.md
+D  LTL-harness/docs/11_exec-plans/02_completed/01_P0_test_harness_and_logs_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/02_P1_headless_core_loop_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/03_P2_combat_control_slice_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 15:42:51
+
+<!-- codex-worklog-signature: b79a7512dfdc3a95c6689f01f1977b5afea83051b3177a37f3e3c202dcec2f26 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+D  LTL-harness/00_AGENTS.md
+D  LTL-harness/README.md
+D  LTL-harness/docs/00_PRODUCT_SENSE.md
+D  LTL-harness/docs/01_PLANS.md
+D  LTL-harness/docs/02_DESIGN.md
+D  LTL-harness/docs/03_TECH_STACK.md
+D  LTL-harness/docs/07_TEST_DRIVEN_DEV.md
+D  LTL-harness/docs/08_QUALITY_ASSURANCE.md
+D  LTL-harness/docs/09_DEPLOYMENT.md
+D  LTL-harness/docs/10_OPERATIONS.md
+D  LTL-harness/docs/11_exec-plans/01_active/01_P0_test_harness_and_logs.md
+D  LTL-harness/docs/11_exec-plans/01_active/02_P1_headless_core_loop.md
+D  LTL-harness/docs/11_exec-plans/01_active/03_P2_combat_control_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/04_P3_backpack_and_hazard_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/05_P4_mini_run_and_scaling.md
+D  LTL-harness/docs/11_exec-plans/01_active/06_M0_redesign_gate.md
+D  LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md
+D  LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md
+D  LTL-harness/docs/11_exec-plans/01_active/09_M3_reward_and_progression.md
+D  LTL-harness/docs/11_exec-plans/01_active/10_M4_node_routing.md
+D  LTL-harness/docs/11_exec-plans/01_active/11_M5_hazard_hierarchy.md
+D  LTL-harness/docs/11_exec-plans/01_active/12_M6_ui_ux_finalization.md
+D  LTL-harness/docs/11_exec-plans/01_active/13_M7_narrative_integration.md
+D  LTL-harness/docs/11_exec-plans/01_active/14_M8_vertical_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/15_M9_release_candidate.md
+D  LTL-harness/docs/11_exec-plans/02_completed/01_P0_test_harness_and_logs_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/02_P1_headless_core_loop_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/03_P2_combat_control_slice_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 15:58:37
+
+<!-- codex-worklog-signature: c081cacd3a56defbe03ea7fd7547820e67029cfdc434fa56f176e51687d2daae -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  .gitignore
+D  LTL-harness/00_AGENTS.md
+D  LTL-harness/README.md
+D  LTL-harness/docs/00_PRODUCT_SENSE.md
+D  LTL-harness/docs/01_PLANS.md
+D  LTL-harness/docs/02_DESIGN.md
+D  LTL-harness/docs/03_TECH_STACK.md
+D  LTL-harness/docs/07_TEST_DRIVEN_DEV.md
+D  LTL-harness/docs/08_QUALITY_ASSURANCE.md
+D  LTL-harness/docs/09_DEPLOYMENT.md
+D  LTL-harness/docs/10_OPERATIONS.md
+D  LTL-harness/docs/11_exec-plans/01_active/01_P0_test_harness_and_logs.md
+D  LTL-harness/docs/11_exec-plans/01_active/02_P1_headless_core_loop.md
+D  LTL-harness/docs/11_exec-plans/01_active/03_P2_combat_control_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/04_P3_backpack_and_hazard_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/05_P4_mini_run_and_scaling.md
+D  LTL-harness/docs/11_exec-plans/01_active/06_M0_redesign_gate.md
+D  LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md
+D  LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md
+D  LTL-harness/docs/11_exec-plans/01_active/09_M3_reward_and_progression.md
+D  LTL-harness/docs/11_exec-plans/01_active/10_M4_node_routing.md
+D  LTL-harness/docs/11_exec-plans/01_active/11_M5_hazard_hierarchy.md
+D  LTL-harness/docs/11_exec-plans/01_active/12_M6_ui_ux_finalization.md
+D  LTL-harness/docs/11_exec-plans/01_active/13_M7_narrative_integration.md
+D  LTL-harness/docs/11_exec-plans/01_active/14_M8_vertical_slice.md
+D  LTL-harness/docs/11_exec-plans/01_active/15_M9_release_candidate.md
+D  LTL-harness/docs/11_exec-plans/02_completed/01_P0_test_harness_and_logs_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/02_P1_headless_core_loop_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/03_P2_combat_control_slice_completed.md
+D  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
