@@ -5,55 +5,52 @@ Date: 2026-05-17
 
 ## Active Work
 
-Rebuilding the app structure from the top: separating existing source into `prototype` and creating a comment-only M1 scaffold that follows the clarified logic-based programming methodology.
+Revise the LTL harness workflow into a three-step comment-to-code process and revert `action-result.js` to its pre-test design-comment state.
 
 ## Request Summary
 
-- Move the current browser implementation out of active source and into `app-LTL/prototype/browser-p0-p4`.
-- Move the existing Godot prototype files into `app-LTL/prototype/godot-p0`.
-- Recreate active `app-LTL/src` and `app-LTL/tests` as comment-only M1 scaffolding.
-- Ensure new scaffold starts from player-facing Korean behavior sentences and code-leading Korean one-sentence comments.
+The current rules over-corrected toward executable comments only. Update `LTL-harness/00_AGENTS.md` so work proceeds as: 1. design-based comments, 2. executable sentence comments, 3. comment-based implementation. Also revert the prior `action-result.js` test implementation back to the design-comment skeleton.
 
 ## Scope
 
-- Preserve existing implementation by moving it under `prototype`, not deleting it.
-- Do not implement executable M1 domain behavior yet.
-- Create only comments and markdown sentences in the new active source tree.
-- Keep package/project metadata unless it must be adjusted for the new skeleton.
+- Update `LTL-harness/00_AGENTS.md`.
+- Preserve the distinction between design comments and executable implementation comments.
+- Revert `app-LTL/src/action-result.js` to the design-comment-only state.
+- Remove the focused `app-LTL/tests/action_result.test.js` that belonged to the reverted test implementation.
+- Update worklog files.
 
 ## Out of Scope
 
-- Full Godot scene reconstruction or production UI redesign.
-- Full meta progression loop, XP, unlocks, or narrative systems.
-- Reverting or rewriting unrelated dirty workspace changes already present before this M1 implementation pass.
+- Rewriting all existing `app-LTL/src` comments to the new three-step format.
+- Implementing or testing any source module.
+- Editing preserved prototype files.
 
 ## Steps
 
-- Create prototype subdirectories.
-- Move current `src`, `tests`, and `public` into `prototype/browser-p0-p4`.
-- Move existing Godot prototype files into `prototype/godot-p0`.
-- Create new comment-only source/test files for M1 through process, phases, domain, data, UI, and tests.
-- Verify no executable statements exist in the new active scaffold.
+- Adjust logic-based programming rules to require the three-step workflow.
+- Adjust comment rules, Ready, and Done so design comments are allowed only before executable comments and implementation.
+- Restore `action-result.js` to design comments only.
+- Remove the now-invalid focused action-result test file.
+- Run diff checks.
 
 ## Expected Outputs
 
-- Existing browser/Godot prototype source preserved under `prototype`.
-- New active source tree with comment-only M1 logical scaffold.
-- Worklog notes explaining that M1 remains comment-only until player sentences and comments are approved.
+- `LTL-harness/00_AGENTS.md` documents the three-step workflow.
+- `app-LTL/src/action-result.js` contains only the prior design-based comments.
+- `app-LTL/tests/action_result.test.js` is removed.
 
 ## Verification Method
 
-- Inspect active `app-LTL/src` and `app-LTL/tests` for comment-only files.
-- Run `node --test tests/*.test.js` from `app-LTL` if the comment-only test scaffold is syntactically valid.
-- Note: `npm test` is unavailable in this PowerShell session because execution policy blocks `npm.ps1`; use direct `node --test` commands.
+- `git diff --check -- LTL-harness/00_AGENTS.md app-LTL/src/action-result.js app-LTL/tests/action_result.test.js docs/codex-worklog`
+- Spot-check the harness for the three-step workflow wording.
+- `node --check src/action-result.js` from `app-LTL`.
 
 ## Plan Change Log
 
-- 2026-05-17: Worklog bootstrapped automatically by Codex hook.
-- 2026-05-17: Replaced placeholder plan with concrete scope for handoff-document rewrite and glossary grounding.
-- 2026-05-17: Re-scoped active work to combat damage spec alignment requested during handoff interview.
-- 2026-05-17: Re-scoped active work to backfill milestone completion docs, bootstrap the redesign-gate tracker, and rewrite the M1 stabilization plan.
-- 2026-05-17: Re-scoped active work to M1 code implementation, starting with data contract validators and JSON-backed domain boundaries.
-- 2026-05-17: Re-scoped active work to M1 review fixes plus `00_AGENTS.md` logic-based methodology compliance check.
-- 2026-05-17: Re-scoped active work to remove the non-compliant M1 implementation after the methodology definition was clarified.
-- 2026-05-17: Re-scoped active work to full structure rebuild: prototype separation plus comment-only M1 logical scaffold.
+- 2026-05-17: Updated plan for three-step comment workflow and action-result revert.
+- 2026-05-17: Updated plan for executable-comment rule tightening in `LTL-harness/00_AGENTS.md`.
+- 2026-05-17: Updated plan for user-requested test implementation of `action-result.js` only.
+- 2026-05-17: Updated plan for user-requested M1 logic-unit comment rewrite in `app-LTL/src`; implementation remains out of scope.
+- 2026-05-17: Replaced the prototype recovery plan with the requested M1 comment-first `app-LTL/src` skeleton rebuild.
+- 2026-05-17: Updated plan for harness rollback recovery of comment-first and logic-based programming rules.
+- 2026-05-17: Updated plan for restoring `Document Structure` and modernizing the generic harness instead of trimming mismatched sections.

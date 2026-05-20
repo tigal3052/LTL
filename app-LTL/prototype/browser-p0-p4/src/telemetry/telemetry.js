@@ -1,68 +1,29 @@
-export class Telemetry {
-  static requiredFields = [
-    "run_id",
-    "seed",
-    "stage_index",
-    "node_type",
-    "shots_fired",
-    "shots_hit_match",
-    "shots_hit_mismatch",
-    "shots_invalid_tile_cooldown",
-    "shots_fired_empty_queue",
-    "invalid_target_inputs",
-    "queue_generated",
-    "queue_consumed",
-    "queue_wasted",
-    "durability_loss_count",
-    "repair_count",
-    "clear_time_sec",
-    "fail_time_sec",
-    "result"
-  ];
-
-  constructor({ runId = crypto.randomUUID?.() ?? "run", seed, stageIndex = 0, nodeType = "normal" }) {
-    this.events = [];
-    this.data = {
-      run_id: runId,
-      seed,
-      stage_index: stageIndex,
-      node_type: nodeType,
-      shots_fired: 0,
-      shots_hit_match: 0,
-      shots_hit_mismatch: 0,
-      shots_invalid_tile_cooldown: 0,
-      shots_fired_empty_queue: 0,
-      invalid_target_inputs: 0,
-      queue_generated: 0,
-      queue_consumed: 0,
-      queue_wasted: 0,
-      durability_loss_count: 0,
-      repair_count: 0,
-      clear_time_sec: null,
-      fail_time_sec: null,
-      result: "running"
-    };
-  }
-
-  record(event, payload = {}) {
-    this.events.push({ event, ...payload });
-  }
-
-  increment(field, amount = 1) {
-    this.data[field] += amount;
-  }
-
-  set(field, value) {
-    this.data[field] = value;
-  }
-
-  syncQueueStats(queue) {
-    this.data.queue_generated = queue.stats.generated;
-    this.data.queue_consumed = queue.stats.consumed;
-    this.data.queue_wasted = queue.stats.wasted;
-  }
-
-  summary() {
-    return { ...this.data };
-  }
-}
+/**
+ * 한 문장: replay 가능한 event facts에서 필수 run summary와 counters를 파생한다.
+ *
+ * 참조 원형:
+ * - `prototype/browser-p0-p4/src/telemetry/telemetry.js`
+ * - `prototype/browser-p0-p4/tests/p0_replay.test.js`
+ *
+ * 필수 field 묶음:
+ * - identity는 run_id, seed, stage_index, node_type을 포함한다.
+ * - combat result는 result, elapsed_ticks, time_limit_ticks를 포함한다.
+ * - shots는 shots_fired, match, normal, mismatch, empty_queue, invalid_target을 포함한다.
+ * - queue는 generated, consumed, wasted를 포함한다.
+ * - repair는 durability_loss_count와 repair_required를 포함한다.
+ * - progression은 stage_cleared, rewards_claimed, run_complete를 포함한다.
+ *
+ * 규칙:
+ * - 필수 field는 값이 0이더라도 항상 존재한다.
+ * - counter는 replay 가능한 event facts에서 다시 계산한다.
+ * - 같은 facts는 항상 같은 summary를 만든다.
+ * - summary 생성은 action result 문구와 분리한다.
+ *
+ * 구현 순서:
+ * - event type별 counter 질의를 먼저 만든다.
+ * - 필수 field 기본값을 한곳에서 만든다.
+ * - public telemetry summary는 기본값 위에 파생 counter를 덮어써서 만든다.
+ *
+ * 금지 규칙:
+ * - telemetry는 전투 결과를 판정하지 않고 이미 발생한 event facts만 읽는다.
+ */

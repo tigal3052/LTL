@@ -1,52 +1,35 @@
 # P4 Completion Report
 
-**Related active plan (kept in place)**: `docs/11_exec-plans/01_active/05_P4_mini_run_and_scaling.md`
-
 ## Completion Summary
 
-- Delivered the P4 mini-run and scaling slice in `app-LTL`, extending the prototype from single-node combat into a staged loop with node selection, reward generation, and run completion.
-- Implemented deterministic node generation, stage scaling, reward rolling, and a headless mini-run progression path that can be exercised without the browser.
-- Connected the browser prototype to the mini-run phase flow so the player-facing demo can enter node selection, combat, reward handling, and subsequent stage progression.
+- P4에서 확인하려던 mini-run, node offer, reward, stage progression, scaling 규칙의 원형은 `app-LTL/prototype/browser-p0-p4` 소스에 정리되어 있다.
+- 이 완료 보고는 정식 `app-LTL/src` 구현 완료가 아니라, 브라우저 prototype이 M0 재설계 판단에 사용할 수 있을 만큼 구조와 계약을 남겼다는 의미의 완료 기록이다.
 
 ## Actual Outputs
 
-- `app-LTL/src/domain/node-generator.js`
-- `app-LTL/src/domain/reward-resolver.js`
-- `app-LTL/src/domain/stage-scaling.js`
-- `app-LTL/src/domain/run-progression.js`
-- `app-LTL/src/process/headless-mini-run.js`
-- `app-LTL/src/process/mini-run-stage-script.js`
-- `app-LTL/src/phases/node-select-phase.js`
-- `app-LTL/src/phases/reward-loot-phase.js`
-- `app-LTL/src/phases/reduce-mini-run-phase.js`
-- `app-LTL/src/data/node-table.json`
-- `app-LTL/tests/p4_mini_run.test.js`
-- `app-LTL/public/index.html` and `app-LTL/src/ui/mini-run-app.js` (mini-run flow integration)
+- `app-LTL/prototype/browser-p0-p4/src/domain/node-generator.js`
+- `app-LTL/prototype/browser-p0-p4/src/domain/reward-resolver.js`
+- `app-LTL/prototype/browser-p0-p4/src/process/headless-mini-run.js`
+- `app-LTL/prototype/browser-p0-p4/src/domain/run-progression.js`
+- `app-LTL/prototype/browser-p0-p4/src/data/node-table.json`
+- `app-LTL/prototype/browser-p0-p4/src/tools/mini-run-telemetry.js`
+- Prototype reward/phase support files under `app-LTL/prototype/browser-p0-p4/src/phases` and `src/vocabulary`
 
 ## Verification Results
 
-- `node --test tests/p4_mini_run.test.js`
-- `node --test tests/*.test.js`
-- The current Node test suite verifies the intended P4 contract:
-  - the normal node is always included and node offers are seed-stable
-  - stage shield/health/time pressure scales with stage index
-  - reward count rolls stay within the 1~5 contract
-  - cleared weakness biases reward colors upward
-  - a 5-stage mini-run loops through node select -> combat -> reward -> next stage -> run complete
-- This session did not re-run dedicated manual browser QA, so the browser-facing completion claim is based on the integrated code path and automated regression coverage rather than a fresh visual walkthrough.
+- Source inspection confirms that the prototype mini-run loop is separated into `node_select -> combat -> reward -> next stage / run_complete`.
+- Source inspection confirms that `node-generator.js` keeps `normal`/`alwaysOffer` as the first candidate and derives additional candidates from seed + stage-based weighted selection.
+- Source inspection confirms that the reward resolver contract includes 1~5 reward count selection and weakness-biased reward weighting.
+- Source inspection confirms that `mini-run-telemetry.js` exists as a prototype-side tool for repeated automated runs.
+- Per user instruction, this completion judgment does not rely on extra runtime execution or fresh telemetry output; it is intentionally limited to prototype source evidence.
 
 ## Changes From Plan
 
-- The active plan described a 3-stage validation target, but the implemented and tested progression path uses `maxStages = 5` in the current browser/headless prototype.
-- The plan expected future Godot `.gd` deliverables, while the actual milestone completion remains in JavaScript/Node to keep the prototype deterministic and testable in the current environment.
-- The reward output remains a prototype reward schema (`kind`, `color`, `qty`) rather than the redesigned artifact/progression reward JSON that M0 later decided on.
+- The milestone was not promoted into the formal `app-LTL/src` path yet. Instead, the usable outcome of P4 is a prototype SoT that preserves the intended mini-run/scaling contracts for redesign review.
+- The completion record is therefore written as a source-backed prototype milestone rather than a formally verified production-path milestone.
 
 ## Remaining Gaps
 
-- The current P4 reward contract must be redesigned in M1 to match the post-M0 decisions:
-  - artifact reward JSON
-  - rarity tiers
-  - sell value
-  - leviathan/progress integration
-- The 5-stage prototype loop was later reclassified at M0 as a test-scale mini-run rather than the final Leviathan-driven run structure.
-- Browser SoT, replay promotion, and loader/validator contracts still need to be formalized before Godot-side implementation can safely begin.
+- `app-LTL/src/domain/node-generator.js`, `reward-resolver.js`, `run-progression.js`, `snapshot.js`, and `telemetry.js` are still not fully migrated out of comment-SoT / transition state.
+- The `20-run telemetry report` completion criterion is only backed by tool presence in the prototype path during this pass, not by fresh execution evidence.
+- P4 should be considered fully closed only after the non-prototype implementation path carries the same contracts and replay/telemetry verification is rerun there.

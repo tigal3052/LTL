@@ -5,39 +5,34 @@ Date: 2026-05-17
 
 ## Completion Summary
 
-The app structure was rebuilt around the clarified logic-based programming methodology. Existing executable sources were moved under `prototype`, and the active M1 tree now contains comment-only scaffolding that starts from player-facing Korean sentences.
+Updated the LTL harness to use a three-step comment workflow and reverted the `action-result.js` implementation experiment back to design comments.
 
 ## Actual Outputs
 
-- Preserved browser prototype under `app-LTL/prototype/browser-p0-p4`.
-- Preserved Godot prototype under `app-LTL/prototype/godot-p0`.
-- Created comment-only active M1 scaffold under:
-  - `app-LTL/src/00_player_sentences`
-  - `app-LTL/src/process`
-  - `app-LTL/src/phases`
-  - `app-LTL/src/domain`
-  - `app-LTL/src/data`
-  - `app-LTL/src/ui`
-  - `app-LTL/tests`
-- Reset `LTL-harness/docs/00_tech-debt-tracker.md` M1-related statuses back to open.
-- Removed the implementation-progress section from `LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md`.
+- `LTL-harness/00_AGENTS.md` now requires:
+  - `1. 설계기반 주석 작성`
+  - `2. 실행 문장 주석 작성`
+  - `3. 주석기반 프로그래밍 구현`
+- Design comments are allowed for structure and contracts, but they cannot be treated as implementation-ready.
+- Function bodies must still use executable sentence comments before code.
+- `app-LTL/src/action-result.js` is back to the design-comment-only skeleton.
+- `app-LTL/tests/action_result.test.js` was removed because it belonged to the reverted test implementation pass.
 
 ## Changes From Plan
 
-- Earlier completion notes that claimed a passing M1 contract slice are superseded by this rebuild.
-- M1 remains implementation-free until code is written under the clarified sequence: player-facing sentence first, Korean comment first, implementation follows the comment structure.
+The action-result revert included removing the focused test file to keep the workspace consistent with the pre-test implementation state.
 
 ## Verification Results
 
-- Active JS/test scaffold scan found no non-comment code lines.
-- `node --test tests/*.test.js` passed with 1/1 comment-only test file accepted by Node's test runner.
+- `node --check src/action-result.js` passed from `app-LTL`.
+- `git diff --check -- LTL-harness/00_AGENTS.md app-LTL/src/action-result.js app-LTL/tests/action_result.test.js docs/codex-worklog` passed.
+- `Select-String` confirmed the three-step workflow wording in `LTL-harness/00_AGENTS.md`.
+- `Test-Path app-LTL/tests/action_result.test.js` returned `False`.
 
 ## Blockers or Unverified Areas
 
-- Existing unrelated dirty workspace changes outside the app restructure were preserved.
-- Prototype tests now live under `app-LTL/prototype/browser-p0-p4/tests`; the active root test script only sees the comment-only M1 scaffold.
+No app test suite was run because `action-result.js` was intentionally reverted to a comment-only skeleton.
 
 ## Remaining Gaps
 
-- M1 implementation remains open.
-- Future M1 work must begin with player-facing Korean behavior sentences and Korean one-sentence comments before code.
+The existing M1 source comments should next be split into the new three stages before any further implementation work.

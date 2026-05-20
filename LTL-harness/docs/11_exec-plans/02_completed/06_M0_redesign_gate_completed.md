@@ -1,148 +1,41 @@
-# M0 Redesign Gate Completion Report
-
-**Related active plan (kept in place)**: `docs/11_exec-plans/01_active/06_M0_redesign_gate.md`
+# M0 Completion Report
 
 ## Completion Summary
 
-- Completed the M0 redesign gate by deciding which prototype contracts should be promoted into formal M1 domain boundaries and which browser-only structures should remain prototype-specific.
-- The gate outcome reclassified the current 5-stage browser mini-run as a test-scale structure, locked the browser combat SoT, and established the first formal contracts for fixture promotion, JSON schemas, phase records, reward structure, UI boundaries, and progress tracking.
-- Bootstrapped the missing tech-debt tracker so the redesign-gate result can flow directly into M1 planning.
+- M0에서의 핵심 산출물은 구현 그 자체보다 "무엇을 정식 규칙으로 유지하고 무엇을 prototype 전용 구조로 남길지"에 대한 결정이다.
+- 이번 완료 보고는 코드 원복 과정에서 빠진 인터뷰 결정을 복구한 것으로, 브라우저 prototype의 역할 축소, fixture 승격 대상, 데이터 스키마 방향, phase record 구조, UI/연출 경계, 보상/성장 확장 방향을 다시 확정한다.
 
 ## Actual Outputs
 
-- `docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md`
-- `docs/00_tech-debt-tracker.md`
-- A formalized decision baseline derived from:
-  - `docs/11_exec-plans/01_active/06_M0_redesign_gate.md`
-  - `docs/11_exec-plans/01_active/06b_post_M0_implementation_handoff.md`
-  - the user interview decisions collected during the gate review
+- Recovered M0 decision summary from the confirmed interview notes
+- Source-backed alignment against:
+- `app-LTL/prototype/browser-p0-p4/src/process/headless-mini-run.js`
+- `app-LTL/prototype/browser-p0-p4/src/phases/node-select-phase.js`
+- `app-LTL/prototype/browser-p0-p4/src/phases/reward-loot-phase.js`
+- `app-LTL/prototype/browser-p0-p4/tests/phases_reward_loot.test.js`
+- `app-LTL/prototype/browser-p0-p4/src/data/artifact-table.json`
+- `app-LTL/src/data/artifact-table.schema.js`
+- `app-LTL/src/data/node-table.schema.js`
+- `app-LTL/src/domain/facts.js`
+- `app-LTL/src/domain/snapshot.js`
+- `app-LTL/src/domain/run-progression.js`
 
 ## Verification Results
 
-- The redesign-gate decisions were cross-checked against the current browser/runtime code in `app-LTL`, especially:
-  - `src/ui/mini-run-app.js`
-  - `src/process/mini-run-stage-script.js`
-  - `src/vocabulary/combat/fire-shot.js`
-  - `src/phases/*`
-  - `src/data/*`
-- `node --test tests/p4_mini_run.test.js`
-- `node --test tests/*.test.js`
-- The replay/core-loop/domain tests currently remain green, which means the gate decisions are being recorded against a stable prototype baseline rather than a broken intermediate state.
+- Source inspection confirms that the current browser prototype is suitable as a rules/reference sandbox, but not yet as the formal shipped structure.
+- Source inspection confirms that reward gating, pending reward handling, held item handling, and next-stage transition boundaries are already expressed in the prototype phase code.
+- Source inspection confirms that the formal `app-LTL/src` side already contains schema/facts/snapshot SoT files that point toward the recovered M0 decisions, even though several pieces remain comment-first and not fully implemented.
+- The plan item mentioning `00_tech-debt-tracker.md` could not be verified because that file is not currently present at the referenced path.
+- Per user instruction, this completion judgment is intentionally based on source review and recovered decision notes only, not on new runtime verification.
 
 ## Changes From Plan
 
-- The active gate note expected a technical-debt tracker to already exist, but the file was missing. The redesign gate completion therefore includes tracker bootstrap as part of the completion work.
-- Instead of continuing to evolve `06b_post_M0_implementation_handoff.md` as the main output, the authoritative gate result is recorded here as a milestone completion report as requested.
-
-## Gate Decisions Recorded
-
-### Browser SoT
-
-- Browser combat rules are the current SoT and should be preserved as the M1 reference contract.
-- The current browser `queue / time / pin` loop remains the baseline combat rhythm.
-- The current 5-stage browser mini-run is a test-scale loop, not the final Leviathan-driven run structure.
-- Final Leviathan structure should be driven by Leviathan data:
-  - 4~6 stages per mini-run
-  - 3~5 mini-runs per Leviathan
-  - the last stage of each mini-run is a boss stage
-
-### Fixture / Replay Promotion
-
-- The promoted M1 replay/fixture matrix must cover:
-  - one-shot clear
-  - empty-queue repair pressure
-  - mismatch attack
-  - reward claim to next stage
-  - final stage clear to run complete
-  - run-complete branching
-    - Leviathan clear end
-    - next run progression
-  - reward-phase last-artifact removal guard
-
-### Data Contracts
-
-- Artifact required fields:
-  - `id`
-  - `name`
-  - `shape`
-  - `energyType`
-  - `baseCooldownTicks`
-  - `synergy`
-  - `keyword`
-- `synergy` is required but may be `null`.
-- Node required fields:
-  - `id`
-  - `label`
-  - `weakness`
-  - `pickWeight`
-  - `shieldMul`
-  - `healthMul`
-- `alwaysOffer` remains optional because it is a normal-node-specific control flag, not a universal node property.
-- Browser-only temporary fields are excluded from the formal Godot loader contract.
-
-### Leviathan / Progress Split
-
-- Leviathan master data should own:
-  - `id`
-  - `name`
-  - `stageCnt`
-  - `runCnt`
-- Clear state should not live in master data.
-- Progress/save data should own:
-  - `clearedLeviathanIds`
-
-### Phase Record Structure
-
-- Root common state:
-  - `seed`
-  - `stageIndex`
-  - `maxStages`
-  - `inventory`
-  - `leviathanId`
-  - `runIndex`
-- `node_select` phase state:
-  - `candidates`
-- `combat` phase state:
-  - `combat`
-- `reward_loot` phase state:
-  - `pendingRewards`
-  - `held`
-  - `lastNodeLabel`
-- `lastClearWeakness` was intentionally dropped from the future contract.
-
-### UI / Transition Boundary
-
-- Production UI keeps the `character / backpack / terrain` combat layout plus `queue` and `hp/shield`.
-- Combat backpack is read-only.
-- Reward backpack is editable and shares the same underlying inventory state.
-- `reward tray` and artifact-removal UI belong inside the reward page.
-- The reward transition must preserve the same inventory state across the combat-clear-to-reward boundary without a frame mismatch.
-- Current fixed debug UI (`freeze-test`, `mono-color-mode`, `output`, `dev-hint`) is outside production scope and should be generated only when explicitly needed.
-- `ghost` and `floating-text` remain valid production-facing presentation affordances.
-- Browser `DOM overlay` is not a production UI contract; Godot should replace it with engine-native overlay layers/scenes.
-
-### Reward Direction
-
-- Reward data should move to JSON.
-- M1 reward flow includes artifact pickup/placement/removal.
-- Artifact rewards appear in batches of 1~5 and are all acquired, not chosen from a pick-one list.
-- Artifact reward JSON should at least include:
-  - `id`
-  - `name`
-  - `rarity`
-  - `shape`
-  - `energyType`
-  - `baseCooldownTicks`
-  - `synergy`
-  - `keyword`
-  - `sellValue`
-- Longer-term reward/progression direction:
-  - run-clear yields artifact items that can be sold plus experience
-  - level-ups unlock Leviathans, artifacts, and traits
-  - rarity ladder is `normal / rare / heroic / legendary / mythic`
+- M0 closes here as a decision/review milestone, not as a fully migrated implementation milestone.
+- The recovered interview decisions make the intended formal direction clearer than what is currently encoded in prototype data alone, especially for Leviathan structure, save/progress ownership, reward schema expansion, and UI cleanup boundaries.
 
 ## Remaining Gaps
 
-- The redesign gate defines M1 contracts, but those contracts are not yet fully realized in code.
-- Reward JSON, Leviathan/progress data, loaders/validators, and replay-promotion coverage remain M1 implementation work.
-- The browser prototype still contains runtime/state shapes that do not yet match the redesigned M1 contract end-to-end.
+- The recovered M0 decisions still need to be propagated into formal tracker/spec documents, including the missing technical-debt tracking path.
+- Leviathan/save-progress fields such as `leviathanId`, `runIndex`, and `clearedLeviathanIds` are not yet present as complete formal implementation.
+- Reward data is not yet promoted to the final JSON/schema shape that includes fields such as `keyword`, rarity, and `sellValue`.
+- Prototype-only debug/UI concepts still need to be explicitly removed or isolated when M1+ implementation begins.
