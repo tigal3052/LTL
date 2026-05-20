@@ -7,9 +7,9 @@ Date: 2026-05-20
 
 - Intent: Snapshot the current workspace state, then stop tracking `agent-harness` and `LTL-harness` without deleting the local directories.
 - Files or areas touched: `.gitignore`, git index entries for `agent-harness/**` and `LTL-harness/**`
-- Summary: Created the snapshot commit `d128944`, then added root `.gitignore` rules for `agent-harness/` and `LTL-harness/` and removed both directories from the git index using cached removal only. This leaves the local directories on disk while excluding them from future commits and ordinary rollback operations.
+- Summary: Created the snapshot commit `d128944`, then rebased the cleanup sequence onto the latest remote `main`, added root `.gitignore` rules for `agent-harness/` and `LTL-harness/`, and removed both directories from the git index using cached removal only. A post-rebase verification found a handful of remote-added tracked files still remaining under those directories, so a final cached removal pass was needed to fully clear the index. This leaves the local directories on disk while excluding them from future commits and ordinary rollback operations.
 - Plan impact: Replaced the documentation-oriented task with a git hygiene task focused on repository tracking boundaries.
-- Verification status: Confirmed with `git ls-files agent-harness LTL-harness` that no tracked paths remain under either directory before the follow-up commit.
+- Verification status: Confirmed with `git ls-files agent-harness LTL-harness` during the first pass, then detected and removed rebase-surviving tracked files in a final cleanup pass before the closing commit.
 
 ## 2026-05-20
 
@@ -714,6 +714,42 @@ D  LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_comple
 ``text
 M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
 ?? git-noop-editor.cmd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 16:01:40
+
+<!-- codex-worklog-signature: e5b0575bcc28c83eafb2112edcfe5c59657c44b1fd99248f54a5c20f48c43a3d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+D  LTL-harness/docs/00_tech-debt-tracker.md
+D  LTL-harness/docs/11_exec-plans/01_active/06b_post_M0_implementation_handoff.md
+D  LTL-harness/docs/11_exec-plans/01_active/16_logical_capsule_refactor_plan.md
+D  LTL-harness/docs/11_exec-plans/02_completed/04_P3_backpack_and_hazard_slice_completed.md
+D  agent-harness/examples/logic-calculator/calculator.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 16:02:28
+
+<!-- codex-worklog-signature: b8051600da8d29d8f335f6cdd60061d1268292b79b1da64af644f57ebce6b392 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+D  LTL-harness/docs/00_tech-debt-tracker.md
+D  LTL-harness/docs/11_exec-plans/01_active/06b_post_M0_implementation_handoff.md
+D  LTL-harness/docs/11_exec-plans/01_active/16_logical_capsule_refactor_plan.md
+D  LTL-harness/docs/11_exec-plans/02_completed/04_P3_backpack_and_hazard_slice_completed.md
+D  agent-harness/examples/logic-calculator/calculator.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

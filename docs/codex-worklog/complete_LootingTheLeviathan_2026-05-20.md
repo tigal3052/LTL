@@ -12,6 +12,7 @@ Created a snapshot commit for the current workspace and then prepared the reposi
 - Created the snapshot commit `d128944`.
 - Added `.gitignore` rules for `agent-harness/` and `LTL-harness/`.
 - Removed both directories from the git index with cached deletion so the local working copies remain on disk.
+- Identified and removed a small set of rebase-surviving tracked files that still remained under those directories after the first cleanup pass.
 - Updated today's worklog plan and history for this git-tracking pass.
 
 ## Changes From Plan
@@ -31,5 +32,4 @@ Created a snapshot commit for the current workspace and then prepared the reposi
 
 ## Remaining Gaps
 
-- Create the follow-up commit that records the ignore rules and tracked-directory removals.
-- Push both commits to the remote repository if network access is available.
+- Record the final post-rebase cleanup of the remaining tracked harness files in one more commit and push that commit.
