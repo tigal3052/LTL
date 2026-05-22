@@ -4,9 +4,9 @@ config_version=5
 
 [application]
 
-config/name="Looting The Leviathan Prototype"
+config/name="Looting The Leviathan"
 config/features=PackedStringArray("4.3")
-run/main_scene="res://prototype/PrototypeMain.tscn"
+run/main_scene="res://src/Main.tscn"
 
 [rendering]
 

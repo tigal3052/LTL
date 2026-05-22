@@ -5,31 +5,40 @@ Date: 2026-05-20
 
 ## Completion Summary
 
-Created a snapshot commit for the current workspace and then prepared the repository to stop tracking `agent-harness` and `LTL-harness` while keeping both directories locally.
+Hardened the repository rules so `app-LTL/prototype/**` is archived reference-only code, rewrote the active M2 milestone to target `app-LTL/src/**`, and added a formal combat-scene implementation plan for the next execution pass.
 
 ## Actual Outputs
 
-- Created the snapshot commit `d128944`.
-- Added `.gitignore` rules for `agent-harness/` and `LTL-harness/`.
-- Removed both directories from the git index with cached deletion so the local working copies remain on disk.
-- Identified and removed a small set of rebase-surviving tracked files that still remained under those directories after the first cleanup pass.
-- Updated today's worklog plan and history for this git-tracking pass.
+- Tightened `LTL-harness/00_AGENTS.md` so:
+  - prototype edits require explicit user approval
+  - formal and scene-reconstruction milestones default to `app-LTL/src/**`
+  - prototype-first history cannot override current formal path selection
+- Strengthened `app-LTL/src/README.md` so scene, HUD, input adapter, read-model, and process-wiring work all default to the formal source path.
+- Rewrote `LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md` with:
+  - explicit target paths
+  - scene/read-model/input-adapter boundaries
+  - recommended formal file families
+  - prototype prohibition in the done criteria
+- Added `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md` as the execution plan for the next M2 implementation pass.
 
 ## Changes From Plan
 
-- The task shifted away from the earlier documentation pass and became a repository-tracking cleanup task.
-- The user explicitly wanted git repository tracking removed for the two harness directories without deleting local files, so cached removal plus ignore rules replaced any filesystem deletion approach.
+- The original M2 task had already been implemented in the wrong prototype path before this pass. This completion replaces that mistaken path choice with repository-level guardrails and a formal-source re-plan instead of shipping more code.
+- The work stayed documentation-only by design so the prototype archive remained untouched.
 
 ## Verification Results
 
-- `git status --short` showed `.gitignore` plus staged deletions for the two tracked directories after cached removal.
-- `git ls-files agent-harness LTL-harness` returned no tracked files, confirming the directories are no longer in the git index.
-- The local directories were intentionally preserved because the operation used cached removal only.
+- Re-read `LTL-harness/00_AGENTS.md`, `app-LTL/src/README.md`, and `LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md` after patching and confirmed all three now route M2 implementation to `app-LTL/src/**`.
+- Confirmed the new plan file `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md` exists and describes a formal-path execution order.
+- Confirmed `git diff -- app-LTL/prototype/browser-p0-p4` remains empty.
 
 ## Blockers Or Unverified Areas
 
-- Push status is still pending until the ignore/untrack follow-up commit is created and a remote push is attempted.
+- Existing unrelated workspace changes such as `.gitignore` were intentionally left untouched.
+- This pass did not execute the new M2 code plan; it only hardened instructions and rewrote the planning documents.
 
 ## Remaining Gaps
 
-- Record the final post-rebase cleanup of the remaining tracked harness files in one more commit and push that commit.
+- Execute the new M2 formal combat-scene plan under `app-LTL/src/**`.
+- Add the M2 read-model, input-adapter, scene-composition, and verification code in a fresh implementation pass.
+- Expand verification once the formal scene exists so manual scene QA and headless replay checks are both exercised together.

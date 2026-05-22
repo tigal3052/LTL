@@ -5,47 +5,47 @@ Date: 2026-05-20
 
 ## Active Work
 
-- Commit the current workspace state, then stop tracking `agent-harness` and `LTL-harness` in git while keeping the local directories in place and adding them to `.gitignore`.
+- Harden the project instructions so `app-LTL/prototype/**` is treated as archived reference-only code that cannot be edited without explicit user approval, then rewrite the active M2 work so the next implementation targets `app-LTL/src`.
 
 ## Request Summary
 
-- The user asked us to commit the current state first.
-- After that, the user wants `agent-harness` and `LTL-harness` removed from the git repository's tracked contents without deleting the local directories.
-- The user also wants those two directories added to ignore rules so future commits and rollbacks do not include them.
+- The user chose the strictest process hardening option.
+- The user stated that the prototype is reference-only and should no longer be used as an implementation target.
+- The user wants the instructions updated accordingly and wants M2 re-planned against the formal `app-LTL/src` path.
 
 ## Scope
 
-- Update `.gitignore` at the repository root.
-- Make one commit for the current workspace snapshot.
-- Make a follow-up commit that removes the two directories from git tracking with cached removal only.
-- Push the resulting commits if repository/network access permits.
+- Update project guidance files that control path selection and implementation behavior.
+- Strengthen the formal-path boundary in `app-LTL/src` documentation.
+- Rewrite the active M2 execution plan to target `app-LTL/src`.
+- Create a fresh M2 implementation plan document for formal-path execution.
 
 ## Out of Scope
 
-- Deleting the local `agent-harness` or `LTL-harness` directories from disk.
-- Refactoring source code unrelated to git tracking/ignore behavior.
-- Reorganizing other tracked directories unless required by the user's request.
+- Executing the M2 implementation itself in this pass.
+- Editing archived prototype files for feature work.
+- Refactoring unrelated repository changes such as the existing `.gitignore` diff.
 
 ## Steps
 
-- Inspect current git status, branch, and ignore configuration.
-- Update today's worklog for the git-tracking request.
-- Stage and commit the full current workspace state.
-- Add ignore rules for `agent-harness/` and `LTL-harness/`, remove them from git tracking with cached removal, and commit that change.
-- Push the new commits if access is available; otherwise report the exact blocker.
+- Update the instruction hierarchy so prototype edits require explicit user approval and formal milestones default to `app-LTL/src`.
+- Reinforce the `app-LTL/src` README boundary so scene/HUD work is also treated as formal-path work.
+- Rewrite the active M2 milestone file with explicit formal-path targets, file families, and verification expectations.
+- Write a fresh M2 implementation plan document with task-level sequencing for `app-LTL/src`.
+- Update the worklog with the instruction changes and new plan locations.
 
 ## Expected Outputs
 
-- A commit that snapshots the current workspace state.
-- `.gitignore` entries for `agent-harness/` and `LTL-harness/`.
-- A follow-up commit that removes those directories from git tracking while preserving them locally.
-- Updated worklog entries describing the git changes and any push result.
+- Stronger project rules declaring `app-LTL/prototype/**` archived reference-only code.
+- An updated active M2 milestone document that names `app-LTL/src` as the implementation target.
+- A new M2 implementation plan document under `docs/superpowers/plans/`.
+- Updated worklog entries reflecting the hardened guidance and re-plan.
 
 ## Verification Method
 
-- Use `git status --short` and `git ls-files` checks to confirm the directories are no longer tracked after cached removal.
-- Re-read `.gitignore` to confirm both directory rules are present.
-- Use `git log --oneline -2` and push output to confirm the requested commit sequence and remote update result.
+- Re-read the modified guidance files to confirm the new prototype prohibition and target-path priority are explicit.
+- Re-read the updated M2 milestone and the new M2 implementation plan to confirm they both target `app-LTL/src`.
+- Confirm `git diff -- app-LTL/prototype/browser-p0-p4` remains empty after the documentation-only pass.
 
 ## Plan Change Log
 
@@ -60,3 +60,6 @@ Date: 2026-05-20
 - 2026-05-20: Replaced the stale action-result task with a documentation task to complete P4/M0 execution-plan notes from source and interview evidence only.
 - 2026-05-20: Corrected the document target from `01_active` to `02_completed` after the user clarified the intended location for P4/M0 completion reports.
 - 2026-05-20: Replaced the documentation task with a git-tracking task to snapshot the current workspace and untrack `agent-harness` and `LTL-harness`.
+- 2026-05-20: Replaced the stale git-tracking task with the active M2 combat scene reconstruction implementation request.
+- 2026-05-20: Replaced the M2 implementation task with a revert-and-review task after the user requested prototype rollback and process correction guidance.
+- 2026-05-20: Replaced the revert-and-review task with strict process hardening plus an `app-LTL/src`-based M2 re-plan after the user confirmed prototype code is reference-only and no longer an implementation target.

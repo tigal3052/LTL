@@ -5,6 +5,33 @@ Date: 2026-05-20
 
 ## 2026-05-20
 
+- Intent: Harden the repository so `app-LTL/prototype/**` is permanently treated as archived reference-only code and re-plan M2 against the formal `app-LTL/src` path.
+- Files or areas touched: `LTL-harness/00_AGENTS.md`, `app-LTL/src/README.md`, `LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md`, `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md`, `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md`
+- Summary: Tightened the harness instructions so prototype edits now require explicit user approval, formal milestones default to `app-LTL/src`, and scene/HUD/input-adapter work is treated as formal-path implementation instead of prototype polish. Rewrote the active M2 milestone to name `app-LTL/src/**` and `app-LTL/tests/**` as the only implementation targets, then added a fresh task plan for the formal combat-scene slice covering read-model expansion, input adapter wiring, scene composition, and verification.
+- Plan impact: Converted the earlier advisory fix into a strict repository rule and replaced the ambiguous M2 target with a formal-source execution plan.
+- Verification status: Re-read the updated guidance and plan files after patching and confirmed they now explicitly prohibit prototype implementation work without user approval and route M2 to `app-LTL/src`. Confirmed `git diff -- app-LTL/prototype/browser-p0-p4` stays empty.
+- Follow-up: Execute the new formal M2 plan by freezing tests first, then extending the read model and scene/input boundaries under `app-LTL/src/**`.
+
+## 2026-05-20
+
+- Intent: Explain why Delete/Add tends to appear during source promotion and harden the LTL comment rules so unavoidable rewrites must restore Korean comments before completion.
+- Files or areas touched: `LTL-harness/00_AGENTS.md`, `docs/comment-implementation-rules.md`, `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md`
+- Summary: Documented that Delete/Add is not a Codex-enforced requirement but a risky editing habit that often appears when large scaffold-to-code structure changes look easier as rewrites. Added explicit policy that this repository prefers partial edits, and when a full-file rewrite is unavoidable it must be followed by Korean-comment restoration, English-comment replacement, and a final adjacency check before the work can be called complete.
+- Plan impact: Added a policy-hardening follow-up on top of the completed M1 promotion work so future implementation passes preserve local comment conventions better.
+- Verification status: Re-read the shared comment-rule SoT and the LTL AGENTS file after the patch and confirmed both now contain Delete/Add interpretation plus mandatory Korean-comment post-processing rules.
+- Follow-up: Mirrored the same Delete/Add and Korean-comment post-processing rules into `agent-harness/00_AGENTS.md` as well so both harness instruction files stay aligned.
+
+## 2026-05-20
+
+- Intent: Promote the M1 source scaffold in `app-LTL/src` into an executable formal-source slice without touching the preserved prototype path.
+- Files or areas touched: `app-LTL/src/data/artifact-table.schema.js`, `app-LTL/src/data/node-table.schema.js`, `app-LTL/src/validation/schema-validator.js`, `app-LTL/src/loaders/artifact-loader.js`, `app-LTL/src/loaders/node-loader.js`, `app-LTL/src/domain/seeded-rng.js`, `app-LTL/src/domain/stage-scaling.js`, `app-LTL/src/domain/node-generator.js`, `app-LTL/src/domain/reward-resolver.js`, `app-LTL/src/domain/snapshot.js`, `app-LTL/src/process/headless-mini-run.js`, `app-LTL/tests/m1_source_promotion.test.js`, `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md`
+- Summary: Replaced the comment-only validator, loader, scaling, node-offer, reward-roll, snapshot, and headless mini-run scaffold files with executable ESM modules. Added a real M1 test file that first failed on missing exports, then passed after the implementation landed. The promoted slice now proves formal source-path validation, normalized loader output, `node_select -> combat -> reward_loot -> node_select/run_complete` progression, and stable public snapshot fields in `app-LTL/src`.
+- Summary: Replaced the comment-only validator, loader, scaling, node-offer, reward-roll, snapshot, and headless mini-run scaffold files with executable ESM modules. Expanded the implementation to cover the missing leviathan/progress contract path, scene-facing read-model boundary, phase reducers, stage-sentence helpers, replay execution, tuning/facts helpers, and formal contract exports so `app-LTL/src` no longer contains comment-only placeholders. Added real M1 test files that first failed on missing exports/modules, then passed after the implementation landed. The promoted source path now proves formal validation and loader output for artifacts, nodes, leviathans, and progress data, plus `node_select -> combat -> reward_loot -> next stage/next run/run_complete` progression, reward-phase last-artifact guard behavior, replay matrix coverage, and stable public snapshot/read-model fields in `app-LTL/src`.
+- Plan impact: Replaced the earlier revert-and-review work item with the requested M1 source-promotion implementation task and narrowed the first promotion pass to a small end-to-end contract slice.
+- Verification status: `node --test tests/m1_source_promotion.test.js` passed after initially failing on the missing `createHeadlessMiniRun` export and later on the missing `leviathan-loader.js` module. `node --test tests/m1_source_promotion.test.js tests/m1_replay_matrix.test.js` passed after fixing the mismatch-as-failure bug in the formal replay path. `npm.cmd test` passed 20/20 in `app-LTL`. `git diff --check -- app-LTL/src app-LTL/tests docs/codex-worklog/*.md` passed aside from line-ending warnings.
+
+## 2026-05-20
+
 - Intent: Snapshot the current workspace state, then stop tracking `agent-harness` and `LTL-harness` without deleting the local directories.
 - Files or areas touched: `.gitignore`, git index entries for `agent-harness/**` and `LTL-harness/**`
 - Summary: Created the snapshot commit `d128944`, then rebased the cleanup sequence onto the latest remote `main`, added root `.gitignore` rules for `agent-harness/` and `LTL-harness/`, and removed both directories from the git index using cached removal only. A post-rebase verification found a handful of remote-added tracked files still remaining under those directories, so a final cached removal pass was needed to fully clear the index. This leaves the local directories on disk while excluding them from future commits and ordinary rollback operations.
@@ -750,6 +777,873 @@ D  LTL-harness/docs/11_exec-plans/02_completed/04_P3_backpack_and_hazard_slice_c
 D  agent-harness/examples/logic-calculator/calculator.js
  M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
  M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 16:02:51
+
+<!-- codex-worklog-signature: a51b93832962eccc0a8f6512bae032882da44112bc001ce21c25b69762d7e2a6 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+D  LTL-harness/docs/00_tech-debt-tracker.md
+D  LTL-harness/docs/11_exec-plans/01_active/06b_post_M0_implementation_handoff.md
+D  LTL-harness/docs/11_exec-plans/01_active/16_logical_capsule_refactor_plan.md
+D  LTL-harness/docs/11_exec-plans/02_completed/04_P3_backpack_and_hazard_slice_completed.md
+D  agent-harness/examples/logic-calculator/calculator.js
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 16:26:40
+
+<!-- codex-worklog-signature: 62abaa354bf8de47ea3689f7275e71b4c09c553568209a0003ab6157b5fe1ad4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 16:29:18
+
+<!-- codex-worklog-signature: 693fb18e67a7a8ecd4ddaacd3810b7d741bf880352a9d2f571517a61c8591db1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:45:00
+
+- Intent: Start the M2 combat scene reconstruction task from the active execution plan in an isolated feature branch.
+- Files or areas touched:
+```text
+docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+app-LTL/prototype/browser-p0-p4 (inspection only so far)
+LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md
+LTL-harness/docs/02_DESIGN.md
+```
+- Summary: Reviewed the M2 plan and layout guidance, confirmed the browser prototype as the likely target surface, and created branch `codex/m2-combat-scene-reconstruction` before starting TDD work.
+- Plan impact: Replaced the stale worklog plan with the active M2 implementation scope and verification path.
+- Verification status: Planning and codebase review only so far; implementation verification still pending.
+
+## 2026-05-20 19:20:00
+
+- Intent: Implement the M2 combat scene reconstruction slice in the browser prototype without duplicating combat rules in the UI.
+- Files or areas touched:
+```text
+app-LTL/prototype/browser-p0-p4/public/index.html
+app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+app-LTL/prototype/browser-p0-p4/src/ui/input/combat-input-adapter.js
+app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+```
+- Summary: Rebuilt the browser prototype shell into a clearer 7:3 combat scene, added derived queue/repair/hazard/pin scene state, extracted combat input handling into an adapter, and locked the new contracts with focused M2 tests.
+- Plan impact: The implementation stayed within the plan scope by keeping scene logic in UI adapters/view state while leaving fire/tick/domain rules in existing runtime modules.
+- Verification status:
+  - `node --test tests/m2_combat_scene.test.js` passed.
+  - `node --check src/ui/mini-run-app.js` passed.
+  - Full legacy `node --test tests/*.test.js` remains red before and after this work because of pre-existing missing exports in `seeded-rng.js` and `telemetry.js`.
+
+## 2026-05-20 19:35:00
+
+- Intent: Review why the M2 work landed in `app-LTL/prototype`, then roll back that prototype work and document how the process should be tightened.
+- Files or areas touched:
+```text
+app-LTL/prototype/browser-p0-p4 (reverted to HEAD)
+docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+```
+- Summary: Re-read the formal `app-LTL/src` boundary guidance and the prototype-first milestone history, confirmed that the prototype path had been modified in error, and restored `app-LTL/prototype/browser-p0-p4` to its pre-M2 state.
+- Plan impact: Shifted from implementation to diagnosis and rollback. The next correct implementation should target `app-LTL/src` and treat prototype files as read-only reference inputs.
+- Verification status:
+  - `git diff -- app-LTL/prototype/browser-p0-p4` is empty after revert.
+  - Root-cause evidence collected from `app-LTL/src/README.md`, M1/M2 docs, and prior P2/P4 completion reports.
+
+## 2026-05-20 18:28:19
+
+<!-- codex-worklog-signature: 9449eb0ca59f6484f890a6efc90f8e16f2a3d430e0763f0cbd650c666926f6d8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:28:43
+
+<!-- codex-worklog-signature: 8abb682eb0626dc6d2cde13c72e84340978aab36a42f3b93495a66f9420679a8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:31:49
+
+<!-- codex-worklog-signature: 0c0c065d295e7251dccc1ecc18160e9df5d7fe466cf936d0cd228dc7774ef5b7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:32:28
+
+<!-- codex-worklog-signature: 18e0f41289c2bea659f724a84b52d4b49418c92ff2923d48078f96c6b806c8f1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:32:42
+
+<!-- codex-worklog-signature: 4e3cd5ceb066fdb2bfee8d54461c422167d5fd4e556755a538be2ca911f412e7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:32:55
+
+<!-- codex-worklog-signature: 6aad9a625adefe359daf129c2744c4d980fc17e5f0f0df10d9d3c31286e6b6c1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:33:06
+
+<!-- codex-worklog-signature: 6bc26dbff98380f213501ba973c062cca758ddf0defcade5476fe193d18c628a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:33:40
+
+<!-- codex-worklog-signature: f19ad8baa6324de3bf236ac012fd6f23c0fa1a256de55e9194e05ff46d214c1a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:33:59
+
+<!-- codex-worklog-signature: 6ce394582b4b7d258a8e96923d9bd9778c9fa26419864febc14c2399d33ccea4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:37:20
+
+<!-- codex-worklog-signature: 5d7428086f48a25e69a32c4fbde98704dcb30756c40149735cbe7944a19f33aa -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/public/index.html
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:40:26
+
+<!-- codex-worklog-signature: 828948ecfe9a7ee0c90cae9423e254d0bbd06a1bba0464c5a06c5a5f385c9779 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/public/index.html
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:40:36
+
+<!-- codex-worklog-signature: b22869fd45ba900dd2a3bf86a5c4ecac59289963606afa766e2bbd95325e9486 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/public/index.html
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:41:19
+
+<!-- codex-worklog-signature: 4f0b581d70a0ebdfa81b8e37e35236034d6cf3c0ef618789f38a071ae9d57793 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/public/index.html
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 18:49:53
+
+<!-- codex-worklog-signature: 6789f03fcffb27b39df25093e84854d1d7aaa4cf250514165f1abd6bf925d148 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/public/index.html
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 19:10:49
+
+<!-- codex-worklog-signature: 61401ffe8abaddc81c0bbcd10a46a995bf66bc40b0a66c4bc8b25671d05f6806 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/prototype/browser-p0-p4/public/index.html
+ M app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/index.js
+ M app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/prototype/browser-p0-p4/src/ui/input/
+?? app-LTL/prototype/browser-p0-p4/src/ui/render/combat-scene-state.js
+?? app-LTL/prototype/browser-p0-p4/tests/m2_combat_scene.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 19:11:28
+
+<!-- codex-worklog-signature: 707977d5ad570a64c39ca9884f1024eda71adcdf06118ba998fb102a2c85b969 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 19:12:23
+
+<!-- codex-worklog-signature: 71d984b5d8940f17676766d33305d1ed47ebf15537eb3d7d75c1cbc0b1606383 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:17:59
+
+<!-- codex-worklog-signature: 5c60dbf4cade5ad9c6b562201e5f3b185baf34192107215df17a12cae2a33b5e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:18:29
+
+<!-- codex-worklog-signature: f049002cb44f8d786b1be4ba4ca0321cbc719e5721baea9b7a5c2717159d2f10 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/tests/m1_source_promotion.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:18:53
+
+<!-- codex-worklog-signature: ceb592e199c562c0ed7701ac6591a665c65a39a32d3683202485cb2fcfad5448 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ D app-LTL/src/data/artifact-table.schema.js
+ D app-LTL/src/data/node-table.schema.js
+ D app-LTL/src/domain/node-generator.js
+ D app-LTL/src/domain/reward-resolver.js
+ D app-LTL/src/domain/snapshot.js
+ D app-LTL/src/domain/stage-scaling.js
+ D app-LTL/src/loaders/artifact-loader.js
+ D app-LTL/src/loaders/node-loader.js
+ D app-LTL/src/process/headless-mini-run.js
+ D app-LTL/src/validation/schema-validator.js
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/tests/m1_source_promotion.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:20:50
+
+<!-- codex-worklog-signature: fc60e9ca2057c27c92712a93a04fb0d80c959b5a584dda29d0dfe5a4e019a7bd -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/process/headless-mini-run.js
+ M app-LTL/src/validation/schema-validator.js
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/src/domain/seeded-rng.js
+?? app-LTL/tests/m1_source_promotion.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:21:21
+
+<!-- codex-worklog-signature: a786847ae2b786ca20235a4b6a6e30f88e92901f9a3006e6256ba8d6b56188a4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/process/headless-mini-run.js
+ M app-LTL/src/validation/schema-validator.js
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/src/domain/seeded-rng.js
+?? app-LTL/tests/m1_source_promotion.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:25:34
+
+<!-- codex-worklog-signature: d94b07c89017d843d73c6b3f837df7eef108531071faf258324375d63c417606 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/process/headless-mini-run.js
+ M app-LTL/src/ui/scene-read-model.js
+ M app-LTL/src/validation/schema-validator.js
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/src/data/leviathan-table.schema.js
+?? app-LTL/src/data/progress.schema.js
+?? app-LTL/src/domain/seeded-rng.js
+?? app-LTL/src/loaders/leviathan-loader.js
+?? app-LTL/src/loaders/progress-loader.js
+?? app-LTL/tests/m1_source_promotion.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:26:01
+
+<!-- codex-worklog-signature: 75ef0576c198e0a692afd2e01dc179b175148408ba59f8b0551307c1df8cea15 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/process/headless-mini-run.js
+ M app-LTL/src/ui/scene-read-model.js
+ M app-LTL/src/validation/schema-validator.js
+ D app-LTL/tests/m1_comment_contract.test.js
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-20.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-20.md
+?? app-LTL/src/data/leviathan-table.schema.js
+?? app-LTL/src/data/progress.schema.js
+?? app-LTL/src/domain/seeded-rng.js
+?? app-LTL/src/loaders/leviathan-loader.js
+?? app-LTL/src/loaders/progress-loader.js
+?? app-LTL/tests/m1_source_promotion.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:29:49
+
+<!-- codex-worklog-signature: d3a6eb59cbdbde80baaeedd45bb98bf5317892bc836c6f10e26147c4bd48aefe -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/data/tuning.schema.js
+ M app-LTL/src/domain/combat-resolution.js
+ M app-LTL/src/domain/facts.js
+ M app-LTL/src/domain/game-tuning.js
+ M app-LTL/src/domain/inventory-model.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/rules.js
+ M app-LTL/src/domain/run-progression.js
+ M app-LTL/src/domain/run-simulator.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/index.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/phases/combat-phase.js
+ M app-LTL/src/phases/node-select-phase.js
+ M app-LTL/src/phases/reward-loot-phase.js
+ M app-LTL/src/phases/run-complete-phase.js
+ M app-LTL/src/process/headless-mini-run.js
+ M app-LTL/src/process/mini-run-process.js
+ M app-LTL/src/process/mini-run-stage-script.js
+ M app-LTL/src/process/replay-process.js
+ M app-LTL/src/process/stage-sentence.js
+ M app-LTL/src/ui/scene-read-model.js
+ M app-LTL/src/validation/schema-validator.js
+ D app-LTL/tests/m1_comment_contract.test.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:31:45
+
+<!-- codex-worklog-signature: b8419badcf22325c49c1780a6aca1fd8c385fa27a9e334589b7775845833bc48 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-contract.js
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/leviathan-contract.js
+ M app-LTL/src/data/node-contract.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/data/progress-contract.js
+ M app-LTL/src/data/reward-contract.js
+ M app-LTL/src/data/tuning.schema.js
+ M app-LTL/src/domain/combat-contract.js
+ M app-LTL/src/domain/combat-resolution.js
+ M app-LTL/src/domain/facts.js
+ M app-LTL/src/domain/game-tuning.js
+ M app-LTL/src/domain/inventory-contract.js
+ M app-LTL/src/domain/inventory-model.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/progression-contract.js
+ M app-LTL/src/domain/reward-contract.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/rules.js
+ M app-LTL/src/domain/run-progression.js
+ M app-LTL/src/domain/run-simulator.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/index.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/phases/combat-phase.js
+ M app-LTL/src/phases/node-select-phase.js
+ M app-LTL/src/phases/reward-loot-phase.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 21:32:02
+
+<!-- codex-worklog-signature: 71dc8aa9805d0e08ef8074040df94effd0d007891b2474bb5deae357b05caf60 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-contract.js
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/leviathan-contract.js
+ M app-LTL/src/data/node-contract.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/data/progress-contract.js
+ M app-LTL/src/data/reward-contract.js
+ M app-LTL/src/data/tuning.schema.js
+ M app-LTL/src/domain/combat-contract.js
+ M app-LTL/src/domain/combat-resolution.js
+ M app-LTL/src/domain/facts.js
+ M app-LTL/src/domain/game-tuning.js
+ M app-LTL/src/domain/inventory-contract.js
+ M app-LTL/src/domain/inventory-model.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/progression-contract.js
+ M app-LTL/src/domain/reward-contract.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/rules.js
+ M app-LTL/src/domain/run-progression.js
+ M app-LTL/src/domain/run-simulator.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/index.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/phases/combat-phase.js
+ M app-LTL/src/phases/node-select-phase.js
+ M app-LTL/src/phases/reward-loot-phase.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 23:48:18
+
+<!-- codex-worklog-signature: 30d85af3abdfac9716754be82c85709404168e64835c282bafd22d15a40a6643 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/data/artifact-contract.js
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/leviathan-contract.js
+ M app-LTL/src/data/node-contract.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/data/progress-contract.js
+ M app-LTL/src/data/reward-contract.js
+ M app-LTL/src/data/tuning.schema.js
+ M app-LTL/src/domain/combat-contract.js
+ M app-LTL/src/domain/combat-resolution.js
+ M app-LTL/src/domain/facts.js
+ M app-LTL/src/domain/game-tuning.js
+ M app-LTL/src/domain/inventory-contract.js
+ M app-LTL/src/domain/inventory-model.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/progression-contract.js
+ M app-LTL/src/domain/reward-contract.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/rules.js
+ M app-LTL/src/domain/run-progression.js
+ M app-LTL/src/domain/run-simulator.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/index.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/phases/combat-phase.js
+ M app-LTL/src/phases/node-select-phase.js
+ M app-LTL/src/phases/reward-loot-phase.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 23:49:10
+
+<!-- codex-worklog-signature: fdca08e8510956026dbe01bb4fdf900d0da339fd1c776ff821220d1a576cfffd -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/README.md
+ M app-LTL/src/data/artifact-contract.js
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/leviathan-contract.js
+ M app-LTL/src/data/node-contract.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/data/progress-contract.js
+ M app-LTL/src/data/reward-contract.js
+ M app-LTL/src/data/tuning.schema.js
+ M app-LTL/src/domain/combat-contract.js
+ M app-LTL/src/domain/combat-resolution.js
+ M app-LTL/src/domain/facts.js
+ M app-LTL/src/domain/game-tuning.js
+ M app-LTL/src/domain/inventory-contract.js
+ M app-LTL/src/domain/inventory-model.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/progression-contract.js
+ M app-LTL/src/domain/reward-contract.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/rules.js
+ M app-LTL/src/domain/run-progression.js
+ M app-LTL/src/domain/run-simulator.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/index.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/phases/combat-phase.js
+ M app-LTL/src/phases/node-select-phase.js
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-20 23:50:01
+
+<!-- codex-worklog-signature: 0be10099da11c7d6470cf2dfbd851b18eb809f6ac49cc912ce60090bb6bcb4eb -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M .gitignore
+ M app-LTL/src/README.md
+ M app-LTL/src/data/artifact-contract.js
+ M app-LTL/src/data/artifact-table.schema.js
+ M app-LTL/src/data/leviathan-contract.js
+ M app-LTL/src/data/node-contract.js
+ M app-LTL/src/data/node-table.schema.js
+ M app-LTL/src/data/progress-contract.js
+ M app-LTL/src/data/reward-contract.js
+ M app-LTL/src/data/tuning.schema.js
+ M app-LTL/src/domain/combat-contract.js
+ M app-LTL/src/domain/combat-resolution.js
+ M app-LTL/src/domain/facts.js
+ M app-LTL/src/domain/game-tuning.js
+ M app-LTL/src/domain/inventory-contract.js
+ M app-LTL/src/domain/inventory-model.js
+ M app-LTL/src/domain/node-generator.js
+ M app-LTL/src/domain/progression-contract.js
+ M app-LTL/src/domain/reward-contract.js
+ M app-LTL/src/domain/reward-resolver.js
+ M app-LTL/src/domain/rules.js
+ M app-LTL/src/domain/run-progression.js
+ M app-LTL/src/domain/run-simulator.js
+ M app-LTL/src/domain/snapshot.js
+ M app-LTL/src/domain/stage-scaling.js
+ M app-LTL/src/index.js
+ M app-LTL/src/loaders/artifact-loader.js
+ M app-LTL/src/loaders/node-loader.js
+ M app-LTL/src/phases/combat-phase.js
+ M app-LTL/src/phases/node-select-phase.js
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
