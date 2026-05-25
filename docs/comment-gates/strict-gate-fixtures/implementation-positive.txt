@@ -1,0 +1,5 @@
+# 계약:
+# - purpose: verify strict implementation gate accepts one execution guard for one code block.
+#
+# 실행: print a deterministic strict-gate fixture result.
+print("STRICT_GATE_FIXTURE_OK")

@@ -1,0 +1,34 @@
+﻿# Phase Gate Examples
+
+## Valid: contract-only
+
+- File contains `# 怨꾩빟:` comments only.
+- File contains no `# ?ㅽ뻾:` lines.
+- File contains no code tokens.
+
+## Invalid: contract-only
+
+- File contains any `# ?ㅽ뻾:` line.
+- File contains any implementation token such as `func`, `class`, `var`, `const`, `return`, `if`, `match`.
+
+## Valid: execution-only
+
+- File contains `# 怨꾩빟:` and `# ?ㅽ뻾:` comments.
+- File contains no code tokens.
+
+## Invalid: execution-only
+
+- File contains implementation code.
+- File contains `# ?ㅽ뻾:` lines that are not covered by the ledger phase.
+
+## Valid: implementation
+
+- File contains `# 怨꾩빟:` comments.
+- File contains `# ?ㅽ뻾:` comments immediately above each code block.
+- Ledger phase is `implementation-approved`.
+
+## Regression: contract request accidentally includes execution comments
+
+- Request: `怨꾩빟 二쇱꽍 ?묒꽦`
+- File state: contains `怨꾩빟:` and `?ㅽ뻾:`
+- Expected: `contract-only` gate fails before implementation starts

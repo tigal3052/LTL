@@ -5,51 +5,53 @@ Date: 2026-05-22
 
 ## Completion Summary
 
-Rebuilt the M0/M1 formal scaffold under the corrected three-phase harness and then advanced the same target set to the `execution-only` comment stage as requested.
+Executed the M2 formal combat-scene slice by restoring the missing preview/main entry path and replacing the debug-text main scene with a rendered combat preview UI.
 
 ## Actual Outputs
 
-- Added execution-order comments to the formal scaffold files under:
-  - `app-LTL/src/README.md`
-  - `app-LTL/src/domain/FormalContracts.gd`
-  - `app-LTL/src/process/HeadlessMiniRun.gd`
-  - `app-LTL/src/process/ReplayProcess.gd`
-  - `app-LTL/src/process/CombatInputAdapter.gd`
-  - `app-LTL/src/process/RunProgressionM0DesignNote.md`
-  - `app-LTL/src/ui/SceneReadModel.gd`
-  - `app-LTL/src/ui/CombatSceneModel.gd`
-  - `app-LTL/src/tools/FormalReplayRunner.gd`
-  - `app-LTL/tests/godot_contract_runner.gd`
-- Kept `docs/comment-gates/2026-05-22-m0-m1-contract-only.md` as the earlier phase record.
-- Added `docs/comment-gates/2026-05-22-m0-m1-execution-only.md`.
-- Updated `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-22.md`.
+- Expanded `app-LTL/tests/godot_contract_runner.gd` so the formal M2 contract now requires:
+  - `src/ui/CombatScenePreviewController.gd`
+  - `src/MainController.gd`
+  - `src/Main.tscn`
+  - preview-controller node-select/combat/reward/run-complete flow assertions
+  - stricter combat layout and queue assertions
+- Added `app-LTL/tests/m2_main_scene_contract.ps1` to prevent the main scene from regressing back to a raw JSON text dump.
+- Extended `app-LTL/tests/m2_main_scene_contract.ps1` so it also rejects constructor-style `String(...)` coercion in `MainController.gd`.
+- Added `app-LTL/src/ui/CombatScenePreviewController.gd` as a scene-safe composition layer over:
+  - `HeadlessMiniRun.gd`
+  - `CombatInputAdapter.gd`
+  - `SceneReadModel.gd`
+  - `CombatSceneModel.gd`
+- Replaced `app-LTL/src/MainController.gd` with a phase-aware renderer that:
+  - populates node-select, target, systems, rewards, and battlefield panels
+  - builds the 3x10 battlefield grid at runtime
+  - routes Reset/Start Combat/Hold Fire/Repair/Claim Rewards through the formal preview controller
+- Followed up with a compile-safety pass that replaces all `String(...)` coercion in `MainController.gd` with `str(...)` after the user-reported Godot parse/runtime error.
+- Replaced `app-LTL/src/Main.tscn` with a real preview layout containing header labels, summary panels, battlefield grid, rewards panel, and action bar.
+- Updated today’s worklog plan/history for the M2 scope and verification baseline.
 
 ## Changes From Plan
 
-- The current formal path was missing the previous `src/**` files, so the earlier pass recreated the target file set before this execution-only pass could extend it.
-- Added `app-LTL/src/process/RunProgressionM0DesignNote.md` in the earlier pass and then kept it in sync with the new execution-only phase so the M0 promotion/removal/defer decisions remain readable inside the same formal path.
+- The missing preview/main path could be restored without further edits to prototype or quarantine files; those stayed reference-only.
+- The new preview layer was implemented as a composition wrapper rather than reintroducing a richer scene/controller tree from quarantine.
+- The first restored main-scene version still behaved like a debug tool; a second pass replaced that temporary JSON dump with actual UI rendering and added a regression test for it.
+- Runtime verification could not reach suite assertions because the available Godot executable crashes before either the script runner or a bare headless project launch completes.
 
 ## Verification Results
 
-- `LTL-harness/tools/comment-first-gate.ps1 -Mode contract-only` previously returned `COMMENT_FIRST_GATE_OK` for the full target set.
-- `LTL-harness/tools/comment-first-gate.ps1 -Mode execution-only` returned `COMMENT_FIRST_GATE_OK` for:
-  - `app-LTL/src/README.md`
-  - `app-LTL/src/domain/FormalContracts.gd`
-  - `app-LTL/src/process/HeadlessMiniRun.gd`
-  - `app-LTL/src/process/ReplayProcess.gd`
-  - `app-LTL/src/process/CombatInputAdapter.gd`
-  - `app-LTL/src/process/RunProgressionM0DesignNote.md`
-  - `app-LTL/src/ui/SceneReadModel.gd`
-  - `app-LTL/src/ui/CombatSceneModel.gd`
-  - `app-LTL/src/tools/FormalReplayRunner.gd`
-  - `app-LTL/tests/godot_contract_runner.gd`
-- The new ledger records `phase: execution-only`.
+- `git diff --check` completed without patch errors; only existing LF-to-CRLF warnings were emitted.
+- `git diff -- app-LTL/prototype/browser-p0-p4` produced no output, confirming no prototype edits.
+- `powershell -ExecutionPolicy Bypass -File app-LTL/tests/m2_main_scene_contract.ps1` failed before the fix on the raw JSON dump and passed after the fix with `M2_MAIN_SCENE_CONTRACT_OK`.
+- The same regression script later failed on remaining `String(...)` coercion and passed again after those occurrences were replaced with `str(...)`.
+- `D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe --headless --path D:\Programming\ex_workspace\LootingTheLeviathan\app-LTL --script tests/godot_contract_runner.gd --quit` crashed with signal 11.
+- `D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe --headless --path D:\Programming\ex_workspace\LootingTheLeviathan\app-LTL --quit` also crashed with signal 11.
 
 ## Blockers Or Unverified Areas
 
-- No implementation code was added in this pass.
-- Godot headless tests were not run because this stage still stops before executable code.
+- The current Godot executable crashes at process start in this environment, so the new M2 files could not be validated through actual script loading or scene launch.
+- Because of that engine-level crash, the new contract-runner assertions and main-scene rendering changes were verified textually, not by a successful Godot suite pass.
 
 ## Remaining Gaps
 
-- The next pass should be a separate implementation request that moves the files from `execution-only` to `implementation-approved`.
+- Re-run `tests/godot_contract_runner.gd` in a local Godot environment that can launch without the current signal-11 crash.
+- Open `src/Main.tscn` in Godot and confirm the preview/main scene renders the expected panels, battlefield grid, and action-button phase transitions.

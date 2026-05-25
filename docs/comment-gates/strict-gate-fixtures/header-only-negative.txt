@@ -1,0 +1,6 @@
+# 계약:
+# - purpose: verify strict implementation gate rejects header-only execution sections.
+#
+# 실행:
+# - print a deterministic strict-gate fixture result.
+print("STRICT_GATE_FIXTURE_SHOULD_FAIL")

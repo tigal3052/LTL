@@ -1,0 +1,138 @@
+﻿# Comment-First Enforcement
+
+This document is the source of truth for the formal authoring order in the generic agent harness.
+The order is strict:
+
+1. `contract-only`
+2. `execution-only`
+3. `implementation`
+
+Skipping a phase, collapsing phases, or backfilling comments after code is written is a harness violation.
+
+## Core Rule
+
+- Implementation code exists to translate comments, not to invent behavior first.
+- A file may move to the next phase only after the current phase is complete, recorded in a ledger, and explicitly approved.
+- Passing runtime tests does not excuse a phase-order failure.
+
+## Allowed Content By Phase
+
+### `contract-only`
+
+Allowed:
+- `怨꾩빟:` comments
+- blank lines
+
+Forbidden:
+- `?ㅽ뻾:` comments
+- implementation code
+- language tokens such as `func`, `class`, `var`, `const`, `return`, `if`, `match`
+
+### `execution-only`
+
+Allowed:
+- `怨꾩빟:` comments
+- `?ㅽ뻾:` comments
+- blank lines
+
+Forbidden:
+- implementation code
+- new behavior that is not described in the ledger execution scope
+
+### `implementation`
+
+Allowed:
+- `怨꾩빟:` comments
+- `?ㅽ뻾:` comments
+- implementation code
+
+Required:
+- every code block must be directly guarded by one `?ㅽ뻾:` comment
+- `?ㅽ뻾 A -> 援ы쁽 A -> ?ㅽ뻾 B -> 援ы쁽 B` ordering only
+
+Forbidden:
+- code that appears before an `?ㅽ뻾:` comment
+- `?ㅽ뻾 A -> ?ㅽ뻾 B -> 援ы쁽 A` ordering
+- one `?ㅽ뻾:` comment covering multiple unrelated code blocks
+
+## Phase Advancement
+
+### `contract-only -> execution-only`
+
+Requirements:
+- ledger exists
+- ledger `phase: execution-only`
+- ledger `approval: approved`
+- target file list matches the files being edited
+- target files pass the gate in `execution-only` mode before implementation begins
+
+### `execution-only -> implementation`
+
+Requirements:
+- ledger exists
+- ledger `phase: implementation-approved`
+- ledger `approval: approved`
+- target file list matches the files being edited
+- target files pass the gate in `execution-only` mode before code is added
+
+## Ledger Requirements
+
+Use `docs/comment-gates/<date>-<task>.md`.
+
+The ledger must include machine-readable fields:
+
+```text
+date: YYYY-MM-DD
+task: short-task-name
+phase: contract-only | execution-only | implementation-approved
+approval: approved
+targets:
+  - relative/path.ext
+```
+
+The ledger must also include:
+- contract summary
+- execution scope
+- advancement rule
+
+## Local Backup Policy
+
+Do not rely on remote Git history for harness recovery.
+
+Before editing harness enforcement files, create a local backup set under:
+
+`docs/comment-gates/backups/<yyyy-mm-dd>/<harness-name>/`
+
+Each backup set must include:
+- copied source files
+- a backup manifest with source path, backup path, timestamp, reason, and restore command
+
+Recovery must be possible with plain filesystem copy commands.
+
+## Hard Stop Conditions
+
+Stop immediately if any of these happen:
+
+- execution comments are added during a `contract-only` request
+- implementation code is added during `contract-only` or `execution-only`
+- implementation starts without a matching approved ledger
+- target files differ from the ledger target list
+- code appears without a directly preceding `?ㅽ뻾:` comment
+- formal implementation is authored in `prototype/**`, `_quarantine*/**`, or `_legacy*/**`
+
+## Violation Handling
+
+1. Move the violating source into `_quarantine_comment_first_violation_<date>/` when the project rule requires quarantine.
+2. Remove the violating source from the formal path.
+3. Record the violation in worklog or completion notes.
+4. Restart from the last valid phase instead of patching comments after the fact.
+
+## Minimum Gate Expectations
+
+The project gate script must be able to verify:
+
+- `contract-only`: contract markers exist, execution markers do not exist, and no code tokens exist
+- `execution-only`: contract markers exist, execution markers exist, and no code tokens exist
+- `implementation`: contract markers exist, execution markers exist, and every code block is directly guarded by an execution marker
+- ledger phase and approval match the requested gate mode
+- forbidden directories are rejected
