@@ -1,15 +1,40 @@
 # 계약:
 # - 책임: formal replay fixture 세트를 headless Godot에서 일괄 실행하는 smoke verification entrypoint 경계를 제공한다.
-# - M0 반영: 승격된 replay matrix가 formal path에서 자동 검증 가능한 단위로 존재해야 한다.
-# - SoT: M1 replay regression deliverable, comment-first gate 이후 implementation verification workflow.
 # - 입력: fixture selection policy, optional seed override policy, ReplayProcess public API.
 # - 출력: machine-readable aggregate verdict와 fixture별 summary를 제공하는 headless tool contract.
 # - 금지: replay rule을 중복 구현하거나 scene preview 실행, prototype fixture 임의 변경을 하지 않는다.
 #
-# 실행:
-# - fixture discovery policy를 읽어 replay 대상 목록을 확정한다.
-# - 각 fixture에 대해 ReplayProcess 실행 context를 만들고 deterministic 옵션을 주입한다.
-# - replay 결과에서 verdict, final snapshot summary, diagnostic count, trace presence를 추출한다.
-# - fixture별 결과를 aggregate summary에 누적하고 failing fixture 목록을 따로 모은다.
-# - batch 종료 후 machine-readable report shape를 정리하고 overall pass/fail verdict를 계산한다.
-# - CLI 또는 headless caller가 읽기 쉬운 최소 출력 surface만 남긴다.
+# 실행: define the formal replay runner class identity.
+class_name FormalReplayRunner
+extends RefCounted
+
+# 실행: preload replay process used for each fixture.
+const ReplayProcessScript = preload("res://src/process/ReplayProcess.gd")
+
+# 실행: run all selected fixture paths and aggregate fixture verdicts.
+func run_all(options: Dictionary = {}) -> Dictionary:
+	var process = ReplayProcessScript.new()
+	var fixture_paths: Array = options.get("fixturePaths", _default_fixture_paths())
+	var results: Array = []
+	var failing: Array = []
+	for fixture_path in fixture_paths:
+		var result: Dictionary = process.run_replay_file(String(fixture_path))
+		var item := {"fixturePath": fixture_path, "ok": bool(result.get("summary", {}).get("ok", false)), "phase": result.get("summary", {}).get("phase", "unknown"), "diagnosticCount": result.get("diagnostics", []).size(), "traceCount": result.get("trace", []).size()}
+		results.append(item)
+		if not item["ok"]:
+			failing.append(item)
+	return {"ok": failing.is_empty(), "fixtureCount": results.size(), "failingFixtures": failing, "results": results}
+
+# 실행: discover prototype replay fixture JSON files in deterministic name order.
+func _default_fixture_paths() -> Array:
+	var base := "res://prototype/browser-p0-p4/tests/fixtures/input_logs"
+	var dir := DirAccess.open(base)
+	if dir == null:
+		return []
+	var names: Array = dir.get_files()
+	names.sort()
+	var paths: Array = []
+	for name in names:
+		if String(name).ends_with(".json"):
+			paths.append("%s/%s" % [base, name])
+	return paths

@@ -1,20 +1,237 @@
 # 계약:
 # - 책임: formal contract validator, replay regression, snapshot boundary 검증을 한 번에 실행하는 headless test runner 진입점 계약을 제공한다.
-# - M0 반영: P1~P4 fixture 중 승격된 범위의 결과와 snapshot boundary를 formal test suite surface로 묶는다.
-# - SoT: M1 TDD targets, comment-first gate ledger, Godot formal stack enforcement.
 # - 입력: test fixture set, FormalContracts public API, HeadlessMiniRun public API, ReplayProcess public API, read model public API.
 # - 출력: suite pass/fail result, failing contract identifiers, deterministic verification summary를 제공하는 runner contract.
-# - 포함 대상:
-#   - validator success/failure case surface
-#   - replay matrix surface
-#   - snapshot boundary surface
-#   - read-model leakage surface
 # - 금지: production rule 우회, scene reconstruction 의존, browser/node test harness 의존
 #
-# 실행:
-# - test fixture registry를 읽고 validator/replay/snapshot/read-model 그룹으로 케이스를 분류한다.
-# - validator 그룹은 valid/invalid raw data fixture를 FormalContracts API에 순서대로 전달한다.
-# - replay 그룹은 FormalReplayRunner 또는 ReplayProcess를 통해 fixture matrix를 실행한다.
-# - snapshot 그룹은 HeadlessMiniRun public snapshot이 phase boundary를 지키는지 확인한다.
-# - read-model 그룹은 SceneReadModel과 CombatSceneModel이 private runtime field를 노출하지 않는지 확인한다.
-# - 그룹별 결과를 suite summary로 합치고 failing identifier와 diagnostics를 deterministic 순서로 정리한다.
+# 실행: define a SceneTree-based headless contract runner.
+extends SceneTree
+
+# 실행: list formal scripts that must exist before the suite can run.
+const REQUIRED_SCRIPTS := [
+	"res://src/domain/FormalContracts.gd",
+	"res://src/process/HeadlessMiniRun.gd",
+	"res://src/process/CombatInputAdapter.gd",
+	"res://src/process/ReplayProcess.gd",
+	"res://src/ui/SceneReadModel.gd",
+	"res://src/ui/CombatSceneModel.gd",
+	"res://src/ui/CombatScenePreviewController.gd",
+	"res://src/tools/FormalReplayRunner.gd",
+	"res://src/MainController.gd",
+	# 신규 Logical Capsule 리팩토링 스크립트 목록 추가
+	"res://src/models/Artifact.gd",
+	"res://src/models/InventoryModel.gd",
+	"res://src/models/CombatSimulator.gd",
+	"res://src/models/HazardModel.gd",
+	"res://src/vocabulary/CombatVocab.gd",
+	"res://src/vocabulary/BackpackVocab.gd",
+	"res://src/vocabulary/NodeVocab.gd",
+	"res://src/vocabulary/RewardVocab.gd",
+	"res://src/process/MiniRunStageScript.gd",
+	"res://src/phases/PhaseReducers.gd",
+	"res://src/phases/NodeSelectPhase.gd",
+	"res://src/phases/CombatStartPhase.gd",
+	"res://src/phases/CombatPhase.gd",
+	"res://src/phases/CombatEndPhase.gd",
+	"res://src/phases/RewardLootPhase.gd",
+	"res://src/phases/RunCompletePhase.gd"
+]
+
+# 실행: list formal scene resources that must exist for the M2 app entry path.
+const REQUIRED_SCENES := ["res://src/Main.tscn"]
+
+# 실행: list scripts that must retain contract and execution comments.
+const COMMENTED_SCRIPTS := [
+	"res://src/domain/FormalContracts.gd",
+	"res://src/process/HeadlessMiniRun.gd",
+	"res://src/process/CombatInputAdapter.gd",
+	"res://src/process/ReplayProcess.gd",
+	"res://src/ui/SceneReadModel.gd",
+	"res://src/ui/CombatSceneModel.gd",
+	"res://src/ui/CombatScenePreviewController.gd",
+	"res://src/tools/FormalReplayRunner.gd",
+	"res://src/MainController.gd",
+	"res://src/models/Artifact.gd",
+	"res://src/models/InventoryModel.gd",
+	"res://src/models/CombatSimulator.gd",
+	"res://src/models/HazardModel.gd",
+	"res://src/vocabulary/CombatVocab.gd",
+	"res://src/vocabulary/BackpackVocab.gd",
+	"res://src/vocabulary/NodeVocab.gd",
+	"res://src/vocabulary/RewardVocab.gd",
+	"res://src/process/MiniRunStageScript.gd",
+	"res://src/phases/PhaseReducers.gd",
+	"res://src/phases/NodeSelectPhase.gd",
+	"res://src/phases/CombatStartPhase.gd",
+	"res://src/phases/CombatPhase.gd",
+	"res://src/phases/CombatEndPhase.gd",
+	"res://src/phases/RewardLootPhase.gd",
+	"res://src/phases/RunCompletePhase.gd"
+]
+
+# 실행: collect deterministic suite failure labels.
+var failures: Array[String] = []
+
+# 실행: run script existence checks, comment checks, contract checks, and exit with suite status.
+func _init() -> void:
+	for script_path in REQUIRED_SCRIPTS:
+		_assert(ResourceLoader.exists(script_path), "missing Godot formal script: %s" % script_path)
+	for scene_path in REQUIRED_SCENES:
+		_assert(ResourceLoader.exists(scene_path), "missing Godot formal scene: %s" % scene_path)
+	if failures.is_empty():
+		_assert_comment_harness()
+		_run_contracts()
+	if failures.is_empty():
+		print("GODOT_CONTRACTS_OK")
+		quit(0)
+	else:
+		for failure in failures:
+			push_error(failure)
+		quit(1)
+
+# 실행: verify each formal script still carries contract and execution markers.
+func _assert_comment_harness() -> void:
+	for script_path in COMMENTED_SCRIPTS:
+		var file := FileAccess.open(script_path, FileAccess.READ)
+		_assert(file != null, "comment harness cannot read script: %s" % script_path)
+		if file == null:
+			continue
+		var text := file.get_as_text()
+		_assert(text.contains("# 계약:"), "missing contract header comment: %s" % script_path)
+		_assert(text.contains("# 실행:"), "missing executable sentence comments: %s" % script_path)
+
+# 실행: load formal scripts and run validator, progression, adapter, read-model, and replay tests.
+func _run_contracts() -> void:
+	var FormalContractsScript = _load_script("res://src/domain/FormalContracts.gd")
+	var HeadlessMiniRunScript = _load_script("res://src/process/HeadlessMiniRun.gd")
+	var CombatInputAdapterScript = _load_script("res://src/process/CombatInputAdapter.gd")
+	var ReplayProcessScript = _load_script("res://src/process/ReplayProcess.gd")
+	var SceneReadModelScript = _load_script("res://src/ui/SceneReadModel.gd")
+	var CombatSceneModelScript = _load_script("res://src/ui/CombatSceneModel.gd")
+	var CombatScenePreviewControllerScript = _load_script("res://src/ui/CombatScenePreviewController.gd")
+	var FormalReplayRunnerScript = _load_script("res://src/tools/FormalReplayRunner.gd")
+	var MainControllerScript = _load_script("res://src/MainController.gd")
+	if not failures.is_empty():
+		return
+	_test_contract_validators(FormalContractsScript.new())
+	_test_headless_progression(HeadlessMiniRunScript)
+	_assert(MainControllerScript != null, "main controller script loads")
+	_test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, SceneReadModelScript.new(), CombatSceneModelScript.new(), CombatScenePreviewControllerScript)
+	_test_replay_paths(ReplayProcessScript.new(), FormalReplayRunnerScript.new())
+
+# 실행: verify validator failure surfaces for missing required fields.
+func _test_contract_validators(contracts) -> void:
+	var artifact_validation: Dictionary = contracts.validate_artifact_table({"artifacts": [{"name": "Pulse Drill", "shape": [[1]], "energyType": "red", "baseCooldownTicks": 4, "synergy": "pair", "keyword": "burst"}]})
+	_assert_eq(artifact_validation["ok"], false, "artifact validator rejects missing id")
+	_assert_eq(artifact_validation["errors"][0]["path"], "artifacts[0].id", "artifact validator reports id path")
+	var node_validation: Dictionary = contracts.validate_node_table({"nodes": [_elite_node()]})
+	_assert_eq(node_validation["ok"], false, "node validator rejects table without normal node")
+	_assert_eq(node_validation["errors"][0]["code"], "missing_normal_node", "node validator reports missing normal node")
+	var progress_validation: Dictionary = contracts.validate_progress_state({})
+	_assert_eq(progress_validation["ok"], false, "progress validator rejects missing cleared ids")
+	_assert_eq(progress_validation["errors"][0]["path"], "clearedLeviathanIds", "progress validator reports cleared ids path")
+
+# 실행: verify node_select, combat, reward_loot, and next-stage transitions via logical capsules.
+func _test_headless_progression(HeadlessMiniRunScript) -> void:
+	var run = HeadlessMiniRunScript.new({"seed": 7, "maxStages": 2, "runCount": 1, "nodeTable": _node_table(), "tuning": {"stageScaling": {"baseHealth": 3.2}}})
+	var initial: Dictionary = run.snapshot()
+	_assert_eq(initial["phase"], "node_select", "headless run starts in node_select")
+	_assert_eq(initial["stageIndex"], 0, "headless run starts at stage 0")
+	_assert(initial["candidates"].size() >= 1, "headless run exposes candidates")
+	var combat_start: Dictionary = run.select_node(0)
+	_assert_eq(combat_start["phase"], "combat", "select node enters combat")
+	_assert_eq(combat_start["combat"]["result"], "active", "combat starts active")
+	var reward: Dictionary = run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	_assert_eq(reward["phase"], "reward_loot", "clear enters reward_loot")
+	var next_stage: Dictionary = run.claim_rewards()
+	_assert_eq(next_stage["phase"], "node_select", "reward claim advances to node_select")
+	_assert_eq(next_stage["stageIndex"], 1, "reward claim increments stage")
+
+# 실행: verify adapter normalization, combat layout projection, and preview-controller scene flow.
+func _test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, scene_read_model, combat_scene_model, CombatScenePreviewControllerScript) -> void:
+	var run = HeadlessMiniRunScript.new({"seed": 31, "maxStages": 1, "queueCapacity": 0, "nodeTable": _normal_only_table()})
+	var adapter = CombatInputAdapterScript.new(run)
+	adapter.select_node(0)
+	var normalized: Dictionary = adapter.normalize_input({"input": "click", "target": 0}, run.snapshot())
+	_assert_eq(normalized["ok"], true, "adapter normalizes click input")
+	var empty_queue: Dictionary = run.apply_combat_input(normalized["event"])
+	_assert_eq(empty_queue["combat"]["result"], "empty_queue", "empty queue click reports empty_queue")
+	var repaired: Dictionary = adapter.request_repair()
+	_assert_eq(repaired["combat"]["repair"]["active"], true, "repair activates repair state")
+	_assert_eq(repaired["combat"]["queue"]["loaded"], repaired["combat"]["queue"]["capacity"], "repair reloads queue capacity")
+	var combat_run = HeadlessMiniRunScript.new({"seed": 41, "maxStages": 1, "nodeTable": _normal_only_table()})
+	combat_run.select_node(0)
+	combat_run.apply_combat_input({"type": "aim", "targetCellId": "r0c0", "targetColor": "red"})
+	var scene: Dictionary = combat_scene_model.create(combat_run.snapshot(), {"viewportWidth": 1600, "viewportHeight": 900})
+	_assert_eq(scene["layout"]["top"]["height"], 630, "combat scene uses 7:3 top layout")
+	_assert_eq(scene["layout"]["bottom"]["height"], 270, "combat scene uses 7:3 bottom layout")
+	_assert_eq(scene["terrain"]["cells"].size(), 30, "combat scene has 30 cells")
+	_assert_eq(scene["terrain"]["cells"][0]["id"], "r0c0", "combat scene first cell id")
+	_assert_eq(scene["terrain"]["cells"][29]["id"], "r2c9", "combat scene last cell id")
+	_assert_eq(scene["terrain"]["cells"][0]["aimed"], true, "combat scene marks aimed cell")
+	_assert_eq(scene["hud"]["queue"]["loaded"], 8, "combat scene HUD exposes queue state")
+	var read_model: Dictionary = scene_read_model.create(combat_run.snapshot())
+	_assert_eq(read_model["phase"], "combat", "scene read model exposes combat phase")
+	var hold_fire_run = HeadlessMiniRunScript.new({"seed": 53, "maxStages": 1, "nodeTable": _normal_only_table(), "tuning": {"stageScaling": {"baseShield": 0.0, "baseHealth": 1.0}}})
+	var hold_fire_adapter = CombatInputAdapterScript.new(hold_fire_run)
+	hold_fire_adapter.select_node(0)
+	var reward_snapshot: Dictionary = hold_fire_adapter.hold_fire("r0c0", "red", 2)
+	_assert_eq(reward_snapshot["phase"], "reward_loot", "hold fire reaches reward_loot through the formal adapter path")
+	var preview_controller = CombatScenePreviewControllerScript.new({"seed": 61, "maxStages": 1, "tuning": {"stageScaling": {"baseShield": 0.0, "baseHealth": 1.0}}})
+	var initial_scene: Dictionary = preview_controller.get_scene()
+	_assert_eq(initial_scene["phase"], "node_select", "preview controller starts at node_select")
+	_assert(initial_scene["nodeSelect"]["candidates"].size() >= 1, "preview controller exposes node-select candidates")
+	var combat_scene: Dictionary = preview_controller.start_combat(0)
+	_assert_eq(combat_scene["phase"], "combat", "preview controller enters combat")
+	var reward_scene: Dictionary = preview_controller.hold_fire("r0c0", "red", 2)
+	_assert_eq(reward_scene["phase"], "reward_loot", "preview controller reaches reward_loot")
+	_assert(reward_scene["reward"]["pendingRewards"].size() >= 1, "preview controller exposes pending rewards")
+	var complete_scene: Dictionary = preview_controller.claim_rewards()
+	_assert_eq(complete_scene["phase"], "run_complete", "preview controller reaches run_complete")
+
+# 실행: verify direct replay payloads and promoted prototype fixture batch execution.
+func _test_replay_paths(replay_process, replay_runner) -> void:
+	var replay: Dictionary = replay_process.run_replay({"seed": 21, "maxStages": 1, "nodeTable": _node_table(), "inputLog": [{"type": "select_node", "index": 0}, {"type": "resolve", "outcome": "clear"}, {"type": "claim_rewards"}]})
+	_assert_eq(replay["summary"]["phase"], "run_complete", "formal replay reaches run_complete")
+	_assert_eq(replay["summary"]["runComplete"], true, "formal replay marks run complete")
+	var fixture_replay: Dictionary = replay_process.run_replay({"seed": 20260513, "node": {"shield": 0.75, "health": 0.0, "weakness": ["red"]}, "inputLog": [{"tick": 1, "target": 0, "input": "click"}, {"tick": 2, "input": "claim_rewards"}]})
+	_assert_eq(fixture_replay["summary"]["phase"], "run_complete", "prototype-style replay reaches run_complete")
+	var replay_report: Dictionary = replay_runner.run_all({"fixturePaths": ["res://prototype/browser-p0-p4/tests/fixtures/input_logs/basic_clear.json", "res://prototype/browser-p0-p4/tests/fixtures/input_logs/empty_queue_repair.json"]})
+	_assert_eq(replay_report["fixtureCount"], 2, "formal replay runner counts fixtures")
+
+# 실행: return a node table containing normal and elite nodes.
+func _node_table() -> Dictionary:
+	return {"nodes": [_normal_node(), _elite_node()]}
+
+# 실행: return a node table containing only the normal node.
+func _normal_only_table() -> Dictionary:
+	return {"nodes": [_normal_node()]}
+
+# 실행: return the required normal node fixture.
+func _normal_node() -> Dictionary:
+	return {"id": "normal", "label": "Normal Node", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true}
+
+# 실행: return an elite node fixture used by negative validator tests.
+func _elite_node() -> Dictionary:
+	return {"id": "elite", "label": "Elite Node", "weakness": ["blue"], "pickWeight": 2, "shieldMul": 1.2, "healthMul": 1.3}
+
+# 실행: append a failure label when a condition is false.
+func _assert(condition: bool, label: String) -> void:
+	if not condition:
+		failures.append(label)
+
+# 실행: append a deterministic equality failure label when values differ.
+func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
+	if actual != expected:
+		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])
+
+# 실행: load and validate a script resource before instantiating it.
+func _load_script(script_path: String):
+	var script = load(script_path)
+	if script == null:
+		failures.append("failed to load script: %s" % script_path)
+		return null
+	if not script.can_instantiate():
+		failures.append("script cannot instantiate: %s" % script_path)
+		return null
+	return script
