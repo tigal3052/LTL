@@ -14,7 +14,7 @@ var shield: float = 0.0
 var health: float = 0.0
 var max_health: float = 0.0
 var max_shield: float = 0.0
-var time_limit_ticks: int = 1200
+var time_limit_ticks: int = 2400
 var elapsed_ticks: int = 0
 var disabled: bool = false
 
@@ -25,8 +25,8 @@ var queue_pinned_slots: int = 0
 var queue_empty_shots: int = 0
 
 var pin_active: bool = false
-var pin_progress: int = 0
-var pin_turns_remaining: int = 0
+var pin_progress: int = 4
+var pin_turns_remaining: int = 4
 
 var repair_threshold: int = 3
 var repair_progress: int = 0
@@ -54,7 +54,7 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	health = float(combat_data.get("health", 0.0))
 	max_shield = float(combat_data.get("maxShield", shield))
 	max_health = float(combat_data.get("maxHealth", health))
-	time_limit_ticks = int(combat_data.get("timeLimitTicks", 1200))
+	time_limit_ticks = int(combat_data.get("timeLimitTicks", 2400))
 	elapsed_ticks = 0
 	disabled = false
 
@@ -75,8 +75,8 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	queue_empty_shots = 0
 
 	pin_active = false
-	pin_progress = 0
-	pin_turns_remaining = 0
+	pin_progress = 4
+	pin_turns_remaining = 4
 
 	var queue_tuning: Dictionary = tuning.get("queue", {"repairThreshold": 3})
 	repair_threshold = int(queue_tuning.get("repairThreshold", 3))

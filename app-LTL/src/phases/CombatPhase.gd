@@ -8,6 +8,8 @@
 class_name CombatPhase
 extends RefCounted
 
+const ArtifactScript = preload("res://src/models/Artifact.gd")
+
 # 실행: reduce combat inputs, update simulator state, and evaluate completion or failure transitions.
 static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	var next_state := state.duplicate(true)
@@ -19,7 +21,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		inv = InventoryModel.new(int(inv_data.get("width", 8)), int(inv_data.get("height", 8)))
 		if inv_data.has("artifacts"):
 			for art_dict in inv_data["artifacts"]:
-				var art = Artifact.new(art_dict)
+				var art = ArtifactScript.new(art_dict)
 				inv.place_artifact(art, art.x, art.y)
 				
 	var combat_dict: Dictionary = next_state.get("combat", {})
@@ -33,7 +35,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 			"health": combat_dict.get("health", 0.0),
 			"maxShield": combat_dict.get("maxShield", combat_dict.get("shield", 0.0)),
 			"maxHealth": combat_dict.get("maxHealth", combat_dict.get("health", 0.0)),
-			"timeLimitTicks": combat_dict.get("timeLimitTicks", 1200),
+			"timeLimitTicks": combat_dict.get("timeLimitTicks", 2400),
 			"weakness": []
 		}
 	}
@@ -45,7 +47,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	sim.health = float(combat_dict.get("health", 0.0))
 	sim.max_shield = float(combat_dict.get("maxShield", sim.shield))
 	sim.max_health = float(combat_dict.get("maxHealth", sim.health))
-	sim.time_limit_ticks = int(combat_dict.get("timeLimitTicks", 1200))
+	sim.time_limit_ticks = int(combat_dict.get("timeLimitTicks", 2400))
 	sim.elapsed_ticks = int(combat_dict.get("elapsedTicks", 0))
 	sim.disabled = bool(combat_dict.get("disabled", false))
 	
@@ -59,8 +61,8 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	
 	var p_data: Dictionary = combat_dict.get("pin", {})
 	sim.pin_active = bool(p_data.get("active", false))
-	sim.pin_progress = int(p_data.get("progress", 0))
-	sim.pin_turns_remaining = int(p_data.get("turnsRemaining", 0))
+	sim.pin_progress = int(p_data.get("progress", 4))
+	sim.pin_turns_remaining = int(p_data.get("turnsRemaining", 4))
 	
 	var r_data: Dictionary = combat_dict.get("repair", {})
 	sim.repair_threshold = int(r_data.get("threshold", 3))
@@ -113,7 +115,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		else:
 			var target_color = event.get("targetColor", sim.aim_target_color)
 			var target_cell_id = event.get("targetCellId", sim.aim_cell_id)
-			CombatVocab.fire_shot(sim, target_color, target_cell_id, next_state.get("tuning", {}).get("combat", {}))
+			CombatVocab.fire_shot(sim, target_color, target_cell_id, next_state.get("tuning", {}).get("combat", {}), inv)
 
 	# 시간 경과 처리 (인풋이 tick 혹은 hold_fire_tick 일 때 틱을 경과시킴)
 	if event_type == "hold_fire_tick":

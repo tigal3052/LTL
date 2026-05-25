@@ -110,4 +110,4 @@ func _build_node_table_from_payload(payload: Dictionary) -> Dictionary:
 	var weakness: Array = ["red"]
 	if weakness_value is Array:
 		weakness = weakness_value.duplicate(true)
-	return {"nodes": [{"id": "normal", "label": String(node.get("label", "Normal Node")), "weakness": weakness.duplicate(true), "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true, "combat": {"shield": float(node.get("shield", 1.0)), "health": float(node.get("health", 1.0)), "timeLimitTicks": int(payload.get("timeLimitTicks", 1200)), "weakness": weakness.duplicate(true)}}]}
+	return {"nodes": [{"id": "normal", "label": String(node.get("label", "Normal Node")), "weakness": weakness.duplicate(true), "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true, "combat": {"shield": float(node.get("shield", 1.0)), "health": float(node.get("health", 1.0)), "timeLimitTicks": int(payload.get("timeLimitTicks", 2400)), "weakness": weakness.duplicate(true)}}]}

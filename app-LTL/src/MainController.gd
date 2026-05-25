@@ -10,6 +10,7 @@ extends PanelContainer
 # 실행: preload the CellView class for interactive grid cells.
 const CellViewScript = preload("res://src/ui/CellView.gd")
 const PreviewControllerScript = preload("res://src/ui/CombatScenePreviewController.gd")
+const ArtifactScript = preload("res://src/models/Artifact.gd")
 
 # 실행: cache the scene nodes that receive rendered preview state.
 @onready var phase_label: Label = $RootMargin/AppShell/Header/Margin/PhaseRow/PhaseLabel
@@ -52,6 +53,7 @@ const PreviewControllerScript = preload("res://src/ui/CombatScenePreviewControll
 @onready var health_bar: ProgressBar = $RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox/HealthBar
 @onready var shield_bar: ProgressBar = $RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox/ShieldBar
 @onready var pin_progress_bar: ProgressBar = $RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow/PinProgressBar
+@onready var pin_label: Label = $RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow/PinLabel
 @onready var repair_status_label: Label = $RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow/RepairStatusLabel
 
 # 실행: store global configuration and screenshake state.
@@ -90,6 +92,9 @@ var backpack_items = [
 # 실행: store dynamic energy queue colors loaded by active items.
 var queue_colors: Array[String] = []
 
+var repair_countdown: float = 0.0
+var last_logged_pins: int = -1
+
 # 실행: store the currently held reward index for drag/click loot mechanics.
 var held_reward_index: int = -1
 var local_rewards_list: Array = []
@@ -127,6 +132,9 @@ func _ready() -> void:
 	# Wire reward click and discard inputs
 	reward_text.meta_clicked.connect(_on_reward_meta_clicked)
 	discard_zone.gui_input.connect(_on_discard_zone_input)
+	
+	# Wire repair overlay inputs
+	repair_overlay.gui_input.connect(_on_repair_overlay_input)
 	
 	# Set checkbox initial values
 	screenshake_checkbox.button_pressed = screenshake_enabled
@@ -255,37 +263,19 @@ func _setup_backpack_grid_slots() -> void:
 # 실행: load hardcoded starter backpack items into the InventoryModel.
 func _load_backpack_items_into_inventory() -> void:
 	inventory = InventoryModel.new(8, 8)
-	var id_counter = 1
-	for item in backpack_items:
-		var art_id = "art_%d" % id_counter
-		id_counter += 1
-		
-		var max_x = 0
-		var max_y = 0
-		for offset in item["shape"]:
-			max_x = max(max_x, int(offset.x))
-			max_y = max(max_y, int(offset.y))
-			
-		var grid_shape = []
-		for r in range(max_y + 1):
-			var row = []
-			for c in range(max_x + 1):
-				row.append(0)
-			grid_shape.append(row)
-			
-		for offset in item["shape"]:
-			grid_shape[int(offset.y)][int(offset.x)] = 1
-			
-		var art_data = {
-			"id": art_id,
-			"name": item["name"],
-			"shape": grid_shape,
-			"energyType": item["color"],
-			"baseCooldownTicks": 100, # 프로토타입 쿨다운 100
-			"synergy": {"type": "same_color", "value": 2}
-		}
-		var art = Artifact.new(art_data)
-		inventory.place_artifact(art, int(item["pos"].x), int(item["pos"].y))
+	var drills = ArtifactScript.get_basic_drills()
+	var positions = [
+		Vector2(1, 2),
+		Vector2(4, 1),
+		Vector2(2, 4),
+		Vector2(6, 5)
+	]
+	for i in range(drills.size()):
+		var art = drills[i]
+		var pos = positions[i]
+		inventory.place_artifact(art, int(pos.x), int(pos.y))
+	if preview_controller != null and preview_controller.run != null:
+		preview_controller.run.state["inventory"] = inventory.to_dict()
 
 # 실행: render active items inside the 8x8 backpack grid with colored overlays from InventoryModel.
 func _render_backpack_items() -> void:
@@ -356,76 +346,22 @@ func _on_shift_timer_timeout() -> void:
 	if str(current_scene.get("phase", "")) != "combat":
 		return
 		
-	var run_state = preview_controller.run.state
-	if not run_state.has("combat") or run_state["combat"] == null:
+	# 1. 20틱만큼 공식 시뮬레이션 틱 진행
+	current_scene = preview_controller.run.apply_combat_input({"type": "tick", "ticks": 20})
+	
+	# 만약 틱 진행 후 전투가 종료되었으면 씬만 렌더링하고 리턴
+	if str(current_scene.get("phase", "")) != "combat":
+		_render_scene(current_scene)
 		return
 		
-	var combat_dict = run_state["combat"]
-	var dummy_choice := {
-		"combat": {
-			"shield": combat_dict.get("shield", 0.0),
-			"health": combat_dict.get("health", 0.0),
-			"maxShield": combat_dict.get("maxShield", combat_dict.get("shield", 0.0)),
-			"maxHealth": combat_dict.get("maxHealth", combat_dict.get("health", 0.0)),
-			"timeLimitTicks": combat_dict.get("timeLimitTicks", 1200),
-			"weakness": []
-		}
-	}
-	var sim := CombatVocab.prepare_combat(dummy_choice, run_state.get("tuning", {}), int(combat_dict.get("queue", {}).get("capacity", 8)))
-	
-	sim.result = str(combat_dict.get("result", "active"))
-	sim.shield = float(combat_dict.get("shield", 0.0))
-	sim.health = float(combat_dict.get("health", 0.0))
-	sim.max_shield = float(combat_dict.get("maxShield", sim.shield))
-	sim.max_health = float(combat_dict.get("maxHealth", sim.health))
-	sim.time_limit_ticks = int(combat_dict.get("timeLimitTicks", 1200))
-	sim.elapsed_ticks = int(combat_dict.get("elapsedTicks", 0))
-	sim.disabled = bool(combat_dict.get("disabled", false))
-	
-	var q_data: Dictionary = combat_dict.get("queue", {})
-	sim.queue = []
-	if q_data.has("items"):
-		for item in q_data["items"]:
-			sim.queue.append(str(item))
-	sim.queue_pinned_slots = int(q_data.get("pinnedSlots", 0))
-	sim.queue_empty_shots = int(q_data.get("emptyShots", 0))
-	
-	var p_data: Dictionary = combat_dict.get("pin", {})
-	sim.pin_active = bool(p_data.get("active", false))
-	sim.pin_progress = int(p_data.get("progress", 0))
-	sim.pin_turns_remaining = int(p_data.get("turnsRemaining", 0))
-	
-	var r_data: Dictionary = combat_dict.get("repair", {})
-	sim.repair_threshold = int(r_data.get("threshold", 3))
-	sim.repair_progress = int(r_data.get("progress", 0))
-	sim.repair_active = bool(r_data.get("active", false))
-	sim.repair_available = bool(r_data.get("available", true))
-	
-	var a_data: Dictionary = combat_dict.get("aim", {})
-	sim.aim_cell_id = a_data.get("cellId", null)
-	sim.aim_target_color = a_data.get("targetColor", null)
-	sim.aim_can_fire = bool(a_data.get("canFire", true))
-	
-	var b_data: Dictionary = combat_dict.get("battlefield", {})
-	sim.battlefield_rows = int(b_data.get("rows", 3))
-	sim.battlefield_cols = int(b_data.get("columns", 10))
-	sim.weakness_markers = b_data.get("weaknessMarkers", []).duplicate(true)
-	
-	var s_data: Dictionary = combat_dict.get("summary", {})
-	sim.summary_shots_fired = int(s_data.get("shots_fired", 0))
-	sim.summary_shots_hit_match = int(s_data.get("shots_hit_match", 0))
-	sim.summary_shots_hit_mismatch = int(s_data.get("shots_hit_mismatch", 0))
-	sim.summary_shots_fired_empty_queue = int(s_data.get("shots_fired_empty_queue", 0))
-
-	# 1. 20틱만큼 실제 전투 틱(유물 틱 포함) 진행
-	CombatVocab.tick_combat(sim, 20, inventory)
-	
 	# 2. 지형 스크롤
-	var markers = sim.weakness_markers
+	var run_state = preview_controller.run.state
+	var combat_dict = run_state["combat"]
+	var weakness_markers = combat_dict.get("battlefield", {}).get("weaknessMarkers", [])
 	var new_markers = []
 	var colors = ["red", "blue", "purple", "green"]
 	
-	for marker in markers:
+	for marker in weakness_markers:
 		var cell_id = str(marker.get("cellId", ""))
 		if cell_id.begins_with("r") and "c" in cell_id:
 			var parts = cell_id.substr(1).split("c")
@@ -446,9 +382,17 @@ func _on_shift_timer_timeout() -> void:
 			"color": chosen_color
 		})
 		
-	sim.weakness_markers = new_markers
-	run_state["combat"] = sim.to_dict()
+	run_state["combat"]["battlefield"]["weaknessMarkers"] = new_markers
 	
+	# Local inventory model sync from the updated run state
+	var inv_data = run_state.get("inventory", {})
+	if inv_data is Dictionary:
+		inventory = InventoryModel.new(int(inv_data.get("width", 8)), int(inv_data.get("height", 8)))
+		if inv_data.has("artifacts"):
+			for art_dict in inv_data["artifacts"]:
+				var art = ArtifactScript.new(art_dict)
+				inventory.place_artifact(art, art.x, art.y)
+				
 	current_scene = preview_controller.get_scene()
 	_render_scene(current_scene)
 
@@ -616,9 +560,17 @@ func _on_cell_clicked(cell_id: String, color_name: String) -> void:
 	if str(current_scene.get("phase", "")) != "combat" or cell_id in disabled_tiles:
 		return
 		
+	# Compute damage by comparing target HP and Shield before and after fire
+	var prev_shield = float(current_scene.get("targetPanel", {}).get("shield", 0.0))
+	var prev_health = float(current_scene.get("targetPanel", {}).get("health", 0.0))
+
 	# Consume energy and evaluate result (Always fires the front queue color based on item setup)
 	var active_color = _get_active_queue_color()
 	current_scene = preview_controller.fire(cell_id, active_color)
+	
+	var next_shield = float(current_scene.get("targetPanel", {}).get("shield", 0.0))
+	var next_health = float(current_scene.get("targetPanel", {}).get("health", 0.0))
+	var damage = (prev_shield - next_shield) + (prev_health - next_health)
 	
 	# Visual feedback triggers
 	var feedback: Dictionary = current_scene.get("feedback", {})
@@ -626,25 +578,15 @@ func _on_cell_clicked(cell_id: String, color_name: String) -> void:
 	
 	# Item activation log
 	var matched_item = null
-	for item in backpack_items:
-		if str(item.get("color", "")) == active_color:
-			matched_item = item
+	for art_id in inventory.artifacts:
+		var art = inventory.artifacts[art_id]
+		if str(art.energy_type) == active_color and art.item_type == "drill":
+			matched_item = art
 			break
 	if matched_item:
-		_add_log("[color=#ffd766][아이템 발동] %s (%s) 사용![/color]" % [matched_item["name"], active_color.to_upper()])
+		_add_log("[color=#ffd766][아이템 발동] %s (%s) 사용![/color]" % [matched_item.name, active_color.to_upper()])
 	else:
 		_add_log("[color=#ffd766][아이템 발동] 익명 드릴 (%s) 사용![/color]" % active_color.to_upper())
-
-	# Calculate damage for log
-	var damage: float = 0.0
-	if status == "match" or status == "clear":
-		damage = 2.0
-	elif status == "mismatch":
-		damage = 0.0
-	elif status == "empty_queue":
-		damage = 0.0
-	else:
-		damage = 1.0 # active/normal
 		
 	# Drill hit log
 	_add_log("[color=#66c2cd][지형 타격] 좌표: %s | 사용 에너지: %s | 광석 타입: %s | 최종 데미지: %.1f[/color]" % [cell_id.to_upper(), active_color.to_upper(), color_name.to_upper(), damage])
@@ -690,13 +632,9 @@ func _on_cell_clicked(cell_id: String, color_name: String) -> void:
 func _get_active_queue_color() -> String:
 	var hud: Dictionary = current_scene.get("hud", {})
 	var queue: Dictionary = hud.get("queue", {})
-	var loaded := int(queue.get("loaded", 0))
-	var capacity := int(queue.get("capacity", 8))
-	if queue_colors.is_empty():
-		_recalculate_queue_colors()
-	var idx = capacity - loaded
-	if idx >= 0 and idx < queue_colors.size():
-		return queue_colors[idx]
+	var items: Array = queue.get("items", [])
+	if not items.is_empty():
+		return str(items[0])
 	return "red" # fallback
 
 # 실행: render one preview-scene snapshot into labels, battlefield cells, and action states.
@@ -844,10 +782,8 @@ func _render_visual_queue(scene: Dictionary) -> void:
 		return
 	var hud: Dictionary = scene.get("hud", {})
 	var queue: Dictionary = hud.get("queue", {})
-	var loaded := int(queue.get("loaded", 0))
 	var capacity := int(queue.get("capacity", 8))
-	
-	_recalculate_queue_colors()
+	var items: Array = queue.get("items", [])
 	
 	for i in range(capacity):
 		var gem := Panel.new()
@@ -857,13 +793,8 @@ func _render_visual_queue(scene: Dictionary) -> void:
 		style.corner_radius_bottom_right = 10
 		style.corner_radius_bottom_left = 10
 		
-		if i < loaded:
-			# Use the pre-calculated item color for the loaded queue slots
-			var color_idx = capacity - loaded + i
-			var color_name = "red"
-			if color_idx >= 0 and color_idx < queue_colors.size():
-				color_name = queue_colors[color_idx]
-				
+		if i < items.size():
+			var color_name = str(items[i])
 			if color_name == "red":
 				style.bg_color = Color(0.9, 0.25, 0.25)
 			elif color_name == "blue":
@@ -900,9 +831,21 @@ func _render_visual_queue(scene: Dictionary) -> void:
 
 # 실행: render the repair critical overlay when drill fails, and update pin bars.
 func _render_repair_overlay(scene: Dictionary) -> void:
-	if str(scene.get("phase", "")) != "combat":
+	var phase := str(scene.get("phase", ""))
+	var failed := bool(scene.get("failed", false))
+	
+	if phase == "run_complete" and failed:
+		repair_overlay.visible = true
+		var warning_lbl = repair_overlay.get_node("Center/WarningBox/WarningLabel") as Label
+		var desc_lbl = repair_overlay.get_node("Center/WarningBox/DescriptionLabel") as Label
+		warning_lbl.text = "⚠️ EXPEDITION FAILED ⚠️"
+		desc_lbl.text = "Time limit exceeded or core destroyed.\nClick here to restart."
+		return
+		
+	if phase != "combat":
 		repair_overlay.visible = false
 		return
+		
 	var hud: Dictionary = scene.get("hud", {})
 	var queue: Dictionary = hud.get("queue", {})
 	var repair: Dictionary = hud.get("repair", {})
@@ -913,20 +856,31 @@ func _render_repair_overlay(scene: Dictionary) -> void:
 	var status = str(feedback.get("status", ""))
 	
 	repair_overlay.visible = depleted or is_rebuilding or status == "empty_queue" or status == "repair_blocked"
+	if repair_overlay.visible:
+		var warning_lbl = repair_overlay.get_node("Center/WarningBox/WarningLabel") as Label
+		var desc_lbl = repair_overlay.get_node("Center/WarningBox/DescriptionLabel") as Label
+		warning_lbl.text = "⚠️ MINING DRILL CRITICAL FAILURE ⚠️"
+		desc_lbl.text = "Core overheated. Energy queue depleted.\nPress [R] or click the Repair button to restart the drill core."
 	
 	# Update pin and repair bars
 	var pin: Dictionary = hud.get("pin", {})
 	pin_progress_bar.max_value = 4.0
 	pin_progress_bar.value = float(pin.get("progress", 0))
 	
+	var time_limit = float(scene.get("combat", {}).get("timeLimitTicks", 2400))
+	var elapsed = float(scene.get("combat", {}).get("elapsedTicks", 0))
+	var remaining_seconds = max(0, int((time_limit - elapsed) / 20.0))
+	
+	pin_label.text = "Stage Time Limit: %ds" % remaining_seconds
+	
 	if is_rebuilding:
-		repair_status_label.text = "Drill Status: REPAIRING..."
+		repair_status_label.text = "REPAIRING..."
 		repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25))
 	elif depleted:
-		repair_status_label.text = "Drill Status: OVERHEATED!"
+		repair_status_label.text = "OVERHEATED!"
 		repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25))
 	else:
-		repair_status_label.text = "Drill Status: Normal"
+		repair_status_label.text = "Normal"
 		repair_status_label.add_theme_color_override("font_color", Color(0.34, 0.68, 0.42))
 
 # 실행: render the interactive reward looting list.
@@ -1027,6 +981,8 @@ func _on_backpack_slot_clicked(coord: Vector2) -> void:
 			_render_backpack_items()
 			_recalculate_queue_colors()
 			_render_rewards(current_scene)
+			if preview_controller != null and preview_controller.run != null:
+				preview_controller.run.state["inventory"] = inventory.to_dict()
 		else:
 			_add_log("[color=#ff6666][경고] 충돌 또는 범위를 벗어나 배치할 수 없습니다.[/color]")
 		return
@@ -1040,6 +996,8 @@ func _on_backpack_slot_clicked(coord: Vector2) -> void:
 			_add_log("[color=#ffd766][인벤토리] 유물 선택: %s (이동 또는 [R]키로 회전)[/color]" % held_artifact.name)
 			_update_ghost_display()
 			_render_backpack_items()
+			if preview_controller != null and preview_controller.run != null:
+				preview_controller.run.state["inventory"] = inventory.to_dict()
 
 # 실행: enable or disable the main action buttons based on the current phase and combat guards.
 func _update_action_state(scene: Dictionary) -> void:
@@ -1067,7 +1025,10 @@ func _target_summary(scene: Dictionary) -> String:
 		return "Target\nAwaiting combat."
 	var target: Dictionary = scene.get("targetPanel", {})
 	var weakness: Array = target.get("weakness", [])
-	return "Target\nWeakness: %s\nHealth: %.1f\nShield: %.1f\nTimer: %d" % [",".join(weakness), float(target.get("health", 0.0)), float(target.get("shield", 0.0)), int(target.get("timeLimitTicks", 0))]
+	var time_limit = float(target.get("timeLimitTicks", 0))
+	var elapsed = float(target.get("elapsedTicks", 0))
+	var remaining_seconds = max(0, int((time_limit - elapsed) / 20.0))
+	return "Target\nWeakness: %s\nHealth: %.1f\nShield: %.1f\nTimer: %ds" % [",".join(weakness), float(target.get("health", 0.0)), float(target.get("shield", 0.0)), remaining_seconds]
 
 # 실행: summarize queue, repair, hazard, and feedback status for the combat side panel.
 func _queue_summary(scene: Dictionary) -> String:
@@ -1100,15 +1061,10 @@ func _on_reset_pressed() -> void:
 	held_reward_index = -1
 	held_artifact = null
 	held_from_rewards = false
+	repair_countdown = 0.0
+	last_logged_pins = -1
 	_update_ghost_display()
 	
-	# Reset backpack items to initial mock setup
-	backpack_items = [
-		{"name": "Ruby Drill Core", "color": "red", "shape": [Vector2(0, 0), Vector2(1, 0)], "pos": Vector2(1, 2)},
-		{"name": "Sapphire Lens", "color": "blue", "shape": [Vector2(0, 0), Vector2(0, 1)], "pos": Vector2(4, 1)},
-		{"name": "Amethyst Resonance", "color": "purple", "shape": [Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), Vector2(1, 1)], "pos": Vector2(2, 4)},
-		{"name": "Emerald Capacitor", "color": "green", "shape": [Vector2(0, 0)], "pos": Vector2(6, 5)}
-	]
 	_load_backpack_items_into_inventory()
 	
 	_render_backpack_items()
@@ -1191,10 +1147,19 @@ func _update_ghost_display() -> void:
 				var box = ColorRect.new()
 				box.custom_minimum_size = Vector2(24, 24)
 				box.color = color
+				box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				ghost_container.add_child(box)
 			else:
 				var empty = Control.new()
 				empty.custom_minimum_size = Vector2(24, 24)
+				empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				ghost_container.add_child(empty)
 				
 	ghost_container.visible = true
+
+# 실행: handle repair overlay inputs (e.g. click-to-restart on game over)
+func _on_repair_overlay_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var phase := str(current_scene.get("phase", ""))
+		if phase == "run_complete" and bool(current_scene.get("failed", false)):
+			_on_reset_pressed()

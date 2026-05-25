@@ -17,6 +17,9 @@ var base_cooldown_ticks: int = 1
 var effective_cooldown: int = 1
 var synergy: String = ""
 var keyword: String = ""
+var damage: float = 1.0
+var grade: String = "basic"
+var item_type: String = "drill"
 
 # 실행: store dynamic placement and status states.
 var x: int = 0
@@ -44,6 +47,9 @@ func _init(data: Dictionary) -> void:
 		synergy = str(synergy_raw)
 		
 	keyword = str(data.get("keyword", ""))
+	damage = float(data.get("damage", 1.0))
+	grade = str(data.get("grade", "basic"))
+	item_type = str(data.get("item_type", data.get("itemType", "drill")))
 	x = int(data.get("x", 0))
 	y = int(data.get("y", 0))
 	rotation = int(data.get("rotation", 0))
@@ -58,6 +64,8 @@ func tick() -> Variant:
 		return null
 	if freeze_ticks > 0:
 		freeze_ticks -= 1
+		return null
+	if item_type == "beacon":
 		return null
 		
 	current_cooldown -= 1
@@ -96,5 +104,54 @@ func to_dict() -> Dictionary:
 		"currentCooldown": current_cooldown,
 		"synergyCooldownReduction": synergy_cooldown_reduction,
 		"isBroken": is_broken,
-		"freezeTicks": freeze_ticks
+		"freezeTicks": freeze_ticks,
+		"damage": damage,
+		"grade": grade,
+		"item_type": item_type,
+		"itemType": item_type
 	}
+
+# 실행: generate static default drills
+static func get_basic_drills() -> Array:
+	var ArtifactScript = load("res://src/models/Artifact.gd")
+	var ruby = ArtifactScript.new({
+		"id": "drill_ruby",
+		"name": "Ruby Drill",
+		"shape": [[1], [1], [1]],
+		"energyType": "red",
+		"baseCooldownTicks": 80,
+		"damage": 1.5,
+		"grade": "Basic",
+		"item_type": "drill"
+	})
+	var sapphire = ArtifactScript.new({
+		"id": "drill_sapphire",
+		"name": "Sapphire Drill",
+		"shape": [[1], [1]],
+		"energyType": "blue",
+		"baseCooldownTicks": 60,
+		"damage": 1.2,
+		"grade": "Basic",
+		"item_type": "drill"
+	})
+	var amethyst = ArtifactScript.new({
+		"id": "drill_amethyst",
+		"name": "Amethyst Drill",
+		"shape": [[1, 1], [1, 0]],
+		"energyType": "purple",
+		"baseCooldownTicks": 100,
+		"damage": 1.0,
+		"grade": "Basic",
+		"item_type": "drill"
+	})
+	var emerald = ArtifactScript.new({
+		"id": "drill_emerald",
+		"name": "Emerald Drill",
+		"shape": [[1, 1], [1, 1]],
+		"energyType": "green",
+		"baseCooldownTicks": 120,
+		"damage": 0.8,
+		"grade": "Basic",
+		"item_type": "drill"
+	})
+	return [ruby, sapphire, amethyst, emerald]

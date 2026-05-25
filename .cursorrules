@@ -1,0 +1,5 @@
+# Antigravity Agent Rules for this Workspace
+
+- 모든 구현 계획서(`implementation_plan.md`) 및 완료 보고서(`walkthrough.md`) 아티팩트는 반드시 **영어(English)**로 작성되어야 합니다. (All implementation plans and walkthroughs must be written in English.)
+- 함수 내 주석 및 실행 설명은 상황에 맞게 영어 또는 한국어로 자유롭게 작성하되, 기획서 및 완료 보고서 아티팩트는 영어 작성을 원칙으로 합니다.
+

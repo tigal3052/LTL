@@ -56,7 +56,7 @@ func _create_hud(combat: Dictionary) -> Dictionary:
 
 # 실행: project target weakness, health, shield, and timer values.
 func _create_target_panel(combat: Dictionary) -> Dictionary:
-	return {"weakness": _clone_array(combat.get("weakness", [])), "health": combat.get("health", 0.0), "shield": combat.get("shield", 0.0), "maxHealth": combat.get("maxHealth", 0.0), "maxShield": combat.get("maxShield", 0.0), "timeLimitTicks": combat.get("timeLimitTicks", 0)}
+	return {"weakness": _clone_array(combat.get("weakness", [])), "health": combat.get("health", 0.0), "shield": combat.get("shield", 0.0), "maxHealth": combat.get("maxHealth", 0.0), "maxShield": combat.get("maxShield", 0.0), "timeLimitTicks": combat.get("timeLimitTicks", 0), "elapsedTicks": combat.get("elapsedTicks", 0)}
 
 # 실행: project combat result into feedback flags and summary data.
 func _create_feedback(combat: Dictionary) -> Dictionary:

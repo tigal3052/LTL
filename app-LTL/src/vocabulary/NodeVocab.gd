@@ -49,7 +49,7 @@ static func _compute_stage_combat_params(stage_index: int, tuning: Dictionary) -
 	
 	var base_shield := float(scaling.get("baseShield", 2.4))
 	var base_health := float(scaling.get("baseHealth", 3.2))
-	var base_time_limit := int(scaling.get("baseTimeLimitTicks", 1200))
+	var base_time_limit := int(scaling.get("baseTimeLimitTicks", 2400))
 	
 	var peak_stage := float(scaling.get("peakStage", 3.25))
 	var sigma := float(scaling.get("sigma", 1.65))

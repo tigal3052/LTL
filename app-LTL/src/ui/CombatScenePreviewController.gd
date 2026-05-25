@@ -55,6 +55,7 @@ func get_scene() -> Dictionary:
 	scene["nodeSelect"] = {"candidates": read_model.get("candidates", []).duplicate(true)}
 	scene["reward"] = reward_state.duplicate(true)
 	scene["progress"] = read_model.get("progress", {}).duplicate(true)
+	scene["combat"] = read_model.get("combat", null)
 	return scene
 
 # 실행: advance the preview runtime from node-select into combat.

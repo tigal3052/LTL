@@ -13,7 +13,7 @@ static func prepare_combat(choice: Dictionary, tuning: Dictionary, queue_capacit
 	return CombatSimulator.new(choice, tuning, queue_capacity)
 
 # 실행: fire a shot, consume energy from the queue, determine damage, and update health/shield.
-static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_id: Variant, tuning: Dictionary) -> void:
+static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_id: Variant, tuning: Dictionary, inventory: InventoryModel = null) -> void:
 	sim.summary_shots_fired += 1
 	sim.aim_cell_id = target_cell_id
 	sim.aim_target_color = target_color
@@ -45,6 +45,17 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 		"green":
 			base_shield = 0.0
 			base_hp = 1.0
+
+	var damage_multiplier := 1.0
+	if inventory != null:
+		for art_id in inventory.artifacts:
+			var art = inventory.artifacts[art_id]
+			if art.energy_type == energy_color and art.item_type == "drill":
+				damage_multiplier = art.damage
+				break
+				
+	base_shield *= damage_multiplier
+	base_hp *= damage_multiplier
 
 	# 약점 색상 목록 수집
 	var weakness_colors = []
@@ -133,18 +144,25 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 		return
 	sim.elapsed_ticks += ticks
 	
+	# Update pin progress based on elapsed time ratio (0% -> 4, 25% -> 3, 50% -> 2, 75% -> 1, 100% -> 0)
+	var elapsed_ratio = float(sim.elapsed_ticks) / float(sim.time_limit_ticks)
+	sim.pin_progress = int(clamp(4 - int(elapsed_ratio * 4), 0, 4))
+	sim.pin_turns_remaining = sim.pin_progress
+	sim.pin_active = sim.pin_progress < 4
+	
 	if elapsed_ticks_check(sim):
 		return
 		
 	# 인벤토리 틱 진행 및 에너지 생산
 	if inventory != null:
-		var generated_eneries = inventory.tick()
-		for e in generated_eneries:
-			if sim.queue.size() < sim.queue_capacity:
-				sim.queue.append(str(e))
-			else:
-				# Wasted counter (optionally tracked)
-				pass
+		for t in range(ticks):
+			var generated_eneries = inventory.tick()
+			for e in generated_eneries:
+				if sim.queue.size() < sim.queue_capacity:
+					sim.queue.append(str(e))
+				else:
+					# Wasted counter (optionally tracked)
+					pass
 
 # Helper to check time limits cleanly
 static func elapsed_ticks_check(sim: CombatSimulator) -> bool:

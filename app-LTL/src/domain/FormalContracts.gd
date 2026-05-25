@@ -10,7 +10,7 @@ class_name FormalContracts
 extends RefCounted
 
 # 실행: define default tuning values shared by validators and headless runtime.
-const DEFAULT_TUNING := {"combat": {"matchDamage": 2, "normalDamage": 1, "mismatchDamage": 0}, "queue": {"capacity": 8, "repairThreshold": 3}, "stageScaling": {"baseShield": 2.4, "baseHealth": 100.0, "baseTimeLimitTicks": 1200}, "reward": {"weaknessBonus": 2}}
+const DEFAULT_TUNING := {"combat": {"matchDamage": 2, "normalDamage": 1, "mismatchDamage": 0}, "queue": {"capacity": 8, "repairThreshold": 3}, "stageScaling": {"baseShield": 2.4, "baseHealth": 100.0, "baseTimeLimitTicks": 2400}, "reward": {"weaknessBonus": 2}}
 
 # 실행: define root snapshot keys that every public snapshot must expose.
 const ROOT_COMMON_KEYS := ["seed", "stageIndex", "maxStages", "leviathanId", "runIndex", "runCount", "inventory", "progress", "phase", "lastNodeLabel", "runComplete", "failed"]

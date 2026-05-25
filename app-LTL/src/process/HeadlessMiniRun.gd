@@ -10,6 +10,7 @@ extends RefCounted
 
 # 실행: preload formal contracts for cloning and tuning helpers.
 const FormalContractsScript = preload("res://src/domain/FormalContracts.gd")
+const ArtifactScript = preload("res://src/models/Artifact.gd")
 
 # 실행: hold the contract helper and private runtime state.
 var contracts := FormalContractsScript.new()
@@ -106,23 +107,15 @@ func _clone_array(value: Variant) -> Array:
 # 실행: provide a default starting inventory setup.
 func _default_inventory() -> Dictionary:
 	var inv = InventoryModel.new(8, 8)
-	var items = [
-		{"name": "Ruby Drill Core", "color": "red", "shape": [[1, 1]], "pos": Vector2(1, 2)},
-		{"name": "Sapphire Lens", "color": "blue", "shape": [[1], [1]], "pos": Vector2(4, 1)},
-		{"name": "Amethyst Resonance", "color": "purple", "shape": [[1, 1], [1, 1]], "pos": Vector2(2, 4)},
-		{"name": "Emerald Capacitor", "color": "green", "shape": [[1]], "pos": Vector2(6, 5)}
+	var drills = ArtifactScript.get_basic_drills()
+	var positions = [
+		Vector2(1, 2),
+		Vector2(4, 1),
+		Vector2(2, 4),
+		Vector2(6, 5)
 	]
-	var id_counter = 1
-	for item in items:
-		var art_data = {
-			"id": "art_%d" % id_counter,
-			"name": item["name"],
-			"shape": item["shape"],
-			"energyType": item["color"],
-			"baseCooldownTicks": 100,
-			"synergy": {"type": "same_color", "value": 2}
-		}
-		var art = Artifact.new(art_data)
-		inv.place_artifact(art, int(item["pos"].x), int(item["pos"].y))
-		id_counter += 1
+	for i in range(drills.size()):
+		var art = drills[i]
+		var pos = positions[i]
+		inv.place_artifact(art, int(pos.x), int(pos.y))
 	return inv.to_dict()
