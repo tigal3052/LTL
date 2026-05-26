@@ -34,7 +34,7 @@ func _init(options: Dictionary = {}) -> void:
 		"inventory": options.get("inventory", _default_inventory()),
 		"progress": options.get("progress", {"clearedLeviathanIds": []}).duplicate(true),
 		"phase": "node_select",
-		"candidates": NodeVocab.generate_candidates(seed_val, 0, node_table, int(options.get("candidateCount", 3)), tuning),
+		"candidates": NodeVocab.generate_candidates(seed_val, 0, node_table, int(options.get("candidateCount", 5)), tuning),
 		"combat": null,
 		"pendingRewards": [],
 		"held": null,
@@ -43,9 +43,10 @@ func _init(options: Dictionary = {}) -> void:
 		"failed": false,
 		"failureReason": "",
 		"nodeTable": node_table.duplicate(true),
-		"candidateCount": maxi(1, int(options.get("candidateCount", 3))),
+		"candidateCount": maxi(1, int(options.get("candidateCount", 5))),
 		"queueCapacity": maxi(0, int(options.get("queueCapacity", int(tuning["queue"]["capacity"])))),
-		"tuning": tuning
+		"tuning": tuning,
+		"growth": options.get("growth", _load_default_growth())
 	}
 
 # 실행: clone private state into a public snapshot boundary.
@@ -67,7 +68,8 @@ func snapshot() -> Dictionary:
 		"lastNodeLabel": state["lastNodeLabel"],
 		"runComplete": state["runComplete"],
 		"failed": state["failed"],
-		"failureReason": state["failureReason"]
+		"failureReason": state["failureReason"],
+		"growth": state["growth"].duplicate(true) if state["growth"] is Dictionary else {}
 	}
 
 # 실행: select a node and transition state via PhaseReducers.
@@ -119,3 +121,28 @@ func _default_inventory() -> Dictionary:
 		var pos = positions[i]
 		inv.place_artifact(art, int(pos.x), int(pos.y))
 	return inv.to_dict()
+
+# 실행: load the default progression from progression-default.json.
+func _load_default_growth() -> Dictionary:
+	var file := FileAccess.open("res://src/data/progression-default.json", FileAccess.READ)
+	if file != null:
+		var json_text := file.get_as_text()
+		var json := JSON.new()
+		var parse_err = json.parse(json_text)
+		if parse_err == OK:
+			var data = json.get_data()
+			if data is Dictionary:
+				return data
+	# Fallback
+	return {
+		"gold": 100,
+		"xp": 0,
+		"purchasedPassives": {
+			"starting_gold_boost": 0,
+			"cooldown_reduction": 0,
+			"aim_damage_boost": 0
+		},
+		"temporaryModifiers": {},
+		"runModifiers": {},
+		"rewardHistory": []
+	}

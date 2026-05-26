@@ -103,4 +103,65 @@ func reset() -> Dictionary:
 func _node_table() -> Dictionary:
 	if not node_table_override.is_empty():
 		return node_table_override.duplicate(true)
-	return {"nodes": [{"id": "normal", "label": "Normal Node", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true}, {"id": "elite", "label": "Elite Node", "weakness": ["blue"], "pickWeight": 1, "shieldMul": 1.15, "healthMul": 1.2}]}
+	return {
+		"nodes": [
+			{
+				"id": "normal",
+				"label": "정박 노드",
+				"weakness": [],
+				"pickWeight": 0,
+				"shieldMul": 1.0,
+				"healthMul": 1.0,
+				"alwaysOffer": true
+			},
+			{
+				"id": "crimson_vein",
+				"label": "적동 맥",
+				"weakness": ["red"],
+				"pickWeight": 35,
+				"shieldMul": 1.05,
+				"healthMul": 1.02
+			},
+			{
+				"id": "azure_fault",
+				"label": "청동 단층",
+				"weakness": ["blue"],
+				"pickWeight": 35,
+				"shieldMul": 1.02,
+				"healthMul": 1.05
+			},
+			{
+				"id": "violet_cluster",
+				"label": "보라 군집",
+				"weakness": ["purple"],
+				"pickWeight": 28,
+				"shieldMul": 1.08,
+				"healthMul": 1.0
+			},
+			{
+				"id": "verdant_core",
+				"label": "녹색 핵",
+				"weakness": ["green"],
+				"pickWeight": 28,
+				"shieldMul": 1.0,
+				"healthMul": 1.08
+			},
+			{
+				"id": "twin_resonance",
+				"label": "이중 공명",
+				"weakness": ["red", "blue"],
+				"pickWeight": 14,
+				"shieldMul": 1.1,
+				"healthMul": 1.1
+			},
+			{
+				"id": "mysterious_crevice",
+				"label": "신비한 균열",
+				"weakness": [],
+				"pickWeight": 10,
+				"shieldMul": 0.0,
+				"healthMul": 0.0,
+				"isEvent": true
+			}
+		]
+	}

@@ -21,15 +21,76 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 		return []
 
 	var stage_combat := _compute_stage_combat_params(stage_index, tuning)
-	var raw: Array = [normal_node.duplicate(true)]
+
+	# Determine pools
+	var vulnerable_nodes: Array = []
+	var mixed_nodes: Array = []
+	var event_nodes: Array = []
+
 	for node in nodes:
-		if raw.size() >= candidate_count:
-			break
-		if node.get("id", "") != normal_node.get("id", ""):
-			raw.append(node.duplicate(true))
+		if node.get("id", "") == normal_node.get("id", ""):
+			continue
+		if bool(node.get("isEvent", false)):
+			event_nodes.append(node)
+		elif node.get("weakness", []).size() >= 2:
+			mixed_nodes.append(node)
+		else:
+			vulnerable_nodes.append(node)
+
+	var rng = RandomNumberGenerator.new()
+	rng.seed = seed_val + stage_index * 1337
+
+	var selected: Array = [normal_node.duplicate(true)]
+	var selected_ids = {normal_node.get("id", ""): true}
+
+	var event_count := 0
+	var mixed_count := 0
+
+	while selected.size() < candidate_count:
+		var r = rng.randf()
+		var chosen_node: Dictionary = {}
+
+		if r < 0.1 and event_count < 1 and not event_nodes.is_empty():
+			var node = event_nodes[rng.randi() % event_nodes.size()]
+			if not selected_ids.has(node.get("id", "")):
+				chosen_node = node
+				event_count += 1
+		elif r < 0.4 and mixed_count < 2 and not mixed_nodes.is_empty():
+			var node = mixed_nodes[rng.randi() % mixed_nodes.size()]
+			if not selected_ids.has(node.get("id", "")):
+				chosen_node = node
+				mixed_count += 1
+
+		# Fallback to vulnerable or other available nodes
+		if chosen_node.is_empty():
+			var available: Array = []
+			for node in vulnerable_nodes:
+				if not selected_ids.has(node.get("id", "")):
+					available.append(node)
+			if available.is_empty() and mixed_count < 2:
+				for node in mixed_nodes:
+					if not selected_ids.has(node.get("id", "")):
+						available.append(node)
+			if available.is_empty() and event_count < 1:
+				for node in event_nodes:
+					if not selected_ids.has(node.get("id", "")):
+						available.append(node)
+
+			if not available.is_empty():
+				chosen_node = available[rng.randi() % available.size()]
+				if chosen_node.get("weakness", []).size() >= 2:
+					mixed_count += 1
+				elif bool(chosen_node.get("isEvent", false)):
+					event_count += 1
+			else:
+				break
+
+		if not chosen_node.is_empty():
+			selected.append(chosen_node.duplicate(true))
+			selected_ids[chosen_node.get("id", "")] = true
 
 	var result: Array = []
-	for node in raw:
+	for node in selected:
 		var candidate: Dictionary = node.duplicate(true)
 		if node.has("combat") and node["combat"] is Dictionary:
 			candidate["combat"] = node["combat"].duplicate(true)

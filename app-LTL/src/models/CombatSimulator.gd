@@ -75,8 +75,8 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	queue_empty_shots = 0
 
 	pin_active = false
-	pin_progress = 4
-	pin_turns_remaining = 4
+	pin_progress = 100
+	pin_turns_remaining = 100
 
 	var queue_tuning: Dictionary = tuning.get("queue", {"repairThreshold": 3})
 	repair_threshold = int(queue_tuning.get("repairThreshold", 3))

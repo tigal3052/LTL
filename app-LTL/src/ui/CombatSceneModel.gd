@@ -18,7 +18,7 @@ var read_model_builder := SceneReadModelScript.new()
 func create(run_snapshot: Dictionary, options: Dictionary = {}) -> Dictionary:
 	var read_model: Dictionary = read_model_builder.create(run_snapshot, options)
 	var layout := _create_layout(int(options.get("viewportWidth", 1920)), int(options.get("viewportHeight", 1080)))
-	if read_model.get("phase", "") != "combat" or read_model.get("combat", null) == null:
+	if not read_model.get("phase", "") in ["combat", "reward_loot"] or read_model.get("combat", null) == null:
 		return {"ok": false, "phase": read_model.get("phase", "unknown"), "layout": layout, "terrain": {"rows": 0, "columns": 0, "cells": []}, "hud": {}, "targetPanel": {}, "feedback": {"status": "not_in_combat"}}
 	var combat: Dictionary = read_model["combat"]
 	var terrain := _create_terrain(combat, layout)

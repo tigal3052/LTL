@@ -1,0 +1,12 @@
+{
+  "gold": 100,
+  "xp": 0,
+  "purchasedPassives": {
+    "starting_gold_boost": 0,
+    "cooldown_reduction": 0,
+    "aim_damage_boost": 0
+  },
+  "temporaryModifiers": {},
+  "runModifiers": {},
+  "rewardHistory": []
+}

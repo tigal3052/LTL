@@ -8,12 +8,13 @@
 # 실행: define the formal contract class identity.
 class_name FormalContracts
 extends RefCounted
+const RewardValidatorScript = preload("res://src/validation/RewardValidator.gd")
 
 # 실행: define default tuning values shared by validators and headless runtime.
 const DEFAULT_TUNING := {"combat": {"matchDamage": 2, "normalDamage": 1, "mismatchDamage": 0}, "queue": {"capacity": 8, "repairThreshold": 3}, "stageScaling": {"baseShield": 2.4, "baseHealth": 100.0, "baseTimeLimitTicks": 2400}, "reward": {"weaknessBonus": 2}}
 
 # 실행: define root snapshot keys that every public snapshot must expose.
-const ROOT_COMMON_KEYS := ["seed", "stageIndex", "maxStages", "leviathanId", "runIndex", "runCount", "inventory", "progress", "phase", "lastNodeLabel", "runComplete", "failed"]
+const ROOT_COMMON_KEYS := ["seed", "stageIndex", "maxStages", "leviathanId", "runIndex", "runCount", "inventory", "progress", "phase", "lastNodeLabel", "runComplete", "failed", "growth"]
 
 # 실행: define phase-specific keys that prevent snapshot leakage between phases.
 const PHASE_REQUIRED_KEYS := {"node_select": ["candidates"], "combat": ["combat"], "reward_loot": ["pendingRewards", "held"], "run_complete": ["pendingRewards"]}
@@ -176,3 +177,15 @@ func _coerce_dictionary(value: Variant) -> Dictionary:
 	if value is Dictionary:
 		return value
 	return {}
+
+# 실행: validate the database reward table.
+func validate_m3_reward_table(table: Dictionary) -> Dictionary:
+	return RewardValidatorScript.validate_reward_table(table)
+
+# 실행: validate the database rarity table.
+func validate_m3_rarity_table(table: Dictionary) -> Dictionary:
+	return RewardValidatorScript.validate_rarity_table(table)
+
+# 실행: validate the run-level growth state.
+func validate_m3_growth_state(state: Dictionary) -> Dictionary:
+	return RewardValidatorScript.validate_growth_state(state)

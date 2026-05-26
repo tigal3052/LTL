@@ -17,7 +17,16 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/CombatSceneModel.gd",
 	"res://src/ui/CombatScenePreviewController.gd",
 	"res://src/tools/FormalReplayRunner.gd",
+	"res://src/validation/RewardValidator.gd",
+	"res://src/models/RunGrowthState.gd",
+	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/MainController.gd",
+	"res://src/ui/SettingsPanelUI.gd",
+	"res://src/ui/BackpackUI.gd",
+	"res://src/ui/BattlefieldUI.gd",
+	"res://src/ui/StatusPanelUI.gd",
+	"res://src/ui/LogConsoleUI.gd",
+	"res://src/ui/VFXManager.gd",
 	# 신규 Logical Capsule 리팩토링 스크립트 목록 추가
 	"res://src/models/Artifact.gd",
 	"res://src/models/InventoryModel.gd",
@@ -50,7 +59,16 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/CombatSceneModel.gd",
 	"res://src/ui/CombatScenePreviewController.gd",
 	"res://src/tools/FormalReplayRunner.gd",
+	"res://src/validation/RewardValidator.gd",
+	"res://src/models/RunGrowthState.gd",
+	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/MainController.gd",
+	"res://src/ui/SettingsPanelUI.gd",
+	"res://src/ui/BackpackUI.gd",
+	"res://src/ui/BattlefieldUI.gd",
+	"res://src/ui/StatusPanelUI.gd",
+	"res://src/ui/LogConsoleUI.gd",
+	"res://src/ui/VFXManager.gd",
 	"res://src/models/Artifact.gd",
 	"res://src/models/InventoryModel.gd",
 	"res://src/models/CombatSimulator.gd",
@@ -118,6 +136,7 @@ func _run_contracts() -> void:
 	_assert(MainControllerScript != null, "main controller script loads")
 	_test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, SceneReadModelScript.new(), CombatSceneModelScript.new(), CombatScenePreviewControllerScript)
 	_test_replay_paths(ReplayProcessScript.new(), FormalReplayRunnerScript.new())
+	_test_reward_and_progression_contracts()
 
 # 실행: verify validator failure surfaces for missing required fields.
 func _test_contract_validators(contracts) -> void:
@@ -198,6 +217,17 @@ func _test_replay_paths(replay_process, replay_runner) -> void:
 	_assert_eq(fixture_replay["summary"]["phase"], "run_complete", "prototype-style replay reaches run_complete")
 	var replay_report: Dictionary = replay_runner.run_all({"fixturePaths": ["res://prototype/browser-p0-p4/tests/fixtures/input_logs/basic_clear.json", "res://prototype/browser-p0-p4/tests/fixtures/input_logs/empty_queue_repair.json"]})
 	_assert_eq(replay_report["fixtureCount"], 2, "formal replay runner counts fixtures")
+
+# 실행: load and run reward and progression unit tests.
+func _test_reward_and_progression_contracts() -> void:
+	var TestRewardContractClass = load("res://tests/test_reward_contract.gd")
+	_assert(TestRewardContractClass != null, "test reward contract loads")
+	var tester = TestRewardContractClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "reward unit tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Reward test failed: %s" % err)
 
 # 실행: return a node table containing normal and elite nodes.
 func _node_table() -> Dictionary:

@@ -1,6 +1,14 @@
-[gd_scene load_steps=9 format=3 uid="uid://brhshyaxjxcsr"]
+[gd_scene load_steps=18 format=3 uid="uid://brhshyaxjxcsr"]
 
-[ext_resource type="Script" path="res://src/MainController.gd" id="1"]
+[ext_resource type="Script" path="res://src/ui/MainUI.gd" id="1"]
+[ext_resource type="Script" path="res://src/ui/SettingsPanelUI.gd" id="2"]
+[ext_resource type="Script" path="res://src/ui/BackpackUI.gd" id="3"]
+[ext_resource type="Script" path="res://src/ui/BattlefieldUI.gd" id="4"]
+[ext_resource type="Script" path="res://src/ui/StatusPanelUI.gd" id="5"]
+[ext_resource type="Script" path="res://src/ui/LogConsoleUI.gd" id="6"]
+[ext_resource type="Script" path="res://src/ui/VFXManager.gd" id="7"]
+[ext_resource type="Script" path="res://src/MainController.gd" id="8"]
+[ext_resource type="Texture2D" uid="uid://cpegp45c2y6mf" path="res://resources/UI/Log_Panel.png" id="9_log_panel"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.0627451, 0.0784314, 0.109804, 1)
@@ -45,6 +53,9 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 shadow_color = Color(0.298039, 0.533333, 0.839216, 0.6)
 shadow_size = 8
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_log_panel"]
+texture = ExtResource("9_log_panel")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay"]
 bg_color = Color(0.180392, 0.054902, 0.054902, 0.705882)
@@ -199,6 +210,7 @@ text = "Loadout:
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("5")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel"]
 layout_mode = 2
@@ -321,6 +333,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("3")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel"]
 layout_mode = 2
@@ -351,14 +364,14 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.5
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_styles/panel = SubResource("StyleBoxTexture_log_panel")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/RightSidebar"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 70
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 70
 
 [node name="InspectorBox" type="VBoxContainer" parent="RootMargin/AppShell/TopContent/RightSidebar/Margin"]
 layout_mode = 2
@@ -376,6 +389,7 @@ size_flags_vertical = 3
 bbcode_enabled = true
 text = "System online.
 Awaiting node selection..."
+script = ExtResource("6")
 
 [node name="ActivePhaseContainer" type="MarginContainer" parent="RootMargin/AppShell"]
 layout_mode = 2
@@ -418,6 +432,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("4")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel"]
 layout_mode = 2
@@ -541,10 +556,55 @@ text = "Core overheated. Energy queue depleted.
 Press [R] or click the Repair button to restart the drill core."
 horizontal_alignment = 1
 
+[node name="ConfirmOverlay" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_settings")
+
+[node name="Center" type="CenterContainer" parent="ConfirmOverlay"]
+layout_mode = 2
+
+[node name="ConfirmBox" type="VBoxContainer" parent="ConfirmOverlay/Center"]
+custom_minimum_size = Vector2(400, 200)
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="WarningTitle" type="Label" parent="ConfirmOverlay/Center/ConfirmBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.878431, 0.878431, 1)
+theme_override_font_sizes/font_size = 20
+text = "⚠️ 미획득 보상 경고 ⚠️"
+horizontal_alignment = 1
+
+[node name="WarningDescription" type="Label" parent="ConfirmOverlay/Center/ConfirmBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.756863, 0.756863, 1)
+theme_override_font_sizes/font_size = 14
+text = "아직 남은 보상이 있습니다. 그래도 진행하시겠습니까?
+지나간 보상은 습득할 수 없습니다."
+horizontal_alignment = 1
+
+[node name="ButtonsRow" type="HBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="ConfirmButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/ButtonsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "진행하기"
+
+[node name="CancelButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/ButtonsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "취소"
+
 [node name="SettingsPanel" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_settings")
+script = ExtResource("2")
 
 [node name="Center" type="CenterContainer" parent="SettingsPanel"]
 layout_mode = 2
@@ -639,3 +699,10 @@ initial_velocity_max = 160.0
 scale_amount_min = 3.0
 scale_amount_max = 6.0
 color_ramp = SubResource("Gradient_particle")
+
+[node name="VFXManager" type="Node2D" parent="."]
+script = ExtResource("7")
+particle_template = NodePath("../ParticleTemplate")
+
+[node name="MainController" type="Node" parent="."]
+script = ExtResource("8")

@@ -1,0 +1,97 @@
+{
+  "rewards": [
+    {
+      "id": "reward_crimson_core",
+      "kind": "Crimson Drill Core v2",
+      "rarity": "epic",
+      "weight": 20,
+      "payload": {
+        "cooldown_mod": -10,
+        "energy_type": "red"
+      },
+      "presentation": {
+        "icon": "core_red",
+        "description": "Reduces red drill cooldown by 10%.",
+        "badge": "다음 전투 즉시 영향"
+      },
+      "tags": ["immediate_power"]
+    },
+    {
+      "id": "reward_rapid_condenser",
+      "kind": "Rapid Fuel Condenser",
+      "rarity": "rare",
+      "weight": 40,
+      "payload": {
+        "cooldown_mod": -5,
+        "energy_type": "blue"
+      },
+      "presentation": {
+        "icon": "condenser_blue",
+        "description": "Reduces blue drill cooldown by 5%.",
+        "badge": "다음 전투 즉시 영향"
+      },
+      "tags": ["immediate_power"]
+    },
+    {
+      "id": "reward_resonance_magnet",
+      "kind": "Resonance Magnet",
+      "rarity": "rare",
+      "weight": 30,
+      "payload": {
+        "adjacent_synergy": true
+      },
+      "presentation": {
+        "icon": "magnet_purple",
+        "description": "Triggers synergy bonuses when placed next to drills.",
+        "badge": "조합 대기"
+      },
+      "tags": ["future_combo"]
+    },
+    {
+      "id": "reward_shield_bot",
+      "kind": "Shield Repair Bot",
+      "rarity": "common",
+      "weight": 80,
+      "payload": {
+        "shield_repair": 15
+      },
+      "presentation": {
+        "icon": "bot_green",
+        "description": "Increases shield repair efficiency by 15%.",
+        "badge": "안정"
+      },
+      "tags": ["survival_stability"]
+    },
+    {
+      "id": "reward_cursed_heart",
+      "kind": "Cursed Leviathan Heart",
+      "rarity": "legendary",
+      "weight": 10,
+      "payload": {
+        "damage_multiplier": 1.5,
+        "hazard_increase": 10
+      },
+      "presentation": {
+        "icon": "heart_mythic",
+        "description": "Deals 50% more extraction damage, but increases hazard severity warning rate.",
+        "badge": "위험 보상"
+      },
+      "tags": ["greed_risk"]
+    },
+    {
+      "id": "reward_special_plasma",
+      "kind": "Special Plasma Injector",
+      "rarity": "mythic",
+      "weight": 5,
+      "payload": {
+        "damage_multiplier": 2.0
+      },
+      "presentation": {
+        "icon": "plasma_orange",
+        "description": "Doubles extraction damage.",
+        "badge": "위험 보상"
+      },
+      "tags": ["greed_risk", "fusion"]
+    }
+  ]
+}

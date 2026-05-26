@@ -1,0 +1,34 @@
+{
+  "rarities": [
+    {
+      "id": "common",
+      "label": "Common",
+      "weightMul": 1.0,
+      "presentationTier": "tier_1"
+    },
+    {
+      "id": "rare",
+      "label": "Rare",
+      "weightMul": 0.6,
+      "presentationTier": "tier_2"
+    },
+    {
+      "id": "epic",
+      "label": "Epic",
+      "weightMul": 0.3,
+      "presentationTier": "tier_3"
+    },
+    {
+      "id": "legendary",
+      "label": "Legendary",
+      "weightMul": 0.1,
+      "presentationTier": "tier_4"
+    },
+    {
+      "id": "mythic",
+      "label": "Mythic",
+      "weightMul": 0.05,
+      "presentationTier": "tier_5"
+    }
+  ]
+}

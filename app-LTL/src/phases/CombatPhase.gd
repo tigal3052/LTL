@@ -61,7 +61,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	
 	var p_data: Dictionary = combat_dict.get("pin", {})
 	sim.pin_active = bool(p_data.get("active", false))
-	sim.pin_progress = int(p_data.get("progress", 4))
+	sim.pin_progress = int(p_data.get("progress", 100))
 	sim.pin_turns_remaining = int(p_data.get("turnsRemaining", 4))
 	
 	var r_data: Dictionary = combat_dict.get("repair", {})

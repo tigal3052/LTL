@@ -22,11 +22,16 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 		sim.result = "empty_queue"
 		sim.summary_shots_fired_empty_queue += 1
 		sim.queue_empty_shots += 1
-		sim.repair_available = true
+		if not sim.repair_active:
+			apply_repair(sim)
 		return
 
 	# 큐에서 맨 앞 에너지 pop
 	var energy_color = sim.queue.pop_front()
+	
+	# If queue is now empty, initiate automatic repair immediately
+	if sim.queue.is_empty() and not sim.repair_active:
+		apply_repair(sim)
 	
 	# base 대미지 테이블
 	var base_shield := 0.5
@@ -65,6 +70,10 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 
 	# 취약 펄스 여부 판단
 	var is_vulnerable_pulse = str(target_color) in weakness_colors
+
+	var dmg_bonus = float(tuning.get("combat", {}).get("damage_bonus", 0.0))
+	base_shield += dmg_bonus
+	base_hp += dmg_bonus
 
 	var dmg_shield := base_shield
 	var dmg_hp := base_hp
@@ -106,13 +115,9 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 	if pin_active:
 		sim.queue_pinned_slots = 1
 		sim.pin_active = true
-		sim.pin_progress = 1
-		sim.pin_turns_remaining = 1
 	else:
 		sim.queue_pinned_slots = 0
 		sim.pin_active = false
-		sim.pin_progress = 0
-		sim.pin_turns_remaining = 0
 
 	sim.repair_available = sim.queue.is_empty() or sim.queue_empty_shots > 0 or sim.result == "mismatch"
 	sim.disabled = sim.result in ["clear", "failed", "time_over"]
@@ -129,14 +134,13 @@ static func apply_repair(sim: CombatSimulator) -> void:
 	sim.queue_pinned_slots = 0
 	sim.queue_empty_shots = 0
 	sim.pin_active = false
-	sim.pin_progress = 0
 	sim.pin_turns_remaining = 0
-	sim.repair_progress = sim.repair_threshold
+	sim.repair_progress = 100 # 5 seconds disadvantage (100 ticks)
 	sim.repair_active = true
 	sim.repair_available = false
 	sim.disabled = false
-	sim.result = "active"
-	sim.aim_can_fire = true
+	sim.result = "empty_queue"
+	sim.aim_can_fire = false
 
 # 실행: update elapsed ticks, progress inventory energy generation, and flag time_over if limits are exceeded.
 static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryModel = null) -> void:
@@ -144,11 +148,35 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 		return
 	sim.elapsed_ticks += ticks
 	
-	# Update pin progress based on elapsed time ratio (0% -> 4, 25% -> 3, 50% -> 2, 75% -> 1, 100% -> 0)
-	var elapsed_ratio = float(sim.elapsed_ticks) / float(sim.time_limit_ticks)
-	sim.pin_progress = int(clamp(4 - int(elapsed_ratio * 4), 0, 4))
+	# Update automatic repair progress
+	if sim.repair_active:
+		sim.repair_progress = maxi(0, sim.repair_progress - ticks)
+		if sim.repair_progress <= 0:
+			sim.repair_active = false
+			sim.repair_available = true
+			sim.aim_can_fire = true
+			sim.result = "active"
+	
+	# Update pin progress based on remaining time ratio (100% -> 75% -> 50% -> 25% -> 10% -> 0%)
+	var remaining_ratio = 1.0 - (float(sim.elapsed_ticks) / float(sim.time_limit_ticks))
+	if remaining_ratio >= 0.75:
+		sim.pin_progress = 100
+	elif remaining_ratio >= 0.50:
+		sim.pin_progress = 75
+	elif remaining_ratio >= 0.25:
+		sim.pin_progress = 50
+	elif remaining_ratio >= 0.10:
+		sim.pin_progress = 25
+	elif remaining_ratio > 0.00:
+		sim.pin_progress = 10
+	else:
+		sim.pin_progress = 0
 	sim.pin_turns_remaining = sim.pin_progress
-	sim.pin_active = sim.pin_progress < 4
+	
+	# Mismatch lock (pin_active) naturally expires / clears when time ticks (next turn)
+	if sim.pin_active:
+		sim.pin_active = false
+		sim.queue_pinned_slots = 0
 	
 	if elapsed_ticks_check(sim):
 		return

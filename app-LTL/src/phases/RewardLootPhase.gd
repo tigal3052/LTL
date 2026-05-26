@@ -7,6 +7,7 @@
 # 실행: define the RewardLootPhase class identity.
 class_name RewardLootPhase
 extends RefCounted
+const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
 
 # 실행: reduce reward looting events and transition to next stage node_select or run completion.
 static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -82,6 +83,44 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		if remove_index >= 0:
 			inventory.remove_at(remove_index)
 		next_state["inventory"] = inventory
+		return next_state
+
+	# 임시 상점 패시브 구매 처리
+	if event_type == "purchase_passive":
+		var passive_id = String(event.get("passiveId", ""))
+		var cost = int(event.get("cost", 0))
+		var growth_data = next_state.get("growth", {})
+		var growth = RunGrowthStateScript.new(growth_data)
+		if growth.purchase_passive(passive_id, cost):
+			next_state["growth"] = growth.to_dict()
+		return next_state
+
+	# 보상 획득에 따른 재화 지급 및 이력 기록
+	if event_type == "claim_reward_effect":
+		var reward_data = event.get("reward", {})
+		var growth_data = next_state.get("growth", {})
+		var growth = RunGrowthStateScript.new(growth_data)
+		growth.reward_history.append(reward_data.get("rewardId", ""))
+		
+		var rarity = str(reward_data.get("rarity", "common"))
+		var gold_reward = 10
+		var xp_reward = 5
+		if rarity == "rare":
+			gold_reward = 25
+			xp_reward = 15
+		elif rarity == "epic":
+			gold_reward = 50
+			xp_reward = 30
+		elif rarity == "legendary":
+			gold_reward = 100
+			xp_reward = 60
+		elif rarity == "mythic":
+			gold_reward = 200
+			xp_reward = 120
+			
+		growth.add_gold(gold_reward)
+		growth.add_xp(xp_reward)
+		next_state["growth"] = growth.to_dict()
 		return next_state
 
 	return next_state
