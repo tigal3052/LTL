@@ -92,10 +92,13 @@ const COMMENTED_SCRIPTS := [
 # 실행: collect deterministic suite failure labels.
 var failures: Array[String] = []
 
-# 실행: run script existence checks, comment checks, contract checks, and exit with suite status.
+# 실행: run script existence and compilation checks, comment checks, contract checks, and exit with suite status.
 func _init() -> void:
 	for script_path in REQUIRED_SCRIPTS:
 		_assert(ResourceLoader.exists(script_path), "missing Godot formal script: %s" % script_path)
+		if ResourceLoader.exists(script_path):
+			var script = load(script_path)
+			_assert(script != null, "failed to compile script: %s" % script_path)
 	for scene_path in REQUIRED_SCENES:
 		_assert(ResourceLoader.exists(scene_path), "missing Godot formal scene: %s" % scene_path)
 	if failures.is_empty():
