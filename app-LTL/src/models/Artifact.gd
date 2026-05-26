@@ -50,7 +50,7 @@ func _init(data: Dictionary) -> void:
 		synergy = str(synergy_raw)
 		
 	keyword = str(data.get("keyword", ""))
-	base_damage = float(data.get("damage", 1.0))
+	base_damage = float(data.get("base_damage", data.get("baseDamage", data.get("damage", 1.0))))
 	damage = base_damage
 	grade = str(data.get("grade", "basic"))
 	item_type = str(data.get("item_type", data.get("itemType", "drill")))

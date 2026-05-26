@@ -162,6 +162,17 @@ func _on_backpack_slot_clicked(coord: Vector2) -> void:
 		return
 		
 	if held_artifact != null:
+		if held_artifact.item_type == "drill":
+			var has_same_color := false
+			for art_id in inventory.artifacts:
+				var art = inventory.artifacts[art_id]
+				if art.item_type == "drill" and art.energy_type == held_artifact.energy_type and art.id != held_artifact.id:
+					has_same_color = true
+					break
+			if has_same_color:
+				view.add_log("[color=#ff6666][경고] 이미 백팩에 %s색 채굴기가 존재합니다. 먼저 기존 채굴기를 제거하십시오.[/color]" % held_artifact.energy_type.to_upper())
+				return
+				
 		if inventory.can_place_artifact(held_artifact, int(coord.x), int(coord.y)):
 			inventory.place_artifact(held_artifact, int(coord.x), int(coord.y))
 			view.add_log("[color=#a3be8c][인벤토리] 유물 배치 완료: %s[/color]" % held_artifact.name)
@@ -358,8 +369,10 @@ func _on_reward_meta_clicked(meta: Variant) -> void:
 			beacon_cooldown_mod = -40
 			beacon_damage_mod = 1.5
 		
+	var energy_type = str(payload.get("energy_type", payload.get("energyType", "red")))
+		
 	held_artifact = ArtifactScript.new({
-		"id": "reward_%d" % randi(), "name": art_name, "shape": grid_shape, "energyType": "red",
+		"id": "reward_%d" % randi(), "name": art_name, "shape": grid_shape, "energyType": energy_type,
 		"baseCooldownTicks": final_cooldown, "synergy": {"type": "same_color", "value": 2},
 		"damage": damage, "grade": rarity, "item_type": item_type,
 		"beacon_cooldown_mod": beacon_cooldown_mod, "beacon_damage_mod": beacon_damage_mod

@@ -28,6 +28,12 @@ func _init(w: int = 8, h: int = 8) -> void:
 
 # 실행: check if an artifact shape can fit at coordinates.
 func can_place_artifact(art: Artifact, x: int, y: int) -> bool:
+	if art.item_type == "drill":
+		for art_id in artifacts:
+			var other = artifacts[art_id]
+			if other.item_type == "drill" and other.energy_type == art.energy_type and other.id != art.id:
+				return false
+				
 	var shape := art.shape
 	var rows: int = shape.size()
 	var cols: int = shape[0].size() if rows > 0 else 0
