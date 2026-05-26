@@ -317,7 +317,17 @@ func _render_rewards(scene: Dictionary) -> void:
 func _on_reward_meta_clicked(meta: Variant) -> void:
 	if is_reveal_vfx_running:
 		return
-	held_reward_index = int(meta)
+	var clicked_idx := int(meta)
+	if held_from_rewards and held_reward_index == clicked_idx and held_artifact != null:
+		held_artifact = null
+		held_from_rewards = false
+		held_reward_index = -1
+		view.update_backpack_ghost(null)
+		view.add_log("[color=#ffd766][보상 선택] 선택 해제되었습니다.[/color]")
+		_render_rewards(current_scene)
+		return
+		
+	held_reward_index = clicked_idx
 	var item_data = local_rewards_list[held_reward_index]
 	var rarity = str(item_data.get("arity", item_data.get("rarity", "common")))
 	var art_name := str(item_data.get("kind", "New Artifact"))
