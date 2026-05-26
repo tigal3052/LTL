@@ -148,14 +148,8 @@ func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) ->
 		else:
 			pins_count = 0
 			
-		# Extract remaining ticks from targetPanel read model
-		var target: Dictionary = scene.get("targetPanel", {})
-		var time_limit = int(target.get("timeLimitTicks", 2400))
-		var elapsed = int(target.get("elapsedTicks", 0))
-		var time_left = max(0, time_limit - elapsed)
-		
-		# Show both pins count and precise numeric tick countdown
-		pin_label.text = "Pins: %d | Time Left: %d T" % [pins_count, time_left]
+		# Show only pins count
+		pin_label.text = "Pins: %d" % pins_count
 		
 		if pins_count == 1:
 			pin_label.add_theme_color_override("font_color", Color(0.95, 0.57, 0.1))

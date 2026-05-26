@@ -207,7 +207,7 @@ func _draw() -> void:
 			var border_color = Color(0.25, 0.65, 0.95, 0.8) # Blue-ish
 			var border_width = 3.0
 			
-			if ratio <= 0.20:
+			if current_time_left <= 200.0:
 				var pulse = 0.35 + 0.65 * abs(sin(combat_pulse_time * 6.5))
 				border_color = Color(0.9, 0.1, 0.1, 0.4 + 0.6 * pulse)
 				border_width = 3.5 + 1.0 * pulse

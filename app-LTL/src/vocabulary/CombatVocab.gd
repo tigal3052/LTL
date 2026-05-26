@@ -157,17 +157,17 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 			sim.aim_can_fire = true
 			sim.result = "active"
 	
-	# Update pin progress based on remaining time ratio (100% -> 75% -> 50% -> 25% -> 10% -> 0%)
-	var remaining_ratio = 1.0 - (float(sim.elapsed_ticks) / float(sim.time_limit_ticks))
-	if remaining_ratio >= 0.75:
+	# Update pin progress based on remaining seconds (90s max, pin removal at 70s/50s/30s/10s)
+	var seconds_remaining = float(sim.time_limit_ticks - sim.elapsed_ticks) / 20.0
+	if seconds_remaining >= 70.0:
 		sim.pin_progress = 100
-	elif remaining_ratio >= 0.50:
+	elif seconds_remaining >= 50.0:
 		sim.pin_progress = 75
-	elif remaining_ratio >= 0.25:
+	elif seconds_remaining >= 30.0:
 		sim.pin_progress = 50
-	elif remaining_ratio >= 0.10:
+	elif seconds_remaining >= 10.0:
 		sim.pin_progress = 25
-	elif remaining_ratio > 0.00:
+	elif seconds_remaining > 0.0:
 		sim.pin_progress = 10
 	else:
 		sim.pin_progress = 0

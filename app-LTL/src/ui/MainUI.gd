@@ -195,7 +195,7 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 		giant_timer_label.text = "%02d:%02d" % [minutes, seconds]
 		
 		var ratio = time_left / time_limit if time_limit > 0.0 else 1.0
-		vignette_overlay.visible = (ratio <= 0.20)
+		vignette_overlay.visible = (time_left <= 200.0)
 		
 		# Update battlefield combat border progress
 		battlefield_ui.update_combat_time(time_left, time_limit, true)
