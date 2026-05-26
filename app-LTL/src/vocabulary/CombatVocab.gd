@@ -126,10 +126,6 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 # 실행: apply repair intent to fully reload the energy queue and reset pin/empty-shot states.
 static func apply_repair(sim: CombatSimulator) -> void:
 	sim.queue.clear()
-	# 기본 4개 에너지를 채워 로드
-	var colors = ["red", "blue", "purple", "green"]
-	for i in range(min(4, sim.queue_capacity)):
-		sim.queue.append(colors[i])
 		
 	sim.queue_pinned_slots = 0
 	sim.queue_empty_shots = 0

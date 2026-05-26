@@ -6,6 +6,8 @@
 # 실행: define the Backpack grid rendering and drag-ghost view with its signals.
 extends PanelContainer
 signal slot_clicked(coord: Vector2)
+signal slot_hovered(coord: Vector2)
+signal slot_unhovered(coord: Vector2)
 const ArtifactClass = preload("res://src/models/Artifact.gd")
 @onready var backpack_grid_mock: GridContainer = $Margin/EngineBox/GridMock
 var ghost_container: GridContainer
@@ -75,6 +77,12 @@ func setup_grid_slots() -> void:
 				slot.gui_input.connect(func(event: InputEvent):
 					if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 						slot_clicked.emit(Vector2(grid_c, grid_r))
+				)
+				slot.mouse_entered.connect(func():
+					slot_hovered.emit(Vector2(grid_c, grid_r))
+				)
+				slot.mouse_exited.connect(func():
+					slot_unhovered.emit(Vector2(grid_c, grid_r))
 				)
 				backpack_grid_mock.add_child(slot)
 

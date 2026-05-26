@@ -89,7 +89,7 @@ static func _roll_fallback_rewards(combined_seed: int, rng: RandomNumberGenerato
 	var count = rng.randi_range(2, 5)
 	var rewards = []
 	var colors = ["red", "blue", "purple", "green"]
-	var kinds = ["Drill", "Core", "Capacitor", "Lens", "Reactor"]
+	var kinds = ["Drill", "Core", "Capacitor", "Lens", "Reactor", "Beacon"]
 	var badges = ["다음 전투 즉시 영향", "조합 대기", "안정", "위험 보상"]
 	
 	for i in range(count):
@@ -112,13 +112,16 @@ static func _roll_fallback_rewards(combined_seed: int, rng: RandomNumberGenerato
 			rarity = "common"
 			
 		var kind = "%s %s" % [prefix, kind_suffix]
+		var payload := {"energy_type": color}
+		if kind_suffix == "Beacon":
+			payload["item_type"] = "beacon"
 		
 		rewards.append({
 			"rewardId": "reward_%d_%d" % [combined_seed & 0xffff, i],
 			"kind": kind,
 			"rarity": rarity,
 			"qty": 1,
-			"payload": {"energy_type": color},
+			"payload": payload,
 			"presentation": {
 				"description": "Procedural fallback item.",
 				"badge": badge

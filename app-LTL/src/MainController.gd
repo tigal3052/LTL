@@ -85,6 +85,8 @@ func _ready() -> void:
 					_render_scene(current_scene)
 	)
 	view.backpack_slot_clicked.connect(_on_backpack_slot_clicked)
+	view.backpack_slot_hovered.connect(_on_backpack_slot_hovered)
+	view.backpack_slot_unhovered.connect(_on_backpack_slot_unhovered)
 	view.cell_hovered.connect(_on_cell_hovered)
 	view.cell_clicked.connect(_on_cell_clicked)
 	view.cell_pressed.connect(func(cid, col): is_holding = true; hold_cell_id = cid; hold_color = col; _trigger_hold_fire())
@@ -207,6 +209,20 @@ func _on_backpack_slot_clicked(coord: Vector2) -> void:
 		view.render_backpack(inventory)
 		if preview_controller.run != null: preview_controller.run.state["inventory"] = inventory.to_dict()
 
+# 실행: handle slot hovered to show tooltip.
+func _on_backpack_slot_hovered(coord: Vector2) -> void:
+	if inventory == null or held_artifact != null:
+		return
+	var slot_id = str(inventory.grid[int(coord.y)][int(coord.x)])
+	if not slot_id.is_empty() and inventory.artifacts.has(slot_id):
+		view.show_artifact_tooltip(inventory.artifacts[slot_id])
+	else:
+		view.hide_artifact_tooltip()
+
+# 실행: handle slot unhovered to hide tooltip.
+func _on_backpack_slot_unhovered(_coord: Vector2) -> void:
+	view.hide_artifact_tooltip()
+
 # 실행: process ESC and R keyboard keys forwarded from view.
 func _on_key_pressed(keycode: int) -> void:
 	if keycode == KEY_ESCAPE:
@@ -292,7 +308,7 @@ func _on_reward_meta_clicked(meta: Variant) -> void:
 		return
 	held_reward_index = int(meta)
 	var item_data = local_rewards_list[held_reward_index]
-	var rarity = str(item_data.get("rarity", "common"))
+	var rarity = str(item_data.get("arity", item_data.get("rarity", "common")))
 	var art_name := str(item_data.get("kind", "New Artifact"))
 	
 	# Determine grid shapes based on name and category
@@ -316,11 +332,37 @@ func _on_reward_meta_clicked(meta: Variant) -> void:
 		
 	# Apply active cooldown modifier
 	var final_cooldown = int(cooldown * growth_state.get_cooldown_modifier())
+	
+	# Determine if it's a beacon
+	var item_type := "drill"
+	var payload = item_data.get("payload", {})
+	if payload.get("item_type", "") == "beacon" or "Beacon" in art_name or "beacon" in art_name:
+		item_type = "beacon"
+		
+	var beacon_cooldown_mod = int(payload.get("beacon_cooldown_mod", 0))
+	var beacon_damage_mod = float(payload.get("beacon_damage_mod", 0.0))
+	if item_type == "beacon" and beacon_cooldown_mod == 0 and beacon_damage_mod == 0.0:
+		if rarity == "common":
+			beacon_cooldown_mod = -10
+			beacon_damage_mod = 0.1
+		elif rarity == "rare":
+			beacon_cooldown_mod = -15
+			beacon_damage_mod = 0.3
+		elif rarity == "epic":
+			beacon_cooldown_mod = -25
+			beacon_damage_mod = 0.6
+		elif rarity == "legendary":
+			beacon_cooldown_mod = -30
+			beacon_damage_mod = 1.0
+		elif rarity == "mythic":
+			beacon_cooldown_mod = -40
+			beacon_damage_mod = 1.5
 		
 	held_artifact = ArtifactScript.new({
 		"id": "reward_%d" % randi(), "name": art_name, "shape": grid_shape, "energyType": "red",
 		"baseCooldownTicks": final_cooldown, "synergy": {"type": "same_color", "value": 2},
-		"damage": damage, "grade": rarity
+		"damage": damage, "grade": rarity, "item_type": item_type,
+		"beacon_cooldown_mod": beacon_cooldown_mod, "beacon_damage_mod": beacon_damage_mod
 	})
 	held_from_rewards = true
 	view.add_log("[color=#ffd766][보상 선택] %s (%s) 선택됨. 백팩을 클릭해 배치하십시오.[/color]" % [art_name, rarity.to_upper()])
@@ -439,8 +481,10 @@ func _load_backpack_items_into_inventory() -> void:
 func _recalculate_queue_colors() -> void:
 	var active_colors: Array[String] = []
 	for art_id in inventory.artifacts:
-		var c = str(inventory.artifacts[art_id].energy_type)
-		if not c in active_colors: active_colors.append(c)
+		var art = inventory.artifacts[art_id]
+		if art.item_type == "drill":
+			var c = str(art.energy_type)
+			if not c in active_colors: active_colors.append(c)
 	if active_colors.is_empty(): active_colors.append("red")
 	var run_state = preview_controller.run.state if preview_controller and preview_controller.run else null
 	if run_state and run_state.has("combat") and run_state["combat"] != null:

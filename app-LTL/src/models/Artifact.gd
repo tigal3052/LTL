@@ -18,8 +18,11 @@ var effective_cooldown: int = 1
 var synergy: String = ""
 var keyword: String = ""
 var damage: float = 1.0
+var base_damage: float = 1.0
 var grade: String = "basic"
 var item_type: String = "drill"
+var beacon_cooldown_mod: int = 0
+var beacon_damage_mod: float = 0.0
 
 # 실행: store dynamic placement and status states.
 var x: int = 0
@@ -47,9 +50,12 @@ func _init(data: Dictionary) -> void:
 		synergy = str(synergy_raw)
 		
 	keyword = str(data.get("keyword", ""))
-	damage = float(data.get("damage", 1.0))
+	base_damage = float(data.get("damage", 1.0))
+	damage = base_damage
 	grade = str(data.get("grade", "basic"))
 	item_type = str(data.get("item_type", data.get("itemType", "drill")))
+	beacon_cooldown_mod = int(data.get("beacon_cooldown_mod", data.get("beaconCooldownMod", 0)))
+	beacon_damage_mod = float(data.get("beacon_damage_mod", data.get("beaconDamageMod", 0.0)))
 	x = int(data.get("x", 0))
 	y = int(data.get("y", 0))
 	rotation = int(data.get("rotation", 0))
@@ -106,9 +112,12 @@ func to_dict() -> Dictionary:
 		"isBroken": is_broken,
 		"freezeTicks": freeze_ticks,
 		"damage": damage,
+		"base_damage": base_damage,
 		"grade": grade,
 		"item_type": item_type,
-		"itemType": item_type
+		"itemType": item_type,
+		"beacon_cooldown_mod": beacon_cooldown_mod,
+		"beacon_damage_mod": beacon_damage_mod
 	}
 
 # 실행: generate static default drills

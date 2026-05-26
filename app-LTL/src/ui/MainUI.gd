@@ -19,6 +19,8 @@ signal reward_meta_clicked(meta: Variant)
 signal discard_zone_input(event: InputEvent)
 signal repair_overlay_input(event: InputEvent)
 signal backpack_slot_clicked(coord: Vector2)
+signal backpack_slot_hovered(coord: Vector2)
+signal backpack_slot_unhovered(coord: Vector2)
 signal cell_hovered(cell_id: String, color_name: String)
 signal cell_clicked(cell_id: String, color_name: String)
 signal cell_pressed(cell_id: String, color: String)
@@ -71,6 +73,10 @@ var heartbeat_player: AudioStreamPlayer
 var _heartbeat_volume: float = 75.0
 var heartbeat_timer: float = 1.0
 
+# Tooltip UI Dynamic nodes
+var tooltip_panel: PanelContainer
+var tooltip_label: RichTextLabel
+
 # 실행: connect raw UI signals to custom view signals for orchestrator consumption.
 func _ready() -> void:
 	reset_button.pressed.connect(func(): reset_pressed.emit())
@@ -90,6 +96,8 @@ func _ready() -> void:
 			repair_overlay_input.emit(ev)
 	)
 	backpack_ui.slot_clicked.connect(func(coord): backpack_slot_clicked.emit(coord))
+	backpack_ui.slot_hovered.connect(func(coord): backpack_slot_hovered.emit(coord))
+	backpack_ui.slot_unhovered.connect(func(coord): backpack_slot_unhovered.emit(coord))
 	battlefield_ui.cell_hovered.connect(func(cid, col): cell_hovered.emit(cid, col))
 	battlefield_ui.cell_clicked.connect(func(cid, col): cell_clicked.emit(cid, col))
 	battlefield_ui.cell_pressed.connect(func(cid, col): cell_pressed.emit(cid, col))
@@ -108,6 +116,7 @@ func _ready() -> void:
 	_create_giant_timer()
 	_create_vignette_overlay()
 	_create_heartbeat_player()
+	_create_tooltip_panel()
 	
 	# Connect volume slider signal
 	settings_panel.volume_changed.connect(set_volume)
@@ -465,6 +474,7 @@ func _create_vignette_overlay() -> void:
 
 # 실행: animate flashing timer label and pulsing red vignette overlay when time is critical.
 func _process(delta: float) -> void:
+	_update_tooltip_position()
 	# Position the giant timer panel dynamically relative to the battlefield_ui
 	if giant_timer_panel.visible:
 		var bf_pos = battlefield_ui.global_position
@@ -572,3 +582,104 @@ func _update_heartbeat_volume() -> void:
 		else:
 			# Convert volume percent (0-100) to decibels
 			heartbeat_player.volume_db = linear_to_db(_heartbeat_volume / 100.0)
+
+# 실행: dynamically construct the floating info tooltip panel.
+func _create_tooltip_panel() -> void:
+	tooltip_panel = PanelContainer.new()
+	tooltip_panel.visible = false
+	tooltip_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(tooltip_panel)
+	tooltip_panel.set_as_top_level(true)
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.10, 0.12, 0.95)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(0.24, 0.35, 0.50, 0.9)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.content_margin_left = 12
+	style.content_margin_top = 10
+	style.content_margin_right = 12
+	style.content_margin_bottom = 10
+	tooltip_panel.add_theme_stylebox_override("panel", style)
+	
+	tooltip_label = RichTextLabel.new()
+	tooltip_label.fit_content = true
+	tooltip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tooltip_label.custom_minimum_size = Vector2(240, 0)
+	tooltip_label.bbcode_enabled = true
+	tooltip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tooltip_panel.add_child(tooltip_label)
+
+# 실행: show the floating artifact info tooltip.
+func show_artifact_tooltip(art) -> void:
+	if tooltip_panel == null:
+		return
+	
+	var rarity_colors = {
+		"basic": "#abb2bf",
+		"common": "#a3be8c",
+		"rare": "#61afef",
+		"epic": "#c678dd",
+		"legendary": "#e5c07b",
+		"mythic": "#d19a66"
+	}
+	var rarity_color = rarity_colors.get(str(art.get("grade", "basic")).lower(), "#abb2bf")
+	var energy_colors = {
+		"red": "#e06c75",
+		"blue": "#61afef",
+		"purple": "#c678dd",
+		"green": "#98c379"
+	}
+	var energy_color = energy_colors.get(str(art.get("energyType", "")).lower(), "#abb2bf")
+	
+	var lines := []
+	lines.append("[b][size=14][color=%s]%s[/color][/size][/b]" % [rarity_color, art.get("name", "")])
+	lines.append("[color=#7f848e]%s • %s[/color]" % [str(art.get("grade", "basic")).capitalize(), str(art.get("item_type", "drill")).capitalize()])
+	lines.append("[color=%s]Energy: %s[/color]" % [energy_color, str(art.get("energyType", "")).upper()])
+	
+	var itype = str(art.get("item_type", "drill"))
+	if itype == "drill":
+		lines.append("Cooldown: %d T" % int(art.get("effectiveCooldown", art.get("baseCooldownTicks", 100))))
+		lines.append("Damage: [color=#e06c75]%.1f[/color]" % float(art.get("damage", 1.0)))
+		var cdr = int(art.get("synergyCooldownReduction", 0))
+		if cdr > 0:
+			lines.append("[color=#98c379]Synergy CDR: -%d T[/color]" % cdr)
+	elif itype == "beacon":
+		lines.append("[color=#61afef]Beacon Effects on adjacent drills:[/color]")
+		var b_cdr = int(art.get("beacon_cooldown_mod", 0))
+		var b_dmg = float(art.get("beacon_damage_mod", 0.0))
+		if b_cdr != 0:
+			var sign_str = "+" if b_cdr > 0 else ""
+			var col_str = "#e06c75" if b_cdr > 0 else "#98c379"
+			# synergy_cooldown_reduction subtracts cooldown_mod. So a negative cooldown_mod reduces cooldown (e.g. -20 ticks).
+			# We display it as -20 T (cooldown reduction).
+			lines.append("• Cooldown: [color=%s]%s%d T[/color]" % [col_str, sign_str, b_cdr])
+		if b_dmg != 0:
+			var sign_str = "+" if b_dmg > 0 else ""
+			var col_str = "#98c379" if b_dmg > 0 else "#e06c75"
+			lines.append("• Damage: [color=%s]%s%.1f[/color]" % [col_str, sign_str, b_dmg])
+			
+	var kw = str(art.get("keyword", ""))
+	if not kw.is_empty():
+		lines.append("\n[color=#5c6370][i]%s[/i][/color]" % kw)
+		
+	tooltip_label.text = "\n".join(lines)
+	tooltip_panel.visible = true
+	_update_tooltip_position()
+
+# 실행: hide the floating artifact info tooltip.
+func hide_artifact_tooltip() -> void:
+	if tooltip_panel:
+		tooltip_panel.visible = false
+
+# 실행: update the floating tooltip position.
+func _update_tooltip_position() -> void:
+	if tooltip_panel and tooltip_panel.visible:
+		var m_pos = get_global_mouse_position()
+		tooltip_panel.global_position = m_pos + Vector2(15, 15)

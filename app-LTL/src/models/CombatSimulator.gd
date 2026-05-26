@@ -65,11 +65,8 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 		for item in init_q:
 			queue.append(str(item))
 	else:
-		# 테스트 단계에서만 기본 에너지 큐["red", "blue", "purple", "green"]를 순환해서 채워 넣고 시작하며,
-		# 실제 플레이 구현 시에는 선택한 캐릭터에 따라 다른 시작 유물/큐를 로드하여 적용할 예정입니다.
-		var colors = ["red", "blue", "purple", "green"]
-		for i in range(queue_capacity):
-			queue.append(colors[i % colors.size()])
+		# Empty queue by default, items in backpack will charge it
+		pass
 			
 	queue_pinned_slots = 0
 	queue_empty_shots = 0

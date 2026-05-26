@@ -18,13 +18,33 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		if idx < 0 or idx >= candidates.size():
 			return state
 		
-		var choice: Dictionary = candidates[idx]
+		# 리사이클링용 active_colors 계산
+		var active_colors: Array = []
+		var inv_data = state.get("inventory", {})
+		if inv_data is Dictionary and inv_data.has("artifacts"):
+			for art in inv_data["artifacts"]:
+				var itype = str(art.get("item_type", art.get("itemType", "drill")))
+				if itype == "drill" or itype == "":
+					var color = str(art.get("energyType", ""))
+					if not color.is_empty() and not color in active_colors:
+						active_colors.append(color)
+		if active_colors.is_empty():
+			active_colors.append("red")
+			
+		var choice: Dictionary = candidates[idx].duplicate(true)
+		if not choice.has("combat") or not (choice["combat"] is Dictionary):
+			choice["combat"] = {}
+			
 		var next_state := state.duplicate(true)
 		next_state["phase"] = "combat"
 		next_state["lastNodeLabel"] = choice.get("label", "")
 		
-		# 전투 시뮬레이터 생성 및 초기화
 		var q_capacity: int = int(state.get("queueCapacity", 8))
+		var initial_q = []
+		for i in range(q_capacity):
+			initial_q.append(active_colors[i % active_colors.size()])
+		choice["combat"]["initialQueue"] = initial_q
+		
 		var sim := CombatVocab.prepare_combat(choice, state.get("tuning", {}), q_capacity)
 		next_state["combat"] = sim.to_dict()
 		next_state["candidates"] = [] # 선택 완료 후 후보 목록 비우기
