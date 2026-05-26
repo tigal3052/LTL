@@ -27,6 +27,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/StatusPanelUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
+	"res://src/ui/MainUI.gd",
 	# 신규 Logical Capsule 리팩토링 스크립트 목록 추가
 	"res://src/models/Artifact.gd",
 	"res://src/models/InventoryModel.gd",
@@ -69,6 +70,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/StatusPanelUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
+	"res://src/ui/MainUI.gd",
 	"res://src/models/Artifact.gd",
 	"res://src/models/InventoryModel.gd",
 	"res://src/models/CombatSimulator.gd",

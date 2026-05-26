@@ -629,19 +629,19 @@ func show_artifact_tooltip(art) -> void:
 		"legendary": "#e5c07b",
 		"mythic": "#d19a66"
 	}
-	var rarity_color = rarity_colors.get(str(art.get("grade", "basic")).lower(), "#abb2bf")
+	var rarity_color = rarity_colors.get(str(art.get("grade", "basic")).to_lower(), "#abb2bf")
 	var energy_colors = {
 		"red": "#e06c75",
 		"blue": "#61afef",
 		"purple": "#c678dd",
 		"green": "#98c379"
 	}
-	var energy_color = energy_colors.get(str(art.get("energyType", "")).lower(), "#abb2bf")
+	var energy_color = energy_colors.get(str(art.get("energyType", "")).to_lower(), "#abb2bf")
 	
 	var lines := []
 	lines.append("[b][size=14][color=%s]%s[/color][/size][/b]" % [rarity_color, art.get("name", "")])
 	lines.append("[color=#7f848e]%s • %s[/color]" % [str(art.get("grade", "basic")).capitalize(), str(art.get("item_type", "drill")).capitalize()])
-	lines.append("[color=%s]Energy: %s[/color]" % [energy_color, str(art.get("energyType", "")).upper()])
+	lines.append("[color=%s]Energy: %s[/color]" % [energy_color, str(art.get("energyType", "")).to_upper()])
 	
 	var itype = str(art.get("item_type", "drill"))
 	if itype == "drill":
