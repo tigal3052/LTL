@@ -629,43 +629,42 @@ func show_artifact_tooltip(art) -> void:
 		"legendary": "#e5c07b",
 		"mythic": "#d19a66"
 	}
-	var rarity_color = rarity_colors.get(str(art.get("grade", "basic")).to_lower(), "#abb2bf")
+	var rarity_color = rarity_colors.get(str(art.grade).to_lower(), "#abb2bf")
 	var energy_colors = {
 		"red": "#e06c75",
 		"blue": "#61afef",
 		"purple": "#c678dd",
 		"green": "#98c379"
 	}
-	var energy_color = energy_colors.get(str(art.get("energyType", "")).to_lower(), "#abb2bf")
+	var energy_color = energy_colors.get(str(art.energy_type).to_lower(), "#abb2bf")
 	
 	var lines := []
-	lines.append("[b][size=14][color=%s]%s[/color][/size][/b]" % [rarity_color, art.get("name", "")])
-	lines.append("[color=#7f848e]%s • %s[/color]" % [str(art.get("grade", "basic")).capitalize(), str(art.get("item_type", "drill")).capitalize()])
-	lines.append("[color=%s]Energy: %s[/color]" % [energy_color, str(art.get("energyType", "")).to_upper()])
+	lines.append("[b][size=14][color=%s]%s[/color][/size][/b]" % [rarity_color, art.name])
+	lines.append("[color=#7f848e]%s • %s[/color]" % [str(art.grade).capitalize(), str(art.item_type).capitalize()])
+	lines.append("[color=%s]Energy: %s[/color]" % [energy_color, str(art.energy_type).to_upper()])
 	
-	var itype = str(art.get("item_type", "drill"))
+	var itype = str(art.item_type)
 	if itype == "drill":
-		lines.append("Cooldown: %d T" % int(art.get("effectiveCooldown", art.get("baseCooldownTicks", 100))))
-		lines.append("Damage: [color=#e06c75]%.1f[/color]" % float(art.get("damage", 1.0)))
-		var cdr = int(art.get("synergyCooldownReduction", 0))
+		var eff_cd = maxi(1, art.base_cooldown_ticks - art.synergy_cooldown_reduction)
+		lines.append("Cooldown: %d T" % eff_cd)
+		lines.append("Damage: [color=#e06c75]%.1f[/color]" % art.damage)
+		var cdr = art.synergy_cooldown_reduction
 		if cdr > 0:
 			lines.append("[color=#98c379]Synergy CDR: -%d T[/color]" % cdr)
 	elif itype == "beacon":
 		lines.append("[color=#61afef]Beacon Effects on adjacent drills:[/color]")
-		var b_cdr = int(art.get("beacon_cooldown_mod", 0))
-		var b_dmg = float(art.get("beacon_damage_mod", 0.0))
+		var b_cdr = art.beacon_cooldown_mod
+		var b_dmg = art.beacon_damage_mod
 		if b_cdr != 0:
 			var sign_str = "+" if b_cdr > 0 else ""
 			var col_str = "#e06c75" if b_cdr > 0 else "#98c379"
-			# synergy_cooldown_reduction subtracts cooldown_mod. So a negative cooldown_mod reduces cooldown (e.g. -20 ticks).
-			# We display it as -20 T (cooldown reduction).
 			lines.append("• Cooldown: [color=%s]%s%d T[/color]" % [col_str, sign_str, b_cdr])
 		if b_dmg != 0:
 			var sign_str = "+" if b_dmg > 0 else ""
 			var col_str = "#98c379" if b_dmg > 0 else "#e06c75"
 			lines.append("• Damage: [color=%s]%s%.1f[/color]" % [col_str, sign_str, b_dmg])
 			
-	var kw = str(art.get("keyword", ""))
+	var kw = str(art.keyword)
 	if not kw.is_empty():
 		lines.append("\n[color=#5c6370][i]%s[/i][/color]" % kw)
 		
