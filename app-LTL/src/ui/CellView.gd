@@ -20,7 +20,8 @@ var cell_id: String = ""
 var row: int = 0
 var column: int = 0
 var weakness: Variant = null
-var terrain_debuff: Dictionary = {}
+var queue_match: bool = false
+var active_queue_color: String = ""
 var aimed: bool = false
 var is_disabled_tile: bool = false
 var hover_active: bool = false
@@ -127,6 +128,14 @@ func _draw() -> void:
 		for p in crack:
 			scaled_crack.append(Vector2(p.x * w, p.y * h))
 		draw_polyline(scaled_crack, crack_color, 1.0)
+
+	if queue_match and not is_disabled_tile:
+		var queue_color := _energy_color(active_queue_color, 0.88)
+		if scaled_rock_points.size() > 0:
+			draw_polygon(scaled_rock_points, PackedColorArray([Color(queue_color.r, queue_color.g, queue_color.b, 0.14)]))
+			var queue_points = PackedVector2Array(scaled_rock_points)
+			queue_points.append(scaled_rock_points[0])
+			draw_polyline(queue_points, queue_color, 3.0)
 		
 	# Draw embedded artifact crystals (Weakness markers)
 	if weakness:
@@ -168,15 +177,6 @@ func _draw() -> void:
 			center + Vector2(-core_w, 0)
 		])
 		draw_polygon(core_points, PackedColorArray([Color.WHITE.darkened(0.1) if not is_disabled_tile else Color.GRAY]))
-	
-	# Draw hovering/focused visual ring
-	if not terrain_debuff.is_empty():
-		var c_debuff := Vector2(w / 2, h / 2)
-		var debuff_color := Color(0.82, 0.45, 0.95, 0.82)
-		var mark_size := minf(w, h) * 0.22
-		draw_arc(c_debuff, mark_size, 0, TAU, 18, debuff_color, 1.25)
-		draw_line(c_debuff + Vector2(-mark_size * 0.55, -mark_size * 0.2), c_debuff + Vector2(mark_size * 0.5, mark_size * 0.18), debuff_color, 1.35)
-		draw_line(c_debuff + Vector2(-mark_size * 0.15, mark_size * 0.55), c_debuff + Vector2(mark_size * 0.22, -mark_size * 0.48), debuff_color, 1.15)
 
 	# Draw hovering/focused visual ring
 	if hover_active and not is_disabled_tile:
@@ -234,7 +234,17 @@ func configure(cell_data: Dictionary, disabled_tiles: Array) -> void:
 	row = int(cell_data.get("row", 0))
 	column = int(cell_data.get("column", 0))
 	weakness = cell_data.get("weakness", null)
-	terrain_debuff = cell_data.get("terrainDebuff", {})
+	queue_match = bool(cell_data.get("queueMatch", false))
+	active_queue_color = str(cell_data.get("activeQueueColor", ""))
 	aimed = bool(cell_data.get("aimed", false))
 	is_disabled_tile = cell_id in disabled_tiles
 	queue_redraw()
+
+# 실행: map energy names to highlight colors.
+func _energy_color(color_name: String, alpha: float) -> Color:
+	match color_name:
+		"red": return Color(0.95, 0.32, 0.28, alpha)
+		"blue": return Color(0.30, 0.58, 0.95, alpha)
+		"green": return Color(0.30, 0.82, 0.42, alpha)
+		"purple": return Color(0.72, 0.34, 0.92, alpha)
+	return Color(1.0, 1.0, 1.0, alpha)

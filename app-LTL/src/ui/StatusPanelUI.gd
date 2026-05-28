@@ -129,8 +129,20 @@ func _render_pin_and_repair_status(hud: Dictionary) -> void:
 	var repair: Dictionary = hud.get("repair", {})
 	var depleted := int(hud.get("queue", {}).get("loaded", 0)) == 0
 	var rebuilding := bool(repair.get("active", false))
-	repair_status_label.text = TextCatalogScript.t("status.repairing") if rebuilding else (TextCatalogScript.t("status.overheated") if depleted else TextCatalogScript.t("status.normal"))
-	repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25) if rebuilding or depleted else Color(0.34, 0.68, 0.42))
+	var status_text := TextCatalogScript.t("status.repairing") if rebuilding else (TextCatalogScript.t("status.overheated") if depleted else TextCatalogScript.t("status.normal"))
+	var terrain_text := _terrain_debuff_status(hud.get("terrainDebuffs", []))
+	repair_status_label.text = status_text if terrain_text.is_empty() else "%s | %s" % [status_text, terrain_text]
+	repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25) if rebuilding or depleted else (Color(0.72, 0.42, 0.95) if not terrain_text.is_empty() else Color(0.34, 0.68, 0.42)))
+
+# 실행: summarize global terrain debuffs in the drill/node status row.
+func _terrain_debuff_status(value: Variant) -> String:
+	if not value is Array:
+		return ""
+	var weakened_stacks := 0
+	for debuff in value:
+		if debuff is Dictionary and str(debuff.get("effect", "")) == "weakened_terrain":
+			weakened_stacks += maxi(1, int(debuff.get("stacks", 1)))
+	return TextCatalogScript.t("status.terrain_weakened", [weakened_stacks]) if weakened_stacks > 0 else ""
 
 # ?ㅽ뻾: render the combat repair overlay state.
 func _render_combat_overlay(scene: Dictionary, repair_overlay: PanelContainer) -> void:

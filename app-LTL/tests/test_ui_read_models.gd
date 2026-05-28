@@ -16,6 +16,7 @@ const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutP
 const CombatFeedbackPresenterScript = preload("res://src/ui/presenters/CombatFeedbackPresenter.gd")
 const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
 const BackpackGridFactoryScript = preload("res://src/ui/presenters/BackpackGridFactory.gd")
+const CombatSceneModelScript = preload("res://src/ui/CombatSceneModel.gd")
 
 var failures: Array[String] = []
 
@@ -39,6 +40,7 @@ func run_all_tests() -> Dictionary:
 	test_backpack_cooldown_charge_ratio_smoothly_interpolates()
 	test_backpack_cooldown_mask_ratio_decreases_with_frame_time()
 	test_text_catalog_strips_item_implementation_tags()
+	test_combat_scene_projects_global_debuff_and_queue_match()
 	return {"ok": failures.is_empty(), "errors": failures}
 
 # 실행: verify reward dictionary tooltip data.
@@ -205,6 +207,43 @@ func test_text_catalog_strips_item_implementation_tags() -> void:
 	_assert_eq(TextCatalogScript.display_name("Anchor Beacon 3x2"), "Anchor Beacon", "display name strips size tag")
 	_assert_eq(TextCatalogScript.display_description("Beacon: Large 3x2 module that pulses. (Green)"), "Beacon: that pulses.", "description strips module and color tag")
 	TextCatalogScript.set_locale("ko")
+
+# 실행: verify terrain debuffs are global HUD status and current queue color marks matching cells.
+func test_combat_scene_projects_global_debuff_and_queue_match() -> void:
+	var model = CombatSceneModelScript.new()
+	var snapshot := {
+		"phase": "combat",
+		"stageIndex": 0,
+		"maxStages": 1,
+		"runIndex": 0,
+		"runCount": 1,
+		"combat": {
+			"result": "active",
+			"weakness": ["green"],
+			"shield": 10.0,
+			"health": 10.0,
+			"maxShield": 10.0,
+			"maxHealth": 10.0,
+			"queue": {"capacity": 2, "loaded": 2, "items": ["green", "red"]},
+			"pin": {},
+			"repair": {},
+			"hazard": {},
+			"aim": {"cellId": "r0c0", "canFire": true},
+			"battlefield": {
+				"rows": 1,
+				"columns": 2,
+				"weaknessMarkers": [{"cellId": "r0c0", "color": "green"}, {"cellId": "r0c1", "color": "red"}],
+				"terrainDebuffs": [{"scope": "global", "effect": "weakened_terrain", "energy": "purple", "stacks": 2}]
+			}
+		}
+	}
+	var scene: Dictionary = model.create(snapshot, {"viewportWidth": 400, "viewportHeight": 200})
+	_assert_eq(scene["terrain"].get("activeQueueColor", ""), "green", "terrain exposes active queue color")
+	_assert_eq(scene["terrain"]["cells"][0].get("queueMatch", false), true, "matching weakness cell is highlighted")
+	_assert_eq(scene["terrain"]["cells"][1].get("queueMatch", true), false, "nonmatching weakness cell is not highlighted")
+	_assert(not scene["terrain"]["cells"][0].has("terrainDebuff"), "terrain debuff is not attached to individual cells")
+	_assert_eq(scene["hud"].get("terrainDebuffs", []).size(), 1, "hud exposes global terrain debuffs")
+	_assert_eq(scene["hud"]["terrainDebuffs"][0].get("stacks", 0), 2, "hud keeps global terrain debuff stacks")
 
 # 실행: append a failure when condition is false.
 func _assert(condition: bool, msg: String) -> void:

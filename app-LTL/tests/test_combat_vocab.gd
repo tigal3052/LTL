@@ -77,7 +77,7 @@ func test_purple_energy_applies_terrain_debuff() -> void:
 	var sim := _sim_with_queue("purple", 10.0, 10.0)
 	CombatVocabScript.fire_shot(sim, "purple", "r1c2", {}, null)
 	_assert(sim.terrain_debuffs.size() == 1, "purple creates one terrain debuff")
-	_assert_eq(sim.terrain_debuffs[0].get("cellId", ""), "r1c2", "purple debuff records target cell")
+	_assert_eq(sim.terrain_debuffs[0].get("scope", ""), "global", "purple debuff is global")
 	_assert_eq(sim.terrain_debuffs[0].get("effect", ""), "weakened_terrain", "purple debuff records effect")
 
 # 실행: create a deterministic drill artifact.

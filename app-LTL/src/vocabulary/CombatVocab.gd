@@ -113,15 +113,13 @@ static func _energy_profile(energy_color: String) -> Dictionary:
 			return {"shield": 0.35, "health": 0.35, "terrainDebuff": true}
 	return {"shield": 0.5, "health": 1.0}
 
-# 실행: record a stackable terrain debuff caused by purple energy.
+# 실행: record a stackable global terrain debuff caused by purple energy.
 static func _apply_terrain_debuff(sim: CombatSimulator, target_cell_id: String, energy_color: String) -> void:
-	if target_cell_id.is_empty():
-		return
 	for debuff in sim.terrain_debuffs:
-		if str(debuff.get("cellId", "")) == target_cell_id and str(debuff.get("effect", "")) == "weakened_terrain":
+		if str(debuff.get("scope", "")) == "global" and str(debuff.get("effect", "")) == "weakened_terrain":
 			debuff["stacks"] = int(debuff.get("stacks", 1)) + 1
 			return
-	sim.terrain_debuffs.append({"cellId": target_cell_id, "effect": "weakened_terrain", "energy": energy_color, "stacks": 1})
+	sim.terrain_debuffs.append({"scope": "global", "lastCellId": target_cell_id, "effect": "weakened_terrain", "energy": energy_color, "stacks": 1})
 
 # 실행: apply repair intent to fully reload the energy queue and reset pin/empty-shot states.
 static func apply_repair(sim: CombatSimulator) -> void:

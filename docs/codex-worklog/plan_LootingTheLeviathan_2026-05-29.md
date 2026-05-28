@@ -5,21 +5,19 @@ Date: 2026-05-29
 
 ## Active Work
 
-Fix follow-up UI QA issues: artifact cooldown must render as a continuously shrinking translucent black mask, purple terrain debuff tiles must read as a status marker instead of a new terrain background, and reward/artifact labels must not expose size/version/color implementation tags.
+Fix follow-up combat readability QA issues: purple terrain debuffs should be presented as a global drill/node status instead of per-tile markings, and battlefield cells matching the current queue color should be highlighted for easier targeting.
 
 ## Request Summary
 
-- Cooldown fill still appears to step around one-second backend snapshots.
-- Purple energy debuff rendering looks like a new purple terrain tile.
-- Item names still expose raw tags such as `v2` and `(Red)`.
+- `weakened_terrain` is still represented visually on individual cells, but the user expects it in the drill/node status as a global combat debuff.
+- Current queue gems are far from the 3x10 battlefield, making same-color tile selection visually tiring.
 
 ## Scope
 
-- Add regression tests for cooldown mask math and item tag stripping.
-- Update `BackpackUI` to animate cooldown from frame delta instead of only easing between backend snapshots.
-- Render cooldown as a translucent black mask that shrinks away as energy recharges.
-- Tone down purple terrain debuff visuals to a small marker/crack overlay.
-- Strip size/version/color tags from user-facing item labels and artifact names.
+- Add regression tests for global terrain debuff projection and active queue color cell matching.
+- Move terrain debuff projection from per-cell data to HUD/global status data.
+- Render global terrain debuff count in the drill/node status panel.
+- Highlight cells whose weakness color matches the active queue energy.
 
 ## Out of Scope
 
@@ -29,17 +27,16 @@ Fix follow-up UI QA issues: artifact cooldown must render as a continuously shri
 
 ## Steps
 
-- Write failing UI/name regression tests.
-- Implement cooldown mask helper functions and continuous frame display.
-- Sanitize reward-created artifact names and reward reveal silhouette labels.
-- Replace purple full-tile haze with a compact debuff marker.
+- Write failing scene-model tests for active queue highlight and global debuff placement.
+- Update combat debuff data to aggregate as a global `weakened_terrain` stack.
+- Update `CombatSceneModel`, `StatusPanelUI`, and `CellView` to use the new presentation contract.
 - Run Godot contract checks, i18n gate if text keys change, and `git diff --check`.
 
 ## Expected Outputs
 
-- Smooth black cooldown mask drain.
-- Clear explanation and subtler visual for purple terrain debuffs.
-- Clean user-facing artifact names without size/version/color tags.
+- Drill/node status shows global weakened-terrain stack count.
+- Battlefield cells matching the current queue color are visibly highlighted.
+- No per-cell purple debuff marker remains.
 - Updated worklog and verification notes.
 
 ## Verification Method
@@ -51,3 +48,4 @@ Fix follow-up UI QA issues: artifact cooldown must render as a continuously shri
 
 - 2026-05-29: Worklog bootstrapped automatically by Codex hook.
 - 2026-05-29: Re-scoped to follow-up M4 UI QA: cooldown mask smoothing, purple debuff readability, and item label cleanup.
+- 2026-05-29: Re-scoped to global terrain debuff status and active queue color tile highlighting.

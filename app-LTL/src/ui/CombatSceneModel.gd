@@ -38,11 +38,10 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	var columns := maxi(1, int(battlefield.get("columns", 10)))
 	var markers: Dictionary = {}
 	var aimed_cell = combat.get("aim", {}).get("cellId", null)
+	var queue_items: Array = combat.get("queue", {}).get("items", [])
+	var active_queue_color := str(queue_items[0]) if not queue_items.is_empty() else ""
 	for marker in battlefield.get("weaknessMarkers", []):
 		markers[marker.get("cellId", "")] = marker.get("color", null)
-	var debuffs: Dictionary = {}
-	for debuff in battlefield.get("terrainDebuffs", []):
-		debuffs[str(debuff.get("cellId", ""))] = debuff.duplicate(true)
 	var frame: Dictionary = layout["battlefieldFrame"]
 	var cell_width := int(frame["width"] / columns)
 	var cell_height := int(frame["height"] / rows)
@@ -50,12 +49,28 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	for row in range(rows):
 		for column in range(columns):
 			var cell_id := "r%dc%d" % [row, column]
-			cells.append({"id": cell_id, "row": row, "column": column, "x": frame["x"] + column * cell_width, "y": frame["y"] + row * cell_height, "width": cell_width, "height": cell_height, "weakness": markers.get(cell_id, null), "terrainDebuff": debuffs.get(cell_id, {}), "aimed": cell_id == aimed_cell})
-	return {"rows": rows, "columns": columns, "cells": cells}
+			var weakness = markers.get(cell_id, null)
+			cells.append({"id": cell_id, "row": row, "column": column, "x": frame["x"] + column * cell_width, "y": frame["y"] + row * cell_height, "width": cell_width, "height": cell_height, "weakness": weakness, "queueMatch": not active_queue_color.is_empty() and str(weakness) == active_queue_color, "activeQueueColor": active_queue_color, "aimed": cell_id == aimed_cell})
+	return {"rows": rows, "columns": columns, "cells": cells, "activeQueueColor": active_queue_color}
 
 # 실행: project combat queue, pin, repair, hazard, aim, and disabled state into HUD data.
 func _create_hud(combat: Dictionary) -> Dictionary:
-	return {"queue": combat.get("queue", {}).duplicate(true), "pin": combat.get("pin", {}).duplicate(true), "repair": combat.get("repair", {}).duplicate(true), "hazard": combat.get("hazard", {}).duplicate(true), "aim": combat.get("aim", {}).duplicate(true), "disabled": combat.get("disabled", false)}
+	return {"queue": combat.get("queue", {}).duplicate(true), "pin": combat.get("pin", {}).duplicate(true), "repair": combat.get("repair", {}).duplicate(true), "hazard": combat.get("hazard", {}).duplicate(true), "aim": combat.get("aim", {}).duplicate(true), "terrainDebuffs": _global_terrain_debuffs(combat.get("battlefield", {}).get("terrainDebuffs", [])), "disabled": combat.get("disabled", false)}
+
+# 실행: keep terrain debuffs as global HUD status instead of per-cell state.
+func _global_terrain_debuffs(value: Variant) -> Array:
+	var result: Array = []
+	if not value is Array:
+		return result
+	for debuff in value:
+		if not debuff is Dictionary:
+			continue
+		var copy: Dictionary = debuff.duplicate(true)
+		if not copy.has("scope"):
+			copy["scope"] = "global"
+		if str(copy.get("scope", "")) == "global":
+			result.append(copy)
+	return result
 
 # 실행: project target weakness, health, shield, and timer values.
 func _create_target_panel(combat: Dictionary) -> Dictionary:
