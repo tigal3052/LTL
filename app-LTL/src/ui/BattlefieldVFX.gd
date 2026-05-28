@@ -8,6 +8,8 @@
 class_name BattlefieldVFX
 extends Control
 
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+
 var is_revealing := false
 var rewards_count := 0
 var rewards: Array = []
@@ -187,7 +189,7 @@ func _spawn_silhouettes(center: Vector2) -> void:
 	var spacing = size.x / (rewards_count + 1)
 	for i in range(rewards_count):
 		var reward = rewards[i]
-		silhouettes.append({"pos": center + Vector2(randf_range(-20, 20), 10), "target_pos": Vector2(spacing * (i + 1), size.y / 2 - 10.0), "size": 16.0, "label": str(reward.get("kind", "Reward")), "rarity": str(reward.get("rarity", "common"))})
+		silhouettes.append({"pos": center + Vector2(randf_range(-20, 20), 10), "target_pos": Vector2(spacing * (i + 1), size.y / 2 - 10.0), "size": 16.0, "label": TextCatalogScript.display_name(str(reward.get("kind", "Reward"))), "rarity": str(reward.get("rarity", "common"))})
 
 # 실행: draw one reward silhouette.
 func _draw_silhouette(silhouette: Dictionary) -> void:

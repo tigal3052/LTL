@@ -171,11 +171,12 @@ func _draw() -> void:
 	
 	# Draw hovering/focused visual ring
 	if not terrain_debuff.is_empty():
-		var haze_color := Color(0.55, 0.22, 0.75, 0.28)
-		if scaled_rock_points.size() > 0:
-			draw_polygon(scaled_rock_points, PackedColorArray([haze_color]))
 		var c_debuff := Vector2(w / 2, h / 2)
-		draw_arc(c_debuff, minf(w, h) * 0.34, 0, TAU, 18, Color(0.82, 0.45, 0.95, 0.75), 1.5)
+		var debuff_color := Color(0.82, 0.45, 0.95, 0.82)
+		var mark_size := minf(w, h) * 0.22
+		draw_arc(c_debuff, mark_size, 0, TAU, 18, debuff_color, 1.25)
+		draw_line(c_debuff + Vector2(-mark_size * 0.55, -mark_size * 0.2), c_debuff + Vector2(mark_size * 0.5, mark_size * 0.18), debuff_color, 1.35)
+		draw_line(c_debuff + Vector2(-mark_size * 0.15, mark_size * 0.55), c_debuff + Vector2(mark_size * 0.22, -mark_size * 0.48), debuff_color, 1.15)
 
 	# Draw hovering/focused visual ring
 	if hover_active and not is_disabled_tile:

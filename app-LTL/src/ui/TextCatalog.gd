@@ -350,8 +350,14 @@ static func hint_label(raw_hint: String, locale_override := "") -> String:
 static func _strip_size_noise(value: String) -> String:
 	var result := value
 	var regex := RegEx.new()
+	if regex.compile("\\s+v\\d+\\b") == OK:
+		result = regex.sub(result, "", true)
+	if regex.compile("\\s*\\((Red|Blue|Purple|Green|red|blue|purple|green|빨강|파랑|보라|초록)\\)\\s*") == OK:
+		result = regex.sub(result, " ", true)
 	if regex.compile("\\b(Compact|Large|Small|Medium)\\s+\\d+x\\d+\\s+module\\.?\\s*") == OK:
 		result = regex.sub(result, "", true)
 	if regex.compile("\\s*\\(?\\d+x\\d+\\)?\\s*") == OK:
 		result = regex.sub(result, " ", true)
-	return result.replace("  ", " ").strip_edges()
+	while result.contains("  "):
+		result = result.replace("  ", " ")
+	return result.strip_edges()

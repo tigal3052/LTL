@@ -16,7 +16,7 @@ static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dicti
 		return {"ok": false, "code": "missing_reward", "artifact": null}
 	var payload: Dictionary = reward.get("payload", {})
 	var rarity := str(reward.get("rarity", "common")).to_lower()
-	var name := str(reward.get("kind", "New Artifact"))
+	var name := _display_artifact_name(str(reward.get("kind", "New Artifact")))
 	var item_type := str(payload.get("item_type", payload.get("itemType", "drill")))
 	if item_type.is_empty():
 		item_type = "drill"
@@ -51,6 +51,22 @@ static func _default_shape(name: String, item_type: String) -> Array:
 	if "Resonance" in name or "Reactor" in name:
 		return [[1, 1], [1, 1]]
 	return [[1]]
+
+# 실행: remove reward-table implementation tags from stored artifact names.
+static func _display_artifact_name(raw_name: String) -> String:
+	var result := raw_name
+	var regex := RegEx.new()
+	if regex.compile("\\s+v\\d+\\b") == OK:
+		result = regex.sub(result, "", true)
+	if regex.compile("\\s*\\((Red|Blue|Purple|Green|red|blue|purple|green|빨강|파랑|보라|초록)\\)\\s*") == OK:
+		result = regex.sub(result, " ", true)
+	if regex.compile("\\b(Compact|Large|Small|Medium)\\s+\\d+x\\d+\\s+module\\.?\\s*") == OK:
+		result = regex.sub(result, "", true)
+	if regex.compile("\\s*\\(?\\d+x\\d+\\)?\\s*") == OK:
+		result = regex.sub(result, " ", true)
+	while result.contains("  "):
+		result = result.replace("  ", " ")
+	return result.strip_edges()
 
 # 실행: return default cooldown from rarity.
 static func _default_cooldown(rarity: String) -> int:

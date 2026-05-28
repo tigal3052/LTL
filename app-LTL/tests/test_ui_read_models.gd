@@ -37,6 +37,8 @@ func run_all_tests() -> Dictionary:
 	test_backpack_artifact_edges_omit_internal_borders()
 	test_backpack_cooldown_charge_ratio_changes_with_current_cooldown()
 	test_backpack_cooldown_charge_ratio_smoothly_interpolates()
+	test_backpack_cooldown_mask_ratio_decreases_with_frame_time()
+	test_text_catalog_strips_item_implementation_tags()
 	return {"ok": failures.is_empty(), "errors": failures}
 
 # 실행: verify reward dictionary tooltip data.
@@ -187,6 +189,22 @@ func test_backpack_cooldown_charge_ratio_smoothly_interpolates() -> void:
 	var eased := BackpackGridFactoryScript.smooth_charge_ratio(0.2, 0.8, 0.1, 3.0)
 	_assert(eased > 0.2, "smooth cooldown ratio moves upward")
 	_assert(eased < 0.8, "smooth cooldown ratio does not snap to target")
+
+# ?ㅽ뻾: verify the visible cooldown mask drains continuously from frame time.
+func test_backpack_cooldown_mask_ratio_decreases_with_frame_time() -> void:
+	var remaining := BackpackGridFactoryScript.cooldown_remaining_ratio(75, 100, 0)
+	var advanced := BackpackGridFactoryScript.advance_visual_cooldown(75.0, 0.25, 20.0)
+	_assert_eq(remaining, 0.75, "cooldown remaining mask ratio")
+	_assert_eq(advanced, 70.0, "visual cooldown advances by frame delta")
+	_assert(BackpackGridFactoryScript.cooldown_remaining_ratio(int(advanced), 100, 0) < remaining, "mask shrinks as frame time advances")
+
+# ?ㅽ뻾: verify reward names hide version, color, and size implementation tags.
+func test_text_catalog_strips_item_implementation_tags() -> void:
+	TextCatalogScript.set_locale("en")
+	_assert_eq(TextCatalogScript.display_name("Crimson Drill Core v2 (Red)"), "Crimson Drill Core", "display name strips version and color tag")
+	_assert_eq(TextCatalogScript.display_name("Anchor Beacon 3x2"), "Anchor Beacon", "display name strips size tag")
+	_assert_eq(TextCatalogScript.display_description("Beacon: Large 3x2 module that pulses. (Green)"), "Beacon: that pulses.", "description strips module and color tag")
+	TextCatalogScript.set_locale("ko")
 
 # 실행: append a failure when condition is false.
 func _assert(condition: bool, msg: String) -> void:

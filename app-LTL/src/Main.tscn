@@ -200,11 +200,11 @@ layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
 text = "Loadout:
-- Resonator Core v1
-- Ruby Drill (Red)
-- Sapphire Lens (Blue)
-- Amethyst Crystal (Purple)
-- Emerald Condenser (Green)"
+- Resonator Core
+- Ruby Drill
+- Sapphire Lens
+- Amethyst Crystal
+- Emerald Condenser"
 
 [node name="StatusPanel" type="PanelContainer" parent="RootMargin/AppShell/TopContent/LeftColumn"]
 layout_mode = 2

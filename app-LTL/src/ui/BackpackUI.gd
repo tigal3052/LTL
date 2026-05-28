@@ -13,6 +13,7 @@ signal slot_unhovered(coord: Vector2)
 
 const ArtifactClass = preload("res://src/models/Artifact.gd")
 const GridFactory = preload("res://src/ui/presenters/BackpackGridFactory.gd")
+const VISUAL_COOLDOWN_TICKS_PER_SECOND := 20.0
 
 @onready var backpack_grid_mock: GridContainer = $Margin/EngineBox/GridMock
 var ghost_container: GridContainer
@@ -133,13 +134,20 @@ func _apply_artifact_overlay(column: int, row: int, art: ArtifactClass, shape: A
 		overlay.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.32, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
 	var charge := _slot_charge_overlay(column, row)
 	if charge:
-		var ratio := GridFactory.cooldown_charge_ratio(int(art.current_cooldown), int(art.base_cooldown_ticks), int(art.synergy_cooldown_reduction))
+		var cooldown_ticks := float(art.current_cooldown)
+		var effective_cooldown := maxi(1, int(art.base_cooldown_ticks) - int(art.synergy_cooldown_reduction))
+		var display_ticks := cooldown_ticks
+		if charge.has_meta("display_cooldown_ticks"):
+			display_ticks = float(charge.get_meta("display_cooldown_ticks"))
+			if cooldown_ticks > display_ticks + 0.5:
+				display_ticks = cooldown_ticks
+			else:
+				display_ticks = minf(display_ticks, cooldown_ticks)
 		charge.visible = true
-		charge.set_meta("target_ratio", ratio)
-		if not charge.has_meta("display_ratio"):
-			charge.set_meta("display_ratio", ratio)
-		_apply_charge_ratio(charge, float(charge.get_meta("display_ratio")))
-		charge.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.82, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
+		charge.set_meta("display_cooldown_ticks", display_ticks)
+		charge.set_meta("effective_cooldown_ticks", effective_cooldown)
+		charge.add_theme_stylebox_override("panel", GridFactory.cooldown_mask_style(0.46, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
+		_apply_cooldown_mask(charge, display_ticks / float(effective_cooldown))
 
 # 실행: return overlay panel for an 8x8 backpack coordinate.
 func _slot_overlay(column: int, row: int) -> Panel:
@@ -161,26 +169,25 @@ func _slot_charge_overlay(column: int, row: int) -> Panel:
 	var slot := backpack_grid_mock.get_child(slot_idx) as Panel
 	return null if slot == null else slot.get_node("ChargeOverlay") as Panel
 
-# 실행: ease visible cooldown charge overlays toward their newest target ratios.
+# 실행: drain visible cooldown masks every frame between backend snapshots.
 func _update_charge_animation(delta: float) -> void:
 	for row in range(8):
 		for column in range(8):
 			var charge := _slot_charge_overlay(column, row)
-			if charge == null or not charge.visible or not charge.has_meta("target_ratio"):
+			if charge == null or not charge.visible or not charge.has_meta("display_cooldown_ticks"):
 				continue
-			var current := float(charge.get_meta("display_ratio", charge.get_meta("target_ratio")))
-			var target := float(charge.get_meta("target_ratio"))
-			var next := GridFactory.smooth_charge_ratio(current, target, delta, 4.0)
-			charge.set_meta("display_ratio", next)
-			_apply_charge_ratio(charge, next)
+			var next := GridFactory.advance_visual_cooldown(float(charge.get_meta("display_cooldown_ticks")), delta, VISUAL_COOLDOWN_TICKS_PER_SECOND)
+			var effective := float(charge.get_meta("effective_cooldown_ticks", 1.0))
+			charge.set_meta("display_cooldown_ticks", next)
+			_apply_cooldown_mask(charge, next / maxf(1.0, effective))
 
-# 실행: apply bottom-up fill anchors for a charge overlay.
-func _apply_charge_ratio(charge: Panel, ratio: float) -> void:
-	var fill := clampf(ratio, 0.0, 1.0)
+# 실행: apply top-down anchors for a shrinking translucent cooldown mask.
+func _apply_cooldown_mask(charge: Panel, ratio: float) -> void:
+	var remaining := clampf(ratio, 0.0, 1.0)
 	charge.anchor_left = 0.0
 	charge.anchor_right = 1.0
-	charge.anchor_top = 1.0 - fill
-	charge.anchor_bottom = 1.0
+	charge.anchor_top = 0.0
+	charge.anchor_bottom = remaining
 	charge.offset_left = 0.0
 	charge.offset_right = 0.0
 	charge.offset_top = 0.0

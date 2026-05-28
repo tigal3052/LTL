@@ -25,6 +25,13 @@ No implementation history has been recorded yet.
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
 
+## 2026-05-29 Follow-Up Completion
+
+- Implemented artifact cooldown as a translucent black mask whose remaining height is advanced by frame delta at 20 ticks per second between backend snapshots.
+- Removed reward-table implementation tags from user-facing labels and stored artifact names: version suffixes, color suffixes, and size/module phrases are stripped before display.
+- Changed purple terrain debuff rendering from a full purple tile haze to a compact purple fracture marker so it reads as a status effect, not a new terrain background.
+- Verification: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` passed with `GODOT_CONTRACTS_OK`; `git diff --check` passed.
+
 ## 2026-05-29 00:23:24
 
 <!-- codex-worklog-signature: 070ebe59575fb76fbf081d10da1e32521f9812fc31926e4a6a950eeaf60c66d8 -->
@@ -305,6 +312,291 @@ M  app-LTL/tests/test_ui_read_models.gd
 A  docs/codex-worklog/complete_LootingTheLeviathan_2026-05-29.md
 A  docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
 A  docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:15:55
+
+<!-- codex-worklog-signature: 26f9372d2482490ba180fbb53a52fdab9451526da790ab7a9c0705aea3a9956c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:16:13
+
+<!-- codex-worklog-signature: f705697fff97bf3793bd2d0669df2b6901897ed235a74c092c9274fc0f4bb710 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:16:21
+
+<!-- codex-worklog-signature: c140e30fce537e68a35ac09f03f32a2db1a5efd13e8954c2eac2dfbfe814fd6c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:16:57
+
+<!-- codex-worklog-signature: b07dae91c37efa899843430a6be3057d6bc47f0d64b0d5c1e92160144d711352 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:17:11
+
+<!-- codex-worklog-signature: 1a46603fbb10cfa0219724f5d7f8059b89f1673827ad2f452229efd2c68edf3e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:17:47
+
+<!-- codex-worklog-signature: f798c7179c2df3a41d630a5553b0f92a4a47062c308c4f843cadb570503ca4ae -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:17:52
+
+<!-- codex-worklog-signature: 5dfe1946a9ae306e139fbfdafd8099ef74f622950696733ec4ec44e954977cfc -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:18:23
+
+<!-- codex-worklog-signature: f6f2881e4800795569c1ad4a6600fb22ed1d31af9d7e9ff89388cb41e79188ad -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:18:35
+
+<!-- codex-worklog-signature: ebc19a62703118a80e3119c621294a976a4cafefe7e47db3ba175ba58fe55ac4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:18:45
+
+<!-- codex-worklog-signature: d0d4b58ae98c92e3ae6825bce9c0368f6a71921e41c1395d814c06fb45383268 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/BattlefieldVFX.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:18:56
+
+<!-- codex-worklog-signature: cf75314f4479606fb90d1f933efdc4e85a1ab76cfd82a855e97969a4fb84f903 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/BattlefieldVFX.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:19:23
+
+<!-- codex-worklog-signature: 6a596ee656378b7d251068dcb70a078dc3d6e592b5b850e2f1b2fb233b6969f0 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/BattlefieldVFX.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:19:38
+
+<!-- codex-worklog-signature: 601c7e06fe01b5412bca2b03ec7fe9c1786a4c15991300c41c0468ea35c12482 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/BattlefieldVFX.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:19:44
+
+<!-- codex-worklog-signature: 6088468e28fd9af5f04467f2fcadf768d741529c65df4c880301ae8f519f352a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BackpackUI.gd
+ M app-LTL/src/ui/BattlefieldVFX.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/TextCatalog.gd
+ M app-LTL/src/ui/presenters/BackpackGridFactory.gd
+ M app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-29 01:21:21
+
+<!-- codex-worklog-signature: 8581ceda3b3def2aaea0b1b39fb58b22fb5b0f2e02f25ae391a39de24211be6d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/Main.tscn
+M  app-LTL/src/ui/BackpackUI.gd
+M  app-LTL/src/ui/BattlefieldVFX.gd
+M  app-LTL/src/ui/CellView.gd
+M  app-LTL/src/ui/TextCatalog.gd
+M  app-LTL/src/ui/presenters/BackpackGridFactory.gd
+M  app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd
+M  app-LTL/tests/test_reward_contract.gd
+M  app-LTL/tests/test_ui_read_models.gd
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-29.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-05-29.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

@@ -68,6 +68,26 @@ static func cooldown_charge_ratio(current_cooldown: int, base_cooldown: int, syn
 	var effective := maxi(1, int(base_cooldown) - int(synergy_reduction))
 	return clampf(1.0 - (float(current_cooldown) / float(effective)), 0.0, 1.0)
 
+# 실행: return how much of a translucent cooldown mask should remain visible.
+static func cooldown_remaining_ratio(current_cooldown: int, base_cooldown: int, synergy_reduction: int = 0) -> float:
+	var effective := maxi(1, int(base_cooldown) - int(synergy_reduction))
+	return clampf(float(current_cooldown) / float(effective), 0.0, 1.0)
+
+# 실행: advance a visual-only cooldown value between backend snapshots.
+static func advance_visual_cooldown(current_cooldown: float, delta: float, ticks_per_second: float = 20.0) -> float:
+	return maxf(0.0, float(current_cooldown) - maxf(0.0, delta) * maxf(0.0, ticks_per_second))
+
+# 실행: produce a dark cooldown mask style that drains away as the artifact charges.
+static func cooldown_mask_style(alpha: float = 0.46, edges := {}) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, alpha)
+	style.border_width_left = 1 if bool(edges.get("left", true)) else 0
+	style.border_width_top = 1 if bool(edges.get("top", true)) else 0
+	style.border_width_right = 1 if bool(edges.get("right", true)) else 0
+	style.border_width_bottom = 1 if bool(edges.get("bottom", true)) else 0
+	style.border_color = Color(0.0, 0.0, 0.0, 0.38)
+	return style
+
 # 실행: ease the displayed cooldown fill toward the latest model ratio.
 static func smooth_charge_ratio(current_ratio: float, target_ratio: float, delta: float, speed: float = 8.0) -> float:
 	var step := maxf(0.0, delta) * maxf(0.0, speed)

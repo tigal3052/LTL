@@ -359,6 +359,12 @@ func test_reward_artifact_creation_vocab() -> void:
 	_assert_eq(art.beacon_cooldown_mod, -12, "reward artifact preserves beacon cooldown modifier")
 	_assert_eq(art.beacon_damage_mod, 0.4, "reward artifact preserves beacon damage modifier")
 
+	var tagged_reward = reward_item.duplicate(true)
+	tagged_reward["kind"] = "Crimson Drill Core v2 (Red)"
+	var tagged_result = CreateArtifactFromRewardScript.create(tagged_reward)
+	_assert(tagged_result["ok"], "tagged reward artifact creation succeeds")
+	_assert_eq(tagged_result["artifact"].name, "Crimson Drill Core", "reward artifact name strips implementation tags")
+
 # ?ㅽ뻾: verify reward effect vocabulary updates growth.
 func test_apply_reward_effect_vocab() -> void:
 	var growth = RunGrowthStateScript.new({"gold": 0, "xp": 0, "purchasedPassives": {}, "temporaryModifiers": {}, "runModifiers": {}, "rewardHistory": []})

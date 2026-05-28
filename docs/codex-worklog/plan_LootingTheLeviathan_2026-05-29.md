@@ -5,20 +5,21 @@ Date: 2026-05-29
 
 ## Active Work
 
-Fix combat feel QA issues: smooth artifact cooldown charge animation, improve system log readability inside parchment, and implement the four energy-color combat effects from the Godot TDD plan.
+Fix follow-up UI QA issues: artifact cooldown must render as a continuously shrinking translucent black mask, purple terrain debuff tiles must read as a status marker instead of a new terrain background, and reward/artifact labels must not expose size/version/color implementation tags.
 
 ## Request Summary
 
-- Cooldown fill currently steps once per combat tick instead of visually interpolating smoothly.
-- System log text has poor contrast/size and does not sit cleanly inside the parchment panel.
-- Red, blue, green, and purple energy rules are incomplete; green must damage health through shields and purple must apply a terrain debuff.
+- Cooldown fill still appears to step around one-second backend snapshots.
+- Purple energy debuff rendering looks like a new purple terrain tile.
+- Item names still expose raw tags such as `v2` and `(Red)`.
 
 ## Scope
 
-- Add regression tests for green shield-piercing health damage, red/blue damage emphasis, and purple terrain debuff metadata.
-- Update `CombatVocab` damage resolution to use explicit per-color shield/health rules.
-- Add a UI-side smooth cooldown fill display that interpolates between model tick snapshots.
-- Restyle `LogConsoleUI` and relevant scene settings for smaller, higher-contrast parchment-contained text.
+- Add regression tests for cooldown mask math and item tag stripping.
+- Update `BackpackUI` to animate cooldown from frame delta instead of only easing between backend snapshots.
+- Render cooldown as a translucent black mask that shrinks away as energy recharges.
+- Tone down purple terrain debuff visuals to a small marker/crack overlay.
+- Strip size/version/color tags from user-facing item labels and artifact names.
 
 ## Out of Scope
 
@@ -28,17 +29,17 @@ Fix combat feel QA issues: smooth artifact cooldown charge animation, improve sy
 
 ## Steps
 
-- Write failing combat/color-rule and cooldown-ratio tests.
-- Implement combat resolver changes and terrain debuff projection.
-- Implement cooldown overlay interpolation in backpack UI.
-- Adjust system log margins/font color/font size.
+- Write failing UI/name regression tests.
+- Implement cooldown mask helper functions and continuous frame display.
+- Sanitize reward-created artifact names and reward reveal silhouette labels.
+- Replace purple full-tile haze with a compact debuff marker.
 - Run Godot contract checks, i18n gate if text keys change, and `git diff --check`.
 
 ## Expected Outputs
 
-- Smooth visual cooldown fill.
-- More readable system log text inside the parchment area.
-- Color-specific combat rules with test coverage.
+- Smooth black cooldown mask drain.
+- Clear explanation and subtler visual for purple terrain debuffs.
+- Clean user-facing artifact names without size/version/color tags.
 - Updated worklog and verification notes.
 
 ## Verification Method
@@ -49,3 +50,4 @@ Fix combat feel QA issues: smooth artifact cooldown charge animation, improve sy
 ## Plan Change Log
 
 - 2026-05-29: Worklog bootstrapped automatically by Codex hook.
+- 2026-05-29: Re-scoped to follow-up M4 UI QA: cooldown mask smoothing, purple debuff readability, and item label cleanup.
