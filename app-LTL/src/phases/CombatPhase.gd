@@ -79,6 +79,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	sim.battlefield_rows = int(b_data.get("rows", 3))
 	sim.battlefield_cols = int(b_data.get("columns", 10))
 	sim.weakness_markers = b_data.get("weaknessMarkers", []).duplicate(true)
+	sim.terrain_debuffs = b_data.get("terrainDebuffs", []).duplicate(true)
 	
 	var s_data: Dictionary = combat_dict.get("summary", {})
 	sim.summary_shots_fired = int(s_data.get("shots_fired", 0))

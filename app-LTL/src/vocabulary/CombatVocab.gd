@@ -1,8 +1,8 @@
 # 계약:
-# - 책임: 전투 시뮬레이터 상태에 대한 순수 동사 함수들(준비, 사격 판정, 수리 적용, 시간 경과 등)을 제공한다.
-# - 입력: CombatSimulator 인스턴스, 타겟 컬러, 타겟 셀 ID, 튜닝 설정 Dictionary.
+# - 책임: 전투 시뮬레이터 상태에 대한 순수 동사 함수(전투 준비, 사격 판정, 수리 적용, 시간 경과)를 제공한다.
+# - 입력: CombatSimulator 인스턴스, 타겟 색상, 타겟 셀 ID, 튜닝 Dictionary.
 # - 출력: 상태가 갱신된 CombatSimulator 인스턴스 또는 결과 정보.
-# - 금지: SceneTree 접근, 자체 상태 보존 (static func만 가짐).
+# - 금지: SceneTree 접근, 자체 상태 보존.
 #
 # 실행: define the CombatVocab static entry.
 class_name CombatVocab
@@ -26,30 +26,15 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 			apply_repair(sim)
 		return
 
-	# 큐에서 맨 앞 에너지 pop
-	var energy_color = sim.queue.pop_front()
-	
-	# If queue is now empty, initiate automatic repair immediately
+	var energy_color := str(sim.queue.pop_front())
 	if sim.queue.is_empty() and not sim.repair_active:
 		apply_repair(sim)
-	
-	# base 대미지 테이블
-	var base_shield := 0.5
-	var base_hp := 1.2
-	
-	match energy_color:
-		"red":
-			base_shield = 0.5
-			base_hp = 1.2
-		"blue":
-			base_shield = 1.5
-			base_hp = 0.75
-		"purple":
-			base_shield = 0.75
-			base_hp = 0.75
-		"green":
-			base_shield = 0.0
-			base_hp = 1.0
+
+	var profile := _energy_profile(energy_color)
+	var base_shield := float(profile.get("shield", 0.5))
+	var base_hp := float(profile.get("health", 1.0))
+	var pierces_health := bool(profile.get("pierceHealth", false))
+	var applies_terrain_debuff := bool(profile.get("terrainDebuff", false))
 
 	var damage_multiplier := 1.0
 	if inventory != null:
@@ -58,47 +43,39 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 			if art.energy_type == energy_color and art.item_type == "drill":
 				damage_multiplier = art.damage
 				break
-				
 	base_shield *= damage_multiplier
 	base_hp *= damage_multiplier
 
-	# 약점 색상 목록 수집
-	var weakness_colors = []
+	var weakness_colors := []
 	for marker in sim.weakness_markers:
 		if not marker["color"] in weakness_colors:
 			weakness_colors.append(marker["color"])
+	var is_vulnerable_pulse := str(target_color) in weakness_colors
 
-	# 취약 펄스 여부 판단
-	var is_vulnerable_pulse = str(target_color) in weakness_colors
-
-	var dmg_bonus = float(tuning.get("combat", {}).get("damage_bonus", 0.0))
+	var combat_tuning: Dictionary = tuning.get("combat", tuning)
+	var dmg_bonus := float(combat_tuning.get("damage_bonus", 0.0))
 	base_shield += dmg_bonus
 	base_hp += dmg_bonus
 
 	var dmg_shield := base_shield
 	var dmg_hp := base_hp
 	var hit_type := "normal"
-
 	if is_vulnerable_pulse:
-		if energy_color == target_color:
+		if energy_color == str(target_color):
 			dmg_shield = base_shield * 1.5
 			dmg_hp = base_hp * 1.5
 			hit_type = "match"
 		else:
-			# mismatch: 고정 데미지가 아니며, 취약 펄스와의 색상 불일치 시 쉴드 x0.2배, HP x0.5배 감쇄 배율을 적용합니다.
 			dmg_shield = base_shield * 0.2
 			dmg_hp = base_hp * 0.5
 			hit_type = "mismatch"
 
-	# 쉴드/체력 피해 공식 적용
-	var old_shield = sim.shield
 	sim.shield = maxf(0.0, sim.shield - dmg_shield)
-	
-	# 쉴드가 0 이하가 된 경우에만 체력에 피해를 줌
-	if sim.shield <= 0.0:
+	if pierces_health or sim.shield <= 0.0:
 		sim.health = maxf(0.0, sim.health - dmg_hp)
+	if applies_terrain_debuff:
+		_apply_terrain_debuff(sim, str(target_cell_id), energy_color)
 
-	# 결과 판정
 	var pin_active := false
 	if sim.health <= 0.0:
 		sim.result = "clear"
@@ -123,15 +100,37 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 	sim.disabled = sim.result in ["clear", "failed", "time_over"]
 	sim.aim_can_fire = not sim.disabled
 
+# 실행: return shield/health identity for each energy color.
+static func _energy_profile(energy_color: String) -> Dictionary:
+	match energy_color:
+		"red":
+			return {"shield": 0.5, "health": 2.2}
+		"blue":
+			return {"shield": 3.0, "health": 0.45}
+		"green":
+			return {"shield": 0.25, "health": 1.0, "pierceHealth": true}
+		"purple":
+			return {"shield": 0.35, "health": 0.35, "terrainDebuff": true}
+	return {"shield": 0.5, "health": 1.0}
+
+# 실행: record a stackable terrain debuff caused by purple energy.
+static func _apply_terrain_debuff(sim: CombatSimulator, target_cell_id: String, energy_color: String) -> void:
+	if target_cell_id.is_empty():
+		return
+	for debuff in sim.terrain_debuffs:
+		if str(debuff.get("cellId", "")) == target_cell_id and str(debuff.get("effect", "")) == "weakened_terrain":
+			debuff["stacks"] = int(debuff.get("stacks", 1)) + 1
+			return
+	sim.terrain_debuffs.append({"cellId": target_cell_id, "effect": "weakened_terrain", "energy": energy_color, "stacks": 1})
+
 # 실행: apply repair intent to fully reload the energy queue and reset pin/empty-shot states.
 static func apply_repair(sim: CombatSimulator) -> void:
 	sim.queue.clear()
-		
 	sim.queue_pinned_slots = 0
 	sim.queue_empty_shots = 0
 	sim.pin_active = false
 	sim.pin_turns_remaining = 0
-	sim.repair_progress = 100 # 5 seconds disadvantage (100 ticks)
+	sim.repair_progress = 100
 	sim.repair_active = true
 	sim.repair_available = false
 	sim.disabled = false
@@ -143,8 +142,6 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 	if sim.disabled:
 		return
 	sim.elapsed_ticks += ticks
-	
-	# Update automatic repair progress
 	if sim.repair_active:
 		sim.repair_progress = maxi(0, sim.repair_progress - ticks)
 		if sim.repair_progress <= 0:
@@ -152,8 +149,7 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 			sim.repair_available = true
 			sim.aim_can_fire = true
 			sim.result = "active"
-	
-	# Update pin progress based on remaining seconds (90s max, pin removal at 70s/50s/30s/10s)
+
 	var seconds_remaining = float(sim.time_limit_ticks - sim.elapsed_ticks) / 20.0
 	if seconds_remaining >= 70.0:
 		sim.pin_progress = 100
@@ -168,27 +164,22 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 	else:
 		sim.pin_progress = 0
 	sim.pin_turns_remaining = sim.pin_progress
-	
-	# Mismatch lock (pin_active) naturally expires / clears when time ticks (next turn)
+
 	if sim.pin_active:
 		sim.pin_active = false
 		sim.queue_pinned_slots = 0
-	
+
 	if elapsed_ticks_check(sim):
 		return
-		
-	# 인벤토리 틱 진행 및 에너지 생산
-	if inventory != null:
-		for t in range(ticks):
-			var generated_eneries = inventory.tick()
-			for e in generated_eneries:
-				if sim.queue.size() < sim.queue_capacity:
-					sim.queue.append(str(e))
-				else:
-					# Wasted counter (optionally tracked)
-					pass
 
-# Helper to check time limits cleanly
+	if inventory != null:
+		for _t in range(ticks):
+			var generated_energies = inventory.tick()
+			for energy in generated_energies:
+				if sim.queue.size() < sim.queue_capacity:
+					sim.queue.append(str(energy))
+
+# 실행: check time limits cleanly.
 static func elapsed_ticks_check(sim: CombatSimulator) -> bool:
 	if sim.elapsed_ticks >= sim.time_limit_ticks:
 		sim.result = "time_over"

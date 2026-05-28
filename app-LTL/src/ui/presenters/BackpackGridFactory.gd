@@ -68,6 +68,11 @@ static func cooldown_charge_ratio(current_cooldown: int, base_cooldown: int, syn
 	var effective := maxi(1, int(base_cooldown) - int(synergy_reduction))
 	return clampf(1.0 - (float(current_cooldown) / float(effective)), 0.0, 1.0)
 
+# 실행: ease the displayed cooldown fill toward the latest model ratio.
+static func smooth_charge_ratio(current_ratio: float, target_ratio: float, delta: float, speed: float = 8.0) -> float:
+	var step := maxf(0.0, delta) * maxf(0.0, speed)
+	return move_toward(clampf(current_ratio, 0.0, 1.0), clampf(target_ratio, 0.0, 1.0), step)
+
 # 실행: check whether a shape coordinate is occupied by the same artifact.
 static func _shape_filled(shape: Array, row: int, column: int) -> bool:
 	if row < 0 or row >= shape.size():

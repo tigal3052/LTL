@@ -36,6 +36,7 @@ func run_all_tests() -> Dictionary:
 	test_tooltip_position_clamps_to_viewport()
 	test_backpack_artifact_edges_omit_internal_borders()
 	test_backpack_cooldown_charge_ratio_changes_with_current_cooldown()
+	test_backpack_cooldown_charge_ratio_smoothly_interpolates()
 	return {"ok": failures.is_empty(), "errors": failures}
 
 # 실행: verify reward dictionary tooltip data.
@@ -180,6 +181,12 @@ func test_backpack_cooldown_charge_ratio_changes_with_current_cooldown() -> void
 	_assert(early < late, "cooldown charge ratio increases as cooldown decreases")
 	_assert_eq(early, 0.25, "early cooldown charge ratio")
 	_assert_eq(late, 0.75, "late cooldown charge ratio")
+
+# 실행: verify the UI helper eases cooldown fill instead of snapping to the target.
+func test_backpack_cooldown_charge_ratio_smoothly_interpolates() -> void:
+	var eased := BackpackGridFactoryScript.smooth_charge_ratio(0.2, 0.8, 0.1, 3.0)
+	_assert(eased > 0.2, "smooth cooldown ratio moves upward")
+	_assert(eased < 0.8, "smooth cooldown ratio does not snap to target")
 
 # 실행: append a failure when condition is false.
 func _assert(condition: bool, msg: String) -> void:

@@ -40,6 +40,7 @@ var aim_can_fire: bool = true
 var battlefield_rows: int = 3
 var battlefield_cols: int = 10
 var weakness_markers: Array = []
+var terrain_debuffs: Array = []
 
 var summary_shots_fired: int = 0
 var summary_shots_hit_match: int = 0
@@ -88,6 +89,7 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	battlefield_rows = 3
 	battlefield_cols = 10
 	weakness_markers = _create_weakness_markers(combat_data.get("weakness", []))
+	terrain_debuffs = combat_data.get("terrainDebuffs", []).duplicate(true)
 
 	summary_shots_fired = 0
 	summary_shots_hit_match = 0
@@ -138,7 +140,8 @@ func to_dict() -> Dictionary:
 		"battlefield": {
 			"rows": battlefield_rows,
 			"columns": battlefield_cols,
-			"weaknessMarkers": weakness_markers.duplicate(true)
+			"weaknessMarkers": weakness_markers.duplicate(true),
+			"terrainDebuffs": terrain_debuffs.duplicate(true)
 		},
 		"summary": {
 			"shots_fired": summary_shots_fired,

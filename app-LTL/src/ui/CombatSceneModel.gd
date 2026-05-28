@@ -40,6 +40,9 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	var aimed_cell = combat.get("aim", {}).get("cellId", null)
 	for marker in battlefield.get("weaknessMarkers", []):
 		markers[marker.get("cellId", "")] = marker.get("color", null)
+	var debuffs: Dictionary = {}
+	for debuff in battlefield.get("terrainDebuffs", []):
+		debuffs[str(debuff.get("cellId", ""))] = debuff.duplicate(true)
 	var frame: Dictionary = layout["battlefieldFrame"]
 	var cell_width := int(frame["width"] / columns)
 	var cell_height := int(frame["height"] / rows)
@@ -47,7 +50,7 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	for row in range(rows):
 		for column in range(columns):
 			var cell_id := "r%dc%d" % [row, column]
-			cells.append({"id": cell_id, "row": row, "column": column, "x": frame["x"] + column * cell_width, "y": frame["y"] + row * cell_height, "width": cell_width, "height": cell_height, "weakness": markers.get(cell_id, null), "aimed": cell_id == aimed_cell})
+			cells.append({"id": cell_id, "row": row, "column": column, "x": frame["x"] + column * cell_width, "y": frame["y"] + row * cell_height, "width": cell_width, "height": cell_height, "weakness": markers.get(cell_id, null), "terrainDebuff": debuffs.get(cell_id, {}), "aimed": cell_id == aimed_cell})
 	return {"rows": rows, "columns": columns, "cells": cells}
 
 # 실행: project combat queue, pin, repair, hazard, aim, and disabled state into HUD data.

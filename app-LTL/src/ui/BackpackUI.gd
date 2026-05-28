@@ -52,6 +52,7 @@ func _process(_delta: float) -> void:
 		var rows = shape.size()
 		var cols = shape[0].size() if rows > 0 else 0
 		ghost_container.global_position = get_global_mouse_position() - Vector2(cols * 24 + (cols - 1) * 2, rows * 24 + (rows - 1) * 2) / 2
+	_update_charge_animation(_delta)
 
 # 실행: update the visual presentation of the drag-and-drop ghost overlay.
 func update_ghost_display(art: ArtifactClass) -> void:
@@ -134,14 +135,10 @@ func _apply_artifact_overlay(column: int, row: int, art: ArtifactClass, shape: A
 	if charge:
 		var ratio := GridFactory.cooldown_charge_ratio(int(art.current_cooldown), int(art.base_cooldown_ticks), int(art.synergy_cooldown_reduction))
 		charge.visible = true
-		charge.anchor_left = 0.0
-		charge.anchor_right = 1.0
-		charge.anchor_top = 1.0 - ratio
-		charge.anchor_bottom = 1.0
-		charge.offset_left = 0.0
-		charge.offset_right = 0.0
-		charge.offset_top = 0.0
-		charge.offset_bottom = 0.0
+		charge.set_meta("target_ratio", ratio)
+		if not charge.has_meta("display_ratio"):
+			charge.set_meta("display_ratio", ratio)
+		_apply_charge_ratio(charge, float(charge.get_meta("display_ratio")))
 		charge.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.82, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
 
 # 실행: return overlay panel for an 8x8 backpack coordinate.
@@ -163,3 +160,28 @@ func _slot_charge_overlay(column: int, row: int) -> Panel:
 		return null
 	var slot := backpack_grid_mock.get_child(slot_idx) as Panel
 	return null if slot == null else slot.get_node("ChargeOverlay") as Panel
+
+# 실행: ease visible cooldown charge overlays toward their newest target ratios.
+func _update_charge_animation(delta: float) -> void:
+	for row in range(8):
+		for column in range(8):
+			var charge := _slot_charge_overlay(column, row)
+			if charge == null or not charge.visible or not charge.has_meta("target_ratio"):
+				continue
+			var current := float(charge.get_meta("display_ratio", charge.get_meta("target_ratio")))
+			var target := float(charge.get_meta("target_ratio"))
+			var next := GridFactory.smooth_charge_ratio(current, target, delta, 4.0)
+			charge.set_meta("display_ratio", next)
+			_apply_charge_ratio(charge, next)
+
+# 실행: apply bottom-up fill anchors for a charge overlay.
+func _apply_charge_ratio(charge: Panel, ratio: float) -> void:
+	var fill := clampf(ratio, 0.0, 1.0)
+	charge.anchor_left = 0.0
+	charge.anchor_right = 1.0
+	charge.anchor_top = 1.0 - fill
+	charge.anchor_bottom = 1.0
+	charge.offset_left = 0.0
+	charge.offset_right = 0.0
+	charge.offset_top = 0.0
+	charge.offset_bottom = 0.0

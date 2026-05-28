@@ -20,6 +20,7 @@ var cell_id: String = ""
 var row: int = 0
 var column: int = 0
 var weakness: Variant = null
+var terrain_debuff: Dictionary = {}
 var aimed: bool = false
 var is_disabled_tile: bool = false
 var hover_active: bool = false
@@ -169,6 +170,14 @@ func _draw() -> void:
 		draw_polygon(core_points, PackedColorArray([Color.WHITE.darkened(0.1) if not is_disabled_tile else Color.GRAY]))
 	
 	# Draw hovering/focused visual ring
+	if not terrain_debuff.is_empty():
+		var haze_color := Color(0.55, 0.22, 0.75, 0.28)
+		if scaled_rock_points.size() > 0:
+			draw_polygon(scaled_rock_points, PackedColorArray([haze_color]))
+		var c_debuff := Vector2(w / 2, h / 2)
+		draw_arc(c_debuff, minf(w, h) * 0.34, 0, TAU, 18, Color(0.82, 0.45, 0.95, 0.75), 1.5)
+
+	# Draw hovering/focused visual ring
 	if hover_active and not is_disabled_tile:
 		var glow_color = Color(0.29, 0.53, 0.84, 0.7) # Cyan glow
 		if weakness:
@@ -224,6 +233,7 @@ func configure(cell_data: Dictionary, disabled_tiles: Array) -> void:
 	row = int(cell_data.get("row", 0))
 	column = int(cell_data.get("column", 0))
 	weakness = cell_data.get("weakness", null)
+	terrain_debuff = cell_data.get("terrainDebuff", {})
 	aimed = bool(cell_data.get("aimed", false))
 	is_disabled_tile = cell_id in disabled_tiles
 	queue_redraw()
