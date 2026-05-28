@@ -88,3 +88,27 @@ static func validate_growth_state(state: Dictionary) -> Dictionary:
 		errors.append({"path": "rewardHistory", "code": "type_array"})
 		
 	return {"ok": errors.is_empty(), "errors": errors}
+
+# 실행: validate reward rows against the rarity database and numeric weight contract.
+func validate_reward_database(reward_table: Dictionary, rarity_table: Dictionary) -> Dictionary:
+	var errors := []
+	var reward_result := validate_reward_table(reward_table)
+	errors.append_array(reward_result.get("errors", []))
+	var rarity_result := validate_rarity_table(rarity_table)
+	errors.append_array(rarity_result.get("errors", []))
+	var rarity_ids := {}
+	for rarity in rarity_table.get("rarities", []):
+		if rarity is Dictionary and rarity.has("id"):
+			rarity_ids[str(rarity["id"])] = true
+	var rewards = reward_table.get("rewards", [])
+	if rewards is Array:
+		for i in range(rewards.size()):
+			var reward = rewards[i]
+			if not (reward is Dictionary):
+				continue
+			var rarity_id := str(reward.get("rarity", ""))
+			if not rarity_id.is_empty() and not rarity_ids.has(rarity_id):
+				errors.append({"path": "rewards[%d].rarity" % i, "code": "unknown_rarity", "value": rarity_id})
+			if reward.has("weight") and float(reward.get("weight", 0.0)) <= 0.0:
+				errors.append({"path": "rewards[%d].weight" % i, "code": "positive_weight_required"})
+	return {"ok": errors.is_empty(), "errors": errors}

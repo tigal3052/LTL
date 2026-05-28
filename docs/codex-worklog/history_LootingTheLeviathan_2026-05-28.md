@@ -27,6 +27,14 @@ No implementation history has been recorded yet.
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
 
+## M4 Node Routing Formal Path
+
+- Intent: Implement M4 against `LTL-harness/docs/11_exec-plans/01_active/10_M4_node_routing.md` while preserving existing M3 reward/progression changes.
+- Files or areas touched: `LTL-harness/docs/11_exec-plans/02_completed/09_M3_reward_and_progression_completed.md`, `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`, `docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md`, `app-LTL/src/data/node-table.json`, `app-LTL/src/vocabulary/node/ApplyNodeModifiers.gd`, `app-LTL/src/vocabulary/NodeVocab.gd`, `app-LTL/src/phases/NodeSelectPhase.gd`, `app-LTL/src/phases/CombatPhase.gd`, `app-LTL/src/process/HeadlessMiniRun.gd`, `app-LTL/src/domain/FormalContracts.gd`, `app-LTL/src/ui/SceneReadModel.gd`, `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`, `app-LTL/tests/test_node_routing_contract.gd`, `app-LTL/tests/godot_contract_runner.gd`.
+- Summary: Added design/critique/revised-plan docs, formal node table data, deterministic route candidate metadata, final-stage boss pinning, selected-node combat/reward/hazard metadata transfer, node read-model route projection, and focused node-routing contract tests.
+- Plan impact: Added the missing M3 completed report so M4 can proceed through the harness milestone gate. M4 is implemented as formal domain/read-model wiring rather than a full node-map scene polish pass.
+- Verification status: M3 milestone gate passed, M4 milestone gate passed, `tools/run-compile-check.ps1` passed with `GODOT_CONTRACTS_OK`, and `git diff --check` returned no whitespace errors, only LF-to-CRLF warnings. Plain non-editor Godot runner still crashes in Godot 4.3, matching the compile wrapper note.
+
 ## 2026-05-28 Encoding Tooltip Reward Ratio Fix
 
 - Intent: Fix user-reported Korean mojibake in logs/shop UI, prevent item tooltip clipping outside the viewport, and rebalance rewards toward beacons.
@@ -205,6 +213,48 @@ docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
 - Summary: Removed unreachable legacy reward tray formatting, reward-to-artifact construction, node-select formatting, shop construction, timer construction, heartbeat construction, and tooltip formatting blocks that were left behind after those responsibilities moved into vocabulary/read-model/presenter/panel capsules. Restored UTF-8 parsing after the mechanical cleanup and removed an obsolete heartbeat construction call from the view runtime.
 - Plan impact: The M3 pre-refactor plan's warning cleanup and facade cleanup are now complete from the architecture-gate perspective. Runtime backing files still act as compatibility shells for the existing scene wiring, but no longer carry the large unreachable duplicate implementations for the already-extracted capsules.
 - Verification status: `tools/run-compile-check.ps1` passes with `GODOT_CONTRACTS_OK`; architecture gate returns `ARCHITECTURAL_GATE_OK` with no warnings.
+
+## 2026-05-28 M3 Reward Contract Gap Plan
+
+- Intent: Begin actual M3 reward/progression implementation after the pre-refactor logical capsule work was already committed.
+- Files or areas touched:
+```text
+docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+```
+- Summary: Reviewed the active M3 milestone, current reward/progression source, and harness gates. Recorded a first plan, critique, and revised implementation plan focused on missing formal contract evidence: cross-table reward validation, deterministic offer metadata, next-combat modifier preview, and telemetry payload construction.
+- Plan impact: The implementation will avoid broad scene rewrites and treat screenshot/reward-scene polish as a remaining manual evidence gap for a later visual QA pass.
+- Verification status: Red test pass confirmed the missing cross-validator API, offer hash, reward preview, read-model projection, and telemetry capsule before implementation.
+
+## 2026-05-28 M3 Reward Contract Gap Implementation
+
+- Intent: Implement the revised M3 formal contract gap plan without broad scene rewrites.
+- Files or areas touched:
+```text
+app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+app-LTL/src/vocabulary/RewardVocab.gd
+app-LTL/src/validation/RewardValidator.gd
+app-LTL/src/ui/read_models/RewardReadModel.gd
+app-LTL/tests/test_reward_contract.gd
+app-LTL/tests/godot_contract_runner.gd
+docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+```
+- Summary: Added failing tests first for M3 reward database cross-validation, deterministic offer metadata, private roll metadata hiding, next-combat modifier preview, and reward telemetry payloads. Implemented preview and telemetry vocabulary capsules, attached stable offer hashes and previews to reward rolls, exposed preview through the read model while hiding raw weights/hash, and added cross-table rarity/weight validation.
+- Plan impact: M3 formal runtime evidence is stronger, but reward scene screenshot and richer reward presentation QA remain a separate visual evidence pass.
+- Verification status: `tools/run-compile-check.ps1` passed with `GODOT_CONTRACTS_OK`; `LTL-harness/tools/architectural-gate.ps1 -ManifestPath docs/architectural-gates/m2-refactoring-gate.md` returned `ARCHITECTURAL_GATE_OK`; `LTL-harness/tools/milestone-gate.ps1 -TargetPlan 09_M3_reward_and_progression.md` returned `MILESTONE_GATE_OK`; `git diff --check` reported only existing LF-to-CRLF warnings.
+
+## 2026-05-28 M3 Plan Checklist Sync
+
+- Intent: Review the M3 contract-gap plan checklist after implementation and synchronize checkbox state with the completed work.
+- Files or areas touched:
+```text
+docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+```
+- Summary: Rechecked each checklist item against the implemented tests, source changes, red/green verification, architecture gate, milestone gate, and recorded remaining visual QA gap. Marked all plan tasks complete because the work had already been performed.
+- Plan impact: No implementation scope changed; this was documentation state reconciliation.
+- Verification status: Fresh verification will be rerun before final response.
 
 ## 2026-05-28 10:26:49
 
@@ -1915,6 +1965,757 @@ M  app-LTL/src/vocabulary/RewardVocab.gd
 A  app-LTL/src/vocabulary/backpack/DiscardHeld.gd
 A  app-LTL/src/vocabulary/backpack/PickUpFromInventory.gd
 A  app-LTL/src/vocabulary/backpack/PickUpFromRewardTray.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:14:54
+
+<!-- codex-worklog-signature: 2ae4922d651c330402a3e36940f8254da1afc2c513335be0ac9d1b280cb47538 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:15:26
+
+<!-- codex-worklog-signature: 88a7a76e1fefb26b8ff3095e1c1490fe7a07c79040e3b14a2b890ecc1bbcb5e7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:16:18
+
+<!-- codex-worklog-signature: 2c6264b8c0f4ee3e521485a82d3f4b3fe87ca2e571f8a0914c14960a7143a0b7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:17:45
+
+<!-- codex-worklog-signature: a053c40cfc6d626d0cbdc7095f4d9ecafd9a23013bc01c2a4c1c325473a4f149 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:17:59
+
+<!-- codex-worklog-signature: 7fcbbb92a1eb5f9c4d9e3e11df62fd158651636da60c99499d3419432a0c12c4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:18:12
+
+<!-- codex-worklog-signature: 836cf0cd657863425c0cada1a3e459df934662d6b56031114bc4e42043890504 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:18:22
+
+<!-- codex-worklog-signature: 81f8a0c3175f28173bb00521120e25cdf9b9ecf173b0f67c49ebb79968e6b3dc -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:18:33
+
+<!-- codex-worklog-signature: 99d5161a8caafa8bfbdf2fe03c059abe69bb56282a2d2b7e107dcfa5d3e2838b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:19:06
+
+<!-- codex-worklog-signature: efa01846b709c39d0c909080b5f608a21f4dc25b24bc09e78c33d2e03924b5e5 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:19:56
+
+<!-- codex-worklog-signature: 8f564fc125826319d1fad5f636b1bf37e19af73396ca06c380c11d1ee993beaf -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:23:43
+
+<!-- codex-worklog-signature: e3c4bd3b37250475da834f9aabdb04b99fbe8f72bcd66dad11f8d12634e01f8d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:35:22
+
+<!-- codex-worklog-signature: c365110d4d59990fd769f41c58ddb5e25a8cf2ecb75430ec9658e13b21b52478 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 Reward Pool Balance Update
+
+- Intent: Adjust reward item composition after gameplay feedback that beacon rewards felt overrepresented and rarity-first rolls needed local drill/beacon variety.
+- Files or areas touched: `app-LTL/src/data/reward-table.json`, `app-LTL/src/vocabulary/RewardVocab.gd`, `app-LTL/tests/test_reward_contract.gd`, dated worklog plan/completion.
+- Summary: Added reward contract coverage for per-rarity drill/beacon pool coverage and for preventing cross-rarity beacon injection. Changed `_with_reward_type_mix()` to keep candidate pools rarity-local. Added common 3x2 anchor beacons and legendary 2x1 focusing beacons, added explicit shapes to rare/epic beacons, and lowered rare cooldown beacons from -20 ticks to -4 ticks.
+- Verification: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` passed with `GODOT_CONTRACTS_OK`; Godot still prints existing shutdown RID/ObjectDB leak warnings.
+
+## 2026-05-28 18:58:59
+
+<!-- codex-worklog-signature: a75b8e68c4008753b6cc0b7adb9623e79edf6eb6be0b52ac5e1cce4c20d72523 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:59:01
+
+<!-- codex-worklog-signature: d5d2784a18192e9934a89cae87797a5a318fa0aa0a6b409c55c111a20cfab401 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 18:59:12
+
+<!-- codex-worklog-signature: 2927a3ebdcef4d348eadd5f6dfff3cf86b5ef81f390a85a03881bf7162213b1a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:01:21
+
+<!-- codex-worklog-signature: d6ddadc8c29cd24680b10e0b8bcaf7c09d5d82b40d96848fa877d62fcf09f67d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:02:36
+
+<!-- codex-worklog-signature: 89ac7443b3153ec53af0ac1c14f412d261f026de13a595cfd1ed46ab4e41933b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:03:29
+
+<!-- codex-worklog-signature: 385fb75fae17b261acce405f8c1186bb04fa9c0fb8bc48bb221a0ea6784e593c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:03:53
+
+<!-- codex-worklog-signature: 3e1fad65879bb9ad83101d1ebe51a133b9983967f88cbb7a86146bf15fe77c85 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:07:38
+
+<!-- codex-worklog-signature: 0081aaff39115e9a2f0db9c9bdface15d1335525bbce70f9b75e715a219ccc66 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:08:14
+
+<!-- codex-worklog-signature: 8132599efcbad1336b57c1ea6cd90c1909e2effb23f134edcdc06d3be1cba4a0 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:08:34
+
+<!-- codex-worklog-signature: 3f8a34b8bb9ef11b9dfc55f7c87a5026eb22ba75b30e5fb1e4d14d28fd3239a6 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:08:54
+
+<!-- codex-worklog-signature: 99d9539684f3d4dafa08b29000ce07994625b8053ed29fc5c0199994f6332dcb -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/phases/NodeSelectPhase.gd
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:09:09
+
+<!-- codex-worklog-signature: 4ef639f5011ef19a3bb84677f7a521d80ecc2196e3d9e3f8e99024be7e73a355 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/phases/NodeSelectPhase.gd
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:10:07
+
+<!-- codex-worklog-signature: ff012fa0a6d75022e6d21d7d2084ca7a2fce58ffe022581da5d04440a21bff2f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/domain/FormalContracts.gd
+ M app-LTL/src/phases/NodeSelectPhase.gd
+ M app-LTL/src/process/HeadlessMiniRun.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/read_models/NodeSelectReadModel.gd
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:10:22
+
+<!-- codex-worklog-signature: 091088a3aafff72e6321b22d99fd1a3951f3d04dbd1c207048061a8d384da518 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/domain/FormalContracts.gd
+ M app-LTL/src/phases/CombatPhase.gd
+ M app-LTL/src/phases/NodeSelectPhase.gd
+ M app-LTL/src/process/HeadlessMiniRun.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/read_models/NodeSelectReadModel.gd
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:14:31
+
+<!-- codex-worklog-signature: 61caa47f55917df27a4043a8f9972dc60b1ffdcef3740b908552bdb0e48d51cb -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/domain/FormalContracts.gd
+ M app-LTL/src/phases/CombatPhase.gd
+ M app-LTL/src/phases/NodeSelectPhase.gd
+ M app-LTL/src/process/HeadlessMiniRun.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/read_models/NodeSelectReadModel.gd
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 19:44:07
+
+<!-- codex-worklog-signature: 701d67ce73a8cd28d95b9dc8aada45e54ced0b93aa34d8d287e7f463567c75af -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M app-LTL/src/data/reward-table.json
+ M app-LTL/src/domain/FormalContracts.gd
+ M app-LTL/src/phases/CombatPhase.gd
+ M app-LTL/src/phases/NodeSelectPhase.gd
+ M app-LTL/src/process/HeadlessMiniRun.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/read_models/NodeSelectReadModel.gd
+ M app-LTL/src/ui/read_models/RewardReadModel.gd
+ M app-LTL/src/validation/RewardValidator.gd
+ M app-LTL/src/vocabulary/NodeVocab.gd
+ M app-LTL/src/vocabulary/RewardVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_reward_contract.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+?? app-LTL/src/data/node-table.json
+?? app-LTL/src/vocabulary/node/
+?? app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+?? app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+?? app-LTL/tests/test_node_routing_contract.gd
+?? docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+?? docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+?? docs/superpowers/specs/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-28 21:09:35
+
+<!-- codex-worklog-signature: a07594dbfe5ffe533cff41b94a9221cdfa32997d0a4e3efbfecfa66cabfbe95d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+A  LTL-harness/docs/11_exec-plans/02_completed/09_M3_reward_and_progression_completed.md
+A  app-LTL/src/data/node-table.json
+M  app-LTL/src/data/reward-table.json
+M  app-LTL/src/domain/FormalContracts.gd
+M  app-LTL/src/phases/CombatPhase.gd
+M  app-LTL/src/phases/NodeSelectPhase.gd
+M  app-LTL/src/process/HeadlessMiniRun.gd
+M  app-LTL/src/ui/SceneReadModel.gd
+M  app-LTL/src/ui/read_models/NodeSelectReadModel.gd
+M  app-LTL/src/ui/read_models/RewardReadModel.gd
+M  app-LTL/src/validation/RewardValidator.gd
+M  app-LTL/src/vocabulary/NodeVocab.gd
+M  app-LTL/src/vocabulary/RewardVocab.gd
+A  app-LTL/src/vocabulary/node/ApplyNodeModifiers.gd
+A  app-LTL/src/vocabulary/reward/BuildRewardPreview.gd
+A  app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd
+M  app-LTL/tests/godot_contract_runner.gd
+A  app-LTL/tests/test_node_routing_contract.gd
+M  app-LTL/tests/test_reward_contract.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-05-28.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-28.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-05-28.md
+A  docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md
+A  docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md
+A  docs/superpowers/specs/2026-05-28-m4-node-routing-design.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

@@ -130,6 +130,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	# 최종 시뮬레이터 상태 딕셔너리로 내보내기
 	var next_combat := sim.to_dict()
 	next_combat["hazard"] = hazard.to_dict()
+	_preserve_node_metadata(next_combat, combat_dict)
 	next_state["combat"] = next_combat
 	
 	if inv != null:
@@ -144,6 +145,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 			_get_weakness_colors(sim.weakness_markers),
 			state.get("tuning", {})
 		)
+		_apply_selected_node_reward_metadata(next_state["pendingRewards"], combat_dict)
 		next_state["held"] = null
 	elif sim.result in ["time_over", "failed"]:
 		next_state["phase"] = "run_complete"
@@ -159,3 +161,31 @@ static func _get_weakness_colors(markers: Array) -> Array:
 	for marker in markers:
 		colors.append(marker.get("color", "red"))
 	return colors
+
+# 실행: keep selected node routing metadata across combat simulator rehydration.
+static func _preserve_node_metadata(next_combat: Dictionary, previous_combat: Dictionary) -> void:
+	for key in ["node", "telemetry"]:
+		if previous_combat.has(key):
+			next_combat[key] = previous_combat[key].duplicate(true)
+	if previous_combat.has("hazard"):
+		var preserved_hazard: Dictionary = previous_combat["hazard"].duplicate(true)
+		for key in next_combat.get("hazard", {}).keys():
+			preserved_hazard[key] = next_combat["hazard"][key]
+		next_combat["hazard"] = preserved_hazard
+	for key in ["rewardModifier", "difficultyModifier", "hazardModifier"]:
+		if previous_combat.has(key):
+			next_combat[key] = previous_combat[key]
+
+# 실행: annotate rewards with the selected node route metadata without changing reward roll internals.
+static func _apply_selected_node_reward_metadata(rewards: Array, combat_dict: Dictionary) -> void:
+	var node: Dictionary = combat_dict.get("node", {})
+	var reward_modifier := float(combat_dict.get("rewardModifier", 1.0))
+	for reward in rewards:
+		if reward is Dictionary:
+			reward["sourceNode"] = {
+				"id": str(node.get("id", "")),
+				"nodeType": str(node.get("nodeType", "")),
+				"rewardBias": str(node.get("rewardBias", "baseline")),
+				"routeHash": str(node.get("routeHash", "")),
+				"rewardModifier": reward_modifier
+			}

@@ -22,8 +22,14 @@ func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_seed_determinism()
 	test_validator()
+	test_reward_database_cross_validation()
 	test_reward_count_tuning()
+	test_reward_offer_metadata_and_preview()
+	test_reward_pool_has_drills_and_beacons_per_rolled_rarity()
+	test_reward_type_mix_does_not_inject_cross_rarity_beacons()
 	test_reward_type_ratio_prefers_beacons()
+	test_reward_read_model_hides_private_offer_metadata()
+	test_reward_telemetry_payloads()
 	test_growth_state_updates()
 	test_reward_artifact_creation_vocab()
 	test_apply_reward_effect_vocab()
@@ -41,6 +47,16 @@ func _assert_eq(actual: Variant, expected: Variant, msg: String) -> void:
 		failures.append("%s: expected %s, got %s" % [msg, str(expected), str(actual)])
 
 # 실행: verify seed-based determinism yields exact same rewards.
+func _load_reward_table_fixture() -> Dictionary:
+	var file := FileAccess.open("res://src/data/reward-table.json", FileAccess.READ)
+	if file == null:
+		return {}
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) != OK:
+		return {}
+	var data = json.get_data()
+	return data if data is Dictionary else {}
+
 func test_seed_determinism() -> void:
 	var seed_val := 777
 	var stage_idx := 2
@@ -112,13 +128,105 @@ func test_validator() -> void:
 	var res4 = RewardValidatorScript.validate_growth_state(bad_growth_state)
 	_assert(not res4["ok"], "validator rejects incomplete growth state")
 
+# 실행: verify reward and rarity tables are cross-validated together.
+func test_reward_database_cross_validation() -> void:
+	var rarity_table = {
+		"rarities": [
+			{"id": "common", "label": "Common", "weightMul": 1.0, "presentationTier": "tier_1"}
+		]
+	}
+	var bad_reward_table = {
+		"rewards": [
+			{
+				"id": "bad_unknown_rarity",
+				"kind": "Bad Unknown",
+				"rarity": "void",
+				"weight": 10,
+				"payload": {},
+				"presentation": {"badge": "안정"},
+				"tags": []
+			},
+			{
+				"id": "bad_weight",
+				"kind": "Bad Weight",
+				"rarity": "common",
+				"weight": 0,
+				"payload": {},
+				"presentation": {"badge": "안정"},
+				"tags": []
+			}
+		]
+	}
+	var validator = RewardValidatorScript.new()
+	_assert(validator.has_method("validate_reward_database"), "cross validator API exists")
+	if not validator.has_method("validate_reward_database"):
+		return
+	var result = validator.call("validate_reward_database", bad_reward_table, rarity_table)
+	_assert(not result["ok"], "cross validator rejects unknown rarity and non-positive weight")
+	var codes := []
+	for error in result["errors"]:
+		codes.append(error.get("code", ""))
+	_assert(codes.has("unknown_rarity"), "cross validator reports unknown rarity")
+	_assert(codes.has("positive_weight_required"), "cross validator reports non-positive weight")
+
 # 실행: verify reward roll count is bounded between 1 and 5.
 func test_reward_count_tuning() -> void:
 	for s in range(1, 20):
 		var rolls = RewardVocabScript.roll_stage_rewards(s, 0, [], {})
 		_assert(rolls.size() >= 2 and rolls.size() <= 5, "roll count bound to [2, 5]")
 
+# 실행: verify reward offers carry deterministic private metadata and public preview.
+func test_reward_offer_metadata_and_preview() -> void:
+	var roll1 = RewardVocabScript.roll_stage_rewards(31337, 2, ["red"], {})
+	var roll2 = RewardVocabScript.roll_stage_rewards(31337, 2, ["red"], {})
+	_assert(roll1.size() > 0, "reward offer metadata sample has rewards")
+	_assert_eq(roll1[0].get("offer_weights_hash", ""), roll2[0].get("offer_weights_hash", ""), "offer weights hash is deterministic")
+	_assert(str(roll1[0].get("offer_weights_hash", "")).length() >= 8, "offer weights hash is present")
+	_assert(roll1[0].has("next_combat_modifier_preview"), "reward includes next combat modifier preview")
+	_assert(roll1[0].get("next_combat_modifier_preview", {}) is Dictionary, "reward preview is dictionary")
+
 # 실행: verify reward type weighting favors beacons at roughly 40:60 drill/beacon.
+func test_reward_pool_has_drills_and_beacons_per_rolled_rarity() -> void:
+	var table := _load_reward_table_fixture()
+	var rarities := ["common", "rare", "epic", "legendary"]
+	for rarity in rarities:
+		var has_drill := false
+		var has_beacon := false
+		for item in table.get("rewards", []):
+			if str(item.get("rarity", "")).to_lower() != rarity:
+				continue
+			var item_type := str(item.get("payload", {}).get("item_type", "drill")).to_lower()
+			if item_type == "beacon":
+				has_beacon = true
+			else:
+				has_drill = true
+		_assert(has_drill, "%s reward pool has drill-like candidates" % rarity)
+		_assert(has_beacon, "%s reward pool has beacon candidates" % rarity)
+
+# 실행: verify missing-type rarity pools are not patched with unrelated rarity items.
+func test_reward_type_mix_does_not_inject_cross_rarity_beacons() -> void:
+	var common_drill := {
+		"id": "common_drill",
+		"kind": "Common Drill",
+		"rarity": "common",
+		"weight": 10,
+		"payload": {"energy_type": "red"},
+		"presentation": {},
+		"tags": []
+	}
+	var rare_beacon := {
+		"id": "rare_beacon",
+		"kind": "Rare Beacon",
+		"rarity": "rare",
+		"weight": 10,
+		"payload": {"item_type": "beacon", "energy_type": "blue"},
+		"presentation": {},
+		"tags": ["beacon"]
+	}
+	var mixed = RewardVocabScript._with_reward_type_mix([common_drill], [common_drill, rare_beacon])
+	_assert_eq(mixed.size(), 1, "type mix keeps rarity-local candidate count")
+	_assert_eq(str(mixed[0].get("id", "")), "common_drill", "type mix does not inject rare beacon into common pool")
+
 func test_reward_type_ratio_prefers_beacons() -> void:
 	var beacon_count := 0
 	var drill_count := 0
@@ -135,6 +243,49 @@ func test_reward_type_ratio_prefers_beacons() -> void:
 	var beacon_share := float(beacon_count) / float(total)
 	_assert(beacon_count > drill_count, "beacon rewards outnumber drill rewards")
 	_assert(beacon_share >= 0.50 and beacon_share <= 0.70, "beacon share remains near 60%%, got %.3f" % beacon_share)
+
+# 실행: verify reward read model hides private roll metadata but exposes player-facing preview.
+func test_reward_read_model_hides_private_offer_metadata() -> void:
+	var RewardReadModelScript = load("res://src/ui/read_models/RewardReadModel.gd")
+	_assert(RewardReadModelScript != null, "reward read model loads for privacy test")
+	if RewardReadModelScript == null:
+		return
+	var projected = RewardReadModelScript.project({
+		"rewardId": "reward_private",
+		"kind": "Private Test Reward",
+		"rarity": "rare",
+		"qty": 1,
+		"weight": 999,
+		"offer_weights_hash": "secret-hash",
+		"next_combat_modifier_preview": {"summary": "다음 전투 피해 +1.0"},
+		"payload": {"damage_multiplier": 1.2},
+		"presentation": {"badge": "위험 보상", "description": "test", "icon": "x"},
+		"tags": ["greed_risk"]
+	})
+	_assert(not projected.has("weight"), "reward read model hides raw weight")
+	_assert(not projected.has("offer_weights_hash"), "reward read model hides offer hash")
+	_assert_eq(projected.get("nextCombatModifierPreview", {}).get("summary", ""), "다음 전투 피해 +1.0", "reward read model exposes next combat preview")
+
+# 실행: verify M3 reward telemetry payload builders expose required event fields.
+func test_reward_telemetry_payloads() -> void:
+	var TelemetryScript = load("res://src/vocabulary/reward/BuildRewardTelemetry.gd")
+	_assert(TelemetryScript != null, "reward telemetry vocabulary loads")
+	if TelemetryScript == null:
+		return
+	var rewards = [
+		{"rewardId": "reward_a", "kind": "A", "rarity": "rare", "offer_weights_hash": "hash-a", "payload": {"energy_type": "red"}, "next_combat_modifier_preview": {"summary": "red faster"}}
+	]
+	var offer_payload = TelemetryScript.build_offer_generated({"node_id": "node_1", "node_type": "normal"}, rewards)
+	_assert_eq(offer_payload.get("event", ""), "reward_offer_generated", "offer telemetry event name")
+	_assert_eq(offer_payload.get("node_id", ""), "node_1", "offer telemetry carries node id")
+	_assert_eq(offer_payload.get("offer_ids", []), ["reward_a"], "offer telemetry carries offer ids")
+	_assert_eq(offer_payload.get("offer_weights_hash", ""), "hash-a", "offer telemetry carries weights hash")
+	var selected_payload = TelemetryScript.build_reward_selected({"node_id": "node_1", "node_type": "normal"}, rewards[0], {"gold_delta": 25, "xp_delta": 10, "inventory_diff": {"added": ["artifact_a"]}})
+	_assert_eq(selected_payload.get("event", ""), "reward_selected", "selected telemetry event name")
+	_assert_eq(selected_payload.get("selected_reward_id", ""), "reward_a", "selected telemetry carries reward id")
+	_assert_eq(selected_payload.get("rarity", ""), "rare", "selected telemetry carries rarity")
+	_assert_eq(int(selected_payload.get("gold_delta", 0)), 25, "selected telemetry carries gold delta")
+	_assert(selected_payload.has("next_combat_modifier_preview"), "selected telemetry carries next combat preview")
 
 # 실행: verify claiming rewards correctly updates gold/xp and history.
 func test_growth_state_updates() -> void:

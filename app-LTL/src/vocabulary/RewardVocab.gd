@@ -7,6 +7,7 @@
 # 실행: define the RewardVocab static entry.
 class_name RewardVocab
 extends RefCounted
+const BuildRewardPreviewScript = preload("res://src/vocabulary/reward/BuildRewardPreview.gd")
 
 # 실행: roll deterministic rewards based on seed and loaded JSON tables.
 static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Array, tuning: Dictionary) -> Array:
@@ -73,6 +74,7 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 		matched_items = _with_reward_type_mix(matched_items, reward_pool)
 		var weighted_entries := _with_type_ratio_weights(matched_items)
 		var total_weight := _total_weight(weighted_entries)
+		var offer_weights_hash := _stable_offer_weights_hash(weighted_entries)
 
 		var selected_item = null
 		if not weighted_entries.is_empty() and total_weight > 0.0:
@@ -87,27 +89,27 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 				selected_item = weighted_entries.back()["item"]
 
 		if selected_item != null:
+			var reward_payload: Dictionary = selected_item.get("payload", {}).duplicate(true)
+			var reward_data := {
+				"payload": reward_payload
+			}
 			rolled_rewards.append({
 				"rewardId": "reward_%d_%d" % [combined_seed & 0xffff, i],
 				"kind": str(selected_item.get("kind", "")),
 				"rarity": str(selected_item.get("rarity", "common")),
 				"qty": 1,
-				"payload": selected_item.get("payload", {}).duplicate(true),
+				"payload": reward_payload,
 				"presentation": selected_item.get("presentation", {}).duplicate(true),
-				"tags": selected_item.get("tags", []).duplicate(true)
+				"tags": selected_item.get("tags", []).duplicate(true),
+				"offer_weights_hash": offer_weights_hash,
+				"next_combat_modifier_preview": BuildRewardPreviewScript.build(reward_data)
 			})
 
 	return rolled_rewards
 
 # 실행: keep reward type choices available even when a rarity tier lacks beacons.
 static func _with_reward_type_mix(items: Array, reward_pool: Array) -> Array:
-	if items.is_empty() or _has_reward_type(items, "beacon"):
-		return items
-	var mixed := items.duplicate(true)
-	for item in reward_pool:
-		if _reward_item_type(item) == "beacon":
-			mixed.append(item)
-	return mixed
+	return items
 
 # 실행: rebalance reward item weights so drill-like items and beacons land near 40:60.
 static func _with_type_ratio_weights(items: Array) -> Array:
@@ -158,6 +160,16 @@ static func _total_weight(entries: Array) -> float:
 	for entry in entries:
 		total += float(entry.get("weight", 0.0))
 	return total
+
+# 실행: create a deterministic compact hash from candidate ids and effective weights.
+static func _stable_offer_weights_hash(entries: Array) -> String:
+	var acc := 2166136261
+	for entry in entries:
+		var item: Dictionary = entry.get("item", {})
+		var token := "%s:%0.3f;" % [str(item.get("id", item.get("kind", ""))), float(entry.get("weight", 0.0))]
+		for i in range(token.length()):
+			acc = int((acc ^ token.unicode_at(i)) * 16777619) & 0x7fffffff
+	return "%08x" % acc
 
 # 실행: load helper for JSON files.
 static func _load_json(path: String) -> Dictionary:

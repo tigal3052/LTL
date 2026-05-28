@@ -16,7 +16,12 @@ static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
 		var candidate = candidates[idx]
 		var label = str(candidate.get("label", candidate.get("id", "?")))
 		var weakness = str(candidate.get("weaknessLabel", ""))
-		var text = "%s  [%s]" % [label, weakness]
+		var risk = str(candidate.get("riskTier", "safe"))
+		var reward = str(candidate.get("rewardBias", "baseline"))
+		var hint = str(candidate.get("recommendedBuildHint", ""))
+		var text = "%s  [%s]  Risk: %s  Reward: %s" % [label, weakness, risk, reward]
+		if not hint.is_empty():
+			text += "  Hint: %s" % hint
 		if idx == selected_index:
 			text = "[b][color=#ffd766]> %s (selected)[/color][/b]" % text
 		else:

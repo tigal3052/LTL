@@ -66,9 +66,12 @@ const REQUIRED_SCRIPTS := [
 	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
 	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
 	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
+	"res://src/vocabulary/reward/BuildRewardPreview.gd",
+	"res://src/vocabulary/reward/BuildRewardTelemetry.gd",
 	"res://src/vocabulary/progression/ApplyGrowthModifiers.gd",
 	"res://src/vocabulary/combat/RecalculateQueueColors.gd",
-	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd"
+	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd",
+	"res://src/vocabulary/node/ApplyNodeModifiers.gd"
 ]
 
 # 실행: list formal scene resources that must exist for the M2 app entry path.
@@ -132,9 +135,12 @@ const COMMENTED_SCRIPTS := [
 	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
 	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
 	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
+	"res://src/vocabulary/reward/BuildRewardPreview.gd",
+	"res://src/vocabulary/reward/BuildRewardTelemetry.gd",
 	"res://src/vocabulary/progression/ApplyGrowthModifiers.gd",
 	"res://src/vocabulary/combat/RecalculateQueueColors.gd",
-	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd"
+	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd",
+	"res://src/vocabulary/node/ApplyNodeModifiers.gd"
 ]
 
 # 실행: collect deterministic suite failure labels.
@@ -196,6 +202,7 @@ func _run_contracts() -> void:
 	_test_reward_and_progression_contracts()
 	_test_backpack_vocab_contracts()
 	_test_combat_vocab_contracts()
+	_test_node_routing_contracts()
 	_test_ui_read_model_contracts()
 	if not smoke_only:
 		_test_main_scene_instantiation()
@@ -351,6 +358,19 @@ func _test_combat_vocab_contracts() -> void:
 			failures.append("Combat vocab test failed: %s" % err)
 
 # ?ㅽ뻾: load and run UI read model unit tests.
+func _test_node_routing_contracts() -> void:
+	var TestNodeRoutingClass = load("res://tests/test_node_routing_contract.gd")
+	_assert(TestNodeRoutingClass != null, "test node routing contract loads")
+	if TestNodeRoutingClass == null:
+		return
+	var tester = TestNodeRoutingClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "node routing contract tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Node routing test failed: %s" % err)
+
+# 실행: load and run UI read model unit tests.
 func _test_ui_read_model_contracts() -> void:
 	var TestUiReadModelsClass = load("res://tests/test_ui_read_models.gd")
 	_assert(TestUiReadModelsClass != null, "test ui read models loads")
@@ -385,11 +405,11 @@ func _normal_only_table() -> Dictionary:
 
 # 실행: return the required normal node fixture.
 func _normal_node() -> Dictionary:
-	return {"id": "normal", "label": "Normal Node", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true}
+	return {"id": "normal", "label": "Normal Node", "nodeType": "normal", "riskTier": "safe", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0}
 
 # 실행: return an elite node fixture used by negative validator tests.
 func _elite_node() -> Dictionary:
-	return {"id": "elite", "label": "Elite Node", "weakness": ["blue"], "pickWeight": 2, "shieldMul": 1.2, "healthMul": 1.3}
+	return {"id": "elite", "label": "Elite Node", "nodeType": "weakness_blue", "riskTier": "medium", "weakness": ["blue"], "pickWeight": 2, "shieldMul": 1.2, "healthMul": 1.3, "rewardBias": "blue_energy", "recommendedBuildHint": "Blue shield cracking", "difficultyModifier": 1.1, "rewardModifier": 1.15, "hazardModifier": 1.0}
 
 # 실행: append a failure label when a condition is false.
 func _assert(condition: bool, label: String) -> void:

@@ -11,87 +11,52 @@ extends RefCounted
 # 실행: generate node candidates ensuring the normal/always-offered node is included.
 static func generate_candidates(seed_val: int, stage_index: int, node_table: Dictionary, candidate_count: int, tuning: Dictionary) -> Array:
 	var nodes: Array = node_table.get("nodes", [])
+	var max_stages := maxi(1, int(tuning.get("maxStages", tuning.get("run", {}).get("maxStages", stage_index + 2))))
+	var routing_tuning: Dictionary = tuning.get("nodeRouting", {})
+	var min_candidates := maxi(1, int(routing_tuning.get("minCandidates", 1)))
+	var max_candidates := maxi(min_candidates, int(routing_tuning.get("maxCandidates", max(candidate_count, min_candidates))))
+	var desired_count := clampi(candidate_count, min_candidates, max_candidates)
 	var normal_node: Dictionary = {}
+	var boss_node: Dictionary = {}
 	for node in nodes:
 		if node.get("alwaysOffer", false) == true or node.get("id", "") == "normal":
 			normal_node = node
-			break
+		if bool(node.get("isBoss", false)) or str(node.get("nodeType", "")) == "boss":
+			boss_node = node
 	if normal_node.is_empty():
 		push_error("node table must include a normal node")
 		return []
 
 	var stage_combat := _compute_stage_combat_params(stage_index, tuning)
 
-	# Determine pools
-	var vulnerable_nodes: Array = []
-	var mixed_nodes: Array = []
-	var event_nodes: Array = []
-
-	for node in nodes:
-		if node.get("id", "") == normal_node.get("id", ""):
-			continue
-		if bool(node.get("isEvent", false)):
-			event_nodes.append(node)
-		elif node.get("weakness", []).size() >= 2:
-			mixed_nodes.append(node)
-		else:
-			vulnerable_nodes.append(node)
-
 	var rng = RandomNumberGenerator.new()
 	rng.seed = seed_val + stage_index * 1337
 
-	var selected: Array = [normal_node.duplicate(true)]
-	var selected_ids = {normal_node.get("id", ""): true}
+	var selected: Array = []
+	var selected_ids = {}
+	var is_final_stage := stage_index >= max_stages - 1
+	if is_final_stage and not boss_node.is_empty():
+		selected.append(boss_node.duplicate(true))
+		selected_ids[boss_node.get("id", "")] = true
+	selected.append(normal_node.duplicate(true))
+	selected_ids[normal_node.get("id", "")] = true
 
-	var event_count := 0
-	var mixed_count := 0
-
-	while selected.size() < candidate_count:
-		var r = rng.randf()
-		var chosen_node: Dictionary = {}
-
-		if r < 0.1 and event_count < 1 and not event_nodes.is_empty():
-			var node = event_nodes[rng.randi() % event_nodes.size()]
-			if not selected_ids.has(node.get("id", "")):
-				chosen_node = node
-				event_count += 1
-		elif r < 0.4 and mixed_count < 2 and not mixed_nodes.is_empty():
-			var node = mixed_nodes[rng.randi() % mixed_nodes.size()]
-			if not selected_ids.has(node.get("id", "")):
-				chosen_node = node
-				mixed_count += 1
-
-		# Fallback to vulnerable or other available nodes
-		if chosen_node.is_empty():
-			var available: Array = []
-			for node in vulnerable_nodes:
-				if not selected_ids.has(node.get("id", "")):
-					available.append(node)
-			if available.is_empty() and mixed_count < 2:
-				for node in mixed_nodes:
-					if not selected_ids.has(node.get("id", "")):
-						available.append(node)
-			if available.is_empty() and event_count < 1:
-				for node in event_nodes:
-					if not selected_ids.has(node.get("id", "")):
-						available.append(node)
-
-			if not available.is_empty():
-				chosen_node = available[rng.randi() % available.size()]
-				if chosen_node.get("weakness", []).size() >= 2:
-					mixed_count += 1
-				elif bool(chosen_node.get("isEvent", false)):
-					event_count += 1
-			else:
-				break
-
-		if not chosen_node.is_empty():
-			selected.append(chosen_node.duplicate(true))
-			selected_ids[chosen_node.get("id", "")] = true
+	var available_nodes: Array = []
+	for node in nodes:
+		if selected_ids.has(node.get("id", "")):
+			continue
+		available_nodes.append({"node": node, "score": rng.randf() / maxf(0.001, float(node.get("pickWeight", 1.0)))})
+	available_nodes.sort_custom(func(a, b): return float(a["score"]) < float(b["score"]))
+	for entry in available_nodes:
+		if selected.size() >= desired_count:
+			break
+		selected.append(entry["node"].duplicate(true))
+		selected_ids[entry["node"].get("id", "")] = true
 
 	var result: Array = []
 	for node in selected:
 		var candidate: Dictionary = node.duplicate(true)
+		_normalize_route_fields(candidate, seed_val, stage_index, max_stages)
 		if node.has("combat") and node["combat"] is Dictionary:
 			candidate["combat"] = node["combat"].duplicate(true)
 		else:
@@ -101,7 +66,55 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 				"timeLimitTicks": stage_combat["timeLimitTicks"],
 				"weakness": node.get("weakness", []).duplicate(true)
 			}
+		candidate["telemetry"] = {
+			"event": "node_choices_offered",
+			"candidate_ids": _candidate_ids(selected),
+			"candidate_types": _candidate_types(selected),
+			"candidate_weaknesses": _candidate_weaknesses(selected),
+			"candidate_risk_tiers": _candidate_risk_tiers(selected),
+			"route_hash": candidate["routeHash"]
+		}
 		result.append(candidate)
+	return result
+
+# 실행: normalize candidate route fields used by node map and selection contracts.
+static func _normalize_route_fields(candidate: Dictionary, seed_val: int, stage_index: int, max_stages: int) -> void:
+	candidate["nodeType"] = str(candidate.get("nodeType", "normal"))
+	candidate["riskTier"] = str(candidate.get("riskTier", "safe"))
+	candidate["rewardBias"] = str(candidate.get("rewardBias", "baseline"))
+	candidate["recommendedBuildHint"] = str(candidate.get("recommendedBuildHint", "Any stable drill line"))
+	candidate["difficultyModifier"] = float(candidate.get("difficultyModifier", 1.0))
+	candidate["rewardModifier"] = float(candidate.get("rewardModifier", 1.0))
+	candidate["hazardModifier"] = float(candidate.get("hazardModifier", 1.0))
+	candidate["finalStageDistance"] = maxi(0, max_stages - stage_index - 1)
+	candidate["routeHash"] = "%d:%d:%s" % [seed_val, stage_index, str(candidate.get("id", ""))]
+
+# 실행: collect offered candidate identifiers for telemetry payloads.
+static func _candidate_ids(candidates: Array) -> Array:
+	var result := []
+	for candidate in candidates:
+		result.append(str(candidate.get("id", "")))
+	return result
+
+# 실행: collect offered candidate types for telemetry payloads.
+static func _candidate_types(candidates: Array) -> Array:
+	var result := []
+	for candidate in candidates:
+		result.append(str(candidate.get("nodeType", "normal")))
+	return result
+
+# 실행: collect offered candidate weaknesses for telemetry payloads.
+static func _candidate_weaknesses(candidates: Array) -> Array:
+	var result := []
+	for candidate in candidates:
+		result.append(candidate.get("weakness", []).duplicate(true))
+	return result
+
+# 실행: collect offered candidate risk tiers for telemetry payloads.
+static func _candidate_risk_tiers(candidates: Array) -> Array:
+	var result := []
+	for candidate in candidates:
+		result.append(str(candidate.get("riskTier", "safe")))
 	return result
 
 # 실행: compute scaling parameters for the stage combat nodes using cumulative Gaussian delta bumps.

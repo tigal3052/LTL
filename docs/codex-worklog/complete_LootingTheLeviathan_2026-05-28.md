@@ -5,7 +5,7 @@ Date: 2026-05-28
 
 ## Completion Summary
 
-Reviewed M2 implementation state before M3, produced and translated a dedicated refactoring plan, continued implementation through verification, gates, facades, vocabulary functions, phase boundaries, read models, presenters, and fixed the reported marker/reward regressions.
+Reviewed M2 implementation state before M3, completed the pre-refactor logical capsule work, added a focused M3 reward/progression contract-gap pass, applied the latest reward-pool balance update, and then implemented M4 node routing against `LTL-harness`. The M4 update promotes deterministic node offers, final-stage boss routing, selected-node modifiers, and route read-model evidence into the formal Godot path.
 
 ## Actual Outputs
 
@@ -28,6 +28,23 @@ Reviewed M2 implementation state before M3, produced and translated a dedicated 
 - Rebalanced reward item-type weighting so beacon rewards are favored at roughly a 40:60 drill/beacon ratio.
 - Fixed backpack artifact border rendering so only the artifact perimeter draws a black outline; internal occupied faces no longer draw black grid borders.
 - Wired runtime calls through reward/growth/combat/read-model capsules where the change could be verified safely.
+- Added `docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md` with the first plan, critique, and revised plan.
+- Added `BuildRewardPreview.gd` and `BuildRewardTelemetry.gd`.
+- Added stable private `offer_weights_hash` and public `next_combat_modifier_preview` to deterministic reward rolls.
+- Extended `RewardValidator` with cross-table rarity and positive-weight validation.
+- Extended `RewardReadModel` so it exposes player-facing next-combat preview while hiding raw reward weight and offer hash.
+- Added M3 contract tests for validator strictness, offer metadata, read-model privacy, and telemetry payload construction.
+- Added reward-pool tests that require common, rare, epic, and legendary tiers to include both drill-like and beacon candidates.
+- Removed cross-rarity beacon injection from reward roll candidate selection.
+- Added common 3x2 anchor beacons and legendary 2x1 focusing beacons to the reward table.
+- Added explicit rare/epic beacon shapes and lowered rare cooldown beacons from -20 ticks to -4 ticks.
+- Added `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md` and `docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md`.
+- Added formal M4 node table data at `app-LTL/src/data/node-table.json`.
+- Added `ApplyNodeModifiers.gd` to translate selected node metadata into combat/reward/hazard snapshots.
+- Extended `NodeVocab.gd` with deterministic route metadata, candidate count tuning, normal-node guarantee, and final-stage boss pinning.
+- Extended `NodeSelectPhase.gd`, `CombatPhase.gd`, and `HeadlessMiniRun.gd` so selected node type, difficulty, reward, hazard, route hash, and source-node reward metadata flow through formal runtime state.
+- Extended scene/node-select read models with risk, reward bias, build hint, final-stage distance, and route hash while hiding raw pick weights.
+- Added `test_node_routing_contract.gd` and wired it into the Godot contract runner.
 - Updated dated worklog plan and completion notes.
 
 ## Changes From Plan
@@ -35,17 +52,33 @@ Reviewed M2 implementation state before M3, produced and translated a dedicated 
 - The refactoring plan document was translated from English into Korean without changing its implementation sequence.
 - Presenter/panel extraction was extended through layout/read-model/combat-feedback projection, dynamic panels, battlefield VFX, and backpack grid rendering helpers.
 - Verification exposed an additional blocker in the compile wrapper/direct Godot headless path.
+- The latest M3 contract-gap pass intentionally avoided reward scene polish and screenshot work so the formal runtime contract could be strengthened without broad UI churn.
+- The reward-pool balance update used table expansion rather than changing the rarity-first roll architecture.
+- M4 intentionally ships route/read-model contracts and selected modifier wiring without building a polished node-map scene, because the harness keeps final art polish and full world-map branching out of scope.
 
 ## Verification Results
 
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passes and prints `GODOT_CONTRACTS_OK`. Godot still prints RID/ObjectDB leak warnings at process exit.
+- Latest reward-pool rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passed with `GODOT_CONTRACTS_OK`; Godot still prints RID/ObjectDB leak warnings at process exit.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/architectural-gate.ps1 -ManifestPath docs/architectural-gates/m2-refactoring-gate.md`: returns `ARCHITECTURAL_GATE_OK` with no warnings.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 09_M3_reward_and_progression.md`: returns `MILESTONE_GATE_OK`.
+- `git diff --check`: no whitespace errors; only LF-to-CRLF warnings.
+- Latest M4 rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passed with `GODOT_CONTRACTS_OK`.
+- Direct M4 smoke runner using `--headless --editor ... tests/godot_contract_runner.gd -- --smoke-only`: passed with `GODOT_CONTRACTS_OK`.
+- Added `LTL-harness/docs/11_exec-plans/02_completed/09_M3_reward_and_progression_completed.md`.
+- Latest `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 09_M3_reward_and_progression.md`: returns `MILESTONE_GATE_OK`.
+- Latest `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 10_M4_node_routing.md`: returns `MILESTONE_GATE_OK`.
 
 ## Blockers or Unverified Areas
 
 - Runtime backing scripts remain compatibility shells for scene wiring, but the large unreachable duplicate blocks from extracted capsules have been removed.
 - Existing user/source modifications were not reverted or normalized.
+- Reward scene screenshot evidence and richer manual reward presentation QA were not produced in this pass.
+- Plain non-editor Godot headless runner still crashes in Godot 4.3; the repository compile wrapper already uses `--editor --smoke-only` to avoid that engine-side crash.
+- M4 milestone gate is now unblocked by the M3 completion document.
 
 ## Remaining Gaps
 
 - No gate-blocking refactoring gaps remain for the M3 pre-refactor checkpoint. Further service-level decomposition of live runtime event handlers can be planned as a later architecture improvement rather than a current blocker.
+- Remaining M3 visual evidence should cover reward scene screenshot, reward card readability, and reward selection to next-combat preview manual QA.
+- Remaining M4 visual work should cover a real node-map scene/screenshot matrix and manual QA for candidate readability once the route panel graduates from read-model contract to polished scene.

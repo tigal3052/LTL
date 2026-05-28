@@ -20,6 +20,7 @@ static func project(reward: Dictionary) -> Dictionary:
 			"badge": reward.get("presentation", {}).get("badge", ""),
 			"icon": reward.get("presentation", {}).get("icon", "")
 		},
+		"nextCombatModifierPreview": reward.get("next_combat_modifier_preview", {}).duplicate(true),
 		"tags": reward.get("tags", []).duplicate(true)
 	}
 

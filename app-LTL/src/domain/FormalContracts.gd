@@ -40,7 +40,7 @@ func validate_node_table(table: Dictionary) -> Dictionary:
 	var errors: Array = []
 	var nodes: Array = _coerce_array(table.get("nodes", []))
 	var has_normal := false
-	var required := ["id", "label", "weakness", "pickWeight", "shieldMul", "healthMul"]
+	var required := ["id", "label", "weakness", "pickWeight", "shieldMul", "healthMul", "nodeType", "riskTier", "rewardBias", "recommendedBuildHint", "difficultyModifier", "rewardModifier", "hazardModifier"]
 	for index in range(nodes.size()):
 		var node: Dictionary = _coerce_dictionary(nodes[index])
 		if node.get("alwaysOffer", false) == true or node.get("id", "") == "normal":

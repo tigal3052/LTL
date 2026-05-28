@@ -395,13 +395,14 @@
       "weight": 35,
       "payload": {
         "item_type": "beacon",
-        "beacon_cooldown_mod": -20,
+        "beacon_cooldown_mod": -4,
         "beacon_damage_mod": 0.4,
+        "shape": [[1, 1, 1], [1, 0, 0]],
         "energy_type": "red"
       },
       "presentation": {
         "icon": "beacon_red",
-        "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Red)",
+        "description": "Beacon: Decreases adjacent drills' cooldown by 4 ticks and increases their damage by 0.4. (Red)",
         "badge": "조합 대기"
       },
       "tags": ["beacon"]
@@ -413,13 +414,14 @@
       "weight": 35,
       "payload": {
         "item_type": "beacon",
-        "beacon_cooldown_mod": -20,
+        "beacon_cooldown_mod": -4,
         "beacon_damage_mod": 0.4,
+        "shape": [[1, 1, 1], [1, 0, 0]],
         "energy_type": "blue"
       },
       "presentation": {
         "icon": "beacon_blue",
-        "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Blue)",
+        "description": "Beacon: Decreases adjacent drills' cooldown by 4 ticks and increases their damage by 0.4. (Blue)",
         "badge": "조합 대기"
       },
       "tags": ["beacon"]
@@ -431,13 +433,14 @@
       "weight": 35,
       "payload": {
         "item_type": "beacon",
-        "beacon_cooldown_mod": -20,
+        "beacon_cooldown_mod": -4,
         "beacon_damage_mod": 0.4,
+        "shape": [[1, 1, 1], [1, 0, 0]],
         "energy_type": "purple"
       },
       "presentation": {
         "icon": "beacon_purple",
-        "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Purple)",
+        "description": "Beacon: Decreases adjacent drills' cooldown by 4 ticks and increases their damage by 0.4. (Purple)",
         "badge": "조합 대기"
       },
       "tags": ["beacon"]
@@ -449,13 +452,14 @@
       "weight": 35,
       "payload": {
         "item_type": "beacon",
-        "beacon_cooldown_mod": -20,
+        "beacon_cooldown_mod": -4,
         "beacon_damage_mod": 0.4,
+        "shape": [[1, 1, 1], [1, 0, 0]],
         "energy_type": "green"
       },
       "presentation": {
         "icon": "beacon_green",
-        "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Green)",
+        "description": "Beacon: Decreases adjacent drills' cooldown by 4 ticks and increases their damage by 0.4. (Green)",
         "badge": "조합 대기"
       },
       "tags": ["beacon"]
@@ -469,6 +473,7 @@
         "item_type": "beacon",
         "beacon_cooldown_mod": 15,
         "beacon_damage_mod": 1.2,
+        "shape": [[1, 1], [1, 0]],
         "energy_type": "red"
       },
       "presentation": {
@@ -487,6 +492,7 @@
         "item_type": "beacon",
         "beacon_cooldown_mod": 15,
         "beacon_damage_mod": 1.2,
+        "shape": [[1, 1], [1, 0]],
         "energy_type": "blue"
       },
       "presentation": {
@@ -505,6 +511,7 @@
         "item_type": "beacon",
         "beacon_cooldown_mod": 15,
         "beacon_damage_mod": 1.2,
+        "shape": [[1, 1], [1, 0]],
         "energy_type": "purple"
       },
       "presentation": {
@@ -523,12 +530,165 @@
         "item_type": "beacon",
         "beacon_cooldown_mod": 15,
         "beacon_damage_mod": 1.2,
+        "shape": [[1, 1], [1, 0]],
         "energy_type": "green"
       },
       "presentation": {
         "icon": "beacon_green",
         "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Green)",
         "badge": "조합 대기"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_anchor_beacon_red",
+      "kind": "Anchor Beacon (Red)",
+      "rarity": "common",
+      "weight": 45,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -2,
+        "beacon_damage_mod": 0.1,
+        "shape": [[1, 1, 1], [1, 1, 1]],
+        "energy_type": "red"
+      },
+      "presentation": {
+        "icon": "beacon_red",
+        "description": "Beacon: Large 3x2 module that decreases adjacent drills' cooldown by 2 ticks and increases their damage by 0.1. (Red)",
+        "badge": "common combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_anchor_beacon_blue",
+      "kind": "Anchor Beacon (Blue)",
+      "rarity": "common",
+      "weight": 45,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -2,
+        "beacon_damage_mod": 0.1,
+        "shape": [[1, 1, 1], [1, 1, 1]],
+        "energy_type": "blue"
+      },
+      "presentation": {
+        "icon": "beacon_blue",
+        "description": "Beacon: Large 3x2 module that decreases adjacent drills' cooldown by 2 ticks and increases their damage by 0.1. (Blue)",
+        "badge": "common combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_anchor_beacon_purple",
+      "kind": "Anchor Beacon (Purple)",
+      "rarity": "common",
+      "weight": 45,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -2,
+        "beacon_damage_mod": 0.1,
+        "shape": [[1, 1, 1], [1, 1, 1]],
+        "energy_type": "purple"
+      },
+      "presentation": {
+        "icon": "beacon_purple",
+        "description": "Beacon: Large 3x2 module that decreases adjacent drills' cooldown by 2 ticks and increases their damage by 0.1. (Purple)",
+        "badge": "common combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_anchor_beacon_green",
+      "kind": "Anchor Beacon (Green)",
+      "rarity": "common",
+      "weight": 45,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -2,
+        "beacon_damage_mod": 0.1,
+        "shape": [[1, 1, 1], [1, 1, 1]],
+        "energy_type": "green"
+      },
+      "presentation": {
+        "icon": "beacon_green",
+        "description": "Beacon: Large 3x2 module that decreases adjacent drills' cooldown by 2 ticks and increases their damage by 0.1. (Green)",
+        "badge": "common combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_legend_beacon_red",
+      "kind": "Legendary Focusing Beacon (Red)",
+      "rarity": "legendary",
+      "weight": 8,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -7,
+        "beacon_damage_mod": 0.8,
+        "shape": [[1, 1]],
+        "energy_type": "red"
+      },
+      "presentation": {
+        "icon": "beacon_red",
+        "description": "Beacon: Compact 2x1 module that decreases adjacent drills' cooldown by 7 ticks and increases their damage by 0.8. (Red)",
+        "badge": "legend combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_legend_beacon_blue",
+      "kind": "Legendary Focusing Beacon (Blue)",
+      "rarity": "legendary",
+      "weight": 8,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -7,
+        "beacon_damage_mod": 0.8,
+        "shape": [[1, 1]],
+        "energy_type": "blue"
+      },
+      "presentation": {
+        "icon": "beacon_blue",
+        "description": "Beacon: Compact 2x1 module that decreases adjacent drills' cooldown by 7 ticks and increases their damage by 0.8. (Blue)",
+        "badge": "legend combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_legend_beacon_purple",
+      "kind": "Legendary Focusing Beacon (Purple)",
+      "rarity": "legendary",
+      "weight": 8,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -7,
+        "beacon_damage_mod": 0.8,
+        "shape": [[1, 1]],
+        "energy_type": "purple"
+      },
+      "presentation": {
+        "icon": "beacon_purple",
+        "description": "Beacon: Compact 2x1 module that decreases adjacent drills' cooldown by 7 ticks and increases their damage by 0.8. (Purple)",
+        "badge": "legend combo"
+      },
+      "tags": ["beacon"]
+    },
+    {
+      "id": "reward_legend_beacon_green",
+      "kind": "Legendary Focusing Beacon (Green)",
+      "rarity": "legendary",
+      "weight": 8,
+      "payload": {
+        "item_type": "beacon",
+        "beacon_cooldown_mod": -7,
+        "beacon_damage_mod": 0.8,
+        "shape": [[1, 1]],
+        "energy_type": "green"
+      },
+      "presentation": {
+        "icon": "beacon_green",
+        "description": "Beacon: Compact 2x1 module that decreases adjacent drills' cooldown by 7 ticks and increases their damage by 0.8. (Green)",
+        "badge": "legend combo"
       },
       "tags": ["beacon"]
     }

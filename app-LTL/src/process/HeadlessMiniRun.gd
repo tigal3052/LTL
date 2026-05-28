@@ -23,6 +23,7 @@ func _init(options: Dictionary = {}) -> void:
 	var run_count: int = maxi(1, int(options.get("runCount", 1)))
 	var node_table: Dictionary = options.get("nodeTable", _default_node_table())
 	var tuning: Dictionary = contracts.create_game_tuning(options.get("tuning", {}))
+	tuning["maxStages"] = max_stages
 	
 	state = {
 		"seed": seed_val,
@@ -94,7 +95,14 @@ func remove_inventory_artifact(artifact_id: String) -> Dictionary:
 
 # 실행: provide a default minimal node table.
 func _default_node_table() -> Dictionary:
-	return {"nodes": [{"id": "normal", "label": "Normal Node", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true}]}
+	var file := FileAccess.open("res://src/data/node-table.json", FileAccess.READ)
+	if file != null:
+		var json := JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			var data = json.get_data()
+			if data is Dictionary and data.has("nodes"):
+				return data
+	return {"nodes": [{"id": "normal", "label": "Normal Node", "nodeType": "normal", "riskTier": "safe", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0}]}
 
 # 실행: clone nullable values safely.
 func _clone_nullable(value: Variant) -> Variant:
