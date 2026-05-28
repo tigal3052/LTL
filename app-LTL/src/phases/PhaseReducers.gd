@@ -7,6 +7,7 @@
 # 실행: define the PhaseReducers class identity.
 class_name PhaseReducers
 extends RefCounted
+const BackpackOrganizePhaseScript = preload("res://src/phases/BackpackOrganizePhase.gd")
 
 # 실행: route the event to the appropriate phase reducer based on current phase state.
 static func reduce_phase(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -22,6 +23,8 @@ static func reduce_phase(state: Dictionary, event: Dictionary) -> Dictionary:
 			return CombatEndPhase.reduce(state, event)
 		"reward_loot":
 			return RewardLootPhase.reduce(state, event)
+		"backpack_organize":
+			return BackpackOrganizePhaseScript.reduce(state, event)
 		"run_complete":
 			return RunCompletePhase.reduce(state, event)
 		_:

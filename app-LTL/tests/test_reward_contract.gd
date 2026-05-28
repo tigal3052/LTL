@@ -11,6 +11,9 @@ const RewardVocabScript = preload("res://src/vocabulary/RewardVocab.gd")
 const RewardValidatorScript = preload("res://src/validation/RewardValidator.gd")
 const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
 const RewardLootPhaseScript = preload("res://src/phases/RewardLootPhase.gd")
+const CreateArtifactFromRewardScript = preload("res://src/vocabulary/reward/CreateArtifactFromReward.gd")
+const ApplyRewardEffectScript = preload("res://src/vocabulary/reward/ApplyRewardEffect.gd")
+const ApplyGrowthModifiersScript = preload("res://src/vocabulary/progression/ApplyGrowthModifiers.gd")
 
 var failures: Array[String] = []
 
@@ -20,7 +23,11 @@ func run_all_tests() -> Dictionary:
 	test_seed_determinism()
 	test_validator()
 	test_reward_count_tuning()
+	test_reward_type_ratio_prefers_beacons()
 	test_growth_state_updates()
+	test_reward_artifact_creation_vocab()
+	test_apply_reward_effect_vocab()
+	test_apply_growth_modifiers_vocab()
 	test_passive_purchase()
 	test_passive_modifiers()
 	return {"ok": failures.is_empty(), "errors": failures}
@@ -105,11 +112,29 @@ func test_validator() -> void:
 	var res4 = RewardValidatorScript.validate_growth_state(bad_growth_state)
 	_assert(not res4["ok"], "validator rejects incomplete growth state")
 
-# 실행: verify reward roll count is bounded between 2 and 5.
+# 실행: verify reward roll count is bounded between 1 and 5.
 func test_reward_count_tuning() -> void:
 	for s in range(1, 20):
 		var rolls = RewardVocabScript.roll_stage_rewards(s, 0, [], {})
 		_assert(rolls.size() >= 2 and rolls.size() <= 5, "roll count bound to [2, 5]")
+
+# 실행: verify reward type weighting favors beacons at roughly 40:60 drill/beacon.
+func test_reward_type_ratio_prefers_beacons() -> void:
+	var beacon_count := 0
+	var drill_count := 0
+	for s in range(1, 240):
+		var rolls = RewardVocabScript.roll_stage_rewards(s, 1, [], {})
+		for reward in rolls:
+			var item_type := str(reward.get("payload", {}).get("item_type", "drill"))
+			if item_type == "beacon":
+				beacon_count += 1
+			else:
+				drill_count += 1
+	var total := beacon_count + drill_count
+	_assert(total > 0, "reward ratio sample has data")
+	var beacon_share := float(beacon_count) / float(total)
+	_assert(beacon_count > drill_count, "beacon rewards outnumber drill rewards")
+	_assert(beacon_share >= 0.50 and beacon_share <= 0.70, "beacon share remains near 60%%, got %.3f" % beacon_share)
 
 # 실행: verify claiming rewards correctly updates gold/xp and history.
 func test_growth_state_updates() -> void:
@@ -153,6 +178,56 @@ func test_growth_state_updates() -> void:
 	_assert_eq(int(growth.get("gold", 0)), 150, "epic reward grants 50 gold")
 	_assert_eq(int(growth.get("xp", 0)), 30, "epic reward grants 30 xp")
 	_assert(growth.get("rewardHistory", []).has("reward_100_0"), "rewardId registered in history")
+
+# ?ㅽ뻾: verify reward data converts into an artifact through vocabulary.
+func test_reward_artifact_creation_vocab() -> void:
+	var reward_item = {
+		"rewardId": "reward_artifact_1",
+		"kind": "Azure Beacon",
+		"rarity": "rare",
+		"payload": {
+			"item_type": "beacon",
+			"energy_type": "blue",
+			"shape": [[1, 1]],
+			"base_cooldown_ticks": 44,
+			"damage": 1.7,
+			"beacon_cooldown_mod": -12,
+			"beacon_damage_mod": 0.4
+		},
+		"presentation": {"description": "test keyword"}
+	}
+	var growth = RunGrowthStateScript.new({"gold": 0, "xp": 0, "purchasedPassives": {"cooldown_reduction": 1}, "temporaryModifiers": {}, "runModifiers": {}, "rewardHistory": []})
+	var result = CreateArtifactFromRewardScript.create(reward_item, growth)
+	_assert(result["ok"], "reward artifact creation succeeds")
+	var art = result["artifact"]
+	_assert_eq(art.item_type, "beacon", "reward artifact preserves item type")
+	_assert_eq(art.energy_type, "blue", "reward artifact preserves energy")
+	_assert_eq(art.shape, [[1, 1]], "reward artifact uses payload shape")
+	_assert_eq(art.base_cooldown_ticks, 41, "reward artifact applies growth cooldown modifier")
+	_assert_eq(art.damage, 1.7, "reward artifact preserves damage")
+	_assert_eq(art.beacon_cooldown_mod, -12, "reward artifact preserves beacon cooldown modifier")
+	_assert_eq(art.beacon_damage_mod, 0.4, "reward artifact preserves beacon damage modifier")
+
+# ?ㅽ뻾: verify reward effect vocabulary updates growth.
+func test_apply_reward_effect_vocab() -> void:
+	var growth = RunGrowthStateScript.new({"gold": 0, "xp": 0, "purchasedPassives": {}, "temporaryModifiers": {}, "runModifiers": {}, "rewardHistory": []})
+	var result = ApplyRewardEffectScript.apply(growth, {"rewardId": "legendary_reward", "rarity": "legendary"})
+	_assert(result["ok"], "apply reward effect succeeds")
+	_assert_eq(growth.gold, 100, "legendary reward grants 100 gold")
+	_assert_eq(growth.xp, 60, "legendary reward grants 60 xp")
+	_assert(growth.reward_history.has("legendary_reward"), "reward effect records history")
+
+# ?ㅽ뻾: verify growth modifiers vocabulary mutates inventory and tuning.
+func test_apply_growth_modifiers_vocab() -> void:
+	var inv = InventoryModel.new(2, 2)
+	var art = load("res://src/models/Artifact.gd").new({"id": "ruby_drill", "name": "Ruby Drill", "shape": [[1]], "energyType": "red", "baseCooldownTicks": 80, "damage": 1.0})
+	inv.place_artifact(art, 0, 0)
+	var growth = RunGrowthStateScript.new({"gold": 0, "xp": 0, "purchasedPassives": {"cooldown_reduction": 2, "aim_damage_boost": 3}, "temporaryModifiers": {}, "runModifiers": {}, "rewardHistory": []})
+	var tuning := {}
+	var result = ApplyGrowthModifiersScript.apply(inv, growth, tuning)
+	_assert(result["ok"], "apply growth modifiers succeeds")
+	_assert_eq(art.base_cooldown_ticks, 72, "growth modifier applies cooldown multiplier")
+	_assert_eq(float(tuning.get("combat", {}).get("damage_bonus", 0.0)), 3.0, "growth modifier writes damage bonus")
 
 # 실행: verify passive purchases subtract gold and increment level.
 func test_passive_purchase() -> void:

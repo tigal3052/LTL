@@ -20,14 +20,26 @@ const REQUIRED_SCRIPTS := [
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
+	"res://src/ui/read_models/TooltipReadModel.gd",
+	"res://src/ui/read_models/NodeSelectReadModel.gd",
+	"res://src/ui/presenters/PhaseLayoutPresenter.gd",
+	"res://src/ui/presenters/CombatFeedbackPresenter.gd",
+	"res://src/ui/presenters/HeartbeatSynth.gd",
+	"res://src/ui/presenters/BackpackGridFactory.gd",
 	"res://src/MainController.gd",
 	"res://src/ui/SettingsPanelUI.gd",
 	"res://src/ui/BackpackUI.gd",
 	"res://src/ui/BattlefieldUI.gd",
+	"res://src/ui/BattlefieldVFX.gd",
 	"res://src/ui/StatusPanelUI.gd",
+	"res://src/ui/ShopPanelUI.gd",
+	"res://src/ui/ArtifactTooltipUI.gd",
+	"res://src/ui/GiantTimerUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
 	"res://src/ui/MainUI.gd",
+	"res://src/MainControllerRuntime.gd",
+	"res://src/ui/MainViewRuntime.gd",
 	# 신규 Logical Capsule 리팩토링 스크립트 목록 추가
 	"res://src/models/Artifact.gd",
 	"res://src/models/InventoryModel.gd",
@@ -44,7 +56,19 @@ const REQUIRED_SCRIPTS := [
 	"res://src/phases/CombatPhase.gd",
 	"res://src/phases/CombatEndPhase.gd",
 	"res://src/phases/RewardLootPhase.gd",
-	"res://src/phases/RunCompletePhase.gd"
+	"res://src/phases/BackpackOrganizePhase.gd",
+	"res://src/phases/RunCompletePhase.gd",
+	"res://src/vocabulary/backpack/PickUpFromInventory.gd",
+	"res://src/vocabulary/backpack/PickUpFromRewardTray.gd",
+	"res://src/vocabulary/backpack/RotateHeld.gd",
+	"res://src/vocabulary/backpack/PlaceHeld.gd",
+	"res://src/vocabulary/backpack/DiscardHeld.gd",
+	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
+	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
+	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
+	"res://src/vocabulary/progression/ApplyGrowthModifiers.gd",
+	"res://src/vocabulary/combat/RecalculateQueueColors.gd",
+	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd"
 ]
 
 # 실행: list formal scene resources that must exist for the M2 app entry path.
@@ -63,14 +87,26 @@ const COMMENTED_SCRIPTS := [
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
+	"res://src/ui/read_models/TooltipReadModel.gd",
+	"res://src/ui/read_models/NodeSelectReadModel.gd",
+	"res://src/ui/presenters/PhaseLayoutPresenter.gd",
+	"res://src/ui/presenters/CombatFeedbackPresenter.gd",
+	"res://src/ui/presenters/HeartbeatSynth.gd",
+	"res://src/ui/presenters/BackpackGridFactory.gd",
 	"res://src/MainController.gd",
 	"res://src/ui/SettingsPanelUI.gd",
 	"res://src/ui/BackpackUI.gd",
 	"res://src/ui/BattlefieldUI.gd",
+	"res://src/ui/BattlefieldVFX.gd",
 	"res://src/ui/StatusPanelUI.gd",
+	"res://src/ui/ShopPanelUI.gd",
+	"res://src/ui/ArtifactTooltipUI.gd",
+	"res://src/ui/GiantTimerUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
 	"res://src/ui/MainUI.gd",
+	"res://src/MainControllerRuntime.gd",
+	"res://src/ui/MainViewRuntime.gd",
 	"res://src/models/Artifact.gd",
 	"res://src/models/InventoryModel.gd",
 	"res://src/models/CombatSimulator.gd",
@@ -86,21 +122,36 @@ const COMMENTED_SCRIPTS := [
 	"res://src/phases/CombatPhase.gd",
 	"res://src/phases/CombatEndPhase.gd",
 	"res://src/phases/RewardLootPhase.gd",
-	"res://src/phases/RunCompletePhase.gd"
+	"res://src/phases/BackpackOrganizePhase.gd",
+	"res://src/phases/RunCompletePhase.gd",
+	"res://src/vocabulary/backpack/PickUpFromInventory.gd",
+	"res://src/vocabulary/backpack/PickUpFromRewardTray.gd",
+	"res://src/vocabulary/backpack/RotateHeld.gd",
+	"res://src/vocabulary/backpack/PlaceHeld.gd",
+	"res://src/vocabulary/backpack/DiscardHeld.gd",
+	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
+	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
+	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
+	"res://src/vocabulary/progression/ApplyGrowthModifiers.gd",
+	"res://src/vocabulary/combat/RecalculateQueueColors.gd",
+	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd"
 ]
 
 # 실행: collect deterministic suite failure labels.
 var failures: Array[String] = []
+var smoke_only: bool = false
 
 # 실행: run script existence and compilation checks, comment checks, contract checks, and exit with suite status.
 func _init() -> void:
+	smoke_only = _is_smoke_only()
 	for script_path in REQUIRED_SCRIPTS:
 		_assert(ResourceLoader.exists(script_path), "missing Godot formal script: %s" % script_path)
 		if ResourceLoader.exists(script_path):
 			var script = load(script_path)
 			_assert(script != null, "failed to compile script: %s" % script_path)
-	for scene_path in REQUIRED_SCENES:
-		_assert(ResourceLoader.exists(scene_path), "missing Godot formal scene: %s" % scene_path)
+	if not smoke_only:
+		for scene_path in REQUIRED_SCENES:
+			_assert(ResourceLoader.exists(scene_path), "missing Godot formal scene: %s" % scene_path)
 	if failures.is_empty():
 		_assert_comment_harness()
 		_run_contracts()
@@ -138,10 +189,23 @@ func _run_contracts() -> void:
 		return
 	_test_contract_validators(FormalContractsScript.new())
 	_test_headless_progression(HeadlessMiniRunScript)
+	_test_stage_sentence_and_backpack_phase()
 	_assert(MainControllerScript != null, "main controller script loads")
 	_test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, SceneReadModelScript.new(), CombatSceneModelScript.new(), CombatScenePreviewControllerScript)
 	_test_replay_paths(ReplayProcessScript.new(), FormalReplayRunnerScript.new())
 	_test_reward_and_progression_contracts()
+	_test_backpack_vocab_contracts()
+	_test_combat_vocab_contracts()
+	_test_ui_read_model_contracts()
+	if not smoke_only:
+		_test_main_scene_instantiation()
+
+# ?ㅽ뻾: detect the smoke-only runner mode used by the compile wrapper.
+func _is_smoke_only() -> bool:
+	for arg in OS.get_cmdline_user_args():
+		if String(arg) == "--smoke-only":
+			return true
+	return false
 
 # 실행: verify validator failure surfaces for missing required fields.
 func _test_contract_validators(contracts) -> void:
@@ -170,6 +234,32 @@ func _test_headless_progression(HeadlessMiniRunScript) -> void:
 	var next_stage: Dictionary = run.claim_rewards()
 	_assert_eq(next_stage["phase"], "node_select", "reward claim advances to node_select")
 	_assert_eq(next_stage["stageIndex"], 1, "reward claim increments stage")
+
+# ?ㅽ뻾: verify the stage sentence exposes backpack organization as its own phase boundary.
+func _test_stage_sentence_and_backpack_phase() -> void:
+	var MiniRunStageScript = _load_script("res://src/process/MiniRunStageScript.gd")
+	var BackpackOrganizePhaseScript = _load_script("res://src/phases/BackpackOrganizePhase.gd")
+	if not failures.is_empty():
+		return
+	_assert(MiniRunStageScript.STAGE_SENTENCE.has("backpack_organize"), "stage sentence includes backpack_organize")
+	var state = {
+		"seed": 1,
+		"phase": "backpack_organize",
+		"stageIndex": 0,
+		"maxStages": 2,
+		"runIndex": 0,
+		"runCount": 1,
+		"inventory": {},
+		"progress": {"clearedLeviathanIds": []},
+		"nodeTable": _normal_only_table(),
+		"candidateCount": 1,
+		"tuning": {},
+		"pendingRewards": [],
+		"held": null,
+		"combat": null
+	}
+	var next_state = BackpackOrganizePhaseScript.reduce(state, {"type": "finish_organize"})
+	_assert_eq(next_state["phase"], "node_select", "backpack organize finish enters node_select")
 
 # 실행: verify adapter normalization, combat layout projection, and preview-controller scene flow.
 func _test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, scene_read_model, combat_scene_model, CombatScenePreviewControllerScript) -> void:
@@ -233,6 +323,57 @@ func _test_reward_and_progression_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Reward test failed: %s" % err)
+
+# ?ㅽ뻾: load and run backpack vocabulary unit tests.
+func _test_backpack_vocab_contracts() -> void:
+	var TestBackpackVocabClass = load("res://tests/test_backpack_vocab.gd")
+	_assert(TestBackpackVocabClass != null, "test backpack vocab loads")
+	if TestBackpackVocabClass == null:
+		return
+	var tester = TestBackpackVocabClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "backpack vocabulary unit tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Backpack vocab test failed: %s" % err)
+
+# ?ㅽ뻾: load and run combat utility vocabulary unit tests.
+func _test_combat_vocab_contracts() -> void:
+	var TestCombatVocabClass = load("res://tests/test_combat_vocab.gd")
+	_assert(TestCombatVocabClass != null, "test combat vocab loads")
+	if TestCombatVocabClass == null:
+		return
+	var tester = TestCombatVocabClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "combat vocabulary unit tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Combat vocab test failed: %s" % err)
+
+# ?ㅽ뻾: load and run UI read model unit tests.
+func _test_ui_read_model_contracts() -> void:
+	var TestUiReadModelsClass = load("res://tests/test_ui_read_models.gd")
+	_assert(TestUiReadModelsClass != null, "test ui read models loads")
+	if TestUiReadModelsClass == null:
+		return
+	var tester = TestUiReadModelsClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "ui read model unit tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("UI read model test failed: %s" % err)
+
+# 실행: verify that the main scene can load and instantiate without ready runtime errors.
+func _test_main_scene_instantiation() -> void:
+	var MainScene = load("res://src/Main.tscn")
+	_assert(MainScene != null, "main scene resource loaded successfully")
+	if MainScene != null:
+		var main_instance = MainScene.instantiate()
+		_assert(main_instance != null, "main scene instantiated successfully")
+		if main_instance != null:
+			root.add_child(main_instance)
+			root.remove_child(main_instance)
+			main_instance.queue_free()
 
 # 실행: return a node table containing normal and elite nodes.
 func _node_table() -> Dictionary:

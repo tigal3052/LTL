@@ -8,6 +8,7 @@
 class_name RewardLootPhase
 extends RefCounted
 const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
+const ApplyRewardEffectScript = preload("res://src/vocabulary/reward/ApplyRewardEffect.gd")
 
 # 실행: reduce reward looting events and transition to next stage node_select or run completion.
 static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -100,26 +101,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		var reward_data = event.get("reward", {})
 		var growth_data = next_state.get("growth", {})
 		var growth = RunGrowthStateScript.new(growth_data)
-		growth.reward_history.append(reward_data.get("rewardId", ""))
-		
-		var rarity = str(reward_data.get("rarity", "common"))
-		var gold_reward = 10
-		var xp_reward = 5
-		if rarity == "rare":
-			gold_reward = 25
-			xp_reward = 15
-		elif rarity == "epic":
-			gold_reward = 50
-			xp_reward = 30
-		elif rarity == "legendary":
-			gold_reward = 100
-			xp_reward = 60
-		elif rarity == "mythic":
-			gold_reward = 200
-			xp_reward = 120
-			
-		growth.add_gold(gold_reward)
-		growth.add_xp(xp_reward)
+		ApplyRewardEffectScript.apply(growth, reward_data)
 		next_state["growth"] = growth.to_dict()
 		return next_state
 

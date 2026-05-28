@@ -14,7 +14,8 @@ const STAGE_SENTENCE := [
 	"combat_start",
 	"combat",
 	"combat_end",
-	"reward_loot"
+	"reward_loot",
+	"backpack_organize"
 ]
 
 # 실행: declare alternative stage sentence order.
@@ -23,5 +24,6 @@ const STAGE_SENTENCE_ALT := [
 	"combat_start",
 	"combat",
 	"combat_end",
-	"reward_loot"
+	"reward_loot",
+	"backpack_organize"
 ]

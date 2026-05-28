@@ -108,8 +108,8 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 static func _compute_stage_combat_params(stage_index: int, tuning: Dictionary) -> Dictionary:
 	var scaling: Dictionary = tuning.get("stageScaling", {})
 	
-	var base_shield := float(scaling.get("baseShield", 2.4))
-	var base_health := float(scaling.get("baseHealth", 3.2))
+	var base_shield := float(scaling.get("baseShield", 50.0))
+	var base_health := float(scaling.get("baseHealth", 50.0))
 	var base_time_limit := int(scaling.get("baseTimeLimitTicks", 2400))
 	
 	var peak_stage := float(scaling.get("peakStage", 3.25))
