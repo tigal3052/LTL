@@ -20,6 +20,7 @@ var time_left := 0.0
 var time_limit := 0.0
 var in_combat := false
 var pulse_time := 0.0
+var flash_alpha := 0.0
 
 # 실행: update combat border time state.
 func update_combat_time(left: float, limit: float, active: bool) -> void:
@@ -46,6 +47,8 @@ func start_reveal(count: int, reward_list: Array, done: Callable, grid: Control,
 func _process(delta: float) -> void:
 	if is_revealing:
 		timer += delta
+		if flash_alpha > 0.0:
+			flash_alpha = maxf(0.0, flash_alpha - delta * 1.85)
 		_update_particles(delta)
 		for silhouette in silhouettes:
 			silhouette.pos = silhouette.pos.lerp(silhouette.target_pos, delta * 3.5)
@@ -73,6 +76,8 @@ func _draw() -> void:
 		draw_circle(particle.pos, particle.size, particle.color)
 	for silhouette in silhouettes:
 		_draw_silhouette(silhouette)
+	if flash_alpha > 0.0:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(1.0, 1.0, 1.0, flash_alpha))
 
 # 실행: manage reveal timeline timers.
 func _timeline(grid: Control, title: Control) -> void:
@@ -82,16 +87,24 @@ func _timeline(grid: Control, title: Control) -> void:
 			stage = 2
 			_spawn_shards(size / 2.0, 72 if rewards_count >= 4 else 36)
 			get_tree().create_timer(1.15).timeout.connect(func():
-				stage = 3
-				_spawn_silhouettes(size / 2.0)
-				get_tree().create_timer(1.2).timeout.connect(func():
-					stage = 4
-					get_tree().create_timer(2.0).timeout.connect(func():
-						is_revealing = false
-						grid.visible = true
-						title.visible = true
-						queue_redraw()
-						callback.call()
+				stage = 25
+				flash_alpha = 1.0
+				_spawn_light_burst(size / 2.0)
+				queue_redraw()
+				get_tree().create_timer(0.38).timeout.connect(func():
+					stage = 3
+					_spawn_silhouettes(size / 2.0)
+					flash_alpha = maxf(flash_alpha, 0.55)
+					queue_redraw()
+					get_tree().create_timer(1.2).timeout.connect(func():
+						stage = 4
+						get_tree().create_timer(2.0).timeout.connect(func():
+							is_revealing = false
+							grid.visible = true
+							title.visible = true
+							queue_redraw()
+							callback.call()
+						)
 					)
 				)
 			)
@@ -164,6 +177,7 @@ func skip_to_silhouettes() -> void:
 		return
 	if silhouettes.is_empty():
 		_spawn_silhouettes(size / 2.0)
+	flash_alpha = 0.0
 	stage = maxi(stage, 3)
 	timer = 0.0
 	queue_redraw()

@@ -9,6 +9,8 @@
 # 실행: define the StatusPanel UI controller.
 extends PanelContainer
 
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+
 @onready var extractor_label: Label = $Margin/StatusBox/NodeRow/ExtractorLabel
 @onready var visual_queue_box: HBoxContainer = $Margin/StatusBox/QueueRow/VisualQueueBox
 @onready var extractor_visual: Panel = $Margin/StatusBox/NodeRow/ExtractorVisual
@@ -29,7 +31,7 @@ func render_target_bars(scene: Dictionary) -> void:
 # ?ㅽ뻾: update extractor node label.
 func render_extractor_label(scene: Dictionary) -> void:
 	var last_node := str(scene.get("lastNodeLabel", ""))
-	extractor_label.text = "?몃뱶: %s" % (last_node if not last_node.is_empty() else "-")
+	extractor_label.text = TextCatalogScript.t("status.node", [TextCatalogScript.display_name(last_node) if not last_node.is_empty() else "-"])
 
 # ?ㅽ뻾: render glowing circle gems inside the queue panel.
 func render_visual_queue(scene: Dictionary) -> void:
@@ -52,9 +54,9 @@ func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) ->
 	if (phase == "combat" or victory) and not hud.is_empty():
 		_render_pin_and_repair_status(hud)
 	if phase == "run_complete" and bool(scene.get("failed", false)):
-		_show_overlay(repair_overlay, "탐사 실패", "시간 제한 초과 또는 코어 파괴.\n클릭하면 다시 시작합니다.")
+		_show_overlay(repair_overlay, TextCatalogScript.t("overlay.failed.title"), TextCatalogScript.t("overlay.failed.desc"))
 	elif victory:
-		_show_overlay(repair_overlay, "레비아탄 지각 채굴 완료", "채굴 작전 성공.\n클릭하면 보상을 확인합니다.")
+		_show_overlay(repair_overlay, TextCatalogScript.t("overlay.victory.title"), TextCatalogScript.t("overlay.victory.desc"))
 	elif phase == "combat":
 		_render_combat_overlay(scene, repair_overlay)
 	else:
@@ -119,7 +121,7 @@ func _render_pin_and_repair_status(hud: Dictionary) -> void:
 	pin_progress_bar.value = pin_val
 	pin_progress_bar.show_percentage = false
 	var pins_count := 4 if pin_val >= 100 else (3 if pin_val >= 75 else (2 if pin_val >= 50 else (1 if pin_val >= 25 else 0)))
-	pin_label.text = "고정: %d" % pins_count
+	pin_label.text = TextCatalogScript.t("status.pin", [pins_count])
 	if pins_count <= 1:
 		pin_label.add_theme_color_override("font_color", Color(0.95, 0.57, 0.1) if pins_count == 1 else Color(0.85, 0.25, 0.25))
 	else:
@@ -127,7 +129,7 @@ func _render_pin_and_repair_status(hud: Dictionary) -> void:
 	var repair: Dictionary = hud.get("repair", {})
 	var depleted := int(hud.get("queue", {}).get("loaded", 0)) == 0
 	var rebuilding := bool(repair.get("active", false))
-	repair_status_label.text = "수리 중..." if rebuilding else ("과열!" if depleted else "정상")
+	repair_status_label.text = TextCatalogScript.t("status.repairing") if rebuilding else (TextCatalogScript.t("status.overheated") if depleted else TextCatalogScript.t("status.normal"))
 	repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25) if rebuilding or depleted else Color(0.34, 0.68, 0.42))
 
 # ?ㅽ뻾: render the combat repair overlay state.
@@ -140,8 +142,8 @@ func _render_combat_overlay(scene: Dictionary, repair_overlay: PanelContainer) -
 	repair_overlay.visible = depleted or rebuilding or status in ["empty_queue", "repair_blocked"]
 	if repair_overlay.visible:
 		var secs := int(ceil(float(repair.get("progress", 0)) / 20.0))
-		var desc := "Core overheated. Energy queue depleted.\nRebuilding drill core automatically (%ds remaining)..." % secs if rebuilding else "Core overheated. Energy queue depleted.\nRebuilding drill core automatically..."
-		_show_overlay(repair_overlay, "채굴 드릴 치명적 오류", desc)
+		var desc := TextCatalogScript.t("overlay.overheat.rebuilding", [secs]) if rebuilding else TextCatalogScript.t("overlay.overheat.desc")
+		_show_overlay(repair_overlay, TextCatalogScript.t("overlay.overheat.title"), desc)
 
 # ?ㅽ뻾: set overlay text and visibility.
 func _show_overlay(overlay: PanelContainer, title: String, description: String) -> void:

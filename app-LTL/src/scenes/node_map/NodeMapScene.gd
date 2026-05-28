@@ -8,6 +8,8 @@
 class_name NodeMapScene
 extends Control
 
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+
 # ?ㅽ뻾: store render state and generated label nodes.
 var _model: Dictionary = {}
 var _summary_label: Label = null
@@ -58,12 +60,17 @@ func _ensure_children() -> void:
 # ?ㅽ뻾: format one node card line for the minimal route panel.
 func _card_line(card: Dictionary) -> String:
 	var selected_prefix := "* " if bool(card.get("selected", false)) else "- "
-	return "%s%s [%s] Risk: %s Reward: %s Hint: %s Final: %d" % [
+	var label := TextCatalogScript.display_name(str(card.get("label", "")))
+	var weakness := str(card.get("weaknessLabel", ""))
+	if weakness in ["red", "blue", "purple", "green"]:
+		weakness = TextCatalogScript.t("color.%s" % weakness)
+	var risk := TextCatalogScript.enum_label("risk", str(card.get("riskTier", "safe")))
+	var reward := TextCatalogScript.enum_label("reward_bias", str(card.get("rewardBias", "baseline")))
+	var hint := TextCatalogScript.hint_label(str(card.get("recommendedBuildHint", "")))
+	return "%s%s %s %s %s" % [
 		selected_prefix,
-		str(card.get("label", "")),
-		str(card.get("weaknessLabel", "")),
-		str(card.get("riskTier", "safe")),
-		str(card.get("rewardBias", "baseline")),
-		str(card.get("recommendedBuildHint", "")),
-		int(card.get("finalStageDistance", 0))
+		TextCatalogScript.t("node.card.base", [label, weakness, risk]),
+		TextCatalogScript.t("node.card.reward", [reward]).strip_edges(),
+		TextCatalogScript.t("node.card.hint", [hint]).strip_edges(),
+		TextCatalogScript.t("node.final_distance", [int(card.get("finalStageDistance", 0))])
 	]

@@ -2,7 +2,7 @@
 # - 책임: M4 node routing contract가 deterministic offer, final boss, selected modifier, read-model projection을 보장하는지 검증한다.
 # - 입력: formal node table, HeadlessMiniRun snapshot, SceneReadModel projection.
 # - 출력: run_all_tests 결과 Dictionary.
-# - 금지: SceneTree 의존, prototype runtime 의존, node generator private pool 노출.
+# - 금지: SceneTree 의존, prototype runtime 의존, node generator private pool 호출.
 #
 # 실행: define the TestNodeRoutingContract class.
 extends RefCounted
@@ -22,6 +22,7 @@ func run_all_tests() -> Dictionary:
 	test_final_stage_pins_boss_candidate_without_losing_safe_route()
 	test_selected_node_modifiers_reach_combat_snapshot()
 	test_scene_read_model_projects_route_fields_without_pick_weights()
+	test_mysterious_crevice_fixture_has_nonzero_combat_stats()
 	test_node_validator_requires_route_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
 
@@ -71,7 +72,14 @@ func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
 	_assert(not candidate.has("pickWeight"), "scene candidate hides pick weight")
 	var text: String = str(NodeSelectReadModelScript.project({"nodeSelect": {"candidates": scene["candidates"]}}, 0)["text"])
 	_assert(str(text).contains("위험:"), "node select text includes risk")
-	_assert(str(text).contains("보상:"), "node select text includes reward bias")
+	_assert(str(text).contains("보상:"), "node select text includes non-baseline reward bias")
+
+# 실행: verify the mysterious crevice route cannot clear from zero health/shield.
+func test_mysterious_crevice_fixture_has_nonzero_combat_stats() -> void:
+	var node := _find_node(_node_table(), "mysterious_crevice")
+	_assert(not node.is_empty(), "mysterious crevice exists")
+	_assert(float(node.get("shieldMul", 0.0)) > 0.0, "mysterious crevice shield multiplier is nonzero")
+	_assert(float(node.get("healthMul", 0.0)) > 0.0, "mysterious crevice health multiplier is nonzero")
 
 # 실행: verify formal node validation rejects missing M4 route fields.
 func test_node_validator_requires_route_fields() -> void:
@@ -88,6 +96,7 @@ func _node_table() -> Dictionary:
 		{"id": "mixed_fault", "label": "Mixed Fault", "nodeType": "mixed_weakness", "riskTier": "hard", "weakness": ["blue", "purple"], "pickWeight": 6, "shieldMul": 1.35, "healthMul": 1.25, "rewardBias": "multi_energy", "recommendedBuildHint": "Blue or purple coverage", "difficultyModifier": 1.25, "rewardModifier": 1.25, "hazardModifier": 1.1},
 		{"id": "hazard_rich", "label": "Hazard Rich", "nodeType": "hazard_rich", "riskTier": "danger", "weakness": ["green"], "pickWeight": 20, "shieldMul": 1.2, "healthMul": 1.2, "rewardBias": "rarity_up", "recommendedBuildHint": "Repair-ready queue", "difficultyModifier": 1.3, "rewardModifier": 1.35, "hazardModifier": 1.5},
 		{"id": "repair_event", "label": "Repair Event", "nodeType": "repair_event", "riskTier": "support", "weakness": ["blue"], "pickWeight": 3, "shieldMul": 0.8, "healthMul": 0.8, "isEvent": true, "rewardBias": "repair", "recommendedBuildHint": "Stabilize damaged route", "difficultyModifier": 0.85, "rewardModifier": 0.9, "hazardModifier": 0.75},
+		{"id": "mysterious_crevice", "label": "Mysterious Crevice", "nodeType": "mysterious_crevice", "riskTier": "unknown", "weakness": [], "pickWeight": 5, "shieldMul": 0.75, "healthMul": 0.75, "isEvent": true, "rewardBias": "mystery", "recommendedBuildHint": "Short volatile encounter", "difficultyModifier": 0.85, "rewardModifier": 1.2, "hazardModifier": 0.9},
 		{"id": "boss_spine", "label": "Spine Anchor", "nodeType": "boss", "riskTier": "boss", "weakness": ["red", "blue", "purple"], "pickWeight": 1, "shieldMul": 1.6, "healthMul": 1.8, "isBoss": true, "rewardBias": "run_clear", "recommendedBuildHint": "Bring mixed coverage", "difficultyModifier": 1.7, "rewardModifier": 1.8, "hazardModifier": 1.4}
 	]}
 
@@ -108,6 +117,13 @@ func _index_of_type(candidates: Array, node_type: String) -> int:
 		if str(candidates[index].get("nodeType", "")) == node_type:
 			return index
 	return -1
+
+# 실행: find a node fixture by id.
+func _find_node(table: Dictionary, id: String) -> Dictionary:
+	for node in table.get("nodes", []):
+		if str(node.get("id", "")) == id:
+			return node
+	return {}
 
 # 실행: append a failure label when condition is false.
 func _assert(condition: bool, label: String) -> void:

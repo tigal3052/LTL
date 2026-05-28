@@ -57,6 +57,7 @@ Replace hardcoded English UI output with a dynamic text catalog, add Korean/Engl
 
 ## Plan Change Log
 
+- 2026-05-28: Switched active work to M4 QA follow-up: beacon tooltip single-item behavior, node data/text cleanup, cooldown animation fix, reward reveal white-flash timing, artifact size-label cleanup, and fuller locale switching.
 - 2026-05-28: Worklog bootstrapped automatically by Codex hook.
 - 2026-05-28: Updated for M2 review and M3-prep logical capsule refactoring plan.
 - 2026-05-28: Switched active work from planning/translation to executing the saved refactoring plan.

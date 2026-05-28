@@ -63,6 +63,11 @@ static func artifact_edge_mask(shape: Array, row: int, column: int) -> Dictionar
 		"bottom": not _shape_filled(shape, row + 1, column)
 	}
 
+# 실행: return how much of a cooldown overlay should be filled from bottom to top.
+static func cooldown_charge_ratio(current_cooldown: int, base_cooldown: int, synergy_reduction: int = 0) -> float:
+	var effective := maxi(1, int(base_cooldown) - int(synergy_reduction))
+	return clampf(1.0 - (float(current_cooldown) / float(effective)), 0.0, 1.0)
+
 # 실행: check whether a shape coordinate is occupied by the same artifact.
 static func _shape_filled(shape: Array, row: int, column: int) -> bool:
 	if row < 0 or row >= shape.size():

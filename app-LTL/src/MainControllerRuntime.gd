@@ -491,6 +491,7 @@ func _on_shift_timer_timeout() -> void:
 				var art = ArtifactScript.new(art_dict)
 				inventory.place_artifact(art, art.x, art.y)
 	_apply_growth_modifiers()
+	view.render_backpack(inventory)
 	current_scene = preview_controller.get_scene()
 	_render_scene(current_scene)
 

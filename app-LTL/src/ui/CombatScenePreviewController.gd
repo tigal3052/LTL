@@ -1,20 +1,18 @@
 # 계약:
 # - 책임: formal headless combat runtime과 scene projection을 묶어 M2 preview/main 진입점이 사용할 scene-safe 합성 상태를 제공한다.
 # - 입력: preview seed, viewport size, stage count, optional node table override.
-# - 출력: node_select/combat/reward_loot/run_complete를 모두 포괄하는 read-only preview scene Dictionary.
-# - 금지: combat rule 재구현, SceneTree 직접 조작, prototype runtime 참조
+# - 출력: node_select/combat/reward_loot/run_complete를 모두 렌더링할 수 있는 read-only preview scene Dictionary.
+# - 금지: combat rule 재구현, SceneTree 직접 조작, prototype runtime 참조.
 #
 # 실행: define the combat-scene preview controller class identity.
 class_name CombatScenePreviewController
 extends RefCounted
 
-# 실행: preload the formal runtime, adapter, and scene projection dependencies.
 const HeadlessMiniRunScript = preload("res://src/process/HeadlessMiniRun.gd")
 const CombatInputAdapterScript = preload("res://src/process/CombatInputAdapter.gd")
 const CombatSceneModelScript = preload("res://src/ui/CombatSceneModel.gd")
 const SceneReadModelScript = preload("res://src/ui/SceneReadModel.gd")
 
-# 실행: store preview configuration and the current formal runtime handles.
 var seed: int = 53
 var viewport_width: int = 1440
 var viewport_height: int = 1080
@@ -26,7 +24,6 @@ var adapter
 var scene_model := CombatSceneModelScript.new()
 var read_model_builder := SceneReadModelScript.new()
 
-# 실행: initialize preview configuration and bootstrap the first node-select scene.
 func _init(options: Dictionary = {}) -> void:
 	init_options = options.duplicate(true)
 	seed = int(options.get("seed", 53))
@@ -36,7 +33,6 @@ func _init(options: Dictionary = {}) -> void:
 	node_table_override = options.get("nodeTable", {}).duplicate(true)
 	reset()
 
-# 실행: combine the public read model and combat scene model into one preview scene surface.
 func get_scene() -> Dictionary:
 	var snapshot: Dictionary = run.snapshot()
 	var read_model: Dictionary = read_model_builder.create(snapshot)
@@ -58,37 +54,30 @@ func get_scene() -> Dictionary:
 	scene["combat"] = read_model.get("combat", null)
 	return scene
 
-# 실행: advance the preview runtime from node-select into combat.
 func start_combat(index: int = 0) -> Dictionary:
 	adapter.select_node(index)
 	return get_scene()
 
-# 실행: project an aim intent through the formal combat adapter and return the new scene.
 func aim_cell(cell_id: String, target_color: String = "red") -> Dictionary:
 	adapter.aim_at(cell_id, target_color)
 	return get_scene()
 
-# 실행: project a single-fire intent through the formal combat adapter and return the new scene.
 func fire(cell_id: String, target_color: String = "red") -> Dictionary:
 	adapter.fire(cell_id, target_color)
 	return get_scene()
 
-# 실행: project hold-fire ticks through the formal combat adapter and return the new scene.
 func hold_fire(cell_id: String, target_color: String = "red", repeat: int = 1) -> Dictionary:
 	adapter.hold_fire(cell_id, target_color, repeat)
 	return get_scene()
 
-# 실행: project repair intent through the formal combat adapter and return the new scene.
 func repair() -> Dictionary:
 	adapter.request_repair()
 	return get_scene()
 
-# 실행: claim rewards through the formal adapter and return the resulting scene.
 func claim_rewards() -> Dictionary:
 	adapter.claim_rewards()
 	return get_scene()
 
-# 실행: rebuild the formal runtime and adapter from the preview configuration.
 func reset() -> Dictionary:
 	var run_opts := {"seed": seed, "maxStages": max_stages, "nodeTable": _node_table()}
 	if init_options.has("tuning"):
@@ -99,69 +88,15 @@ func reset() -> Dictionary:
 	adapter = CombatInputAdapterScript.new(run)
 	return get_scene()
 
-# 실행: use an override table when provided or fall back to the deterministic preview node table.
 func _node_table() -> Dictionary:
 	if not node_table_override.is_empty():
 		return node_table_override.duplicate(true)
-	return {
-		"nodes": [
-			{
-				"id": "normal",
-				"label": "정박 노드",
-				"weakness": [],
-				"pickWeight": 0,
-				"shieldMul": 1.0,
-				"healthMul": 1.0,
-				"alwaysOffer": true
-			},
-			{
-				"id": "crimson_vein",
-				"label": "적동 맥",
-				"weakness": ["red"],
-				"pickWeight": 35,
-				"shieldMul": 1.05,
-				"healthMul": 1.02
-			},
-			{
-				"id": "azure_fault",
-				"label": "청동 단층",
-				"weakness": ["blue"],
-				"pickWeight": 35,
-				"shieldMul": 1.02,
-				"healthMul": 1.05
-			},
-			{
-				"id": "violet_cluster",
-				"label": "보라 군집",
-				"weakness": ["purple"],
-				"pickWeight": 28,
-				"shieldMul": 1.08,
-				"healthMul": 1.0
-			},
-			{
-				"id": "verdant_core",
-				"label": "녹색 핵",
-				"weakness": ["green"],
-				"pickWeight": 28,
-				"shieldMul": 1.0,
-				"healthMul": 1.08
-			},
-			{
-				"id": "twin_resonance",
-				"label": "이중 공명",
-				"weakness": ["red", "blue"],
-				"pickWeight": 14,
-				"shieldMul": 1.1,
-				"healthMul": 1.1
-			},
-			{
-				"id": "mysterious_crevice",
-				"label": "신비한 균열",
-				"weakness": [],
-				"pickWeight": 10,
-				"shieldMul": 0.0,
-				"healthMul": 0.0,
-				"isEvent": true
-			}
-		]
-	}
+	return {"nodes": [
+		{"id": "normal", "label": "Safe Scar", "nodeType": "normal", "riskTier": "safe", "weakness": [], "pickWeight": 0, "shieldMul": 1.0, "healthMul": 1.0, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0},
+		{"id": "crimson_vein", "label": "Crimson Vein", "nodeType": "weakness_red", "riskTier": "medium", "weakness": ["red"], "pickWeight": 35, "shieldMul": 1.05, "healthMul": 1.02, "rewardBias": "red_energy", "recommendedBuildHint": "Red pulse drill", "difficultyModifier": 1.05, "rewardModifier": 1.1, "hazardModifier": 1.0},
+		{"id": "azure_fault", "label": "Azure Fault", "nodeType": "weakness_blue", "riskTier": "medium", "weakness": ["blue"], "pickWeight": 35, "shieldMul": 1.02, "healthMul": 1.05, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.05, "rewardModifier": 1.05, "hazardModifier": 1.0},
+		{"id": "violet_cluster", "label": "Violet Cluster", "nodeType": "weakness_purple", "riskTier": "medium", "weakness": ["purple"], "pickWeight": 28, "shieldMul": 1.08, "healthMul": 1.0, "rewardBias": "multi_energy", "recommendedBuildHint": "Blue or purple coverage", "difficultyModifier": 1.1, "rewardModifier": 1.12, "hazardModifier": 1.0},
+		{"id": "verdant_core", "label": "Verdant Core", "nodeType": "weakness_green", "riskTier": "medium", "weakness": ["green"], "pickWeight": 28, "shieldMul": 1.0, "healthMul": 1.08, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.08, "rewardModifier": 1.08, "hazardModifier": 1.0},
+		{"id": "twin_resonance", "label": "Twin Resonance", "nodeType": "mixed_weakness", "riskTier": "hard", "weakness": ["red", "blue"], "pickWeight": 14, "shieldMul": 1.1, "healthMul": 1.1, "rewardBias": "multi_energy", "recommendedBuildHint": "Blue or purple coverage", "difficultyModifier": 1.18, "rewardModifier": 1.22, "hazardModifier": 1.08},
+		{"id": "mysterious_crevice", "label": "Mysterious Crevice", "nodeType": "mysterious_crevice", "riskTier": "unknown", "weakness": [], "pickWeight": 10, "shieldMul": 0.75, "healthMul": 0.75, "isEvent": true, "rewardBias": "mystery", "recommendedBuildHint": "Short volatile encounter", "difficultyModifier": 0.85, "rewardModifier": 1.2, "hazardModifier": 0.9}
+	]}

@@ -132,8 +132,7 @@ func _apply_artifact_overlay(column: int, row: int, art: ArtifactClass, shape: A
 		overlay.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.32, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
 	var charge := _slot_charge_overlay(column, row)
 	if charge:
-		var cooldown := maxi(1, int(art.effective_cooldown))
-		var ratio := clampf(1.0 - (float(art.current_cooldown) / float(cooldown)), 0.0, 1.0)
+		var ratio := GridFactory.cooldown_charge_ratio(int(art.current_cooldown), int(art.base_cooldown_ticks), int(art.synergy_cooldown_reduction))
 		charge.visible = true
 		charge.anchor_left = 0.0
 		charge.anchor_right = 1.0

@@ -7,28 +7,27 @@
 # Execute: define the TestNodeMapSceneSmoke class.
 extends RefCounted
 
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+
 var failures: Array[String] = []
 
-# Execute: run every node-map smoke test.
 func run_all_tests() -> Dictionary:
 	failures.clear()
+	TextCatalogScript.set_locale("ko")
 	test_node_input_adapter_normalizes_selection_events()
 	test_node_map_read_model_projects_cards_and_status()
 	test_node_map_scene_renders_supplied_read_model_without_generator()
 	return {"ok": failures.is_empty(), "errors": failures}
 
-# Execute: verify node-map input produces a stable select_node event literal.
 func test_node_input_adapter_normalizes_selection_events() -> void:
 	var AdapterScript = load("res://src/process/NodeInputAdapter.gd")
 	_assert(AdapterScript != null, "node input adapter script loads")
 	if AdapterScript == null:
 		return
 	var adapter = AdapterScript.new()
-	var event: Dictionary = adapter.choose_node(2)
-	_assert_eq(event, {"type": "select_node", "index": 2}, "node input adapter emits select_node event")
+	_assert_eq(adapter.choose_node(2), {"type": "select_node", "index": 2}, "node input adapter emits select_node event")
 	_assert_eq(adapter.choose_node(-1), {"type": "invalid_node_selection", "index": -1}, "node input adapter rejects negative index")
 
-# Execute: verify node-map read model creates card and status data from scene candidates.
 func test_node_map_read_model_projects_cards_and_status() -> void:
 	var ReadModelScript = load("res://src/ui/read_models/NodeMapReadModel.gd")
 	_assert(ReadModelScript != null, "node map read model script loads")
@@ -44,7 +43,6 @@ func test_node_map_read_model_projects_cards_and_status() -> void:
 	_assert(model["telemetry"]["event"] == "node_map_rendered", "node map read model emits render telemetry")
 	_assert(not model["cards"][0].has("pickWeight"), "node map read model hides pick weights")
 
-# Execute: verify the node-map scene can render already-projected read-model data.
 func test_node_map_scene_renders_supplied_read_model_without_generator() -> void:
 	var SceneScript = load("res://src/scenes/node_map/NodeMapScene.gd")
 	var SceneResource = load("res://src/scenes/node_map/NodeMapScene.tscn")
@@ -53,19 +51,17 @@ func test_node_map_scene_renders_supplied_read_model_without_generator() -> void
 	if SceneScript == null:
 		return
 	var scene = SceneScript.new()
-	var model := {
+	scene.render({
 		"stageText": "스테이지 2 / 3",
 		"cards": [
 			{"label": "Safe Scar", "weaknessLabel": "red", "riskTier": "safe", "rewardBias": "baseline", "recommendedBuildHint": "Stable route", "finalStageDistance": 1, "selected": true},
 			{"label": "Hazard Rich", "weaknessLabel": "green", "riskTier": "danger", "rewardBias": "rarity_up", "recommendedBuildHint": "Repair-ready queue", "finalStageDistance": 1, "selected": false}
 		]
-	}
-	scene.render(model)
+	})
 	_assert_eq(scene.card_count(), 2, "node map scene renders card count")
-	_assert(str(scene.summary_text()).contains("Hazard Rich"), "node map scene summary includes card label")
-	_assert(str(scene.summary_text()).contains("Risk: danger"), "node map scene summary includes risk")
+	_assert(str(scene.summary_text()).contains("위험 밀집지"), "node map scene summary includes localized card label")
+	_assert(str(scene.summary_text()).contains("위험: 위험"), "node map scene summary includes localized risk")
 
-# Execute: provide a minimal scene-safe node-select snapshot fixture.
 func _scene() -> Dictionary:
 	return {
 		"stageIndex": 1,
@@ -76,12 +72,10 @@ func _scene() -> Dictionary:
 		]
 	}
 
-# Execute: append a failure label when condition is false.
 func _assert(condition: bool, label: String) -> void:
 	if not condition:
 		failures.append(label)
 
-# Execute: append a deterministic equality failure label when values differ.
 func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])

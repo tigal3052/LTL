@@ -69,6 +69,10 @@ Reviewed M2 implementation state before M3, completed the pre-refactor logical c
 
 ## Verification Results
 
+- Latest M4 QA follow-up rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passed with `GODOT_CONTRACTS_OK`; Godot still prints RID/ObjectDB leak warnings at process exit.
+- Latest M4 QA follow-up rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/i18n-text-gate.ps1`: returns `I18N_TEXT_GATE_OK`.
+- Latest M4 QA follow-up rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 10_M4_node_routing.md`: returns `MILESTONE_GATE_OK`.
+- Latest M4 QA follow-up rerun of `git diff --check`: no whitespace errors; LF-to-CRLF warnings only.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passes and prints `GODOT_CONTRACTS_OK`. Godot still prints RID/ObjectDB leak warnings at process exit.
 - Latest reward-pool rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passed with `GODOT_CONTRACTS_OK`; Godot still prints RID/ObjectDB leak warnings at process exit.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/architectural-gate.ps1 -ManifestPath docs/architectural-gates/m2-refactoring-gate.md`: returns `ARCHITECTURAL_GATE_OK` with no warnings.

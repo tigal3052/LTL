@@ -1,23 +1,24 @@
 # 계약:
-# - 책임: UI에 보상을 표시하기 위한 퍼블릭 읽기 모델(Read Model) 프로젝션을 제공한다.
+# - 책임: UI에 보상을 표시하기 위한 readable read model projection을 제공한다.
 # - 입력: raw reward Dictionary 데이터.
-# - 출력: 가중치(weight) 정보가 마스킹되고 뱃지 및 설명 정보가 정리된 UI 안전 Dictionary.
-# - 금지: 비즈니스 롤 연산, 상태 직접 변형.
+# - 출력: 가중치 정보가 마스킹되고 배지 및 설명 정보가 정리된 UI 안전 Dictionary.
+# - 금지: 비즈니스 로직 계산, 상태 직접 변경.
 #
 # 실행: define the RewardReadModel class.
 class_name RewardReadModel
 extends RefCounted
+
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
 # 실행: project reward data for UI rendering.
 static func project(reward: Dictionary) -> Dictionary:
 	return {
 		"rewardId": reward.get("rewardId", ""),
-		"kind": TextCatalogScript.display_name(str(reward.get("kind", "알 수 없는 보상"))),
+		"kind": TextCatalogScript.display_name(str(reward.get("kind", "Unknown Reward"))),
 		"rarity": reward.get("rarity", "common"),
 		"qty": int(reward.get("qty", 1)),
 		"presentation": {
-			"description": reward.get("presentation", {}).get("description", ""),
+			"description": TextCatalogScript.display_description(str(reward.get("presentation", {}).get("description", ""))),
 			"badge": reward.get("presentation", {}).get("badge", ""),
 			"icon": reward.get("presentation", {}).get("icon", "")
 		},
@@ -25,7 +26,7 @@ static func project(reward: Dictionary) -> Dictionary:
 		"tags": reward.get("tags", []).duplicate(true)
 	}
 
-# ?ㅽ뻾: project the full reward tray into text and discard-zone state.
+# 실행: project the full reward tray into text and discard-zone state.
 static func project_tray(pending_rewards: Array, held_reward_index: int = -1, held_artifact: Variant = null, held_from_rewards: bool = false) -> Dictionary:
 	var lines: PackedStringArray = []
 	if pending_rewards.is_empty():

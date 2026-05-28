@@ -279,7 +279,26 @@ func set_reward_text(val: String) -> void:
 func apply_locale() -> void:
 	if reset_button == null:
 		return
-	settings_open_button.text = "⚙ %s" % TextCatalogScript.t("action.settings")
+	_set_label_text("RootMargin/AppShell/Header/Margin/PhaseRow/TitleLabel", TextCatalogScript.t("app.title"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/CharacterTitle", TextCatalogScript.t("panel.character_status"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/PortraitPlaceholder/PortraitLabel", TextCatalogScript.t("panel.profile"))
+	_set_rich_text("RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/InventorySummaryLabel", TextCatalogScript.t("panel.loadout"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusTitle", TextCatalogScript.t("panel.drill_node_status"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox/HealthLabel", TextCatalogScript.t("panel.health"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox/ShieldLabel", TextCatalogScript.t("panel.shield"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow/QueueLabel", TextCatalogScript.t("panel.queue"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow/PinLabel", TextCatalogScript.t("panel.stage_timer"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow/DrillStatusLabel", TextCatalogScript.t("panel.drill_status"))
+	_set_label_text("RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox/EngineTitle", TextCatalogScript.t("panel.backpack"))
+	_set_label_text("RootMargin/AppShell/TopContent/RightSidebar/Margin/InspectorBox/InspectorTitle", TextCatalogScript.t("panel.log"))
+	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox/NodeSelectTitle", TextCatalogScript.t("panel.next_node"))
+	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", TextCatalogScript.t("panel.battlefield"))
+	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardTitle", TextCatalogScript.t("panel.rewards"))
+	_set_label_text("ConfirmOverlay/Center/ConfirmBox/WarningLabel", TextCatalogScript.t("confirm.unclaimed.title"))
+	_set_label_text("ConfirmOverlay/Center/ConfirmBox/DescriptionLabel", TextCatalogScript.t("confirm.unclaimed.desc"))
+	confirm_proceed_button.text = TextCatalogScript.t("action.proceed")
+	confirm_cancel_button.text = TextCatalogScript.t("action.cancel")
+	settings_open_button.text = TextCatalogScript.t("action.settings")
 	reset_button.text = TextCatalogScript.t("action.reset")
 	start_button.text = TextCatalogScript.t("action.start")
 	hold_fire_button.text = TextCatalogScript.t("action.hold_fire")
@@ -289,6 +308,20 @@ func apply_locale() -> void:
 		shop_open_button.text = TextCatalogScript.t("action.shop")
 	if settings_panel != null and settings_panel.has_method("apply_locale"):
 		settings_panel.apply_locale()
+	if shop_panel != null and shop_panel.has_method("apply_locale"):
+		shop_panel.apply_locale()
+
+# 실행: set a Label text by relative path when present.
+func _set_label_text(path: String, text: String) -> void:
+	var node := get_node_or_null(path) as Label
+	if node != null:
+		node.text = text
+
+# 실행: set a RichTextLabel text by relative path when present.
+func _set_rich_text(path: String, text: String) -> void:
+	var node := get_node_or_null(path) as RichTextLabel
+	if node != null:
+		node.text = text
 
 # ?ㅽ뻾: dynamically construct the calibration shop panel.
 func _create_shop_panel() -> void:

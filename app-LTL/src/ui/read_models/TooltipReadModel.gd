@@ -7,38 +7,39 @@
 # 실행: define the TooltipReadModel class.
 class_name TooltipReadModel
 extends RefCounted
+
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
 # 실행: project tooltip-safe display data from artifact-like input.
 static func project(value: Variant) -> Dictionary:
 	var data := _normalize(value)
-	var bbcode := _build_bbcode(data, TextCatalogScript.locale())
-	data["bbcode"] = bbcode
+	data["bbcode"] = _build_bbcode(data, TextCatalogScript.locale())
 	return data
 
-# 실행: build a reward tooltip that compares a reward drill with the same-color equipped drill.
+# 실행: build a reward tooltip; drills compare against same-color equipped drills, beacons stay single-item.
 static func project_reward_comparison(reward: Dictionary, equipped_artifacts: Array, locale := "") -> Dictionary:
 	var loc := locale if not locale.is_empty() else TextCatalogScript.locale()
 	var reward_data := _normalize(reward)
-	var equipped_data := {}
-	if str(reward_data.get("itemType", "")) == "drill":
-		equipped_data = _same_color_drill(equipped_artifacts, str(reward_data.get("energyType", "")))
-	var bbcode := _build_comparison_bbcode(reward_data, equipped_data, loc)
+	if str(reward_data.get("itemType", "")) != "drill":
+		reward_data["comparison"] = {}
+		reward_data["bbcode"] = _build_bbcode(reward_data, loc)
+		return reward_data
+	var equipped_data := _same_color_drill(equipped_artifacts, str(reward_data.get("energyType", "")))
 	reward_data["comparison"] = equipped_data
-	reward_data["bbcode"] = bbcode
+	reward_data["bbcode"] = _build_comparison_bbcode(reward_data, equipped_data, loc)
 	return reward_data
 
 # 실행: normalize reward dictionaries and Artifact objects into one shape.
 static func _normalize(value: Variant) -> Dictionary:
 	if value is Dictionary:
 		var payload: Dictionary = value.get("payload", {})
-		var name_val := TextCatalogScript.display_name(str(value.get("kind", "알 수 없는 아이템")))
+		var raw_name := str(value.get("kind", "Unknown Item"))
 		var grade_val := str(value.get("rarity", "common")).to_lower()
 		var item_type_val := str(payload.get("item_type", payload.get("itemType", "drill")))
-		if payload.get("item_type", "") == "beacon" or "Beacon" in name_val or "beacon" in name_val:
+		if payload.get("item_type", "") == "beacon" or raw_name.to_lower().contains("beacon"):
 			item_type_val = "beacon"
 		return {
-			"name": name_val,
+			"name": TextCatalogScript.display_name(raw_name),
 			"grade": grade_val,
 			"itemType": item_type_val,
 			"energyType": str(payload.get("energy_type", payload.get("energyType", "red"))),
@@ -47,7 +48,7 @@ static func _normalize(value: Variant) -> Dictionary:
 			"damage": float(payload.get("damage", _default_damage(grade_val))),
 			"beaconCooldownMod": int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", _default_beacon_cooldown(grade_val, item_type_val)))),
 			"beaconDamageMod": float(payload.get("beacon_damage_mod", payload.get("beaconDamageMod", _default_beacon_damage(grade_val, item_type_val)))),
-			"keyword": str(value.get("presentation", {}).get("description", ""))
+			"keyword": TextCatalogScript.display_description(str(value.get("presentation", {}).get("description", "")))
 		}
 	return {
 		"name": TextCatalogScript.display_name(str(value.name)),
@@ -59,7 +60,7 @@ static func _normalize(value: Variant) -> Dictionary:
 		"damage": float(value.damage),
 		"beaconCooldownMod": int(value.beacon_cooldown_mod),
 		"beaconDamageMod": float(value.beacon_damage_mod),
-		"keyword": str(value.keyword)
+		"keyword": TextCatalogScript.display_description(str(value.keyword))
 	}
 
 # 실행: build the BBCode tooltip body.
@@ -92,16 +93,14 @@ static func _build_bbcode(data: Dictionary, locale := "ko") -> String:
 
 # 실행: render reward and equipped artifact stats side by side in one tooltip body.
 static func _build_comparison_bbcode(reward_data: Dictionary, equipped_data: Dictionary, locale: String) -> String:
-	var left_title := TextCatalogScript.t("tooltip.reward_artifact", [], locale)
-	var right_title := TextCatalogScript.t("tooltip.equipped_artifact", [], locale)
 	var reward_lines := _compact_lines(reward_data, locale)
 	var equipped_lines := [TextCatalogScript.t("tooltip.no_same_color_drill", [], locale)]
 	if not equipped_data.is_empty():
 		equipped_lines = _compact_lines(equipped_data, locale)
 	var lines: Array[String] = []
 	lines.append("[table=2]")
-	lines.append("[cell][b][color=#e5c07b]%s[/color][/b]\n%s[/cell]" % [left_title, "\n".join(reward_lines)])
-	lines.append("[cell][b][color=#98c379]%s[/color][/b]\n%s[/cell]" % [right_title, "\n".join(equipped_lines)])
+	lines.append("[cell][b][color=#e5c07b]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.reward_artifact", [], locale), "\n".join(reward_lines)])
+	lines.append("[cell][b][color=#98c379]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.equipped_artifact", [], locale), "\n".join(equipped_lines)])
 	lines.append("[/table]")
 	return "\n".join(lines)
 
@@ -127,18 +126,14 @@ static func _same_color_drill(equipped_artifacts: Array, energy_type: String) ->
 
 # 실행: resolve rarity, item, and color labels through the text catalog.
 static func _label(group: String, value: String, locale: String) -> String:
-	var key := "%s.%s" % [group, value.to_lower()]
-	return TextCatalogScript.t(key, [], locale)
+	return TextCatalogScript.t("%s.%s" % [group, value.to_lower()], [], locale)
 
-# 실행: return display color for rarity.
 static func _rarity_color(grade: String) -> String:
 	return {"basic": "#abb2bf", "common": "#a3be8c", "rare": "#61afef", "epic": "#c678dd", "legendary": "#e5c07b", "mythic": "#d19a66"}.get(grade.to_lower(), "#abb2bf")
 
-# 실행: return display color for energy type.
 static func _energy_color(energy: String) -> String:
 	return {"red": "#e06c75", "blue": "#61afef", "purple": "#c678dd", "green": "#98c379"}.get(energy.to_lower(), "#abb2bf")
 
-# 실행: return default cooldown from rarity.
 static func _default_cooldown(rarity: String) -> int:
 	if rarity == "rare":
 		return 70
@@ -150,7 +145,6 @@ static func _default_cooldown(rarity: String) -> int:
 		return 40
 	return 80
 
-# 실행: return default damage from rarity.
 static func _default_damage(rarity: String) -> float:
 	if rarity == "rare":
 		return 1.3
@@ -162,7 +156,6 @@ static func _default_damage(rarity: String) -> float:
 		return 2.5
 	return 1.0
 
-# 실행: return default beacon cooldown modifier.
 static func _default_beacon_cooldown(rarity: String, item_type: String) -> int:
 	if item_type != "beacon":
 		return 0
@@ -176,7 +169,6 @@ static func _default_beacon_cooldown(rarity: String, item_type: String) -> int:
 		return -40
 	return -10
 
-# 실행: return default beacon damage modifier.
 static func _default_beacon_damage(rarity: String, item_type: String) -> float:
 	if item_type != "beacon":
 		return 0.0
