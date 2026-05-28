@@ -1,9 +1,11 @@
-# 계약:
-# - 책임: combat/reward overlay 상태 패널의 HP/Shield, queue, pin/repair 상태와 overlay 문구를 렌더링한다.
-# - 입력: scene snapshot Dictionary와 repair overlay node.
-# - 출력: 상태 UI node 갱신.
-# - 금지: gameplay state 변경, controller 직접 접근, phase 전환.
+﻿# 怨꾩빟:
+# - 梨낆엫: combat/reward overlay ?곹깭 ?⑤꼸??HP/Shield, queue, pin/repair ?곹깭? overlay 臾멸뎄瑜??뚮뜑留곹븳??
+# - ?낅젰: scene snapshot Dictionary? repair overlay node.
+# - 異쒕젰: ?곹깭 UI node 媛깆떊.
+# - 湲덉?: gameplay state 蹂寃? controller 吏곸젒 ?묎렐, phase ?꾪솚.
 #
+# ?ㅽ뻾: define the StatusPanel UI controller.
+# 계약: StatusPanelUI renders combat/reward status labels and overlay messages from scene snapshots.
 # 실행: define the StatusPanel UI controller.
 extends PanelContainer
 
@@ -16,7 +18,7 @@ extends PanelContainer
 @onready var pin_label: Label = $Margin/StatusBox/TimerRow/PinLabel
 @onready var repair_status_label: Label = $Margin/StatusBox/DrillStatusRow/RepairStatusLabel
 
-# 실행: update target HP and Shield bars with exact values and percentages.
+# ?ㅽ뻾: update target HP and Shield bars with exact values and percentages.
 func render_target_bars(scene: Dictionary) -> void:
 	if not _is_status_scene(scene):
 		return
@@ -24,12 +26,12 @@ func render_target_bars(scene: Dictionary) -> void:
 	_apply_value_bar(health_bar, float(target.get("health", 0.0)), float(target.get("maxHealth", 100.0)))
 	_apply_value_bar(shield_bar, float(target.get("shield", 0.0)), float(target.get("maxShield", 2.4)))
 
-# 실행: update extractor node label.
+# ?ㅽ뻾: update extractor node label.
 func render_extractor_label(scene: Dictionary) -> void:
 	var last_node := str(scene.get("lastNodeLabel", ""))
-	extractor_label.text = "노드: %s" % (last_node if not last_node.is_empty() else "-")
+	extractor_label.text = "?몃뱶: %s" % (last_node if not last_node.is_empty() else "-")
 
-# 실행: render glowing circle gems inside the queue panel.
+# ?ㅽ뻾: render glowing circle gems inside the queue panel.
 func render_visual_queue(scene: Dictionary) -> void:
 	for child in visual_queue_box.get_children():
 		child.queue_free()
@@ -40,7 +42,7 @@ func render_visual_queue(scene: Dictionary) -> void:
 	for i in range(int(queue.get("capacity", 8))):
 		visual_queue_box.add_child(_queue_gem(str(items[i]) if i < items.size() else "", i == 0))
 
-# 실행: render the repair critical overlay and pin/repair status.
+# ?ㅽ뻾: render the repair critical overlay and pin/repair status.
 func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) -> void:
 	if repair_overlay == null:
 		return
@@ -50,20 +52,20 @@ func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) ->
 	if (phase == "combat" or victory) and not hud.is_empty():
 		_render_pin_and_repair_status(hud)
 	if phase == "run_complete" and bool(scene.get("failed", false)):
-		_show_overlay(repair_overlay, "⚠ EXPEDITION FAILED ⚠", "Time limit exceeded or core destroyed.\nClick here to restart.")
+		_show_overlay(repair_overlay, "탐사 실패", "시간 제한 초과 또는 코어 파괴.\n클릭하면 다시 시작합니다.")
 	elif victory:
-		_show_overlay(repair_overlay, "✦ LEVIATHAN CRUST CLEARED ✦", "Mining operation successful.\nClick here to claim rewards.")
+		_show_overlay(repair_overlay, "레비아탄 지각 채굴 완료", "채굴 작전 성공.\n클릭하면 보상을 확인합니다.")
 	elif phase == "combat":
 		_render_combat_overlay(scene, repair_overlay)
 	else:
 		repair_overlay.visible = false
 
-# 실행: test whether status widgets should render for this scene.
+# ?ㅽ뻾: test whether status widgets should render for this scene.
 func _is_status_scene(scene: Dictionary) -> bool:
 	var phase := str(scene.get("phase", ""))
 	return phase == "combat" or (phase == "reward_loot" and bool(scene.get("show_victory_overlay", false)))
 
-# 실행: create or update the value label inside a progress bar.
+# ?ㅽ뻾: create or update the value label inside a progress bar.
 func _apply_value_bar(bar: ProgressBar, value: float, max_value: float) -> void:
 	bar.max_value = max_value
 	bar.value = value
@@ -81,7 +83,7 @@ func _apply_value_bar(bar: ProgressBar, value: float, max_value: float) -> void:
 	var pct := (value / max_value) * 100.0 if max_value > 0.0 else 0.0
 	label.text = "%.1f / %.1f (%.0f%%)" % [value, max_value, pct]
 
-# 실행: build one queue gem control.
+# ?ㅽ뻾: build one queue gem control.
 func _queue_gem(color_name: String, is_front: bool) -> Panel:
 	var gem := Panel.new()
 	var style := StyleBoxFlat.new()
@@ -101,7 +103,7 @@ func _queue_gem(color_name: String, is_front: bool) -> Panel:
 	gem.add_theme_stylebox_override("panel", style)
 	return gem
 
-# 실행: map energy names to UI colors.
+# ?ㅽ뻾: map energy names to UI colors.
 func _energy_color(color_name: String) -> Color:
 	match color_name:
 		"red": return Color(0.9, 0.25, 0.25)
@@ -110,14 +112,14 @@ func _energy_color(color_name: String) -> Color:
 		"purple": return Color(0.65, 0.25, 0.85)
 	return Color(0.8, 0.8, 0.8)
 
-# 실행: update pin count and repair status labels.
+# ?ㅽ뻾: update pin count and repair status labels.
 func _render_pin_and_repair_status(hud: Dictionary) -> void:
 	var pin_val := float(hud.get("pin", {}).get("progress", 0))
 	pin_progress_bar.max_value = 100.0
 	pin_progress_bar.value = pin_val
 	pin_progress_bar.show_percentage = false
 	var pins_count := 4 if pin_val >= 100 else (3 if pin_val >= 75 else (2 if pin_val >= 50 else (1 if pin_val >= 25 else 0)))
-	pin_label.text = "Pins: %d" % pins_count
+	pin_label.text = "고정: %d" % pins_count
 	if pins_count <= 1:
 		pin_label.add_theme_color_override("font_color", Color(0.95, 0.57, 0.1) if pins_count == 1 else Color(0.85, 0.25, 0.25))
 	else:
@@ -125,10 +127,10 @@ func _render_pin_and_repair_status(hud: Dictionary) -> void:
 	var repair: Dictionary = hud.get("repair", {})
 	var depleted := int(hud.get("queue", {}).get("loaded", 0)) == 0
 	var rebuilding := bool(repair.get("active", false))
-	repair_status_label.text = "REPAIRING..." if rebuilding else ("OVERHEATED!" if depleted else "Normal")
+	repair_status_label.text = "수리 중..." if rebuilding else ("과열!" if depleted else "정상")
 	repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25) if rebuilding or depleted else Color(0.34, 0.68, 0.42))
 
-# 실행: render the combat repair overlay state.
+# ?ㅽ뻾: render the combat repair overlay state.
 func _render_combat_overlay(scene: Dictionary, repair_overlay: PanelContainer) -> void:
 	var hud: Dictionary = scene.get("hud", {})
 	var repair: Dictionary = hud.get("repair", {})
@@ -139,9 +141,9 @@ func _render_combat_overlay(scene: Dictionary, repair_overlay: PanelContainer) -
 	if repair_overlay.visible:
 		var secs := int(ceil(float(repair.get("progress", 0)) / 20.0))
 		var desc := "Core overheated. Energy queue depleted.\nRebuilding drill core automatically (%ds remaining)..." % secs if rebuilding else "Core overheated. Energy queue depleted.\nRebuilding drill core automatically..."
-		_show_overlay(repair_overlay, "⚠ MINING DRILL CRITICAL FAILURE ⚠", desc)
+		_show_overlay(repair_overlay, "채굴 드릴 치명적 오류", desc)
 
-# 실행: set overlay text and visibility.
+# ?ㅽ뻾: set overlay text and visibility.
 func _show_overlay(overlay: PanelContainer, title: String, description: String) -> void:
 	overlay.visible = true
 	(overlay.get_node("Center/WarningBox/WarningLabel") as Label).text = title

@@ -7,6 +7,7 @@
 # 실행: define the NodeSelectReadModel class.
 class_name NodeSelectReadModel
 extends RefCounted
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
 # 실행: project node selection candidates into BBCode text.
 static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
@@ -14,20 +15,20 @@ static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
 	var candidates: Array = scene.get("nodeSelect", {}).get("candidates", [])
 	for idx in range(candidates.size()):
 		var candidate = candidates[idx]
-		var label = str(candidate.get("label", candidate.get("id", "?")))
+		var label = TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?"))))
 		var weakness = str(candidate.get("weaknessLabel", ""))
 		var risk = str(candidate.get("riskTier", "safe"))
 		var reward = str(candidate.get("rewardBias", "baseline"))
 		var hint = str(candidate.get("recommendedBuildHint", ""))
-		var text = "%s  [%s]  Risk: %s  Reward: %s" % [label, weakness, risk, reward]
+		var text = TextCatalogScript.t("node.card", [label, weakness, risk, reward])
 		if not hint.is_empty():
-			text += "  Hint: %s" % hint
+			text += "  힌트: %s" % hint
 		if idx == selected_index:
-			text = "[b][color=#ffd766]> %s (selected)[/color][/b]" % text
+			text = "[b][color=#ffd766]%s[/color][/b]" % TextCatalogScript.t("node.selected", [text])
 		else:
 			text = "> %s" % text
 		lines.append("[url=%d]%s[/url]" % [idx, text])
-	var body := "Node Select\nNo candidates available."
+	var body := TextCatalogScript.t("node.select.empty")
 	if not lines.is_empty():
-		body = "Node Select\nChoose a route, then press Start:\n\n" + "\n".join(lines)
+		body = TextCatalogScript.t("node.select.header", ["\n".join(lines)])
 	return {"text": body, "selectedIndex": selected_index}

@@ -70,8 +70,8 @@ func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
 	_assert(candidate.has("recommendedBuildHint"), "scene candidate exposes build hint")
 	_assert(not candidate.has("pickWeight"), "scene candidate hides pick weight")
 	var text: String = str(NodeSelectReadModelScript.project({"nodeSelect": {"candidates": scene["candidates"]}}, 0)["text"])
-	_assert(str(text).contains("Risk:"), "node select text includes risk")
-	_assert(str(text).contains("Reward:"), "node select text includes reward bias")
+	_assert(str(text).contains("위험:"), "node select text includes risk")
+	_assert(str(text).contains("보상:"), "node select text includes reward bias")
 
 # 실행: verify formal node validation rejects missing M4 route fields.
 func test_node_validator_requires_route_fields() -> void:

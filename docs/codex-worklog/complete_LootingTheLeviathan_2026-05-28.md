@@ -45,6 +45,17 @@ Reviewed M2 implementation state before M3, completed the pre-refactor logical c
 - Extended `NodeSelectPhase.gd`, `CombatPhase.gd`, and `HeadlessMiniRun.gd` so selected node type, difficulty, reward, hazard, route hash, and source-node reward metadata flow through formal runtime state.
 - Extended scene/node-select read models with risk, reward bias, build hint, final-stage distance, and route hash while hiding raw pick weights.
 - Added `test_node_routing_contract.gd` and wired it into the Godot contract runner.
+- Added `NodeInputAdapter.gd`, `NodeMapReadModel.gd`, and a minimal `NodeMapScene` formal path.
+- Added `test_node_map_scene_smoke.gd` to verify node-map scene rendering consumes supplied read-model data and the scene does not call the route generator.
+- Added `TextCatalog.gd` with Korean default, English switching, and display-name localization for common reward/drill/node names.
+- Added a settings language selector and re-render path for Korean/English toggling.
+- Localized main static scene text, phase/stage presenters, node/reward read models, reward discard text, tooltip labels, and status overlays.
+- Added reward hover comparison for drill rewards against the currently equipped same-color drill only.
+- Added backpack artifact cooldown visualization using a grey base artifact and bottom-up vivid charge overlay.
+- Changed beacon behavior from permanent adjacent stat mutation to beacon-owned cooldown pulses that reduce adjacent drill current cooldown when charged.
+- Extended reward reveal timing, strengthened volcano/light particles, and added repeated-click skip to the silhouette-count stage.
+- Added `LTL-harness/tools/i18n-text-gate.ps1` and `LTL-harness/docs/i18n-text-enforcement.md`.
+- Added generic `D:\Programming\ex_workspace\agent-harness\tools\i18n-text-gate.ps1` and `docs/i18n-text-enforcement.md` guidance.
 - Updated dated worklog plan and completion notes.
 
 ## Changes From Plan
@@ -68,6 +79,11 @@ Reviewed M2 implementation state before M3, completed the pre-refactor logical c
 - Added `LTL-harness/docs/11_exec-plans/02_completed/09_M3_reward_and_progression_completed.md`.
 - Latest `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 09_M3_reward_and_progression.md`: returns `MILESTONE_GATE_OK`.
 - Latest `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 10_M4_node_routing.md`: returns `MILESTONE_GATE_OK`.
+- Latest node-map continuation rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passed with `GODOT_CONTRACTS_OK`.
+- Latest node-map continuation rerun of `git diff --check`: no whitespace errors; LF-to-CRLF warnings only.
+- Latest localization/reward UX rerun of `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`: passed with `GODOT_CONTRACTS_OK`; Godot still prints RID/ObjectDB leak warnings at process exit.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/i18n-text-gate.ps1`: returns `I18N_TEXT_GATE_OK`.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File D:\Programming\ex_workspace\agent-harness\tools\i18n-text-gate.ps1 -Root D:\Programming\ex_workspace\agent-harness -Targets examples -AllowNoCatalog`: returns explicit `I18N_TEXT_GATE_SKIP` because the generic harness has no project catalog of its own.
 
 ## Blockers or Unverified Areas
 
@@ -82,3 +98,4 @@ Reviewed M2 implementation state before M3, completed the pre-refactor logical c
 - No gate-blocking refactoring gaps remain for the M3 pre-refactor checkpoint. Further service-level decomposition of live runtime event handlers can be planned as a later architecture improvement rather than a current blocker.
 - Remaining M3 visual evidence should cover reward scene screenshot, reward card readability, and reward selection to next-combat preview manual QA.
 - Remaining M4 visual work should cover a real node-map scene/screenshot matrix and manual QA for candidate readability once the route panel graduates from read-model contract to polished scene.
+- The minimal node-map scene now exists, but screenshot matrix and visual polish are still pending.

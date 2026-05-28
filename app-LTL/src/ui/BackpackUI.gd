@@ -80,7 +80,7 @@ func render_backpack_items(inventory) -> void:
 		for row in range(art.shape.size()):
 			for column in range(art.shape[row].size()):
 				if int(art.shape[row][column]) == 1:
-					_apply_artifact_overlay(int(art.x) + column, int(art.y) + row, str(art.energy_type), art.shape, row, column)
+					_apply_artifact_overlay(int(art.x) + column, int(art.y) + row, art, art.shape, row, column)
 
 # 실행: load backpack border textures.
 func _load_textures() -> Dictionary:
@@ -120,12 +120,30 @@ func _clear_overlays() -> void:
 			var overlay := _slot_overlay(column, row)
 			if overlay:
 				overlay.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+			var charge := _slot_charge_overlay(column, row)
+			if charge:
+				charge.visible = false
+				charge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
 # 실행: apply artifact overlay to a backpack coordinate.
-func _apply_artifact_overlay(column: int, row: int, energy_type: String, shape: Array, shape_row: int, shape_column: int) -> void:
+func _apply_artifact_overlay(column: int, row: int, art: ArtifactClass, shape: Array, shape_row: int, shape_column: int) -> void:
 	var overlay := _slot_overlay(column, row)
 	if overlay:
-		overlay.add_theme_stylebox_override("panel", GridFactory.artifact_style(energy_type, 0.75, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
+		overlay.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.32, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
+	var charge := _slot_charge_overlay(column, row)
+	if charge:
+		var cooldown := maxi(1, int(art.effective_cooldown))
+		var ratio := clampf(1.0 - (float(art.current_cooldown) / float(cooldown)), 0.0, 1.0)
+		charge.visible = true
+		charge.anchor_left = 0.0
+		charge.anchor_right = 1.0
+		charge.anchor_top = 1.0 - ratio
+		charge.anchor_bottom = 1.0
+		charge.offset_left = 0.0
+		charge.offset_right = 0.0
+		charge.offset_top = 0.0
+		charge.offset_bottom = 0.0
+		charge.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.82, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
 
 # 실행: return overlay panel for an 8x8 backpack coordinate.
 func _slot_overlay(column: int, row: int) -> Panel:
@@ -136,3 +154,13 @@ func _slot_overlay(column: int, row: int) -> Panel:
 		return null
 	var slot := backpack_grid_mock.get_child(slot_idx) as Panel
 	return null if slot == null else slot.get_node("Overlay") as Panel
+
+# 실행: return cooldown charge overlay panel for an 8x8 backpack coordinate.
+func _slot_charge_overlay(column: int, row: int) -> Panel:
+	if column < 0 or column >= 8 or row < 0 or row >= 8:
+		return null
+	var slot_idx := (row + 1) * 10 + (column + 1)
+	if slot_idx >= backpack_grid_mock.get_child_count():
+		return null
+	var slot := backpack_grid_mock.get_child(slot_idx) as Panel
+	return null if slot == null else slot.get_node("ChargeOverlay") as Panel

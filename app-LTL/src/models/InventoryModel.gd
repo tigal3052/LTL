@@ -173,24 +173,29 @@ func calculate_synergies() -> void:
 										
 		art.synergy_cooldown_reduction = adjacent_matches.size() * synergy_val
 
-	# Process Beacon modifiers
-	for art_id in artifacts:
-		var art: Artifact = artifacts[art_id]
-		if art.item_type == "beacon":
-			var adj_drills = get_adjacent_drills(art)
-			for drill in adj_drills:
-				drill.synergy_cooldown_reduction -= art.beacon_cooldown_mod
-				drill.damage = maxf(0.1, drill.damage + art.beacon_damage_mod)
+	# Beacon cooldown effects are applied during tick(), not as permanent stat modifiers.
 
 # 실행: progress tick for all artifacts and return generated energies color Array.
 func tick() -> Array:
 	var generated: Array = []
 	for art_id in artifacts:
 		var art: Artifact = artifacts[art_id]
-		var energy = art.tick()
-		if energy != null:
-			generated.append(str(energy))
+		if art.item_type == "beacon":
+			if art.tick_beacon():
+				_apply_beacon_pulse(art)
+		else:
+			var energy = art.tick()
+			if energy != null:
+				generated.append(str(energy))
 	return generated
+
+# 실행: apply a charged beacon pulse to adjacent drills by reducing their current cooldown.
+func _apply_beacon_pulse(beacon: Artifact) -> void:
+	var reduction := absi(int(beacon.beacon_cooldown_mod))
+	if reduction <= 0:
+		return
+	for drill in get_adjacent_drills(beacon):
+		drill.current_cooldown = maxi(0, int(drill.current_cooldown) - reduction)
 
 # 실행: export inventory state to a clean dictionary snapshot.
 func to_dict() -> Dictionary:

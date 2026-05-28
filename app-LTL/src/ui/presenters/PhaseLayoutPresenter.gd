@@ -7,6 +7,7 @@
 # 실행: define a stateless presenter for main phase layout.
 class_name PhaseLayoutPresenter
 extends RefCounted
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
 # 실행: project scene state into phase visibility and timer properties.
 static func project(scene: Dictionary, show_victory_overlay: bool) -> Dictionary:
@@ -20,9 +21,10 @@ static func project(scene: Dictionary, show_victory_overlay: bool) -> Dictionary
 	var seconds_left := int(time_left / 20.0)
 	var minutes := seconds_left / 60
 	var seconds := seconds_left % 60
+	var phase_label := TextCatalogScript.t("phase.%s" % phase)
 	return {
-		"phaseText": "Phase: %s" % phase.capitalize(),
-		"stageText": "Stage %d / %d" % [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))],
+		"phaseText": TextCatalogScript.t("phase.label", [phase_label]),
+		"stageText": TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
 		"nodeSelectVisible": phase == "node_select",
 		"battlefieldVisible": phase == "combat" or (phase == "reward_loot" and show_victory),
 		"rewardVisible": phase == "reward_loot" and not show_victory,

@@ -7,12 +7,13 @@
 # 실행: define the RewardReadModel class.
 class_name RewardReadModel
 extends RefCounted
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
 # 실행: project reward data for UI rendering.
 static func project(reward: Dictionary) -> Dictionary:
 	return {
 		"rewardId": reward.get("rewardId", ""),
-		"kind": reward.get("kind", "Unknown Reward"),
+		"kind": TextCatalogScript.display_name(str(reward.get("kind", "알 수 없는 보상"))),
 		"rarity": reward.get("rarity", "common"),
 		"qty": int(reward.get("qty", 1)),
 		"presentation": {
@@ -28,21 +29,20 @@ static func project(reward: Dictionary) -> Dictionary:
 static func project_tray(pending_rewards: Array, held_reward_index: int = -1, held_artifact: Variant = null, held_from_rewards: bool = false) -> Dictionary:
 	var lines: PackedStringArray = []
 	if pending_rewards.is_empty():
-		lines.append("No pending rewards left. Press 'Claim Rewards' to select your next node.")
+		lines.append(TextCatalogScript.t("reward.empty"))
 	else:
-		lines.append("Click an item to hold it, then drop it in the Discard Zone or backpack grid:\n")
 		for idx in range(pending_rewards.size()):
 			var reward: Dictionary = pending_rewards[idx]
 			var presentation: Dictionary = reward.get("presentation", {})
 			var badge = presentation.get("badge", "reward")
-			var holding = " [HOLDING]" if held_reward_index == idx else ""
-			lines.append("> [url=%d]%s x%d (%s)[/url] [color=#e5c07b][%s][/color]%s" % [idx, str(reward.get("kind", "reward")), int(reward.get("qty", 0)), str(reward.get("rarity", "common")).to_upper(), badge, holding])
-	var discard_text := "DISCARD ZONE\n[Select reward or backpack item to drop here]"
+			var holding = TextCatalogScript.t("reward.holding") if held_reward_index == idx else ""
+			lines.append("> [url=%d]%s x%d (%s)[/url] [color=#e5c07b][%s][/color]%s" % [idx, TextCatalogScript.display_name(str(reward.get("kind", "reward"))), int(reward.get("qty", 0)), str(reward.get("rarity", "common")).to_upper(), badge, holding])
+	var discard_text := TextCatalogScript.t("discard.idle")
 	var discard_active := false
 	if held_artifact != null:
 		discard_active = true
 		if held_from_rewards and held_reward_index >= 0 and held_reward_index < pending_rewards.size():
-			discard_text = "DISCARD ZONE\n[Click here to discard %s]" % str(pending_rewards[held_reward_index].get("kind", ""))
+			discard_text = TextCatalogScript.t("discard.active", [TextCatalogScript.display_name(str(pending_rewards[held_reward_index].get("kind", "")))])
 		else:
-			discard_text = "DISCARD ZONE\n[Click here to discard %s]" % str(held_artifact.name)
+			discard_text = TextCatalogScript.t("discard.active", [TextCatalogScript.display_name(str(held_artifact.name))])
 	return {"text": "\n".join(lines), "discardText": discard_text, "discardActive": discard_active}

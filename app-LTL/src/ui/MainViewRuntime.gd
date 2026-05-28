@@ -7,6 +7,7 @@
 # 실행: define the main-scene UI view as a PanelContainer script and declare signals.
 extends PanelContainer
 const TooltipReadModelScript = preload("res://src/ui/read_models/TooltipReadModel.gd")
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutPresenter.gd")
 const ShopPanelUIScript = preload("res://src/ui/ShopPanelUI.gd")
 const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
@@ -115,7 +116,7 @@ func _ready() -> void:
 
 	# Instantiate Dynamic Shop Button
 	shop_open_button = Button.new()
-	shop_open_button.text = "상점"
+	shop_open_button.text = TextCatalogScript.t("action.shop")
 	shop_open_button.pressed.connect(func(): shop_open_pressed.emit())
 	$RootMargin/AppShell/Header/Margin/PhaseRow.add_child(shop_open_button)
 	$RootMargin/AppShell/Header/Margin/PhaseRow.move_child(shop_open_button, $RootMargin/AppShell/Header/Margin/PhaseRow.get_child_count() - 2)
@@ -129,6 +130,8 @@ func _ready() -> void:
 
 	# Connect volume slider signal
 	settings_panel.volume_changed.connect(set_volume)
+	settings_panel.language_changed.connect(func(_locale): apply_locale())
+	apply_locale()
 
 # ?ㅽ뻾: forward unhandled keys to presenter.
 func _unhandled_input(event: InputEvent) -> void:
@@ -138,6 +141,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # ?ㅽ뻾: setup settings panel.
 func setup_settings(shake_enabled: bool, is_fullscreen: bool) -> void:
 	settings_panel.setup(shake_enabled, is_fullscreen)
+	apply_locale()
 
 # ?ㅽ뻾: setup backpack slots.
 func setup_backpack_slots() -> void:
@@ -155,6 +159,7 @@ func update_backpack_ghost(artifact) -> void:
 func toggle_settings() -> void:
 	settings_panel.visible = not settings_panel.visible
 	if settings_panel.visible:
+		settings_panel.apply_locale()
 		shop_panel.visible = false
 
 # ?ㅽ뻾: set settings visibility directly.
@@ -182,8 +187,8 @@ func is_shop_visible() -> bool:
 # ?ㅽ뻾: render labels, manage view visibility and update status bars based on scene snapshot.
 func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	var layout: Dictionary = PhaseLayoutPresenterScript.project(scene, show_victory_overlay)
-	phase_label.text = str(layout.get("phaseText", "Phase: Unknown"))
-	stage_label.text = str(layout.get("stageText", "Stage 1 / 1"))
+	phase_label.text = str(layout.get("phaseText", TextCatalogScript.t("phase.label", [TextCatalogScript.t("phase.unknown")])))
+	stage_label.text = str(layout.get("stageText", TextCatalogScript.t("stage.label", [1, 1])))
 	$RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel.visible = bool(layout.get("nodeSelectVisible", false))
 	battlefield_ui.visible = bool(layout.get("battlefieldVisible", false))
 	$RootMargin/AppShell/ActivePhaseContainer/RewardPanel.visible = bool(layout.get("rewardVisible", false))
@@ -210,6 +215,11 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 # ?ㅽ뻾: set battlefield disabled tiles.
 func update_battlefield_disabled(scene: Dictionary, disabled_tiles: Array) -> void:
 	battlefield_ui.render_battlefield(scene, disabled_tiles)
+
+# 실행: skip the active reward reveal into its silhouette-count stage.
+func skip_reward_reveal_to_silhouettes() -> void:
+	if battlefield_ui != null and battlefield_ui.has_method("skip_reward_reveal_to_silhouettes"):
+		battlefield_ui.skip_reward_reveal_to_silhouettes()
 
 # ?ㅽ뻾: update action buttons enabled state.
 func update_action_state(scene: Dictionary, show_victory_overlay: bool) -> void:
@@ -265,6 +275,21 @@ func set_node_select_text(val: String) -> void:
 func set_reward_text(val: String) -> void:
 	reward_text.text = val
 
+# 실행: refresh static view labels and buttons from the active text catalog.
+func apply_locale() -> void:
+	if reset_button == null:
+		return
+	settings_open_button.text = "⚙ %s" % TextCatalogScript.t("action.settings")
+	reset_button.text = TextCatalogScript.t("action.reset")
+	start_button.text = TextCatalogScript.t("action.start")
+	hold_fire_button.text = TextCatalogScript.t("action.hold_fire")
+	repair_button.text = TextCatalogScript.t("action.repair")
+	claim_rewards_button.text = TextCatalogScript.t("action.claim_rewards")
+	if shop_open_button != null:
+		shop_open_button.text = TextCatalogScript.t("action.shop")
+	if settings_panel != null and settings_panel.has_method("apply_locale"):
+		settings_panel.apply_locale()
+
 # ?ㅽ뻾: dynamically construct the calibration shop panel.
 func _create_shop_panel() -> void:
 	shop_panel = ShopPanelUIScript.new()
@@ -318,6 +343,19 @@ func show_artifact_tooltip(art) -> void:
 	if tooltip_panel == null:
 		return
 	var tooltip_model: Dictionary = TooltipReadModelScript.project(art)
+	if tooltip_panel != null and tooltip_panel.has_method("show_text"):
+		tooltip_panel.show_text(str(tooltip_model.get("bbcode", "")))
+		_update_tooltip_position()
+		return
+	tooltip_label.text = str(tooltip_model.get("bbcode", ""))
+	tooltip_panel.visible = true
+	_update_tooltip_position()
+
+# 실행: show a reward tooltip with inventory comparison context.
+func show_reward_tooltip(reward: Dictionary, equipped_artifacts: Array) -> void:
+	if tooltip_panel == null:
+		return
+	var tooltip_model: Dictionary = TooltipReadModelScript.project_reward_comparison(reward, equipped_artifacts, TextCatalogScript.locale())
 	if tooltip_panel != null and tooltip_panel.has_method("show_text"):
 		tooltip_panel.show_text(str(tooltip_model.get("bbcode", "")))
 		_update_tooltip_position()

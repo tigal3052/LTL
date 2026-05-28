@@ -26,6 +26,7 @@ func run_all_tests() -> Dictionary:
 	test_place_held_rejects_collision_and_out_of_bounds()
 	test_place_held_rejects_duplicate_drill_color()
 	test_place_reward_removes_reward_only_after_success()
+	test_beacon_tick_reduces_adjacent_drill_cooldown_when_charged()
 	test_discard_respects_last_artifact_guard()
 	test_rotate_held_changes_shape()
 	return {"ok": failures.is_empty(), "errors": failures}
@@ -76,6 +77,21 @@ func test_place_reward_removes_reward_only_after_success() -> void:
 	var placed = PlaceHeldScript.place(inv, _artifact("blue_b", "blue", [[1]]), 0, 0, pending, 0)
 	_assert_eq(placed.get("ok", false), true, "successful reward placement succeeds")
 	_assert_eq(placed.get("pendingRewards", []).size(), 0, "successful reward placement removes pending reward")
+
+# 실행: verify beacon cooldown charges separately before reducing adjacent drill cooldown.
+func test_beacon_tick_reduces_adjacent_drill_cooldown_when_charged() -> void:
+	var inv := InventoryScript.new(8, 8)
+	var drill = _artifact("red_drill", "red", [[1]])
+	drill.current_cooldown = 8
+	var beacon = ArtifactScript.new({"id": "red_beacon", "name": "Red Beacon", "shape": [[1]], "energyType": "red", "item_type": "beacon", "baseCooldownTicks": 2, "beaconCooldownMod": -3})
+	_assert_eq(inv.place_artifact(drill, 2, 2), true, "place drill before beacon")
+	_assert_eq(inv.place_artifact(beacon, 3, 2), true, "place adjacent beacon")
+	var first_tick := inv.tick()
+	_assert_eq(first_tick.size(), 0, "first beacon tick does not emit energy")
+	_assert_eq(drill.current_cooldown, 7, "first tick only advances drill cooldown normally")
+	var second_tick := inv.tick()
+	_assert_eq(second_tick.size(), 0, "beacon tick still does not emit energy")
+	_assert_eq(drill.current_cooldown, 3, "charged beacon reduces adjacent drill cooldown after its own cooldown fills")
 
 # 실행: verify discard refuses to remove the final artifact when guarded.
 func test_discard_respects_last_artifact_guard() -> void:

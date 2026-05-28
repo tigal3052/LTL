@@ -59,6 +59,11 @@ func start_reveal_vfx(rewards_cnt: int, rewards_list: Array, callback: Callable)
 		callback.call()
 	, battlefield_grid, battlefield_title)
 
+# 실행: let a repeated click skip the reveal into the silhouette-count stage.
+func skip_reward_reveal_to_silhouettes() -> void:
+	if vfx_overlay != null and vfx_overlay.has_method("skip_to_silhouettes"):
+		vfx_overlay.skip_to_silhouettes()
+
 # 실행: clear all battlefield cells.
 func _clear_cells() -> void:
 	for child in battlefield_grid.get_children():

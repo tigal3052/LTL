@@ -35,6 +35,12 @@ static func inner_slot(texture: Texture2D) -> Panel:
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	slot.add_child(overlay)
+	var charge := Panel.new()
+	charge.name = "ChargeOverlay"
+	charge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	charge.visible = false
+	charge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	slot.add_child(charge)
 	return slot
 
 # 실행: produce a filled artifact overlay style.

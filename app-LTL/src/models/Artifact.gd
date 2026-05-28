@@ -80,6 +80,19 @@ func tick() -> Variant:
 		return energy_type
 	return null
 
+# 실행: progress a beacon cooldown and report whether its pulse is ready.
+func tick_beacon() -> bool:
+	if is_broken or item_type != "beacon":
+		return false
+	if freeze_ticks > 0:
+		freeze_ticks -= 1
+		return false
+	current_cooldown -= 1
+	if current_cooldown <= 0:
+		current_cooldown = maxi(1, base_cooldown_ticks)
+		return true
+	return false
+
 # 실행: rotate the artifact shape 90 degrees clockwise and update rotation state.
 func rotate_shape() -> void:
 	var rows: int = shape.size()

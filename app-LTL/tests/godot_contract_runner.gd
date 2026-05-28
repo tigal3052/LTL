@@ -13,15 +13,18 @@ const REQUIRED_SCRIPTS := [
 	"res://src/process/HeadlessMiniRun.gd",
 	"res://src/process/CombatInputAdapter.gd",
 	"res://src/process/ReplayProcess.gd",
+	"res://src/process/NodeInputAdapter.gd",
 	"res://src/ui/SceneReadModel.gd",
 	"res://src/ui/CombatSceneModel.gd",
 	"res://src/ui/CombatScenePreviewController.gd",
 	"res://src/tools/FormalReplayRunner.gd",
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
+	"res://src/ui/TextCatalog.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/ui/read_models/TooltipReadModel.gd",
 	"res://src/ui/read_models/NodeSelectReadModel.gd",
+	"res://src/ui/read_models/NodeMapReadModel.gd",
 	"res://src/ui/presenters/PhaseLayoutPresenter.gd",
 	"res://src/ui/presenters/CombatFeedbackPresenter.gd",
 	"res://src/ui/presenters/HeartbeatSynth.gd",
@@ -75,7 +78,7 @@ const REQUIRED_SCRIPTS := [
 ]
 
 # 실행: list formal scene resources that must exist for the M2 app entry path.
-const REQUIRED_SCENES := ["res://src/Main.tscn"]
+const REQUIRED_SCENES := ["res://src/Main.tscn", "res://src/scenes/node_map/NodeMapScene.tscn"]
 
 # 실행: list scripts that must retain contract and execution comments.
 const COMMENTED_SCRIPTS := [
@@ -89,6 +92,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/tools/FormalReplayRunner.gd",
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
+	"res://src/ui/TextCatalog.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/ui/read_models/TooltipReadModel.gd",
 	"res://src/ui/read_models/NodeSelectReadModel.gd",
@@ -203,6 +207,7 @@ func _run_contracts() -> void:
 	_test_backpack_vocab_contracts()
 	_test_combat_vocab_contracts()
 	_test_node_routing_contracts()
+	_test_node_map_scene_smoke()
 	_test_ui_read_model_contracts()
 	if not smoke_only:
 		_test_main_scene_instantiation()
@@ -369,6 +374,19 @@ func _test_node_routing_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Node routing test failed: %s" % err)
+
+# Execute: load and run node map scene smoke tests.
+func _test_node_map_scene_smoke() -> void:
+	var TestNodeMapSceneClass = load("res://tests/test_node_map_scene_smoke.gd")
+	_assert(TestNodeMapSceneClass != null, "test node map scene smoke loads")
+	if TestNodeMapSceneClass == null:
+		return
+	var tester = TestNodeMapSceneClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "node map scene smoke tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Node map scene smoke test failed: %s" % err)
 
 # 실행: load and run UI read model unit tests.
 func _test_ui_read_model_contracts() -> void:

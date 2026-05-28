@@ -76,12 +76,12 @@ func _draw() -> void:
 
 # 실행: manage reveal timeline timers.
 func _timeline(grid: Control, title: Control) -> void:
-	get_tree().create_timer(1.0).timeout.connect(func():
+	get_tree().create_timer(1.25).timeout.connect(func():
 		stage = 1
-		get_tree().create_timer(1.0).timeout.connect(func():
+		get_tree().create_timer(1.45).timeout.connect(func():
 			stage = 2
-			_spawn_shards(size / 2.0, 40 if rewards_count >= 4 else 20)
-			get_tree().create_timer(0.8).timeout.connect(func():
+			_spawn_shards(size / 2.0, 72 if rewards_count >= 4 else 36)
+			get_tree().create_timer(1.15).timeout.connect(func():
 				stage = 3
 				_spawn_silhouettes(size / 2.0)
 				get_tree().create_timer(1.2).timeout.connect(func():
@@ -111,6 +111,7 @@ func _update_particles(delta: float) -> void:
 	particles = next_particles
 	if stage == 2 and rewards_count >= 4:
 		_spawn_fountain(size / 2.0)
+		_spawn_light_burst(size / 2.0)
 
 # 실행: draw the remaining combat timer border.
 func _draw_combat_border() -> void:
@@ -145,9 +146,27 @@ func _spawn_shards(center: Vector2, count: int) -> void:
 
 # 실행: spawn active fountain particles.
 func _spawn_fountain(center: Vector2) -> void:
-	for i in range(3):
+	for i in range(6):
 		var angle = randf_range(-PI / 3.0 - 0.2, -2.0 * PI / 3.0 + 0.2)
-		particles.append({"pos": center + Vector2(randf_range(-12.0, 12.0), 0.0), "vel": Vector2(cos(angle), sin(angle)) * randf_range(160.0, 340.0), "color": Color(randf_range(0.9, 1.0), randf_range(0.2, 0.45), 0.1, randf_range(0.8, 1.0)), "size": randf_range(3.0, 7.0), "life": randf_range(0.5, 1.1)})
+		particles.append({"pos": center + Vector2(randf_range(-18.0, 18.0), 0.0), "vel": Vector2(cos(angle), sin(angle)) * randf_range(180.0, 430.0), "color": Color(randf_range(0.95, 1.0), randf_range(0.25, 0.85), randf_range(0.05, 0.35), randf_range(0.75, 1.0)), "size": randf_range(3.0, 9.0), "life": randf_range(0.7, 1.45)})
+
+# 실행: spawn extra bright radial particles for the volcano peak.
+func _spawn_light_burst(center: Vector2) -> void:
+	if particles.size() > 180:
+		return
+	for i in range(5):
+		var angle = randf_range(0.0, TAU)
+		particles.append({"pos": center, "vel": Vector2(cos(angle), sin(angle)) * randf_range(90.0, 260.0), "color": Color(1.0, randf_range(0.75, 0.95), randf_range(0.25, 0.55), randf_range(0.45, 0.85)), "size": randf_range(5.0, 12.0), "life": randf_range(0.35, 0.75)})
+
+# 실행: skip the expectation animation and jump to reward-count silhouettes.
+func skip_to_silhouettes() -> void:
+	if not is_revealing:
+		return
+	if silhouettes.is_empty():
+		_spawn_silhouettes(size / 2.0)
+	stage = maxi(stage, 3)
+	timer = 0.0
+	queue_redraw()
 
 # 실행: spawn reward silhouette targets.
 func _spawn_silhouettes(center: Vector2) -> void:

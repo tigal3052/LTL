@@ -66,6 +66,7 @@ func _ready() -> void:
 	view.confirm_cancel_pressed.connect(_on_confirm_cancel_pressed)
 	view.settings_open_pressed.connect(func(): view.toggle_settings())
 	view.settings_panel.reset_requested.connect(_on_reset_pressed)
+	view.settings_panel.language_changed.connect(func(_locale): _render_scene(current_scene))
 	view.settings_panel.screenshake_toggled.connect(func(enabled): view.vfx_manager.shake_enabled = enabled)
 	view.settings_panel.fullscreen_toggled.connect(func(toggled): DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if toggled else DisplayServer.WINDOW_MODE_WINDOWED))
 	view.node_meta_clicked.connect(_on_node_meta_clicked)
@@ -84,7 +85,9 @@ func _ready() -> void:
 			if phase == "run_complete" and bool(current_scene.get("failed", false)):
 				_on_reset_pressed()
 			elif phase == "reward_loot" and show_victory_overlay:
-				if not is_reveal_vfx_running:
+				if is_reveal_vfx_running:
+					view.skip_reward_reveal_to_silhouettes()
+				else:
 					show_victory_overlay = false
 					is_reveal_vfx_running = true
 					view.add_log("[color=#ffd766][VFX] 레비아탄 갑각이 흔들립니다. 보상층이 드러나고 있습니다...[/color]")
@@ -247,7 +250,7 @@ func _on_reward_meta_hovered(meta: Variant) -> void:
 		return
 	var idx := int(meta)
 	if idx >= 0 and idx < local_rewards_list.size():
-		view.show_artifact_tooltip(local_rewards_list[idx])
+		view.show_reward_tooltip(local_rewards_list[idx], _equipped_artifacts())
 
 # ?ㅽ뻾: handle reward item unhovered to hide tooltip.
 func _on_reward_meta_unhovered(_meta: Variant) -> void:
@@ -509,6 +512,15 @@ func _initialize_random_weaknesses() -> void:
 func _get_active_queue_color() -> String:
 	var items: Array = current_scene.get("hud", {}).get("queue", {}).get("items", [])
 	return str(items[0]) if not items.is_empty() else "red"
+
+# 실행: return current inventory artifacts as an array for tooltip comparison.
+func _equipped_artifacts() -> Array:
+	var result: Array = []
+	if inventory == null:
+		return result
+	for art_id in inventory.artifacts:
+		result.append(inventory.artifacts[art_id])
+	return result
 
 # ?ㅽ뻾: helper to summarize node select candidates.
 func _node_select_summary(scene: Dictionary) -> String:

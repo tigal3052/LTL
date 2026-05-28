@@ -132,17 +132,17 @@ text = "LOOTING THE LEVIATHAN"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
 theme_override_font_sizes/font_size = 14
-text = "Phase"
+text = "단계"
 
 [node name="StageLabel" type="Label" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
 theme_override_font_sizes/font_size = 14
-text = "Stage"
+text = "스테이지"
 
 [node name="SettingsOpenButton" type="Button" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2
-text = "⚙ Settings"
+text = "⚙ 설정"
 
 [node name="TopContent" type="HBoxContainer" parent="RootMargin/AppShell"]
 layout_mode = 2
@@ -177,7 +177,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "CHARACTER STATUS"
+text = "탐사자 상태"
 
 [node name="PortraitPlaceholder" type="Panel" parent="RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox"]
 custom_minimum_size = Vector2(0, 100)
@@ -191,7 +191,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "[Harvester Profile]"
+text = "[채굴자 프로필]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -227,7 +227,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "DRILL & NODE STATUS"
+text = "드릴 및 노드 상태"
 
 [node name="NodeRow" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
 layout_mode = 2
@@ -252,7 +252,7 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Leviathan HP:"
+text = "레비아탄 체력:"
 
 [node name="HealthBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox"]
 custom_minimum_size = Vector2(0, 14)
@@ -268,7 +268,7 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Shield:"
+text = "보호막:"
 
 [node name="ShieldBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox"]
 custom_minimum_size = Vector2(0, 14)
@@ -284,7 +284,7 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Energy Queue:"
+text = "에너지 큐:"
 
 [node name="VisualQueueBox" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow"]
 layout_mode = 2
@@ -298,7 +298,7 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Stage Time Limit:"
+text = "스테이지 제한 시간:"
 
 [node name="PinProgressBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow"]
 custom_minimum_size = Vector2(0, 14)
@@ -314,13 +314,13 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "Drill Status:"
+text = "드릴 상태:"
 
 [node name="RepairStatusLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
 theme_override_font_sizes/font_size = 12
-text = "Normal"
+text = "정상"
 
 [node name="BackpackContainer" type="AspectRatioContainer" parent="RootMargin/AppShell/TopContent"]
 layout_mode = 2
@@ -350,7 +350,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "Backpack Engine Space (8x8 Grid)"
+text = "백팩 엔진 공간 (8x8 격자)"
 
 [node name="GridMock" type="GridContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox"]
 layout_mode = 2
@@ -381,14 +381,14 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "SYSTEM LOGS & INFO"
+text = "시스템 로그와 정보"
 
 [node name="InspectorText" type="RichTextLabel" parent="RootMargin/AppShell/TopContent/RightSidebar/Margin/InspectorBox"]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "System online.
-Awaiting node selection..."
+text = "시스템 준비 완료.
+노드 선택 대기 중..."
 script = ExtResource("6")
 
 [node name="ActivePhaseContainer" type="MarginContainer" parent="RootMargin/AppShell"]
@@ -418,7 +418,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "Next Target Nodes"
+text = "다음 목표 노드"
 
 [node name="NodeSelectText" type="RichTextLabel" parent="RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox"]
 layout_mode = 2
@@ -449,7 +449,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 12
-text = "Leviathan Crust Surface (3x10 Grid)"
+text = "레비아탄 지각 표면 (3x10 격자)"
 
 [node name="BattlefieldGrid" type="GridContainer" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox"]
 layout_mode = 2
@@ -480,7 +480,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 12
-text = "Recovered Artifacts / Rewards"
+text = "회수한 유물 / 보상"
 
 [node name="RewardRow" type="HBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
 layout_mode = 2
@@ -499,8 +499,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
 
 [node name="DiscardLabel" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/DiscardZone"]
 layout_mode = 2
-text = "🗑 DISCARD ZONE
-[Click reward to drop here]"
+text = "🗑 버리기 구역
+[보상을 선택한 뒤 여기에 놓으세요]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -510,23 +510,23 @@ theme_override_constants/separation = 12
 
 [node name="ResetButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "Reset Run"
+text = "탐사 초기화"
 
 [node name="StartButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "Start Combat"
+text = "전투 시작"
 
 [node name="HoldFireButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "Hold Fire"
+text = "연속 발사"
 
 [node name="RepairButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "Initiate Repair"
+text = "수리 시작"
 
 [node name="ClaimRewardsButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "Claim Rewards"
+text = "보상 확정"
 
 [node name="RepairOverlay" type="PanelContainer" parent="."]
 visible = false
@@ -552,8 +552,8 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.756863, 0.756863, 1)
 theme_override_font_sizes/font_size = 14
-text = "Core overheated. Energy queue depleted.
-Press [R] or click the Repair button to restart the drill core."
+text = "코어가 과열되어 에너지 큐가 비었습니다.
+[R] 또는 수리 버튼을 눌러 드릴 코어를 재시작하세요."
 horizontal_alignment = 1
 
 [node name="ConfirmOverlay" type="PanelContainer" parent="."]
@@ -618,7 +618,7 @@ theme_override_constants/separation = 20
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
 theme_override_font_sizes/font_size = 22
-text = "SYSTEM CALIBRATION"
+text = "시스템 설정"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="SettingsPanel/Center/SettingsBox"]
@@ -632,12 +632,12 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 14
-text = "Gameplay Settings"
+text = "플레이 설정"
 
 [node name="ScreenshakeCheckbox" type="CheckBox" parent="SettingsPanel/Center/SettingsBox/GameplaySection"]
 layout_mode = 2
 button_pressed = true
-text = "Enable Screenshake & Hit Flash"
+text = "화면 흔들림과 피격 섬광"
 
 [node name="ScreenSection" type="VBoxContainer" parent="SettingsPanel/Center/SettingsBox"]
 layout_mode = 2
@@ -647,11 +647,11 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 14
-text = "Screen Settings"
+text = "화면 설정"
 
 [node name="FullscreenCheckbox" type="CheckBox" parent="SettingsPanel/Center/SettingsBox/ScreenSection"]
 layout_mode = 2
-text = "Full Screen Mode"
+text = "전체 화면"
 
 [node name="SoundSection" type="VBoxContainer" parent="SettingsPanel/Center/SettingsBox"]
 layout_mode = 2
@@ -661,7 +661,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 14
-text = "Sound Settings (Mock)"
+text = "소리 설정"
 
 [node name="VolumeSlider" type="HSlider" parent="SettingsPanel/Center/SettingsBox/SoundSection"]
 layout_mode = 2
@@ -678,12 +678,12 @@ alignment = 1
 [node name="MainMenuButton" type="Button" parent="SettingsPanel/Center/SettingsBox/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Main Menu"
+text = "메인 메뉴"
 
 [node name="CloseSettingsButton" type="Button" parent="SettingsPanel/Center/SettingsBox/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Apply & Close"
+text = "적용 후 닫기"
 
 [node name="ParticleTemplate" type="CPUParticles2D" parent="."]
 emitting = false
