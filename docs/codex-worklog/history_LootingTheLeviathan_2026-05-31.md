@@ -420,3 +420,49 @@ A  docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:03:31
+
+<!-- codex-worklog-signature: 72f4f37455230666cf29af6b9dc6ffc69d9b4066333edbab38fe38f10799ed9d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/render-terrain-panel-before-after.ps1
+ M docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:03:32
+
+<!-- codex-worklog-signature: ba93b7200a2f4e881270b2c69143bfc3ef52073b989a5a254d74cf2f4da5b9e7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/render-terrain-panel-before-after.ps1
+ M docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:04:31
+
+<!-- codex-worklog-signature: 7b79a915c1bdcff75061367e8938b97a01ce55df222a440178025a2958041a05 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/render-terrain-panel-before-after.ps1
+ M docs/mockups/terrain-panel-before-after-render.png
+ M docs/mockups/terrain-panel-before-after.html
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.

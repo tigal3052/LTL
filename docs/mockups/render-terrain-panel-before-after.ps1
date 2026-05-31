@@ -297,13 +297,13 @@ function Draw-AfterMockup {
         $Graphics.ResetTransform()
 
         $shellX = $boardX + [int]($boardW * 0.214)
-        $shellY = $boardY + [int]($boardH * 0.16)
+        $shellY = $boardY + [int]($boardH * 0.12)
         $shellW = [int]($boardW * 0.75)
-        $shellH = [int]($boardH * 0.728)
+        $shellH = [int]($boardH * 0.84)
         $Graphics.DrawImage($panelImage, $shellX, $shellY, $shellW, $shellH)
 
         $laneInsetX = [int]($shellW * 0.024)
-        $laneInsetY = [int]($shellH * 0.11)
+        $laneInsetY = [int]($shellH * 0.125)
         $laneGapY = [int]($shellH * 0.045)
         $laneHeight = [math]::Floor(($shellH - ($laneInsetY * 2) - ($laneGapY * 2)) / 3)
         $laneWidth = $shellW - ($laneInsetX * 2)
@@ -315,7 +315,7 @@ function Draw-AfterMockup {
         $laneBrush.Dispose()
 
         $gridPadX = [int]($shellW * 0.026)
-        $gridPadY = [int]($shellH * 0.085)
+        $gridPadY = [int]($shellH * 0.112)
         $slotGapX = 3
         $slotGapY = [int]($shellH * 0.032)
         $slotW = [math]::Floor(($shellW - ($gridPadX * 2) - ($slotGapX * 9)) / 10)
