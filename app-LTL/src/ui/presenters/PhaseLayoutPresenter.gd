@@ -22,15 +22,28 @@ static func project(scene: Dictionary, show_victory_overlay: bool) -> Dictionary
 	var minutes := seconds_left / 60
 	var seconds := seconds_left % 60
 	var phase_label := TextCatalogScript.t("phase.%s" % phase)
+	var is_node_select := phase == "node_select"
 	return {
 		"phaseText": TextCatalogScript.t("phase.label", [phase_label]),
 		"stageText": TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
-		"nodeSelectVisible": phase == "node_select",
+		"nodeSelectVisible": is_node_select,
+		"nodeMapFullPage": is_node_select,
+		"activePhaseStretchRatio": 7.0 if is_node_select else 1.0,
+		"topContentVisible": not is_node_select,
+		"backpackVisible": true,
+		"backpackCooldownVisible": phase == "combat",
+		"sidebarsVisible": not is_node_select,
+		"leftColumnTopStretchRatio": 2.45,
+		"backpackTopStretchRatio": 0.0,
+		"rightSidebarTopStretchRatio": 2.35,
+		"nodeSelectBackpackDock": "right" if is_node_select else "top",
+		"nodeMapStretchRatio": 1.00,
+		"backpackStretchRatio": 0.00,
 		"battlefieldVisible": phase == "combat" or (phase == "reward_loot" and show_victory),
 		"rewardVisible": phase == "reward_loot" and not show_victory,
 		"statusVisible": phase == "combat" or (phase == "reward_loot" and show_victory),
-		"shopButtonVisible": phase == "node_select",
-		"closeShop": phase != "node_select",
+		"shopButtonVisible": is_node_select,
+		"closeShop": not is_node_select,
 		"giantTimerVisible": phase == "combat",
 		"timerText": "%02d:%02d" % [minutes, seconds],
 		"timeLeft": time_left,

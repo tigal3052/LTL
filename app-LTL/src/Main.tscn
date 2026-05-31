@@ -140,7 +140,11 @@ theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
 theme_override_font_sizes/font_size = 14
 text = "스테이지"
 
-[node name="SettingsOpenButton" type="Button" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
+[node name="HeaderActions" type="HBoxContainer" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SettingsOpenButton" type="Button" parent="RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions"]
 layout_mode = 2
 text = "⚙ 설정"
 
@@ -148,16 +152,16 @@ text = "⚙ 설정"
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
-theme_override_constants/separation = 16
+theme_override_constants/separation = 20
 
 [node name="LeftColumn" type="VBoxContainer" parent="RootMargin/AppShell/TopContent"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.5
+size_flags_stretch_ratio = 2.45
 theme_override_constants/separation = 16
 
 [node name="LeftSidebar" type="PanelContainer" parent="RootMargin/AppShell/TopContent/LeftColumn"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -180,7 +184,7 @@ theme_override_font_sizes/font_size = 14
 text = "탐사자 상태"
 
 [node name="PortraitPlaceholder" type="Panel" parent="RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox"]
-custom_minimum_size = Vector2(0, 100)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_grid_slot")
 
@@ -241,7 +245,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_extractor")
 [node name="ExtractorLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/NodeRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "노드: —"
 
 [node name="HPBox" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
@@ -249,9 +253,9 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="HealthLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox"]
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "레비아탄 체력:"
 
 [node name="HealthBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox"]
@@ -265,9 +269,9 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="ShieldLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox"]
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "보호막:"
 
 [node name="ShieldBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox"]
@@ -281,9 +285,9 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="QueueLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow"]
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "에너지 큐:"
 
 [node name="VisualQueueBox" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow"]
@@ -295,9 +299,9 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="PinLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow"]
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "스테이지 제한 시간:"
 
 [node name="PinProgressBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow"]
@@ -311,9 +315,9 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="DrillStatusLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow"]
-custom_minimum_size = Vector2(90, 0)
+custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "드릴 상태:"
 
 [node name="RepairStatusLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow"]
@@ -324,8 +328,8 @@ text = "정상"
 
 [node name="BackpackContainer" type="AspectRatioContainer" parent="RootMargin/AppShell/TopContent"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 6.0
+size_flags_horizontal = 4
+size_flags_stretch_ratio = 0.0
 
 [node name="BackpackEnginePanel" type="PanelContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer"]
 custom_minimum_size = Vector2(200, 200)
@@ -337,10 +341,10 @@ script = ExtResource("3")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
 [node name="EngineBox" type="VBoxContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin"]
 layout_mode = 2
@@ -360,18 +364,18 @@ theme_override_constants/v_separation = 2
 columns = 8
 
 [node name="RightSidebar" type="PanelContainer" parent="RootMargin/AppShell/TopContent"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.5
+size_flags_stretch_ratio = 2.35
 theme_override_styles/panel = SubResource("StyleBoxTexture_log_panel")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/RightSidebar"]
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 70
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 70
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
 
 [node name="InspectorBox" type="VBoxContainer" parent="RootMargin/AppShell/TopContent/RightSidebar/Margin"]
 layout_mode = 2

@@ -9,9 +9,17 @@ extends PanelContainer
 const TooltipReadModelScript = preload("res://src/ui/read_models/TooltipReadModel.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutPresenter.gd")
+const NodeMapReadModelScript = preload("res://src/ui/read_models/NodeMapReadModel.gd")
+const NodeMapSceneScript = preload("res://src/scenes/node_map/NodeMapScene.gd")
 const ShopPanelUIScript = preload("res://src/ui/ShopPanelUI.gd")
 const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
 const GiantTimerUIScript = preload("res://src/ui/GiantTimerUI.gd")
+const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
+const NODE_SELECT_ROW_GAP := 20.0
+const NODE_SELECT_MAP_MIN_WIDTH := 460.0
+const NODE_SELECT_BACKPACK_MIN_WIDTH := 480.0
+const NODE_SELECT_BACKPACK_MAX_WIDTH := 860.0
+
 signal reset_pressed
 signal start_combat_pressed
 signal hold_fire_pressed
@@ -21,6 +29,7 @@ signal settings_open_pressed
 signal confirm_proceed_pressed
 signal confirm_cancel_pressed
 signal node_meta_clicked(meta: Variant)
+signal loadout_color_selected(color: String)
 signal reward_meta_clicked(meta: Variant)
 signal reward_meta_hovered(meta: Variant)
 signal reward_meta_unhovered(meta: Variant)
@@ -38,18 +47,29 @@ signal key_pressed(keycode: int)
 # New Shop signals
 signal shop_open_pressed
 signal buy_passive(passive_id: String, cost: int)
+signal buy_base_item(item_id: String)
 
 # ?ㅽ뻾: cache UI node references.
 @onready var phase_label: Label = $RootMargin/AppShell/Header/Margin/PhaseRow/PhaseLabel
 @onready var stage_label: Label = $RootMargin/AppShell/Header/Margin/PhaseRow/StageLabel
+@onready var header_actions: HBoxContainer = $RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions
+@onready var top_content: HBoxContainer = $RootMargin/AppShell/TopContent
+@onready var active_phase_container: Control = $RootMargin/AppShell/ActivePhaseContainer
+@onready var node_select_panel: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel
+@onready var node_select_box: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox
+@onready var node_select_title: Label = $RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox/NodeSelectTitle
 @onready var node_select_text: RichTextLabel = $RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox/NodeSelectText
+@onready var left_column: VBoxContainer = $RootMargin/AppShell/TopContent/LeftColumn
+@onready var backpack_container: AspectRatioContainer = $RootMargin/AppShell/TopContent/BackpackContainer
+@onready var right_sidebar: PanelContainer = $RootMargin/AppShell/TopContent/RightSidebar
 @onready var reward_text: RichTextLabel = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/RewardText
 @onready var reset_button: Button = $RootMargin/AppShell/ActionBar/ResetButton
 @onready var start_button: Button = $RootMargin/AppShell/ActionBar/StartButton
 @onready var hold_fire_button: Button = $RootMargin/AppShell/ActionBar/HoldFireButton
 @onready var repair_button: Button = $RootMargin/AppShell/ActionBar/RepairButton
 @onready var claim_rewards_button: Button = $RootMargin/AppShell/ActionBar/ClaimRewardsButton
-@onready var settings_open_button: Button = $RootMargin/AppShell/Header/Margin/PhaseRow/SettingsOpenButton
+@onready var settings_open_button: Button = $RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions/SettingsOpenButton
+@onready var action_bar: HBoxContainer = $RootMargin/AppShell/ActionBar
 @onready var repair_overlay: PanelContainer = $RepairOverlay
 @onready var confirm_overlay: PanelContainer = $ConfirmOverlay
 @onready var confirm_proceed_button: Button = $ConfirmOverlay/Center/ConfirmBox/ButtonsRow/ConfirmButton
@@ -85,6 +105,33 @@ var giant_timer_ui
 # Tooltip UI Dynamic nodes
 var tooltip_panel: PanelContainer
 var tooltip_label: RichTextLabel
+var node_map_scene: NodeMapScene = null
+var node_select_content_row: HBoxContainer = null
+var backpack_original_parent: Node = null
+var backpack_original_index: int = -1
+
+static func node_select_backpack_width_for_row(row_size: Vector2, map_min_width: float) -> float:
+	var target_height := maxf(0.0, row_size.y)
+	var available_width := NODE_SELECT_BACKPACK_MAX_WIDTH
+	if row_size.x > 1.0:
+		available_width = maxf(0.0, row_size.x - map_min_width - NODE_SELECT_ROW_GAP)
+	var upper_bound := minf(NODE_SELECT_BACKPACK_MAX_WIDTH, available_width)
+	var lower_bound := minf(NODE_SELECT_BACKPACK_MIN_WIDTH, upper_bound)
+	if upper_bound <= 0.0:
+		return 0.0
+	return clampf(target_height, lower_bound, upper_bound)
+
+static func top_content_backpack_horizontal_flags() -> int:
+	return Control.SIZE_SHRINK_CENTER
+
+static func top_content_side_horizontal_flags() -> int:
+	return Control.SIZE_EXPAND_FILL
+
+static func top_content_backpack_width_for_height(target_height: float) -> float:
+	var safe_height := maxf(0.0, target_height)
+	if safe_height <= 0.0:
+		return 0.0
+	return maxf(safe_height, 420.0)
 
 # ?ㅽ뻾: connect raw UI signals to custom view signals for orchestrator consumption.
 func _ready() -> void:
@@ -118,10 +165,12 @@ func _ready() -> void:
 	shop_open_button = Button.new()
 	shop_open_button.text = TextCatalogScript.t("action.shop")
 	shop_open_button.pressed.connect(func(): shop_open_pressed.emit())
-	$RootMargin/AppShell/Header/Margin/PhaseRow.add_child(shop_open_button)
-	$RootMargin/AppShell/Header/Margin/PhaseRow.move_child(shop_open_button, $RootMargin/AppShell/Header/Margin/PhaseRow.get_child_count() - 2)
+	header_actions.add_child(shop_open_button)
 
 	_create_shop_panel()
+	_create_node_map_scene()
+	backpack_original_parent = backpack_container.get_parent()
+	backpack_original_index = backpack_container.get_index()
 
 	# Instantiate Giant Timer & Vignette Overlay
 	_create_giant_timer()
@@ -131,7 +180,9 @@ func _ready() -> void:
 	# Connect volume slider signal
 	settings_panel.volume_changed.connect(set_volume)
 	settings_panel.language_changed.connect(func(_locale): apply_locale())
+	_apply_shell_theme()
 	apply_locale()
+	call_deferred("_install_interaction_fx")
 
 # ?ㅽ뻾: forward unhandled keys to presenter.
 func _unhandled_input(event: InputEvent) -> void:
@@ -189,11 +240,31 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	var layout: Dictionary = PhaseLayoutPresenterScript.project(scene, show_victory_overlay)
 	phase_label.text = str(layout.get("phaseText", TextCatalogScript.t("phase.label", [TextCatalogScript.t("phase.unknown")])))
 	stage_label.text = str(layout.get("stageText", TextCatalogScript.t("stage.label", [1, 1])))
-	$RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel.visible = bool(layout.get("nodeSelectVisible", false))
+	var node_map_full_page := bool(layout.get("nodeMapFullPage", false))
+	_apply_node_select_backpack_dock(str(layout.get("nodeSelectBackpackDock", "top")), float(layout.get("nodeMapStretchRatio", 2.1)), float(layout.get("backpackStretchRatio", 1.0)))
+	_apply_top_content_stretch(float(layout.get("leftColumnTopStretchRatio", 3.5)), float(layout.get("backpackTopStretchRatio", 6.0)), float(layout.get("rightSidebarTopStretchRatio", 2.5)))
+	top_content.visible = bool(layout.get("topContentVisible", true))
+	left_column.visible = bool(layout.get("sidebarsVisible", true))
+	right_sidebar.visible = bool(layout.get("sidebarsVisible", true))
+	backpack_container.visible = bool(layout.get("backpackVisible", true))
+	if node_map_full_page:
+		backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
+	elif top_content.visible:
+		backpack_container.custom_minimum_size = Vector2(_top_content_backpack_width(), 0.0)
+	else:
+		backpack_container.custom_minimum_size = Vector2.ZERO
+	active_phase_container.size_flags_stretch_ratio = float(layout.get("activePhaseStretchRatio", 1.0))
+	node_select_panel.visible = bool(layout.get("nodeSelectVisible", false))
+	node_select_title.visible = not node_map_full_page
+	node_select_text.visible = not node_map_full_page and node_map_scene == null
+	if node_map_scene != null:
+		node_map_scene.visible = bool(layout.get("nodeSelectVisible", false))
 	battlefield_ui.visible = bool(layout.get("battlefieldVisible", false))
 	$RootMargin/AppShell/ActivePhaseContainer/RewardPanel.visible = bool(layout.get("rewardVisible", false))
 	status_panel.visible = bool(layout.get("statusVisible", false))
 	shop_open_button.visible = bool(layout.get("shopButtonVisible", false))
+	if backpack_ui != null and backpack_ui.has_method("set_cooldown_visuals_enabled"):
+		backpack_ui.set_cooldown_visuals_enabled(bool(layout.get("backpackCooldownVisible", false)))
 	if bool(layout.get("closeShop", false)):
 		shop_panel.visible = false
 	giant_timer_panel.visible = bool(layout.get("giantTimerVisible", false))
@@ -207,10 +278,15 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 		battlefield_ui.update_combat_time(0.0, 0.0, false)
 
 	battlefield_ui.render_battlefield(scene, [])
+	if bool(layout.get("nodeSelectVisible", false)) and node_map_scene != null:
+		var node_map_model: Dictionary = NodeMapReadModelScript.project(scene, int(scene.get("selectedNodeIndex", 0)))
+		node_map_scene.render(node_map_model)
+		call_deferred("_sync_node_select_backpack_width")
 	status_panel.render_target_bars(scene)
 	status_panel.render_extractor_label(scene)
 	status_panel.render_visual_queue(scene)
 	status_panel.render_repair_overlay(scene, repair_overlay)
+	call_deferred("_install_interaction_fx")
 
 # ?ㅽ뻾: set battlefield disabled tiles.
 func update_battlefield_disabled(scene: Dictionary, disabled_tiles: Array) -> void:
@@ -270,6 +346,7 @@ func trigger_screenshake(duration: float, magnitude: float) -> void:
 # ?ㅽ뻾: update rich text labels directly.
 func set_node_select_text(val: String) -> void:
 	node_select_text.text = val
+	node_select_text.visible = node_map_scene == null
 
 # ?ㅽ뻾: update reward text label.
 func set_reward_text(val: String) -> void:
@@ -310,6 +387,7 @@ func apply_locale() -> void:
 		settings_panel.apply_locale()
 	if shop_panel != null and shop_panel.has_method("apply_locale"):
 		shop_panel.apply_locale()
+	_apply_shell_theme()
 
 # 실행: set a Label text by relative path when present.
 func _set_label_text(path: String, text: String) -> void:
@@ -327,13 +405,160 @@ func _set_rich_text(path: String, text: String) -> void:
 func _create_shop_panel() -> void:
 	shop_panel = ShopPanelUIScript.new()
 	shop_panel.buy_passive.connect(func(passive_id, cost): buy_passive.emit(passive_id, cost))
+	shop_panel.buy_base_item.connect(func(item_id): buy_base_item.emit(item_id))
 	add_child(shop_panel)
+
+# ?ㅽ뻾: dynamically construct the full-page node-map selector inside the node-select panel.
+func _create_node_map_scene() -> void:
+	node_select_content_row = HBoxContainer.new()
+	node_select_content_row.name = "NodeMapBackpackRow"
+	node_select_content_row.alignment = BoxContainer.ALIGNMENT_BEGIN
+	node_select_content_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	node_select_content_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	node_select_content_row.add_theme_constant_override("separation", int(NODE_SELECT_ROW_GAP))
+	node_select_box.add_child(node_select_content_row)
+	node_map_scene = NodeMapSceneScript.new()
+	node_map_scene.name = "NodeMapPage"
+	node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	node_map_scene.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	node_map_scene.custom_minimum_size = Vector2(0, 360)
+	node_map_scene.node_selected.connect(func(index): node_meta_clicked.emit(index))
+	node_map_scene.color_selected.connect(func(color): loadout_color_selected.emit(color))
+	node_select_content_row.add_child(node_map_scene)
+
+# 실행: place the backpack beside the node map only during node selection.
+func _apply_node_select_backpack_dock(dock: String, map_ratio: float, backpack_ratio: float) -> void:
+	if node_select_content_row == null or backpack_original_parent == null:
+		return
+	if dock == "right":
+		if backpack_container.get_parent() != node_select_content_row:
+			backpack_container.get_parent().remove_child(backpack_container)
+			node_select_content_row.add_child(backpack_container)
+		if node_map_scene != null:
+			node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			node_map_scene.size_flags_stretch_ratio = map_ratio
+		backpack_container.size_flags_stretch_ratio = backpack_ratio
+		backpack_container.size_flags_horizontal = Control.SIZE_SHRINK_END
+		backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0)
+	else:
+		if backpack_container.get_parent() != backpack_original_parent:
+			backpack_container.get_parent().remove_child(backpack_container)
+			backpack_original_parent.add_child(backpack_container)
+			if backpack_original_index >= 0:
+				backpack_original_parent.move_child(backpack_container, backpack_original_index)
+		backpack_container.size_flags_stretch_ratio = 0.0
+		backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
+		backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		backpack_container.custom_minimum_size = Vector2.ZERO
+
+func _node_select_backpack_width() -> float:
+	var row_size := Vector2.ZERO
+	if node_select_content_row != null:
+		row_size = node_select_content_row.size
+	if row_size.y <= 1.0:
+		row_size.y = maxf(active_phase_container.size.y, node_select_panel.size.y)
+	if row_size.x <= 1.0:
+		row_size.x = node_select_panel.size.x
+	return node_select_backpack_width_for_row(row_size, NODE_SELECT_MAP_MIN_WIDTH)
+
+func _sync_node_select_backpack_width() -> void:
+	if node_select_content_row == null or backpack_container.get_parent() != node_select_content_row:
+		return
+	backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
+	backpack_container.size_flags_horizontal = Control.SIZE_SHRINK_END
+	backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+func _top_content_backpack_width() -> float:
+	var target_height := maxf(top_content.size.y, backpack_container.size.y)
+	return top_content_backpack_width_for_height(target_height)
 
 # 실행: update shop label and buttons.
 func render_shop(growth_state: Dictionary) -> void:
 	if shop_panel != null and shop_panel.has_method("render_shop"):
 		shop_panel.render_shop(growth_state)
+		call_deferred("_install_interaction_fx")
 		return
+
+# 실행: install shader/tween affordance effects on interactive controls.
+func _install_interaction_fx() -> void:
+	InteractionFXScript.install_tree(self)
+
+# 실행: give major panels and buttons a coherent in-world UI language.
+func _apply_shell_theme() -> void:
+	var surface := StyleBoxFlat.new()
+	surface.bg_color = Color(0.10, 0.13, 0.17, 0.98)
+	surface.border_width_left = 1
+	surface.border_width_top = 1
+	surface.border_width_right = 1
+	surface.border_width_bottom = 1
+	surface.border_color = Color(0.24, 0.30, 0.38, 1.0)
+	surface.corner_radius_top_left = 12
+	surface.corner_radius_top_right = 12
+	surface.corner_radius_bottom_right = 12
+	surface.corner_radius_bottom_left = 12
+	surface.shadow_color = Color(0.0, 0.0, 0.0, 0.22)
+	surface.shadow_size = 8
+	surface.shadow_offset = Vector2(0, 3)
+	node_select_panel.add_theme_stylebox_override("panel", surface)
+	status_panel.add_theme_stylebox_override("panel", surface)
+	backpack_ui.add_theme_stylebox_override("panel", surface)
+	right_sidebar.add_theme_stylebox_override("panel", surface)
+	battlefield_ui.add_theme_stylebox_override("panel", surface)
+	for button in [settings_open_button, reset_button, start_button, hold_fire_button, repair_button, claim_rewards_button, shop_open_button]:
+		if button != null:
+			_style_shell_button(button)
+
+func _style_shell_button(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.13, 0.16, 0.20, 0.98)
+	normal.border_width_left = 1
+	normal.border_width_top = 1
+	normal.border_width_right = 1
+	normal.border_width_bottom = 1
+	normal.border_color = Color(0.24, 0.30, 0.38, 1.0)
+	normal.corner_radius_top_left = 10
+	normal.corner_radius_top_right = 10
+	normal.corner_radius_bottom_right = 10
+	normal.corner_radius_bottom_left = 10
+	var hover := normal.duplicate()
+	hover.bg_color = Color(0.16, 0.20, 0.25, 1.0)
+	hover.border_color = Color(0.50, 0.67, 0.76, 1.0)
+	var pressed := normal.duplicate()
+	pressed.bg_color = Color(0.11, 0.14, 0.18, 1.0)
+	pressed.border_color = Color(0.85, 0.77, 0.49, 1.0)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", hover)
+	button.add_theme_font_size_override("font_size", 14)
+	button.add_theme_color_override("font_color", Color(0.93, 0.95, 0.97))
+	normal.content_margin_left = 16
+	normal.content_margin_right = 16
+	hover.content_margin_left = 16
+	hover.content_margin_right = 16
+	pressed.content_margin_left = 16
+	pressed.content_margin_right = 16
+	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, _shell_button_min_width(button))
+	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 40.0)
+
+func _apply_top_content_stretch(left_ratio: float, backpack_ratio: float, right_ratio: float) -> void:
+	left_column.size_flags_horizontal = top_content_side_horizontal_flags()
+	left_column.size_flags_stretch_ratio = left_ratio
+	if backpack_container.get_parent() == backpack_original_parent:
+		backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
+	backpack_container.size_flags_stretch_ratio = backpack_ratio
+	right_sidebar.size_flags_horizontal = top_content_side_horizontal_flags()
+	right_sidebar.size_flags_stretch_ratio = right_ratio
+
+func _shell_button_min_width(button: Button) -> float:
+	if button == null:
+		return 96.0
+	if button.get_parent() == header_actions:
+		return 108.0
+	if button.get_parent() == action_bar:
+		return 136.0
+	return 112.0
 
 # 실행: dynamically construct the central giant timer panel.
 func _create_giant_timer() -> void:
