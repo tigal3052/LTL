@@ -43,8 +43,8 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	for marker in battlefield.get("weaknessMarkers", []):
 		markers[marker.get("cellId", "")] = marker.get("color", null)
 	var frame: Dictionary = layout["battlefieldFrame"]
-	var cell_width := int(frame["width"] / columns)
 	var cell_height := int(frame["height"] / rows)
+	var cell_width := int(frame["width"] / columns)
 	var cells: Array = []
 	for row in range(rows):
 		for column in range(columns):

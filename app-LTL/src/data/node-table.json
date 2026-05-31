@@ -5,7 +5,7 @@
       "label": "Safe Scar",
       "nodeType": "normal",
       "riskTier": "safe",
-      "weakness": ["red"],
+      "weakness": [],
       "pickWeight": 10,
       "shieldMul": 1.0,
       "healthMul": 1.0,
@@ -14,7 +14,7 @@
       "recommendedBuildHint": "Any stable drill line",
       "difficultyModifier": 1.0,
       "rewardModifier": 1.0,
-      "hazardModifier": 1.0
+      "hazardModifier": 0.55
     },
     {
       "id": "red_vein",
@@ -91,6 +91,22 @@
       "difficultyModifier": 0.85,
       "rewardModifier": 0.9,
       "hazardModifier": 0.75
+    },
+    {
+      "id": "mysterious_crevice",
+      "label": "Mysterious Crevice",
+      "nodeType": "event_crevice",
+      "riskTier": "event",
+      "weakness": ["purple"],
+      "pickWeight": 4,
+      "shieldMul": 0.95,
+      "healthMul": 1.15,
+      "isEvent": true,
+      "rewardBias": "artifact_choice",
+      "recommendedBuildHint": "Purple pulse or repair safety",
+      "difficultyModifier": 1.1,
+      "rewardModifier": 1.2,
+      "hazardModifier": 0.9
     },
     {
       "id": "boss_spine",

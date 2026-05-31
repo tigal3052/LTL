@@ -13,11 +13,15 @@ signal slot_unhovered(coord: Vector2)
 
 const ArtifactClass = preload("res://src/models/Artifact.gd")
 const GridFactory = preload("res://src/ui/presenters/BackpackGridFactory.gd")
+const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 const VISUAL_COOLDOWN_TICKS_PER_SECOND := 20.0
+const SLOT_HOVER_FX_ENABLED := false
 
 @onready var backpack_grid_mock: GridContainer = $Margin/EngineBox/GridMock
 var ghost_container: GridContainer
 var held_artifact: ArtifactClass = null
+var current_inventory = null
+var cooldown_visuals_enabled: bool = false
 
 # 실행: setup ghost container.
 func _ready() -> void:
@@ -37,6 +41,7 @@ func setup_grid_slots() -> void:
 				backpack_grid_mock.add_child(GridFactory.border_cell(textures[GridFactory.border_slice(row, column)]))
 			else:
 				backpack_grid_mock.add_child(_interactive_slot(column - 1, row - 1, textures[5]))
+	call_deferred("_install_slot_interactions")
 
 # 실행: initialize the drag-and-drop ghost container.
 func _setup_ghost_container() -> void:
@@ -62,6 +67,7 @@ func update_ghost_display(art: ArtifactClass) -> void:
 		child.queue_free()
 	if held_artifact == null:
 		ghost_container.visible = false
+		_update_drag_slot_feedback()
 		return
 	var shape = held_artifact.shape
 	ghost_container.columns = shape[0].size() if shape.size() > 0 else 1
@@ -71,9 +77,11 @@ func update_ghost_display(art: ArtifactClass) -> void:
 		for column in range(shape[row].size()):
 			ghost_container.add_child(_ghost_cell(str(held_artifact.energy_type), int(shape[row][column]) == 1, shape, row, column))
 	ghost_container.visible = true
+	_update_drag_slot_feedback()
 
 # 실행: render active items inside the 8x8 backpack grid using panel overlays.
 func render_backpack_items(inventory) -> void:
+	current_inventory = inventory
 	_clear_overlays()
 	if inventory == null:
 		return
@@ -83,6 +91,13 @@ func render_backpack_items(inventory) -> void:
 			for column in range(art.shape[row].size()):
 				if int(art.shape[row][column]) == 1:
 					_apply_artifact_overlay(int(art.x) + column, int(art.y) + row, art, art.shape, row, column)
+
+func set_cooldown_visuals_enabled(enabled: bool) -> void:
+	if cooldown_visuals_enabled == enabled:
+		return
+	cooldown_visuals_enabled = enabled
+	if current_inventory != null:
+		render_backpack_items(current_inventory)
 
 # 실행: load backpack border textures.
 func _load_textures() -> Dictionary:
@@ -94,6 +109,9 @@ func _load_textures() -> Dictionary:
 # 실행: create an input slot and wire signals.
 func _interactive_slot(grid_column: int, grid_row: int, texture: Texture2D) -> Panel:
 	var slot: Panel = GridFactory.inner_slot(texture)
+	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	if not SLOT_HOVER_FX_ENABLED:
+		slot.set_meta(InteractionFXScript.META_SKIP, true)
 	slot.gui_input.connect(func(event: InputEvent):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			slot_clicked.emit(Vector2(grid_column, grid_row))
@@ -101,6 +119,33 @@ func _interactive_slot(grid_column: int, grid_row: int, texture: Texture2D) -> P
 	slot.mouse_entered.connect(func(): slot_hovered.emit(Vector2(grid_column, grid_row)))
 	slot.mouse_exited.connect(func(): slot_unhovered.emit(Vector2(grid_column, grid_row)))
 	return slot
+
+# ?ㅽ뻾: add shared hover/click affordance effects to backpack slot panels.
+func _install_slot_interactions() -> void:
+	if not SLOT_HOVER_FX_ENABLED:
+		return
+	InteractionFXScript.install_tree(backpack_grid_mock)
+
+# ?ㅽ뻾: mark visible drop slots while an artifact is being dragged.
+func _update_drag_slot_feedback() -> void:
+	for row in range(8):
+		for column in range(8):
+			var slot_idx := (row + 1) * 10 + (column + 1)
+			if slot_idx < backpack_grid_mock.get_child_count():
+				var slot := backpack_grid_mock.get_child(slot_idx) as Control
+				if slot != null:
+					InteractionFXScript.apply_drag_feedback(slot, held_artifact != null, can_drop_artifact(current_inventory, held_artifact, column, row))
+
+# ?ㅽ뻾: expose the same placement rule for UI drag affordance and tests.
+static func can_drop_artifact(inventory, artifact, column: int, row: int) -> bool:
+	if inventory == null or artifact == null:
+		return true
+	if not inventory.has_method("can_place_artifact"):
+		return true
+	return inventory.can_place_artifact(artifact, column, row)
+
+static func slot_hover_fx_enabled() -> bool:
+	return SLOT_HOVER_FX_ENABLED
 
 # 실행: create one ghost grid cell.
 func _ghost_cell(energy_type: String, filled: bool, shape: Array, row: int, column: int) -> Control:
@@ -134,15 +179,18 @@ func _apply_artifact_overlay(column: int, row: int, art: ArtifactClass, shape: A
 		overlay.add_theme_stylebox_override("panel", GridFactory.artifact_style(str(art.energy_type), 0.32, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
 	var charge := _slot_charge_overlay(column, row)
 	if charge:
+		if not cooldown_visuals_enabled:
+			charge.visible = false
+			charge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+			charge.remove_meta("display_cooldown_ticks")
+			charge.remove_meta("effective_cooldown_ticks")
+			return
 		var cooldown_ticks := float(art.current_cooldown)
 		var effective_cooldown := maxi(1, int(art.base_cooldown_ticks) - int(art.synergy_cooldown_reduction))
 		var display_ticks := cooldown_ticks
 		if charge.has_meta("display_cooldown_ticks"):
 			display_ticks = float(charge.get_meta("display_cooldown_ticks"))
-			if cooldown_ticks > display_ticks + 0.5:
-				display_ticks = cooldown_ticks
-			else:
-				display_ticks = minf(display_ticks, cooldown_ticks)
+			display_ticks = GridFactory.stable_cooldown_display(display_ticks, cooldown_ticks, effective_cooldown)
 		charge.visible = true
 		charge.set_meta("display_cooldown_ticks", display_ticks)
 		charge.set_meta("effective_cooldown_ticks", effective_cooldown)

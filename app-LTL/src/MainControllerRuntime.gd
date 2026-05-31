@@ -16,6 +16,10 @@ const ShiftWeaknessMarkersScript = preload("res://src/vocabulary/combat/ShiftWea
 const NodeSelectReadModelScript = preload("res://src/ui/read_models/NodeSelectReadModel.gd")
 const RewardReadModelScript = preload("res://src/ui/read_models/RewardReadModel.gd")
 const CombatFeedbackPresenterScript = preload("res://src/ui/presenters/CombatFeedbackPresenter.gd")
+const TERRAIN_SHIFT_SECONDS := 1.5
+const COMBAT_TICKS_PER_SECOND := 20
+const TERRAIN_SHIFT_TICKS := int(round(TERRAIN_SHIFT_SECONDS * COMBAT_TICKS_PER_SECOND))
+const STARTER_LOADOUT_POSITIONS := [Vector2(2, 2), Vector2(3, 2)]
 
 var view
 var preview_controller
@@ -35,6 +39,7 @@ var prev_pin_active: bool = false
 var prev_hazard_severity: String = "stable"
 var show_victory_overlay: bool = false
 var selected_node_index: int = 0
+var selected_start_color: String = "red"
 var weakness_shift_step: int = 0
 
 # Progression growth state
@@ -49,7 +54,7 @@ func _ready() -> void:
 	inventory = InventoryModel.new(8, 8)
 
 	randomize()
-	preview_controller = PreviewControllerScript.new({"seed": randi() & 0x7fffffff, "maxStages": 5, "viewportWidth": 1440, "viewportHeight": 900})
+	preview_controller = PreviewControllerScript.new({"seed": randi() & 0x7fffffff, "maxStages": 5, "viewportWidth": 1440, "viewportHeight": 900, "startColor": selected_start_color})
 
 	# Load default growth state
 	var default_growth = preview_controller.run.state.get("growth", {})
@@ -65,6 +70,7 @@ func _ready() -> void:
 	view.confirm_proceed_pressed.connect(_on_confirm_proceed_pressed)
 	view.confirm_cancel_pressed.connect(_on_confirm_cancel_pressed)
 	view.settings_open_pressed.connect(func(): view.toggle_settings())
+	view.loadout_color_selected.connect(_on_loadout_color_selected)
 	view.settings_panel.reset_requested.connect(_on_reset_pressed)
 	view.settings_panel.language_changed.connect(func(_locale): _render_scene(current_scene))
 	view.settings_panel.screenshake_toggled.connect(func(enabled): view.vfx_manager.shake_enabled = enabled)
@@ -78,6 +84,7 @@ func _ready() -> void:
 	# Calibration shop connections
 	view.shop_open_pressed.connect(_on_shop_open_pressed)
 	view.buy_passive.connect(_on_buy_passive)
+	view.buy_base_item.connect(_on_buy_base_item)
 
 	view.repair_overlay_input.connect(func(ev):
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -122,7 +129,7 @@ func _on_cell_hovered(cell_id: String, _color_name: String) -> void:
 
 # ?ㅽ뻾: handle interactive click/fire target events, triggering decoupled view VFX.
 func _on_cell_clicked(cell_id: String, color_name: String) -> void:
-	if str(current_scene.get("phase", "")) != "combat" or cell_id in disabled_tiles:
+	if not can_accept_combat_click(current_scene, cell_id, disabled_tiles):
 		return
 	var prev_shield = float(current_scene.get("targetPanel", {}).get("shield", 0.0))
 	var prev_health = float(current_scene.get("targetPanel", {}).get("health", 0.0))
@@ -139,6 +146,8 @@ func _on_cell_clicked(cell_id: String, color_name: String) -> void:
 	view.add_log("[color=#66c2cd][타격 좌표: %s | 에너지: %s | 광석 타입: %s | 최종 피해: %.1f][/color]" % [cell_id.to_upper(), active_color.to_upper(), color_name.to_upper(), damage])
 	if status == "empty_queue":
 		view.add_log("[color=#ff6666][경고] 에너지 큐가 비어 드릴 가동이 중단되었습니다.[/color]")
+	if not should_continue_hold_fire(current_scene, is_holding):
+		is_holding = false
 	var hit_pos = view.get_cell_global_pos(cell_id)
 	var start_pos = view.get_extractor_global_pos()
 	view.trigger_resonance_beam(start_pos, hit_pos, active_color)
@@ -154,8 +163,13 @@ func _on_cell_clicked(cell_id: String, color_name: String) -> void:
 
 # ?ㅽ뻾: handle hold-to-fire loop ticks.
 func _trigger_hold_fire() -> void:
-	if not is_holding or str(current_scene.get("phase", "")) != "combat": return
+	if not should_continue_hold_fire(current_scene, is_holding):
+		is_holding = false
+		return
 	_on_cell_clicked(hold_cell_id, hold_color)
+	if not should_continue_hold_fire(current_scene, is_holding):
+		is_holding = false
+		return
 	await get_tree().create_timer(0.1).timeout
 	_trigger_hold_fire()
 
@@ -288,6 +302,9 @@ func _render_scene(scene: Dictionary) -> void:
 		prev_phase = phase
 	current_scene["show_victory_overlay"] = show_victory_overlay
 	current_scene["is_reveal_vfx_running"] = is_reveal_vfx_running
+	current_scene["selectedNodeIndex"] = selected_node_index
+	current_scene["selectedStartColor"] = selected_start_color
+	current_scene["loadoutColors"] = ["red", "blue", "purple", "green"]
 	if phase == "combat":
 		var pin_active = bool(scene.get("hud", {}).get("pin", {}).get("active", false))
 		if pin_active != prev_pin_active:
@@ -396,6 +413,7 @@ func _on_reset_pressed() -> void:
 	weakness_shift_step = 0
 	randomize()
 	preview_controller.seed = randi() & 0x7fffffff
+	preview_controller.start_color = selected_start_color
 	current_scene = preview_controller.reset()
 	disabled_tiles.clear(); local_rewards_list.clear(); held_reward_index = -1; held_artifact = null; held_from_rewards = false
 	view.set_confirm_overlay_visible(false)
@@ -448,13 +466,26 @@ func _proceed_to_node_select() -> void:
 # ?ㅽ뻾: load starter backpack items.
 func _load_backpack_items_into_inventory() -> void:
 	inventory = InventoryModel.new(8, 8)
-	var drills = ArtifactScript.get_basic_drills()
-	var positions = [Vector2(1, 2), Vector2(4, 1), Vector2(2, 4), Vector2(6, 5)]
-	for i in range(drills.size()):
-		inventory.place_artifact(drills[i], int(positions[i].x), int(positions[i].y))
+	var loadout = ArtifactScript.get_starter_loadout(selected_start_color)
+	var positions = ArtifactScript.get_starter_loadout_positions()
+	for i in range(loadout.size()):
+		inventory.place_artifact(loadout[i], int(positions[i].x), int(positions[i].y))
 	_apply_growth_modifiers()
 	if preview_controller != null and preview_controller.run != null:
 		preview_controller.run.state["inventory"] = inventory.to_dict()
+
+# ?ㅽ뻾: replace the starter inventory when the node-map start color changes.
+func _on_loadout_color_selected(color: String) -> void:
+	if not color in ["red", "blue", "purple", "green"]:
+		return
+	selected_start_color = color
+	if preview_controller != null:
+		preview_controller.start_color = selected_start_color
+	if str(current_scene.get("phase", "")) == "node_select":
+		_load_backpack_items_into_inventory()
+		view.render_backpack(inventory)
+		current_scene = preview_controller.get_scene()
+		_render_scene(current_scene)
 
 # ?ㅽ뻾: cycle active item colors to fill queue.
 func _recalculate_queue_colors() -> void:
@@ -467,14 +498,14 @@ func _recalculate_queue_colors() -> void:
 # ?ㅽ뻾: setup conveyor-belt shift timer.
 func _setup_shift_timer() -> void:
 	shift_timer = Timer.new()
-	shift_timer.wait_time = 1.0; shift_timer.autostart = true
+	shift_timer.wait_time = TERRAIN_SHIFT_SECONDS; shift_timer.autostart = true
 	shift_timer.timeout.connect(_on_shift_timer_timeout)
 	add_child(shift_timer)
 
 # ?ㅽ뻾: shift weaknesses left-to-right on timeout.
 func _on_shift_timer_timeout() -> void:
 	if str(current_scene.get("phase", "")) != "combat": return
-	current_scene = preview_controller.run.apply_combat_input({"type": "tick", "ticks": 20})
+	current_scene = preview_controller.run.apply_combat_input({"type": "tick", "ticks": TERRAIN_SHIFT_TICKS})
 	if str(current_scene.get("phase", "")) != "combat":
 		_render_scene(current_scene); return
 	var run_state = preview_controller.run.state
@@ -537,6 +568,31 @@ func _current_target(scene: Dictionary) -> Dictionary:
 			return {"cellId": cell.get("id", "r0c0"), "color": cell.get("weakness", "red")}
 	return {"cellId": "r0c0", "color": "red"}
 
+static func should_continue_hold_fire(scene: Dictionary, holding: bool) -> bool:
+	if not holding:
+		return false
+	if str(scene.get("phase", "")) != "combat":
+		return false
+	if str(scene.get("feedback", {}).get("status", "")) == "empty_queue":
+		return false
+	var hud: Dictionary = scene.get("hud", {})
+	if bool(hud.get("repair", {}).get("active", false)):
+		return false
+	if not bool(hud.get("aim", {}).get("canFire", true)):
+		return false
+	var queue_items: Array = hud.get("queue", {}).get("items", [])
+	return not queue_items.is_empty()
+
+static func can_accept_combat_click(scene: Dictionary, cell_id: String, disabled: Array[String]) -> bool:
+	if str(scene.get("phase", "")) != "combat":
+		return false
+	if cell_id in disabled:
+		return false
+	var hud: Dictionary = scene.get("hud", {})
+	if bool(hud.get("repair", {}).get("active", false)):
+		return false
+	return bool(hud.get("aim", {}).get("canFire", true))
+
 # ?ㅽ뻾: handle calibration shop button toggle.
 func _on_shop_open_pressed() -> void:
 	if is_reveal_vfx_running:
@@ -561,6 +617,20 @@ func _on_buy_passive(passive_id: String, cost: int) -> void:
 
 	# Print telemetry event
 	print("TELEMETRY: growth_state_changed - passive: %s, lvl: %d, cost: %d" % [passive_id, growth_state.purchased_passives[passive_id], cost])
+
+# ??쎈뻬: handle base shop item or character purchases.
+func _on_buy_base_item(item_id: String) -> void:
+	if not growth_state.purchase_base_item(item_id):
+		view.add_log("[color=#bf616a][shop] purchase failed: %s[/color]" % item_id)
+		view.render_shop(growth_state.to_dict())
+		return
+	if preview_controller != null and preview_controller.run != null:
+		preview_controller.run.state["growth"] = growth_state.to_dict()
+	current_scene["growth"] = growth_state.to_dict()
+	view.render_shop(growth_state.to_dict())
+	_render_scene(current_scene)
+	view.add_log("[color=#a3be8c][shop] unlock purchased: %s[/color]" % item_id)
+	print("TELEMETRY: base_shop_purchase - item: %s" % item_id)
 
 # ?ㅽ뻾: apply active growth modifiers (cooldown reduction, flat damage bonus).
 func _apply_growth_modifiers() -> void:

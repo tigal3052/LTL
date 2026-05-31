@@ -8,6 +8,8 @@
 class_name RunGrowthState
 extends RefCounted
 
+const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
+
 var gold: int = 100
 var xp: int = 0
 var purchased_passives: Dictionary = {
@@ -15,6 +17,10 @@ var purchased_passives: Dictionary = {
 	"cooldown_reduction": 0,
 	"aim_damage_boost": 0
 }
+var selected_character: String = "miner"
+var unlocked_characters: Array = ["miner"]
+var unlocked_starter_items: Array = ["starter_drill_red"]
+var scan_unlocks: Array = []
 var temporary_modifiers: Dictionary = {}
 var run_modifiers: Dictionary = {}
 var reward_history: Array = []
@@ -33,6 +39,20 @@ func from_dict(data: Dictionary) -> void:
 		for k in purchased_passives.keys():
 			if passives.has(k):
 				purchased_passives[k] = int(passives[k])
+		for k in passives.keys():
+			if not purchased_passives.has(k):
+				purchased_passives[k] = int(passives[k])
+
+	selected_character = str(data.get("selectedCharacter", selected_character))
+	var characters = data.get("unlockedCharacters", unlocked_characters)
+	if characters is Array:
+		unlocked_characters = characters.duplicate(true)
+	var starter_items = data.get("unlockedStarterItems", unlocked_starter_items)
+	if starter_items is Array:
+		unlocked_starter_items = starter_items.duplicate(true)
+	var scans = data.get("scanUnlocks", scan_unlocks)
+	if scans is Array:
+		scan_unlocks = scans.duplicate(true)
 				
 	var temp_mods = data.get("temporaryModifiers", {})
 	if temp_mods is Dictionary:
@@ -52,6 +72,10 @@ func to_dict() -> Dictionary:
 		"gold": gold,
 		"xp": xp,
 		"purchasedPassives": purchased_passives.duplicate(true),
+		"selectedCharacter": selected_character,
+		"unlockedCharacters": unlocked_characters.duplicate(true),
+		"unlockedStarterItems": unlocked_starter_items.duplicate(true),
+		"scanUnlocks": scan_unlocks.duplicate(true),
 		"temporaryModifiers": temporary_modifiers.duplicate(true),
 		"runModifiers": run_modifiers.duplicate(true),
 		"rewardHistory": reward_history.duplicate(true)
@@ -87,3 +111,14 @@ func purchase_passive(passive_id: String, cost: int) -> bool:
 		purchased_passives[passive_id] = purchased_passives[passive_id] + 1
 		return true
 	return false
+
+# ?ㅽ뻾: purchase a release base shop item and persist its unlock.
+func purchase_base_item(item_id: String, bundle: Dictionary = {}) -> bool:
+	var content := bundle
+	if content.is_empty():
+		content = ReleaseContentVocabScript.load_content_bundle()
+	var result: Dictionary = ReleaseContentVocabScript.purchase_base_item(to_dict(), item_id, content)
+	if not bool(result.get("ok", false)):
+		return false
+	from_dict(result.get("state", {}))
+	return true

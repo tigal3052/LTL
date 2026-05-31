@@ -190,3 +190,14 @@ app-LTL/
 - Every implementation block must be directly guarded by one `실행:` comment.
 - Before editing harness enforcement files, create a local backup set under `docs/comment-gates/backups/<date>/ltl-harness/`.
 - If phase order is violated, quarantine or roll back from the last valid phase instead of backfilling comments after code.
+
+## Source Map Gate Addendum
+
+- `docs/source-map.md` is the live implementation File Map and the single source-map body.
+- The harness source-map gate is `LTL-harness/tools/source-map-gate.ps1`.
+- Run bootstrap only when the map is missing or intentionally regenerated from the current file tree.
+- Run normal verification before and after implementation work; missing files, stale entries, and placeholder responsibilities are blocking failures.
+- Do not split source-map content into a separate directory-only tree; path and responsibility must be read together in `File Map`.
+- Responsibility bullets must be written in English for AI readability, even when file paths or source documents use Korean names.
+- When implementation changes a file responsibility, keep one responsibility per bullet line under that file entry.
+- `tools/run-compile-check.ps1` includes this gate before Godot contract verification.

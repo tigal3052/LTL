@@ -5,47 +5,52 @@ Date: 2026-05-29
 
 ## Active Work
 
-Fix follow-up combat readability QA issues: purple terrain debuffs should be presented as a global drill/node status instead of per-tile markings, and battlefield cells matching the current queue color should be highlighted for easier targeting.
+Resolve the latest Game Studio-directed manual QA pass: widen the node-select map, remove the CORE marker, disable backpack hover wobble, and rebalance the five-stage health curve against reward snowballing.
 
 ## Request Summary
 
-- `weakened_terrain` is still represented visually on individual cells, but the user expects it in the drill/node status as a global combat debuff.
-- Current queue gems are far from the 3x10 battlefield, making same-color tile selection visually tiring.
+- Give the node-select map more room than the docked backpack and stop chips from clipping in the left panel.
+- Remove the `CORE` marker so the selection screen shows only `START` plus the five candidate nodes.
+- Disable backpack hover wobble so idle slot art stays stable and readable.
+- Rebalance stage durability/health so stage 3 no longer collapses under reward snowballing and the five-stage health rise is front-loaded, then tapers.
 
 ## Scope
 
-- Add regression tests for global terrain debuff projection and active queue color cell matching.
-- Move terrain debuff projection from per-cell data to HUD/global status data.
-- Render global terrain debuff count in the drill/node status panel.
-- Highlight cells whose weakness color matches the active queue energy.
+- Adjust node-select split ratios and minimum widths in the live `MainViewRuntime` shell.
+- Rebuild `NodeMapScene` geometry around a five-choice fan layout with real width-based placement and resize-safe rerendering.
+- Opt backpack slots out of generic interaction FX while preserving drag/drop accept-reject feedback.
+- Introduce an explicit `stageHealthTotals` tuning table and update contract tests to the new five-stage curve.
 
 ## Out of Scope
 
-- No full balance pass beyond the requested color identity rules.
-- No new art assets for the parchment panel.
-- No broader combat node generation redesign.
+- No full replacement of the reward tray with a brand-new authored card system in this pass.
+- No asset downloads or third-party binary imports directly into the repository during this implementation pass.
+- No redesign of combat rules outside the overload/input bug and current reveal pacing.
 
 ## Steps
 
-- Write failing scene-model tests for active queue highlight and global debuff placement.
-- Update combat debuff data to aggregate as a global `weakened_terrain` stack.
-- Update `CombatSceneModel`, `StatusPanelUI`, and `CellView` to use the new presentation contract.
-- Run Godot contract checks, i18n gate if text keys change, and `git diff --check`.
+- Add red tests for CORE removal, backpack hover opt-out, widened node-map split, and the revised five-stage durability/health table.
+- Fix runtime layout math in `NodeMapScene`, `PhaseLayoutPresenter`, and `MainViewRuntime`.
+- Disable generic hover FX on backpack slots while leaving drag/drop placement cues intact.
+- Update stage scaling defaults and fallback curves, then rerun Godot contract verification.
 
 ## Expected Outputs
 
-- Drill/node status shows global weakened-terrain stack count.
-- Battlefield cells matching the current queue color are visibly highlighted.
-- No per-cell purple debuff marker remains.
-- Updated worklog and verification notes.
+- Node-select presents a clean `START + 5 choices` map that fits the available panel width.
+- Backpack idle rendering stays stable with no hover wobble or black slot wash.
+- The docked backpack remains visible but stops starving the node map of width.
+- Stage durability and health follow the new front-loaded, tapering five-stage curve.
 
 ## Verification Method
 
+- Red/green Godot contract run for the targeted additions.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`
 - `git diff --check`
 
 ## Plan Change Log
 
-- 2026-05-29: Worklog bootstrapped automatically by Codex hook.
-- 2026-05-29: Re-scoped to follow-up M4 UI QA: cooldown mask smoothing, purple debuff readability, and item label cleanup.
-- 2026-05-29: Re-scoped to global terrain debuff status and active queue color tile highlighting.
+- 2026-05-29: Re-scoped from source-map creation work to formal replay fixture promotion, prototype reference removal, and safe residue deletion while preserving the prototype tree.
+- 2026-05-29: Re-scoped to the approved M4 follow-up: node map UI, start-color loadout, durability balance formula, and slower terrain marker movement.
+- 2026-05-29: Re-scoped to external-shader-inspired UI affordance polish: hover glow, click ripple/compression, drag/drop accept/reject feedback, disabled-state clarity, and source-attributed implementation notes.
+- 2026-05-29: Re-scoped to the next manual QA/UI direction corrections: node-map overlap, backpack idle readability, shell button standards, overload input lockout, reward reveal anticipation, and a formal visual-upgrade roadmap.
+- 2026-05-29: Re-scoped again to the Game Studio-directed node-select/backpack pass: remove the CORE marker, widen the map split, disable backpack hover wobble, and front-load stage health scaling through stage three.

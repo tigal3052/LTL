@@ -35,6 +35,10 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 	var base_hp := float(profile.get("health", 1.0))
 	var pierces_health := bool(profile.get("pierceHealth", false))
 	var applies_terrain_debuff := bool(profile.get("terrainDebuff", false))
+	if energy_color == "purple":
+		var stack_bonus := float(_terrain_debuff_stack_count(sim)) * 0.20
+		base_shield += stack_bonus
+		base_hp += stack_bonus
 
 	var damage_multiplier := 1.0
 	if inventory != null:
@@ -104,16 +108,23 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 static func _energy_profile(energy_color: String) -> Dictionary:
 	match energy_color:
 		"red":
-			return {"shield": 0.5, "health": 2.2}
+			return {"shield": 0.5, "health": 1.35}
 		"blue":
-			return {"shield": 3.0, "health": 0.45}
+			return {"shield": 2.0, "health": 0.5}
 		"green":
-			return {"shield": 0.25, "health": 1.0, "pierceHealth": true}
+			return {"shield": 0.0, "health": 0.9, "pierceHealth": true}
 		"purple":
-			return {"shield": 0.35, "health": 0.35, "terrainDebuff": true}
+			return {"shield": 0.55, "health": 0.55, "pierceHealth": true, "terrainDebuff": true}
 	return {"shield": 0.5, "health": 1.0}
 
 # 실행: record a stackable global terrain debuff caused by purple energy.
+static func _terrain_debuff_stack_count(sim: CombatSimulator) -> int:
+	var stacks := 0
+	for debuff in sim.terrain_debuffs:
+		if debuff is Dictionary and str(debuff.get("effect", "")) == "weakened_terrain":
+			stacks += maxi(1, int(debuff.get("stacks", 1)))
+	return stacks
+
 static func _apply_terrain_debuff(sim: CombatSimulator, target_cell_id: String, energy_color: String) -> void:
 	for debuff in sim.terrain_debuffs:
 		if str(debuff.get("scope", "")) == "global" and str(debuff.get("effect", "")) == "weakened_terrain":
@@ -128,6 +139,8 @@ static func apply_repair(sim: CombatSimulator) -> void:
 	sim.queue_empty_shots = 0
 	sim.pin_active = false
 	sim.pin_turns_remaining = 0
+	sim.aim_cell_id = null
+	sim.aim_target_color = null
 	sim.repair_progress = 100
 	sim.repair_active = true
 	sim.repair_available = false

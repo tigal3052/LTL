@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LTL Terrain Panel Before After Mockup</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-0: #0b1116;
+      --bg-1: #111a21;
+      --bg-2: #18242d;
+      --line: rgba(193, 220, 240, 0.12);
+      --text: #eef5fb;
+      --muted: #98aab8;
+      --accent: #f1c56e;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Pretendard", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(89, 145, 181, 0.18), transparent 28%),
+        linear-gradient(180deg, #121d25 0%, #091015 100%);
+    }
+
+    .page {
+      width: min(1480px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 10px;
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 920px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(25, 39, 48, 0.92), rgba(13, 21, 28, 0.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tag.before {
+      background: rgba(130, 154, 171, 0.16);
+      color: #c8d4de;
+    }
+
+    .tag.after {
+      background: rgba(241, 197, 110, 0.18);
+      color: #ffd98d;
+    }
+
+    .frame {
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+        rgba(6, 10, 14, 0.5);
+    }
+
+    .battlefield {
+      position: relative;
+      aspect-ratio: 16 / 8.8;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      background: linear-gradient(180deg, rgba(13, 19, 24, 0.8), rgba(6, 10, 14, 0.95));
+    }
+
+    .top-hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 18px 10px;
+      background: linear-gradient(180deg, rgba(4, 8, 11, 0.78), rgba(4, 8, 11, 0));
+      font-size: 14px;
+      color: #dae7f0;
+    }
+
+    .title {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .queue {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #93a9b9;
+      font-size: 12px;
+    }
+
+    .queue span {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 -3px rgba(0, 0, 0, 0.25);
+    }
+
+    .queue .red { background: #cf4f4f; }
+    .queue .blue { background: #3f7fcb; }
+    .queue .green { background: #48a85a; }
+    .queue .purple { background: #8a58c7; }
+
+    .board-wrap {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 66px;
+      bottom: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .board {
+      position: relative;
+      width: 100%;
+      max-height: 100%;
+      aspect-ratio: 16 / 5.1;
+    }
+
+    .before .board {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 8px;
+      padding: 14px;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(43, 55, 66, 0.95), rgba(20, 28, 34, 0.95)),
+        repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.03) 0 12px, transparent 12px 24px);
+      box-shadow:
+        inset 0 0 0 2px rgba(169, 196, 214, 0.08),
+        inset 0 -18px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .before .cell {
+      border-radius: 12px;
+      border: 1px solid rgba(203, 219, 231, 0.18);
+      box-shadow:
+        inset 0 -6px rgba(0, 0, 0, 0.24),
+        inset 0 1px rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, #344653 0%, #24323c 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .before .cell::after {
+      content: "";
+      position: absolute;
+      inset: 30% 36%;
+      border-radius: 6px;
+      transform: rotate(45deg);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.22);
+      opacity: 0.9;
+    }
+
+    .before .cell.red { background: linear-gradient(180deg, #764040 0%, #4a2626 100%); }
+    .before .cell.blue { background: linear-gradient(180deg, #41658d 0%, #27405d 100%); }
+    .before .cell.green { background: linear-gradient(180deg, #46734d 0%, #29482d 100%); }
+    .before .cell.purple { background: linear-gradient(180deg, #6b4d86 0%, #402d52 100%); }
+
+    .before .drill {
+      position: absolute;
+      left: -18px;
+      top: -6px;
+      width: 148px;
+      height: 62px;
+      border-radius: 28px 18px 18px 28px;
+      background: linear-gradient(180deg, #625348 0%, #362f2a 100%);
+      border: 2px solid rgba(236, 214, 171, 0.3);
+      box-shadow: 0 22px 28px rgba(0, 0, 0, 0.28);
+      transform: rotate(-3deg);
+      z-index: 2;
+    }
+
+    .before .drill::before {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: 19px;
+      width: 70px;
+      height: 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(91, 190, 255, 0.75), rgba(163, 226, 255, 1));
+      box-shadow: 0 0 18px rgba(110, 201, 255, 0.55);
+    }
+
+    .before .drill::after {
+      content: "";
+      position: absolute;
+      left: 22px;
+      top: 20px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #87d2ff;
+      box-shadow: 0 0 14px rgba(135, 210, 255, 0.85);
+    }
+
+    .after .panel-shell {
+      position: absolute;
+      left: 21.4%;
+      right: 3.6%;
+      top: 12%;
+      bottom: 4%;
+      background-image: url("../../app-LTL/resources/UI/tile/tile_panel_nobg.png");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.36));
+      z-index: 2;
+    }
+
+    .after .lanes {
+      position: absolute;
+      inset: 12.5% 2.4%;
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 4.5%;
+      z-index: 0;
+    }
+
+    .after .lane {
+      border-radius: 8px;
+      background: rgba(12, 22, 31, 0.92);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+    }
+
+    .after .grid {
+      position: absolute;
+      inset: 11.2% 2.4%;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2.8% 0.55%;
+      z-index: 1;
+    }
+
+    .after .cell {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .after .cell-art {
+      width: 85.4%;
+      height: 85.7%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+      transition: transform 0.18s ease;
+    }
+
+    .after .cell:hover .cell-art {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .after .cell-art.red { background-image: url("../../app-LTL/resources/UI/tile/red_tile.png"); }
+    .after .cell-art.blue { background-image: url("../../app-LTL/resources/UI/tile/blue_tile.png"); }
+    .after .cell-art.green { background-image: url("../../app-LTL/resources/UI/tile/green_tile.png"); }
+    .after .cell-art.purple { background-image: url("../../app-LTL/resources/UI/tile/purple_tile.png"); }
+
+    .after .miner {
+      position: absolute;
+      left: 0.8%;
+      top: 4%;
+      width: 28.5%;
+      pointer-events: none;
+      filter:
+        drop-shadow(0 24px 28px rgba(0, 0, 0, 0.34))
+        drop-shadow(0 0 16px rgba(108, 202, 255, 0.18));
+      transform: rotate(-4.5deg);
+      transform-origin: left center;
+      z-index: 4;
+    }
+
+    .after .beam-glow {
+      position: absolute;
+      left: 21.6%;
+      top: 36%;
+      width: 6.8%;
+      height: 10.8%;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(155, 225, 255, 0.85), rgba(155, 225, 255, 0.1) 68%, transparent 76%);
+      filter: blur(2px);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .notes {
+      display: grid;
+      gap: 10px;
+      padding: 18px 22px 22px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .notes strong {
+      color: #fff3cf;
+    }
+
+    .notes p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1120px) {
+      .compare {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100vw - 20px, 1480px);
+        padding-top: 18px;
+      }
+
+      .frame {
+        padding: 12px;
+      }
+
+      .board-wrap {
+        left: 12px;
+        right: 12px;
+        top: 58px;
+        bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="header">
+      <div class="eyebrow">Mockup Review</div>
+      <h1>3x10 지형 패널 전후 비교</h1>
+      <p class="subtitle">
+        왼쪽은 현재 코드 느낌의 추상적 지형 패널이고, 오른쪽은 실제 `miner.png`와 `tile` 자산을 적용한 방향입니다.
+        채굴기는 좌상단 첫 타일 구역을 파고드는 구도로 배치했습니다.
+      </p>
+    </section>
+
+    <section class="compare">
+      <article class="card">
+        <div class="card-head">
+          <h2>전</h2>
+          <div class="tag before">Current Feel</div>
+        </div>
+        <div class="frame">
+          <div class="battlefield before">
+            <div class="top-hud">
+              <div class="title">레비아탄 지각 표면 (3x10 격자)</div>
+              <div class="queue">
+                Queue
+                <span class="red"></span>
+                <span class="blue"></span>
+                <span class="green"></span>
+                <span class="purple"></span>
+              </div>
+            </div>
+            <div class="board-wrap">
+              <div class="board">
+                <div class="drill"></div>
+                <div class="cell red"></div>
+                <div class="cell blue"></div>
+                <div class="cell green"></div>
+                <div class="cell purple"></div>
+                <div class="cell red"></div>
+                <div class="cell green"></div>
+                <div class="cell blue"></div>
+                <div class="cell purple"></div>
+                <div class="cell red"></div>
+                <div class="cell blue"></div>
+
+                <div class="cell green"></div>
+                <div class="cell purple"></div>
+                <div class="cell red"></div>
+                <div class="cell blue"></div>
+                <div class="cell green"></div>
+                <div class="cell purple"></div>
+                <div class="cell red"></div>
+                <div class="cell blue"></div>
+                <div class="cell green"></div>
+                <div class="cell purple"></div>
+
+                <div class="cell blue"></div>
+                <div class="cell red"></div>
+                <div class="cell purple"></div>
+                <div class="cell green"></div>
+                <div class="cell blue"></div>
+                <div class="cell red"></div>
+                <div class="cell purple"></div>
+                <div class="cell green"></div>
+                <div class="cell blue"></div>
+                <div class="cell red"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notes">
+          <p><strong>인상:</strong> 기능은 읽히지만 재질감이 추상적이고, 채굴기의 존재감이 배경과 분리되어 있습니다.</p>
+          <p><strong>한계:</strong> 지형 패널과 타일이 같은 월드의 오브젝트처럼 느껴지지 않아, "채굴 중" 서사가 약하게 전달됩니다.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>후</h2>
+          <div class="tag after">Asset Applied</div>
+        </div>
+        <div class="frame">
+          <div class="battlefield after">
+            <div class="top-hud">
+              <div class="title">레비아탄 지각 표면 (3x10 격자)</div>
+              <div class="queue">
+                Queue
+                <span class="red"></span>
+                <span class="blue"></span>
+                <span class="green"></span>
+                <span class="purple"></span>
+              </div>
+            </div>
+            <div class="board-wrap">
+              <div class="board">
+                <img class="miner" src="../../app-LTL/resources/UI/miner.png" alt="Mining rig">
+                <div class="beam-glow"></div>
+                <div class="panel-shell">
+                  <div class="lanes">
+                    <div class="lane"></div>
+                    <div class="lane"></div>
+                    <div class="lane"></div>
+                  </div>
+                  <div class="grid">
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                    <div class="cell"><div class="cell-art purple"></div></div>
+                    <div class="cell"><div class="cell-art green"></div></div>
+                    <div class="cell"><div class="cell-art blue"></div></div>
+                    <div class="cell"><div class="cell-art red"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notes">
+          <p><strong>인상:</strong> 패널 프레임, 타일, 채굴기가 같은 재질 언어를 공유해서 세계관 일체감이 크게 좋아집니다.</p>
+          <p><strong>의도:</strong> 채굴기 본체는 패널 바깥에서 진입하고, 드릴 끝은 좌상단 첫 셀 상단 모서리를 향하게 두어 "지금 파고 있다"는 방향성을 강조했습니다.</p>
+        </div>
+      </article>
+    </section>
+  </div>
+</body>
+</html>

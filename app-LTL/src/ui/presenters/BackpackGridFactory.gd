@@ -78,6 +78,15 @@ static func advance_visual_cooldown(current_cooldown: float, delta: float, ticks
 	return maxf(0.0, float(current_cooldown) - maxf(0.0, delta) * maxf(0.0, ticks_per_second))
 
 # 실행: produce a dark cooldown mask style that drains away as the artifact charges.
+static func stable_cooldown_display(previous_display: float, latest_model: float, effective_cooldown: int) -> float:
+	var previous := clampf(float(previous_display), 0.0, float(maxi(1, effective_cooldown)))
+	var latest := clampf(float(latest_model), 0.0, float(maxi(1, effective_cooldown)))
+	if latest <= previous:
+		return latest
+	if previous <= 0.5:
+		return latest
+	return previous
+
 static func cooldown_mask_style(alpha: float = 0.46, edges := {}) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.0, 0.0, 0.0, alpha)

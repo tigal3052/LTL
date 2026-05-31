@@ -23,6 +23,7 @@ func _init(options: Dictionary = {}) -> void:
 	var run_count: int = maxi(1, int(options.get("runCount", 1)))
 	var node_table: Dictionary = options.get("nodeTable", _default_node_table())
 	var tuning: Dictionary = contracts.create_game_tuning(options.get("tuning", {}))
+	var start_color := str(options.get("startColor", "red"))
 	tuning["maxStages"] = max_stages
 	
 	state = {
@@ -32,7 +33,7 @@ func _init(options: Dictionary = {}) -> void:
 		"leviathanId": str(options.get("leviathanId", "training_leviathan")),
 		"runIndex": int(options.get("runIndex", 0)),
 		"runCount": run_count,
-		"inventory": options.get("inventory", _default_inventory()),
+		"inventory": options.get("inventory", _default_inventory(start_color)),
 		"progress": options.get("progress", {"clearedLeviathanIds": []}).duplicate(true),
 		"phase": "node_select",
 		"candidates": NodeVocab.generate_candidates(seed_val, 0, node_table, int(options.get("candidateCount", 5)), tuning),
@@ -115,17 +116,12 @@ func _clone_array(value: Variant) -> Array:
 	return value.duplicate(true) if value is Array else []
 
 # 실행: provide a default starting inventory setup.
-func _default_inventory() -> Dictionary:
+func _default_inventory(start_color: String = "red") -> Dictionary:
 	var inv = InventoryModel.new(8, 8)
-	var drills = ArtifactScript.get_basic_drills()
-	var positions = [
-		Vector2(1, 2),
-		Vector2(4, 1),
-		Vector2(2, 4),
-		Vector2(6, 5)
-	]
-	for i in range(drills.size()):
-		var art = drills[i]
+	var loadout = ArtifactScript.get_starter_loadout(start_color)
+	var positions = ArtifactScript.get_starter_loadout_positions()
+	for i in range(loadout.size()):
+		var art = loadout[i]
 		var pos = positions[i]
 		inv.place_artifact(art, int(pos.x), int(pos.y))
 	return inv.to_dict()

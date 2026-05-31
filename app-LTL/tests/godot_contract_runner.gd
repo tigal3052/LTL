@@ -29,6 +29,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/presenters/CombatFeedbackPresenter.gd",
 	"res://src/ui/presenters/HeartbeatSynth.gd",
 	"res://src/ui/presenters/BackpackGridFactory.gd",
+	"res://src/ui/presenters/InteractionCuePresenter.gd",
 	"res://src/MainController.gd",
 	"res://src/ui/SettingsPanelUI.gd",
 	"res://src/ui/BackpackUI.gd",
@@ -40,6 +41,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/GiantTimerUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
+	"res://src/ui/InteractionFX.gd",
 	"res://src/ui/MainUI.gd",
 	"res://src/MainControllerRuntime.gd",
 	"res://src/ui/MainViewRuntime.gd",
@@ -52,6 +54,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/vocabulary/BackpackVocab.gd",
 	"res://src/vocabulary/NodeVocab.gd",
 	"res://src/vocabulary/RewardVocab.gd",
+	"res://src/vocabulary/ReleaseContentVocab.gd",
 	"res://src/process/MiniRunStageScript.gd",
 	"res://src/phases/PhaseReducers.gd",
 	"res://src/phases/NodeSelectPhase.gd",
@@ -100,6 +103,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/presenters/CombatFeedbackPresenter.gd",
 	"res://src/ui/presenters/HeartbeatSynth.gd",
 	"res://src/ui/presenters/BackpackGridFactory.gd",
+	"res://src/ui/presenters/InteractionCuePresenter.gd",
 	"res://src/MainController.gd",
 	"res://src/ui/SettingsPanelUI.gd",
 	"res://src/ui/BackpackUI.gd",
@@ -111,6 +115,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/GiantTimerUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
+	"res://src/ui/InteractionFX.gd",
 	"res://src/ui/MainUI.gd",
 	"res://src/MainControllerRuntime.gd",
 	"res://src/ui/MainViewRuntime.gd",
@@ -122,6 +127,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/vocabulary/BackpackVocab.gd",
 	"res://src/vocabulary/NodeVocab.gd",
 	"res://src/vocabulary/RewardVocab.gd",
+	"res://src/vocabulary/ReleaseContentVocab.gd",
 	"res://src/process/MiniRunStageScript.gd",
 	"res://src/phases/PhaseReducers.gd",
 	"res://src/phases/NodeSelectPhase.gd",
@@ -206,9 +212,11 @@ func _run_contracts() -> void:
 	_test_reward_and_progression_contracts()
 	_test_backpack_vocab_contracts()
 	_test_combat_vocab_contracts()
+	_test_formal_replay_runner_contracts()
 	_test_node_routing_contracts()
 	_test_node_map_scene_smoke()
 	_test_ui_read_model_contracts()
+	_test_release_content_contracts()
 	if not smoke_only:
 		_test_main_scene_instantiation()
 
@@ -315,14 +323,14 @@ func _test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScri
 	var complete_scene: Dictionary = preview_controller.claim_rewards()
 	_assert_eq(complete_scene["phase"], "run_complete", "preview controller reaches run_complete")
 
-# 실행: verify direct replay payloads and promoted prototype fixture batch execution.
+# 실행: verify direct replay payloads and formal fixture batch execution.
 func _test_replay_paths(replay_process, replay_runner) -> void:
 	var replay: Dictionary = replay_process.run_replay({"seed": 21, "maxStages": 1, "nodeTable": _node_table(), "inputLog": [{"type": "select_node", "index": 0}, {"type": "resolve", "outcome": "clear"}, {"type": "claim_rewards"}]})
 	_assert_eq(replay["summary"]["phase"], "run_complete", "formal replay reaches run_complete")
 	_assert_eq(replay["summary"]["runComplete"], true, "formal replay marks run complete")
 	var fixture_replay: Dictionary = replay_process.run_replay({"seed": 20260513, "node": {"shield": 0.75, "health": 0.0, "weakness": ["red"]}, "inputLog": [{"tick": 1, "target": 0, "input": "click"}, {"tick": 2, "input": "claim_rewards"}]})
 	_assert_eq(fixture_replay["summary"]["phase"], "run_complete", "prototype-style replay reaches run_complete")
-	var replay_report: Dictionary = replay_runner.run_all({"fixturePaths": ["res://prototype/browser-p0-p4/tests/fixtures/input_logs/basic_clear.json", "res://prototype/browser-p0-p4/tests/fixtures/input_logs/empty_queue_repair.json"]})
+	var replay_report: Dictionary = replay_runner.run_all({"fixturePaths": ["res://tests/fixtures/input_logs/basic_clear.json", "res://tests/fixtures/input_logs/empty_queue_repair.json"]})
 	_assert_eq(replay_report["fixtureCount"], 2, "formal replay runner counts fixtures")
 
 # 실행: load and run reward and progression unit tests.
@@ -362,6 +370,19 @@ func _test_combat_vocab_contracts() -> void:
 		for err in test_res["errors"]:
 			failures.append("Combat vocab test failed: %s" % err)
 
+# 실행: load and run formal replay runner path unit tests.
+func _test_formal_replay_runner_contracts() -> void:
+	var TestFormalReplayRunnerClass = load("res://tests/test_formal_replay_runner.gd")
+	_assert(TestFormalReplayRunnerClass != null, "test formal replay runner contract loads")
+	if TestFormalReplayRunnerClass == null:
+		return
+	var tester = TestFormalReplayRunnerClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "formal replay runner contract tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Formal replay runner test failed: %s" % err)
+
 # ?ㅽ뻾: load and run UI read model unit tests.
 func _test_node_routing_contracts() -> void:
 	var TestNodeRoutingClass = load("res://tests/test_node_routing_contract.gd")
@@ -400,6 +421,19 @@ func _test_ui_read_model_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("UI read model test failed: %s" % err)
+
+# 실행: load and run M4-M9 release content contract tests.
+func _test_release_content_contracts() -> void:
+	var TestReleaseContentClass = load("res://tests/test_release_content_contract.gd")
+	_assert(TestReleaseContentClass != null, "test release content contract loads")
+	if TestReleaseContentClass == null:
+		return
+	var tester = TestReleaseContentClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "release content contract tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Release content test failed: %s" % err)
 
 # 실행: verify that the main scene can load and instantiate without ready runtime errors.
 func _test_main_scene_instantiation() -> void:

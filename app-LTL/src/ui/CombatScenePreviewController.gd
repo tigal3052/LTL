@@ -17,6 +17,7 @@ var seed: int = 53
 var viewport_width: int = 1440
 var viewport_height: int = 1080
 var max_stages: int = 1
+var start_color: String = "red"
 var node_table_override: Dictionary = {}
 var init_options: Dictionary = {}
 var run
@@ -30,6 +31,7 @@ func _init(options: Dictionary = {}) -> void:
 	viewport_width = int(options.get("viewportWidth", 1440))
 	viewport_height = int(options.get("viewportHeight", 1080))
 	max_stages = maxi(1, int(options.get("maxStages", 1)))
+	start_color = str(options.get("startColor", "red"))
 	node_table_override = options.get("nodeTable", {}).duplicate(true)
 	reset()
 
@@ -79,7 +81,7 @@ func claim_rewards() -> Dictionary:
 	return get_scene()
 
 func reset() -> Dictionary:
-	var run_opts := {"seed": seed, "maxStages": max_stages, "nodeTable": _node_table()}
+	var run_opts := {"seed": seed, "maxStages": max_stages, "nodeTable": _node_table(), "startColor": start_color}
 	if init_options.has("tuning"):
 		run_opts["tuning"] = init_options["tuning"]
 	if init_options.has("queueCapacity"):
@@ -87,6 +89,10 @@ func reset() -> Dictionary:
 	run = HeadlessMiniRunScript.new(run_opts)
 	adapter = CombatInputAdapterScript.new(run)
 	return get_scene()
+
+func set_start_color(color: String) -> Dictionary:
+	start_color = color
+	return reset()
 
 func _node_table() -> Dictionary:
 	if not node_table_override.is_empty():

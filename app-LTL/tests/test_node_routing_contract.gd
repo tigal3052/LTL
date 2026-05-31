@@ -21,7 +21,10 @@ func run_all_tests() -> Dictionary:
 	test_candidates_are_deterministic_and_include_safe_route()
 	test_final_stage_pins_boss_candidate_without_losing_safe_route()
 	test_selected_node_modifiers_reach_combat_snapshot()
+	test_selected_node_uses_documented_durability_curve()
 	test_scene_read_model_projects_route_fields_without_pick_weights()
+	test_stage_durability_curve_matches_documented_targets()
+	test_offered_candidates_share_documented_stage_durability()
 	test_mysterious_crevice_fixture_has_nonzero_combat_stats()
 	test_node_validator_requires_route_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
@@ -59,6 +62,21 @@ func test_selected_node_modifiers_reach_combat_snapshot() -> void:
 	_assert(float(combat["combat"]["hazard"]["modifier"]) > 1.0, "combat snapshot keeps hazard modifier")
 	_assert_eq(combat["combat"]["telemetry"]["event"], "node_modifier_applied", "combat snapshot includes node modifier telemetry")
 
+# 실행: verify the actual selected combat path uses the documented stage-one durability.
+func test_selected_node_uses_documented_durability_curve() -> void:
+	var run = HeadlessMiniRunScript.new({"seed": 19, "maxStages": 5, "candidateCount": 5, "nodeTable": _node_table()})
+	var initial: Dictionary = run.snapshot()
+	var hazard_index := _index_of_type(initial["candidates"], "hazard_rich")
+	_assert(hazard_index >= 0, "hazard rich candidate is offered for selected durability test")
+	if hazard_index < 0:
+		return
+	var combat: Dictionary = run.select_node(hazard_index)
+	_assert_eq(combat["phase"], "combat", "selected durability test enters combat")
+	_assert(absf(float(combat["combat"].get("shield", 0.0)) - 14.0) <= 0.05, "selected combat shield matches documented stage one table")
+	_assert(absf(float(combat["combat"].get("health", 0.0)) - 18.0) <= 0.05, "selected combat health matches documented stage one table")
+	_assert(absf(float(combat["combat"].get("maxShield", 0.0)) - 14.0) <= 0.05, "selected combat max shield matches documented stage one table")
+	_assert(absf(float(combat["combat"].get("maxHealth", 0.0)) - 18.0) <= 0.05, "selected combat max health matches documented stage one table")
+
 # 실행: verify scene and text read models expose readable route fields but hide raw pick weights.
 func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
 	var run = HeadlessMiniRunScript.new({"seed": 31, "maxStages": 3, "candidateCount": 4, "nodeTable": _node_table()})
@@ -73,6 +91,31 @@ func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
 	var text: String = str(NodeSelectReadModelScript.project({"nodeSelect": {"candidates": scene["candidates"]}}, 0)["text"])
 	_assert(str(text).contains("위험:"), "node select text includes risk")
 	_assert(str(text).contains("보상:"), "node select text includes non-baseline reward bias")
+
+# 실행: verify the five-stage durability curve follows the documented balance formula.
+func test_stage_durability_curve_matches_documented_targets() -> void:
+	var expected_totals := [32.0, 54.0, 78.0, 100.0, 120.0]
+	var expected_shields := [14.0, 23.0, 35.0, 47.0, 58.0]
+	var expected_health := [18.0, 31.0, 43.0, 53.0, 62.0]
+	for stage_index in range(expected_totals.size()):
+		var candidates := NodeVocabScript.generate_candidates(101, stage_index, _normal_only_table(), 1, {"maxStages": 5})
+		_assert(candidates.size() >= 1, "durability curve candidate exists for stage %d" % stage_index)
+		if candidates.is_empty():
+			continue
+		var combat: Dictionary = candidates[0].get("combat", {})
+		var total := float(combat.get("shield", 0.0)) + float(combat.get("health", 0.0))
+		_assert(absf(total - expected_totals[stage_index]) <= 1.0, "stage %d durability total near %.1f, got %.2f" % [stage_index + 1, expected_totals[stage_index], total])
+		_assert(absf(float(combat.get("shield", 0.0)) - expected_shields[stage_index]) <= 0.05, "stage %d shield matches documented table" % [stage_index + 1])
+		_assert(absf(float(combat.get("health", 0.0)) - expected_health[stage_index]) <= 0.05, "stage %d health matches documented table" % [stage_index + 1])
+
+# 실행: verify route labels and rewards differ without changing the documented displayed durability table.
+func test_offered_candidates_share_documented_stage_durability() -> void:
+	var candidates := NodeVocabScript.generate_candidates(101, 0, _node_table(), 5, {"maxStages": 5, "nodeRouting": {"minCandidates": 5, "maxCandidates": 5}})
+	_assert(candidates.size() >= 3, "rich node table offers multiple candidates")
+	for candidate in candidates:
+		var combat: Dictionary = candidate.get("combat", {})
+		_assert(absf(float(combat.get("shield", 0.0)) - 14.0) <= 0.05, "candidate %s shield matches stage one table" % str(candidate.get("id", "")))
+		_assert(absf(float(combat.get("health", 0.0)) - 18.0) <= 0.05, "candidate %s health matches stage one table" % str(candidate.get("id", "")))
 
 # 실행: verify the mysterious crevice route cannot clear from zero health/shield.
 func test_mysterious_crevice_fixture_has_nonzero_combat_stats() -> void:
@@ -98,6 +141,12 @@ func _node_table() -> Dictionary:
 		{"id": "repair_event", "label": "Repair Event", "nodeType": "repair_event", "riskTier": "support", "weakness": ["blue"], "pickWeight": 3, "shieldMul": 0.8, "healthMul": 0.8, "isEvent": true, "rewardBias": "repair", "recommendedBuildHint": "Stabilize damaged route", "difficultyModifier": 0.85, "rewardModifier": 0.9, "hazardModifier": 0.75},
 		{"id": "mysterious_crevice", "label": "Mysterious Crevice", "nodeType": "mysterious_crevice", "riskTier": "unknown", "weakness": [], "pickWeight": 5, "shieldMul": 0.75, "healthMul": 0.75, "isEvent": true, "rewardBias": "mystery", "recommendedBuildHint": "Short volatile encounter", "difficultyModifier": 0.85, "rewardModifier": 1.2, "hazardModifier": 0.9},
 		{"id": "boss_spine", "label": "Spine Anchor", "nodeType": "boss", "riskTier": "boss", "weakness": ["red", "blue", "purple"], "pickWeight": 1, "shieldMul": 1.6, "healthMul": 1.8, "isBoss": true, "rewardBias": "run_clear", "recommendedBuildHint": "Bring mixed coverage", "difficultyModifier": 1.7, "rewardModifier": 1.8, "hazardModifier": 1.4}
+	]}
+
+# 실행: return only the normal route so base durability is measured without route multipliers.
+func _normal_only_table() -> Dictionary:
+	return {"nodes": [
+		{"id": "normal", "label": "Safe Scar", "nodeType": "normal", "riskTier": "safe", "weakness": ["red"], "pickWeight": 10, "shieldMul": 1.0, "healthMul": 1.0, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0}
 	]}
 
 # 실행: collect candidate identifiers.

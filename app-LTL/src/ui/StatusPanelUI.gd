@@ -20,6 +20,9 @@ const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 @onready var pin_label: Label = $Margin/StatusBox/TimerRow/PinLabel
 @onready var repair_status_label: Label = $Margin/StatusBox/DrillStatusRow/RepairStatusLabel
 
+func _ready() -> void:
+	_apply_shell_theme()
+
 # ?ㅽ뻾: update target HP and Shield bars with exact values and percentages.
 func render_target_bars(scene: Dictionary) -> void:
 	if not _is_status_scene(scene):
@@ -162,3 +165,57 @@ func _show_overlay(overlay: PanelContainer, title: String, description: String) 
 	overlay.visible = true
 	(overlay.get_node("Center/WarningBox/WarningLabel") as Label).text = title
 	(overlay.get_node("Center/WarningBox/DescriptionLabel") as Label).text = description
+
+func _apply_shell_theme() -> void:
+	var panel := StyleBoxFlat.new()
+	panel.bg_color = Color(0.06, 0.08, 0.11, 0.95)
+	panel.border_color = Color(0.19, 0.29, 0.41, 1.0)
+	panel.border_width_left = 1
+	panel.border_width_top = 1
+	panel.border_width_right = 1
+	panel.border_width_bottom = 1
+	panel.corner_radius_top_left = 12
+	panel.corner_radius_top_right = 12
+	panel.corner_radius_bottom_left = 12
+	panel.corner_radius_bottom_right = 12
+	panel.shadow_size = 8
+	panel.shadow_color = Color(0.0, 0.0, 0.0, 0.20)
+	add_theme_stylebox_override("panel", panel)
+	_style_metric_bar(health_bar, Color(0.82, 0.24, 0.24), Color(0.17, 0.08, 0.08))
+	_style_metric_bar(shield_bar, Color(0.30, 0.56, 0.96), Color(0.08, 0.11, 0.18))
+	_style_metric_bar(pin_progress_bar, Color(0.91, 0.66, 0.18), Color(0.18, 0.13, 0.07))
+	extractor_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.95))
+	pin_label.add_theme_color_override("font_color", Color(0.92, 0.95, 0.98))
+	repair_status_label.add_theme_color_override("font_color", Color(0.74, 0.82, 0.88))
+	var extractor_style := StyleBoxFlat.new()
+	extractor_style.bg_color = Color(0.10, 0.14, 0.18, 1.0)
+	extractor_style.border_color = Color(0.35, 0.46, 0.58, 1.0)
+	extractor_style.border_width_left = 1
+	extractor_style.border_width_top = 1
+	extractor_style.border_width_right = 1
+	extractor_style.border_width_bottom = 1
+	extractor_style.corner_radius_top_left = 10
+	extractor_style.corner_radius_top_right = 10
+	extractor_style.corner_radius_bottom_left = 10
+	extractor_style.corner_radius_bottom_right = 10
+	extractor_visual.add_theme_stylebox_override("panel", extractor_style)
+
+func _style_metric_bar(bar: ProgressBar, fill_color: Color, background_color: Color) -> void:
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = fill_color
+	fill.corner_radius_top_left = 8
+	fill.corner_radius_top_right = 8
+	fill.corner_radius_bottom_left = 8
+	fill.corner_radius_bottom_right = 8
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = background_color
+	bg.corner_radius_top_left = 8
+	bg.corner_radius_top_right = 8
+	bg.corner_radius_bottom_left = 8
+	bg.corner_radius_bottom_right = 8
+	bg.content_margin_left = 2
+	bg.content_margin_top = 2
+	bg.content_margin_right = 2
+	bg.content_margin_bottom = 2
+	bar.add_theme_stylebox_override("fill", fill)
+	bar.add_theme_stylebox_override("background", bg)

@@ -25,9 +25,9 @@ func run_all(options: Dictionary = {}) -> Dictionary:
 			failing.append(item)
 	return {"ok": failing.is_empty(), "fixtureCount": results.size(), "failingFixtures": failing, "results": results}
 
-# 실행: discover prototype replay fixture JSON files in deterministic name order.
+# 실행: discover formal replay fixture JSON files in deterministic name order.
 func _default_fixture_paths() -> Array:
-	var base := "res://prototype/browser-p0-p4/tests/fixtures/input_logs"
+	var base := "res://tests/fixtures/input_logs"
 	var dir := DirAccess.open(base)
 	if dir == null:
 		return []

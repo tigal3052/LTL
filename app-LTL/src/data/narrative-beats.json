@@ -1,0 +1,49 @@
+{
+  "beats": [
+    {
+      "id": "first_run_start",
+      "trigger": "first_run_start",
+      "shownOnce": true,
+      "speaker": "Operator",
+      "textKo": "레비아탄 표피가 열렸습니다. 안전한 흉터부터 고르세요.",
+      "textEn": "The leviathan shell is open. Pick a safe scar first.",
+      "sideEffectFree": true
+    },
+    {
+      "id": "first_reward",
+      "trigger": "first_reward",
+      "shownOnce": true,
+      "speaker": "Quartermaster",
+      "textKo": "전리품은 다음 전투의 리듬을 바꿉니다. 색과 비콘을 같이 보세요.",
+      "textEn": "Loot changes the next fight rhythm. Read color and beacon together.",
+      "sideEffectFree": true
+    },
+    {
+      "id": "first_failure",
+      "trigger": "first_failure",
+      "shownOnce": true,
+      "speaker": "Mechanic",
+      "textKo": "실패 로그가 남았습니다. 기지에서 수리 계열을 먼저 보강하세요.",
+      "textEn": "Failure was logged. Reinforce repair tools at base first.",
+      "sideEffectFree": true
+    },
+    {
+      "id": "first_clear",
+      "trigger": "first_clear",
+      "shownOnce": true,
+      "speaker": "Captain",
+      "textKo": "척추 앵커가 무너졌습니다. 다음 레비아탄 탐색을 준비하세요.",
+      "textEn": "The spine anchor collapsed. Prepare the next leviathan scan.",
+      "sideEffectFree": true
+    },
+    {
+      "id": "leviathan_unlocked",
+      "trigger": "leviathan_unlocked",
+      "shownOnce": true,
+      "speaker": "Scout",
+      "textKo": "새 레비아탄의 흔적을 찾았습니다. 바람과 과열 패턴이 강합니다.",
+      "textEn": "A new leviathan trace is ready. Expect wind and overheat patterns.",
+      "sideEffectFree": true
+    }
+  ]
+}

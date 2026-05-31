@@ -177,3 +177,50 @@ static func get_basic_drills() -> Array:
 		"item_type": "drill"
 	})
 	return [ruby, sapphire, amethyst, emerald]
+
+# 실행: generate one selected-color drill and one adjacent support beacon for a new run.
+static func get_starter_loadout(start_color: String = "red") -> Array:
+	var color := _normalized_start_color(start_color)
+	var base_drill = null
+	for candidate in get_basic_drills():
+		if candidate.energy_type == color:
+			base_drill = candidate
+			break
+	if base_drill == null:
+		base_drill = get_basic_drills()[0]
+	var drill = _starter_drill_from(base_drill)
+	var beacon = Artifact.new({
+		"id": "starter_%s_beacon" % color,
+		"name": "%s Starter Beacon" % color.capitalize(),
+		"shape": [[1]],
+		"energyType": color,
+		"baseCooldownTicks": 90,
+		"damage": 0.0,
+		"grade": "Basic",
+		"item_type": "beacon",
+		"beaconCooldownMod": -4,
+		"beaconDamageMod": 0.4
+	})
+	return [drill, beacon]
+
+# 실행: keep unsupported start colors deterministic instead of producing empty inventories.
+static func get_starter_loadout_positions() -> Array:
+	return [Vector2(2, 2), Vector2(3, 2)]
+
+static func _starter_drill_from(base_drill: Artifact) -> Artifact:
+	return Artifact.new({
+		"id": "starter_%s_drill" % base_drill.energy_type,
+		"name": "%s Starter Drill" % base_drill.energy_type.capitalize(),
+		"shape": [[1]],
+		"energyType": base_drill.energy_type,
+		"baseCooldownTicks": base_drill.base_cooldown_ticks,
+		"damage": base_drill.base_damage,
+		"grade": base_drill.grade,
+		"item_type": "drill"
+	})
+
+static func _normalized_start_color(start_color: String) -> String:
+	var color := start_color.to_lower()
+	if color in ["red", "blue", "purple", "green"]:
+		return color
+	return "red"

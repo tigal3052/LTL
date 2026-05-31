@@ -25,7 +25,8 @@ func _project_candidates(candidates: Array, labels: Dictionary) -> Array:
 	var result: Array = []
 	for candidate in candidates:
 		var weakness: Array = _clone_array(candidate.get("weakness", candidate.get("combat", {}).get("weakness", [])))
-		result.append({"id": candidate.get("id", ""), "label": _display_label(candidate.get("label", candidate.get("id", "")), labels), "nodeType": candidate.get("nodeType", "normal"), "riskTier": candidate.get("riskTier", "safe"), "rewardBias": candidate.get("rewardBias", "baseline"), "recommendedBuildHint": candidate.get("recommendedBuildHint", ""), "finalStageDistance": candidate.get("finalStageDistance", 0), "routeHash": candidate.get("routeHash", ""), "weakness": weakness, "weaknessLabel": _display_label(",".join(weakness), labels)})
+		var combat: Dictionary = candidate.get("combat", {}) if candidate.get("combat", {}) is Dictionary else {}
+		result.append({"id": candidate.get("id", ""), "label": _display_label(candidate.get("label", candidate.get("id", "")), labels), "nodeType": candidate.get("nodeType", "normal"), "riskTier": candidate.get("riskTier", "safe"), "rewardBias": candidate.get("rewardBias", "baseline"), "recommendedBuildHint": candidate.get("recommendedBuildHint", ""), "finalStageDistance": candidate.get("finalStageDistance", 0), "routeHash": candidate.get("routeHash", ""), "weakness": weakness, "weaknessLabel": _display_label(",".join(weakness), labels), "shield": float(combat.get("shield", 0.0)), "health": float(combat.get("health", 0.0)), "totalDurability": float(combat.get("shield", 0.0)) + float(combat.get("health", 0.0))})
 	return result
 
 # 실행: project combat data without leaking mutable runtime references.

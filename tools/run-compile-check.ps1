@@ -11,6 +11,16 @@ New-Item -ItemType Directory -Force -Path $godotRoaming, $godotLocal | Out-Null
 $env:APPDATA = $godotRoaming
 $env:LOCALAPPDATA = $godotLocal
 
+Write-Host "Running source map gate..." -ForegroundColor Cyan
+$sourceMapGate = Join-Path $workspace "LTL-harness\tools\source-map-gate.ps1"
+$sourceMapOutput = & powershell -NoProfile -ExecutionPolicy Bypass -File $sourceMapGate -Root $workspace 2>&1
+$sourceMapExitCode = $LASTEXITCODE
+$sourceMapOutput | ForEach-Object { Write-Host $_ }
+if ($sourceMapExitCode -ne 0) {
+    Write-Host "Source Map Gate: FAILED" -ForegroundColor Red
+    exit $sourceMapExitCode
+}
+
 # Run Godot headless check directly. Start-Process can fail on Windows when the
 # inherited environment contains both Path and PATH keys. Editor headless mode
 # avoids a Godot 4.3 console crash observed during plain headless project load.

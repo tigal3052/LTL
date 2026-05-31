@@ -25,6 +25,7 @@ var active_queue_color: String = ""
 var aimed: bool = false
 var is_disabled_tile: bool = false
 var hover_active: bool = false
+var press_active: bool = false
 
 # 실행: store random rock shape offsets for organic C-type crust aesthetics.
 var rock_points: Array[Vector2] = []
@@ -58,10 +59,17 @@ func _gui_input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			var color_str := str(weakness) if weakness else "normal"
 			if event.pressed:
+				press_active = true
+				if is_disabled_tile:
+					mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN
+					queue_redraw()
+					return
 				emit_signal("cell_clicked", cell_id, color_str)
 				emit_signal("cell_pressed", cell_id, color_str)
 			else:
+				press_active = false
 				emit_signal("cell_released")
+			queue_redraw()
 
 # 실행: generate randomized rocky carapace points and crack offsets.
 func _generate_rock_geometry() -> void:
@@ -193,6 +201,14 @@ func _draw() -> void:
 			var glow_points = PackedVector2Array(scaled_rock_points)
 			glow_points.append(scaled_rock_points[0])
 			draw_polyline(glow_points, glow_color, 3.0)
+		if press_active:
+			draw_circle(Vector2(w / 2.0, h / 2.0), minf(w, h) * 0.34, Color(glow_color.r, glow_color.g, glow_color.b, 0.18))
+	elif hover_active and is_disabled_tile:
+		var blocked_color := Color(0.75, 0.18, 0.18, 0.7)
+		if scaled_rock_points.size() > 0:
+			var blocked_points = PackedVector2Array(scaled_rock_points)
+			blocked_points.append(scaled_rock_points[0])
+			draw_polyline(blocked_points, blocked_color, 3.0)
 		
 	# Draw targeted (aimed) indicator - B-type Resonance Scope
 	if aimed and not is_disabled_tile:
@@ -220,12 +236,16 @@ func _draw() -> void:
 # 실행: update hovered flag and notify controller on mouse entry.
 func _on_mouse_entered() -> void:
 	hover_active = true
+	mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN if is_disabled_tile else Control.CURSOR_POINTING_HAND
 	emit_signal("cell_hovered", cell_id, str(weakness) if weakness else "normal")
 	queue_redraw()
 
 # 실행: clear hovered flag on mouse exit.
 func _on_mouse_exited() -> void:
 	hover_active = false
+	if press_active:
+		emit_signal("cell_released")
+	press_active = false
 	queue_redraw()
 
 # 실행: public configuration setter.
@@ -238,6 +258,7 @@ func configure(cell_data: Dictionary, disabled_tiles: Array) -> void:
 	active_queue_color = str(cell_data.get("activeQueueColor", ""))
 	aimed = bool(cell_data.get("aimed", false))
 	is_disabled_tile = cell_id in disabled_tiles
+	mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN if is_disabled_tile else Control.CURSOR_POINTING_HAND
 	queue_redraw()
 
 # 실행: map energy names to highlight colors.

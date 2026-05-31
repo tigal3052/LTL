@@ -28,11 +28,16 @@ static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
 			"weaknessLabel": str(candidate.get("weaknessLabel", ",".join(weakness))),
 			"finalStageDistance": int(candidate.get("finalStageDistance", 0)),
 			"routeHash": str(candidate.get("routeHash", "")),
+			"shield": float(candidate.get("shield", 0.0)),
+			"health": float(candidate.get("health", 0.0)),
+			"totalDurability": float(candidate.get("totalDurability", float(candidate.get("shield", 0.0)) + float(candidate.get("health", 0.0)))),
 			"selected": idx == safe_selected,
 			"disabled": false
 		})
 	return {
 		"selectedIndex": safe_selected,
+		"selectedColor": str(scene.get("selectedStartColor", scene.get("selectedColor", "red"))),
+		"loadoutColors": scene.get("loadoutColors", ["red", "blue", "purple", "green"]).duplicate(true),
 		"stageText": TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
 		"cards": cards,
 		"empty": cards.is_empty(),

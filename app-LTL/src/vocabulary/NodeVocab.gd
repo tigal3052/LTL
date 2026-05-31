@@ -61,8 +61,8 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 			candidate["combat"] = node["combat"].duplicate(true)
 		else:
 			candidate["combat"] = {
-				"shield": stage_combat["shield"] * float(node.get("shieldMul", 1.0)),
-				"health": stage_combat["health"] * float(node.get("healthMul", 1.0)),
+				"shield": stage_combat["shield"],
+				"health": stage_combat["health"],
 				"timeLimitTicks": stage_combat["timeLimitTicks"],
 				"weakness": node.get("weakness", []).duplicate(true)
 			}
@@ -120,25 +120,35 @@ static func _candidate_risk_tiers(candidates: Array) -> Array:
 # 실행: compute scaling parameters for the stage combat nodes using cumulative Gaussian delta bumps.
 static func _compute_stage_combat_params(stage_index: int, tuning: Dictionary) -> Dictionary:
 	var scaling: Dictionary = tuning.get("stageScaling", {})
-	
-	var base_shield := float(scaling.get("baseShield", 50.0))
-	var base_health := float(scaling.get("baseHealth", 50.0))
 	var base_time_limit := int(scaling.get("baseTimeLimitTicks", 2400))
-	
+	if scaling.has("baseShield") or scaling.has("baseHealth"):
+		return {
+			"shield": float(scaling.get("baseShield", 0.0)),
+			"health": float(scaling.get("baseHealth", 1.0)),
+			"timeLimitTicks": base_time_limit
+		}
+
+	var tuned_totals: Array = scaling.get("stageDurabilityTotals", [32.0, 54.0, 78.0, 100.0, 120.0])
+	var tuned_health: Array = scaling.get("stageHealthTotals", [18.0, 31.0, 43.0, 53.0, 62.0])
+	var curve_base := float(scaling.get("durabilityBase", 30.0))
+	var curve_growth := float(scaling.get("durabilityGrowth", 1.43))
+	var total := curve_base * pow(curve_growth, float(stage_index))
+	if stage_index >= 0 and stage_index < tuned_totals.size():
+		total = float(tuned_totals[stage_index])
+	var shield_share := clampf(0.42 + float(stage_index) * 0.025, 0.42, 0.52)
+
+	var shield := total * shield_share
+	var health := total - shield
+	if stage_index >= 0 and stage_index < tuned_health.size():
+		health = clampf(float(tuned_health[stage_index]), 1.0, total)
+		shield = maxf(0.0, total - health)
 	var peak_stage := float(scaling.get("peakStage", 3.25))
 	var sigma := float(scaling.get("sigma", 1.65))
-	var peak_shield_delta := float(scaling.get("peakShieldDelta", 0.55))
-	var peak_health_delta := float(scaling.get("peakHealthDelta", 0.72))
 	var peak_time_cut := float(scaling.get("peakTimeCutTicks", 140))
 	var min_time_limit := int(scaling.get("minTimeLimitTicks", 360))
-	
-	var shield := base_shield
-	var health := base_health
 	var time_limit_ticks := float(base_time_limit)
-	
+
 	for k in range(stage_index):
-		shield += _gaussian_bump(float(k), peak_stage, sigma, peak_shield_delta)
-		health += _gaussian_bump(float(k), peak_stage, sigma, peak_health_delta)
 		time_limit_ticks -= _gaussian_bump(float(k), peak_stage, sigma, peak_time_cut)
 		
 	time_limit_ticks = maxf(float(min_time_limit), floorf(time_limit_ticks))

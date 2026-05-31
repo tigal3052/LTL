@@ -1,0 +1,781 @@
+﻿# Looting The Leviathan Source Map
+
+This file is the live implementation map for AI agents. It records each current file with responsibility comments that must stay updated as source work changes.
+
+## Gate Scope
+
+- Generated/verified by `LTL-harness/tools/source-map-gate.ps1`.
+- Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, or when an entry has an empty/TODO-style responsibility.
+- Excluded from per-file enforcement: `.git`, `.godot-user`, `.worktrees`, `.tmp-source-map-gate-tests`, `docs/codex-worklog`, and `docs/comment-gates/backups`.
+
+## File Map
+
+- `.cursor/hooks.json`
+  - hooks is a project component with a tracked responsibility.
+- `.cursorrules`
+  - .cursorrules is a project component with a tracked responsibility.
+- `.gitignore`
+  - .gitignore is a project component with a tracked responsibility.
+- `.vscode/settings.json`
+  - settings is a project component with a tracked responsibility.
+- `app-LTL/project.godot`
+  - project is the Godot project configuration file.
+- `app-LTL/prototype/.gdignore`
+  - .gdignore preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/package.json`
+  - package preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/public/index.html`
+  - index preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/action-result.js`
+  - action result preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/combat-controller.js`
+  - combat controller preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/data/artifact-table.json`
+  - artifact table preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/data/node-table.json`
+  - node table preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/energy-queue.js`
+  - energy queue preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/game-tuning.js`
+  - game tuning preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/hazard-model.js`
+  - hazard model preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/inventory-model.js`
+  - inventory model preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/mining-resolver.js`
+  - mining resolver preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/node-generator.js`
+  - node generator preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/reward-resolver.js`
+  - reward resolver preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/run-progression.js`
+  - run progression preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/run-simulator.js`
+  - run simulator preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/seeded-rng.js`
+  - seeded rng preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/domain/stage-scaling.js`
+  - stage scaling preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/models/artifact-table.js`
+  - artifact table preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/models/combat-simulator.js`
+  - combat simulator preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/models/inventory.js`
+  - inventory preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/combat-end-phase.js`
+  - combat end phase preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/combat-phase.js`
+  - combat phase preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/combat-start-phase.js`
+  - combat start phase preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/node-select-phase.js`
+  - node select phase preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/phase-tags.js`
+  - phase tags preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/reduce-mini-run-phase.js`
+  - reduce mini run phase preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/phases/reward-loot-phase.js`
+  - reward loot phase preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/process/headless-mini-run.js`
+  - headless mini run preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/process/mini-run-stage-script.js`
+  - mini run stage script preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/process/stage-sentence.js`
+  - stage sentence preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/telemetry/telemetry.js`
+  - telemetry preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/tools/mini-run-telemetry.js`
+  - mini run telemetry preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/tools/replay-runner.js`
+  - replay runner preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/tuning/mini-run-config.js`
+  - mini run config preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/mini-run-app.js`
+  - mini run app preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/index.js`
+  - index preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-backpack.js`
+  - render backpack preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-combat-hud.js`
+  - render combat hud preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-node-select.js`
+  - render node select preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-phase-chrome.js`
+  - render phase chrome preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-queue.js`
+  - render queue preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-reward-loot.js`
+  - render reward loot preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/ui/render/render-terrain.js`
+  - render terrain preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/backpack/discard-held.js`
+  - discard held preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/backpack/held-item.js`
+  - held item preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/backpack/pick-up-from-inventory.js`
+  - pick up from inventory preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/backpack/pick-up-from-reward.js`
+  - pick up from reward preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/backpack/place-held.js`
+  - place held preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/backpack/recalculate-synergy.js`
+  - recalculate synergy preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/apply-node-damage.js`
+  - apply node damage preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/calculate-damage.js`
+  - calculate damage preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/check-time-progress.js`
+  - check time progress preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/create-combat-runtime.js`
+  - create combat runtime preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/create-run-summary.js`
+  - create run summary preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/fire-shot.js`
+  - fire shot preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/input-guard.js`
+  - input guard preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/combat/scroll-terrain.js`
+  - scroll terrain preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/node/combat-to-display.js`
+  - combat to display preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/node/offer-node-choices.js`
+  - offer node choices preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/reward/roll-stage-rewards.js`
+  - roll stage rewards preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/src/vocabulary/reward/roll-ui-rewards.js`
+  - roll ui rewards preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/fixtures/input_logs/basic_clear.json`
+  - basic clear preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/fixtures/input_logs/empty_queue_repair.json`
+  - empty queue repair preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/p0_replay.test.js`
+  - p0 replay.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/p1_core_loop.test.js`
+  - p1 core loop.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/p2_control_slice.test.js`
+  - p2 control slice.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/p3_backpack_hazard.test.js`
+  - p3 backpack hazard.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/p4_mini_run.test.js`
+  - p4 mini run.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/phases_reward_loot.test.js`
+  - phases reward loot.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/process_stage_sentence.test.js`
+  - process stage sentence.test preserves prototype validation output.
+- `app-LTL/prototype/browser-p0-p4/tests/vocabulary_backpack.test.js`
+  - vocabulary backpack.test preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/data/PrototypeTuning.json`
+  - Prototype Tuning preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/domain/EnergyQueue.gd`
+  - Energy Queue preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/domain/MiningResolver.gd`
+  - Mining Resolver preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/domain/RunSimulator.gd`
+  - Run Simulator preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/domain/SeededRng.gd`
+  - Seeded Rng preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/PrototypeController.gd`
+  - Prototype Controller preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/PrototypeMain.tscn`
+  - Prototype Main preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/telemetry/Telemetry.gd`
+  - Telemetry preserves prototype validation output.
+- `app-LTL/prototype/godot-p0/tools/replay_runner.gd`
+  - replay runner preserves prototype validation output.
+- `app-LTL/README.md`
+  - README explains project design or implementation criteria.
+- `app-LTL/resources/UI/backpack.png`
+  - backpack is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack.png.import`
+  - backpack.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_1.png`
+  - backpack 1 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_1.png.import`
+  - backpack 1.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_2.png`
+  - backpack 2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_2.png.import`
+  - backpack 2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_3.png`
+  - backpack 3 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_3.png.import`
+  - backpack 3.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_4.png`
+  - backpack 4 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_4.png.import`
+  - backpack 4.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_5.png`
+  - backpack 5 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_5.png.import`
+  - backpack 5.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_6.png`
+  - backpack 6 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_6.png.import`
+  - backpack 6.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_7.png`
+  - backpack 7 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_7.png.import`
+  - backpack 7.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_8.png`
+  - backpack 8 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_8.png.import`
+  - backpack 8.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_9.png`
+  - backpack 9 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_9.png.import`
+  - backpack 9.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/Log_Panel.png`
+  - Log Panel is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/Log_Panel.png.import`
+  - Log Panel.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner.png`
+  - miner is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner.png.import`
+  - miner.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/blue_tile.png`
+  - blue tile is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/blue_tile.png.import`
+  - blue tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/green_tile.png`
+  - green tile is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/green_tile.png.import`
+  - green tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/purple_tile.png`
+  - purple tile is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/purple_tile.png.import`
+  - purple tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/red_tile.png`
+  - red tile is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/red_tile.png.import`
+  - red tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/tile_panel.png`
+  - tile panel is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/tile_panel.png.import`
+  - tile panel.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/tile_panel_nobg.png`
+  - tile panel nobg is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/tile_panel_nobg.png.import`
+  - tile panel nobg.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/tile_panel_nobg2.png.import`
+  - tile panel nobg2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/src/data/node-table.json`
+  - node table stores balance or progression data.
+- `app-LTL/src/data/base-shop-table.json`
+  - base shop table stores character, starter item, and leviathan scan unlock offers.
+- `app-LTL/src/data/character-table.json`
+  - character table stores playable character unlock costs and gameplay modifiers.
+- `app-LTL/src/data/hazard-table.json`
+  - hazard table stores warning, duration, counterplay, and telemetry rows for combat hazards.
+- `app-LTL/src/data/leviathan-table.json`
+  - leviathan table stores release boss list, stage counts, unlock conditions, and hazard biases.
+- `app-LTL/src/data/narrative-beats.json`
+  - narrative beats table stores side-effect-free story triggers and localized text.
+- `app-LTL/src/data/passive-tree.json`
+  - passive tree table stores engine, survival, and extraction progression upgrades.
+- `app-LTL/src/data/progression-default.json`
+  - progression default stores balance or progression data.
+- `app-LTL/src/data/rarity-table.json`
+  - rarity table stores balance or progression data.
+- `app-LTL/src/data/release-resource-needs.json`
+  - release resource needs table stores final-art paths and procedural fallback tags.
+- `app-LTL/src/data/reward-table.json`
+  - reward table stores balance or progression data.
+- `app-LTL/src/domain/FormalContracts.gd`
+  - Validates required fields and duplicate ids for artifact, node, reward, leviathan, and progress data tables.
+  - Merges game tuning defaults, including documented stage durability and stage health curves, and validates phase-specific requirements in public run snapshots.
+  - Standardizes validation results as normalized payloads plus error arrays.
+  - Provides clone/coerce helpers and M3-compatible validator shims for contract checks.
+- `app-LTL/src/Main.tscn`
+  - Main is a project component with a tracked responsibility.
+- `app-LTL/src/MainController.gd`
+  - Serves as the formal main controller entry script by inheriting MainControllerRuntime.
+- `app-LTL/src/MainControllerRuntime.gd`
+  - Initializes the domain runtime, input adapters, and UI signal wiring during main-scene ready.
+  - Converts combat-cell hover, click, hold-fire, and repair inputs into domain combat actions.
+  - Routes backpack slot, reward selection, and discard-zone inputs into inventory and reward transitions.
+  - Sends node-select, combat, reward, and completion phase snapshots to MainViewRuntime render contracts.
+  - Reflects shop opening, passive purchases, and growth modifier application in run state and UI.
+  - Manages combat weakness shuffle timers and queue color recalculation.
+- `app-LTL/src/models/Artifact.gd`
+  - Stores artifact id, rarity, energy type, shape, cooldown, and synergy state.
+  - Restores and serializes artifact models from dictionary input.
+  - Handles per-artifact state rules such as beacon checks and cooldown ticking.
+- `app-LTL/src/models/CombatSimulator.gd`
+  - Builds initial combat target, time limit, queue, and weakness marker state from selected node and tuning.
+  - Serializes combat state into dictionary snapshots consumed by UI and tests.
+  - Creates the initial weakness marker grid deterministically.
+- `app-LTL/src/models/HazardModel.gd`
+  - Stores repair threshold and durability-loss state.
+  - Accumulates empty-queue firing failures and determines repair availability.
+  - Serializes hazard state into snapshot dictionaries.
+- `app-LTL/src/models/InventoryModel.gd`
+  - Checks artifact grid placement availability, collisions, and bounds.
+  - Places and removes artifacts while maintaining occupied grid coordinates.
+  - Computes adjacent drill/beacon relationships and applies synergy reductions and pulse effects.
+  - Provides inventory cooldown tick results and serialized snapshots.
+- `app-LTL/src/models/RunGrowthState.gd`
+  - Restores run growth resources, stage progress, and passive levels from dictionaries.
+  - Computes growth-derived values such as starting gold, cooldown modifiers, and damage bonuses.
+  - Handles gold and XP gain plus passive purchases.
+  - Persists release base unlocks for characters, starter items, and leviathan scans.
+  - Serializes growth state into persistable dictionaries.
+- `app-LTL/src/phases/BackpackOrganizePhase.gd`
+  - Creates backpack-organize phase snapshots.
+  - Preserves held artifact and pending reward state across phase transitions.
+- `app-LTL/src/phases/CombatEndPhase.gd`
+  - Combat End Phase handles mini-run phase transitions.
+- `app-LTL/src/phases/CombatPhase.gd`
+  - Dispatches combat inputs into fire, repair, tick, and hold-domain actions.
+  - Evaluates combat end conditions and transitions into combat-end or reward-loot phases.
+  - Returns combat telemetry and snapshot updates through the phase reducer contract.
+- `app-LTL/src/phases/CombatStartPhase.gd`
+  - Combat Start Phase handles mini-run phase transitions.
+- `app-LTL/src/phases/NodeSelectPhase.gd`
+  - Generates node candidates from seed and node table data for node-select snapshots.
+  - Converts selected node indexes into combat-start phase input.
+- `app-LTL/src/phases/PhaseReducers.gd`
+  - Selects reducer scripts for the current phase name.
+  - Merges phase reducer results into common run snapshot shape.
+- `app-LTL/src/phases/RewardLootPhase.gd`
+  - Reward Loot Phase handles mini-run phase transitions.
+- `app-LTL/src/phases/RunCompletePhase.gd`
+  - Run Complete Phase handles mini-run phase transitions.
+- `app-LTL/src/process/CombatInputAdapter.gd`
+  - Normalizes raw combat input into standard action dictionaries using the current snapshot.
+  - Converts click, hold-fire, repair, and tick inputs into CombatPhase payloads.
+  - Provides run snapshot access before and after input handling.
+- `app-LTL/src/process/HeadlessMiniRun.gd`
+  - Builds initial seed, tuning, inventory, node table, and growth state for headless mini-runs.
+  - Provides APIs for node selection, combat input, reward claiming, and inventory removal.
+  - Exposes current run state as snapshots for contract verification and UI preview.
+  - Loads and clones default node, inventory, and growth fixtures.
+- `app-LTL/src/process/MiniRunStageScript.gd`
+  - Mini Run Stage Script coordinates headless process flow or input adaptation.
+- `app-LTL/src/process/NodeInputAdapter.gd`
+  - Converts node selection indexes into standard choose-node action payloads.
+  - Converts node hover indexes into hover payloads for UI and telemetry.
+- `app-LTL/src/process/ReplayProcess.gd`
+  - Applies replay JSON payloads or files to headless mini-runs.
+  - Normalizes replay fixture seed, node table, and input event structure.
+  - Applies combat and node input events in order while accumulating diagnostics.
+  - Builds final replay summaries and node table overrides.
+- `app-LTL/src/process/RunProgressionM0DesignNote.md`
+  - Run Progression M0 Design Note coordinates headless process flow or input adaptation.
+- `app-LTL/src/README.md`
+  - README explains project design or implementation criteria.
+- `app-LTL/src/scenes/node_map/NodeMapScene.gd`
+  - Renders the node-select tactical briefing, start-color row, candidate graph, and selected-route detail copy.
+  - Builds a resize-safe `START + candidate choices` node map and exposes smoke-test helpers for graph layout verification.
+- `app-LTL/src/scenes/node_map/NodeMapScene.tscn`
+  - Node Map Scene defines a Godot scene or scene controller.
+- `app-LTL/src/tools/FormalReplayRunner.gd`
+  - Provides the list of formal replay fixture paths.
+  - Runs each replay fixture through ReplayProcess and returns result lists.
+- `app-LTL/src/ui/ArtifactTooltipUI.gd`
+  - Initializes artifact tooltip panel labels, theme, and sizing.
+  - Renders TooltipReadModel results as rich text.
+  - Clamps tooltip position inside viewport bounds.
+- `app-LTL/src/ui/BackpackUI.gd`
+  - Creates backpack grid slots and the ghost preview container.
+  - Renders held artifact ghosts and inventory artifact overlays.
+  - Applies valid and blocked drag/drop feedback using the live inventory placement rules.
+  - Provides slot click/hover signals and visual state for discard interactions while keeping slot hover wobble disabled for readability.
+  - Smoothly interpolates artifact cooldown masks with frame delta.
+- `app-LTL/src/ui/BattlefieldUI.gd`
+  - Renders combat time display and battlefield cell grid.
+  - Rebuilds the grid when cell lists change and updates existing cells when structure matches.
+  - Delegates reward reveal VFX and skip-to-silhouette flow to BattlefieldVFX.
+- `app-LTL/src/ui/BattlefieldVFX.gd`
+  - Draws combat time-pressure borders and glow.
+  - Creates reward reveal timeline, shard, fountain, and light burst effects.
+  - Renders silhouette reward previews and rarity colors.
+  - Manages particle lifetime and draw loops.
+- `app-LTL/src/ui/CellView.gd`
+  - Manages input signals, hover state, and disabled state for a single battlefield cell.
+  - Draws rock geometry, terrain colors, weakness colors, and active queue highlights.
+  - Shows pressed and forbidden-hover feedback directly on battlefield cells.
+  - Configures visual state from cell_data snapshots.
+  - Provides color mapping by energy type.
+- `app-LTL/src/ui/CombatSceneModel.gd`
+  - Converts run snapshots into combat scene read models.
+  - Calculates viewport layout and terrain cell presentation.
+  - Builds HUD target panel, queue, global terrain debuff, and feedback data.
+- `app-LTL/src/ui/CombatScenePreviewController.gd`
+  - Initializes a preview controller that combines headless mini-run and combat scene model.
+  - Provides start, aim, fire, hold-fire, repair, claim rewards, and reset preview APIs.
+  - Creates node table fixtures for preview use.
+- `app-LTL/src/ui/GiantTimerUI.gd`
+  - Renders the giant combat timer label and urgency style.
+  - Updates timer copy for stage warning, timeout, and repair states.
+  - Reprojects timer text after locale changes.
+- `app-LTL/src/ui/InteractionFX.gd`
+  - Installs shared shader, hover, click, ripple, cursor, disabled, and drag/drop feedback on interactive controls.
+  - Tracks local pointer position for mouse-follow glow and refreshes dynamic disabled states after UI rerenders.
+  - Skips position tweens for Container-managed children and respects explicit opt-out metadata so grid and layout UIs keep their intended placement.
+  - Applies Godot canvas-item shader parameters and tweens without mutating gameplay state.
+- `app-LTL/src/ui/LogConsoleUI.gd`
+  - Initializes system log panel scroll and list label structure.
+  - Appends new log lines while preserving the maximum visible count.
+  - Applies log colors and readability styles.
+- `app-LTL/src/ui/MainUI.gd`
+  - Serves as the formal main UI entry script by inheriting MainViewRuntime.
+- `app-LTL/src/ui/MainViewRuntime.gd`
+  - Initializes main UI node references, panels, overlays, locale, and audio baseline state.
+  - Renders backpack, battlefield, status, reward tray, node select, and action button state.
+  - Manages settings/shop panel visibility and input shortcuts.
+  - Relays passive and base-shop purchase events from the shop panel to the controller.
+  - Docks the backpack beside the node map during node-select and applies the shell-wide interaction theme.
+  - Mediates combat VFX, screenshake, tooltip, discard zone, and log console behavior.
+  - Propagates locale changes and volume settings to child UI components.
+- `app-LTL/src/ui/presenters/BackpackGridFactory.gd`
+  - Creates backpack border cells and inner slot UI nodes.
+  - Calculates artifact style, edge masks, energy colors, and border slices.
+  - Calculates cooldown charge/remaining ratios and visual cooldown interpolation.
+  - Creates cooldown mask styles.
+- `app-LTL/src/ui/presenters/CombatFeedbackPresenter.gd`
+  - Combat Feedback Presenter projects domain state into UI presentation contracts.
+- `app-LTL/src/ui/presenters/HeartbeatSynth.gd`
+  - Heartbeat Synth projects domain state into UI presentation contracts.
+- `app-LTL/src/ui/presenters/InteractionCuePresenter.gd`
+  - Projects hover, press, disabled, and drag/drop states into pure visual cue dictionaries.
+- `app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd`
+  - Determines visibility of primary UI regions for the current phase.
+  - Projects victory overlay visibility plus map/backpack stretch ratios and timer/action layout state.
+- `app-LTL/src/ui/read_models/NodeMapReadModel.gd`
+  - Projects node-map scene snapshots into card lists and selected state.
+  - Aggregates route telemetry from node candidate lists.
+- `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`
+  - Projects node-select candidates into UI cards with title, body, and weakness labels.
+  - Converts candidate risk, reward, and weakness information into readable copy.
+- `app-LTL/src/ui/read_models/RewardReadModel.gd`
+  - Converts a single reward into UI-facing summary data.
+  - Builds reward tray, held reward, and discard zone display contracts.
+- `app-LTL/src/ui/read_models/TooltipReadModel.gd`
+  - Normalizes artifact or reward dictionaries into tooltip data.
+  - Builds artifact tooltip BBCode and reward comparison tooltip BBCode.
+  - Finds same-color equipped drill comparison targets and builds compact stat lines.
+  - Provides rarity, energy, and default-stat label helpers.
+- `app-LTL/src/ui/SceneReadModel.gd`
+  - Converts headless run snapshots into full scene display models.
+  - Separates node candidates, combat snapshots, reward tray, and held state into UI-only structures.
+  - Normalizes raw label values into locale-aware display labels.
+- `app-LTL/src/ui/SettingsPanelUI.gd`
+  - Builds shake, fullscreen, locale, and volume controls for the settings panel.
+  - Renders current settings state into UI controls.
+  - Emits locale and settings change signals to the external controller.
+- `app-LTL/src/ui/ShopPanelUI.gd`
+  - Creates the shop panel and passive purchase row UI.
+  - Renders release base-shop rows for character, starter item, and leviathan scan unlocks.
+  - Renders purchase buttons from gold, XP, and passive level state.
+  - Calculates passive costs and emits purchase signals.
+- `app-LTL/src/ui/StatusPanelUI.gd`
+  - Renders combat target shield/health bars and extractor status.
+  - Visualizes the current queue gems and maps energy colors.
+  - Builds copy for repair, pin, and global terrain debuff status.
+  - Manages victory, repair, and combat overlay display.
+- `app-LTL/src/ui/TextCatalog.gd`
+  - Provides locale state and translation key lookup.
+  - Strips implementation tags and size noise from item names/descriptions for display.
+  - Converts enum, hint, rarity, and energy labels into locale-aware copy.
+- `app-LTL/src/ui/VFXManager.gd`
+  - Creates resonance beam and hit particle VFX.
+  - Applies and recovers screenshake offsets during frame updates.
+  - Handles VFX color mapping and node cleanup.
+- `app-LTL/src/validation/RewardValidator.gd`
+  - Validates required fields and value ranges for reward offers.
+  - Collects duplicate ids and row-level errors across the reward table.
+  - Returns validation results as error arrays and normalized payloads.
+- `app-LTL/src/vocabulary/backpack/DiscardHeld.gd`
+  - Discard Held implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/backpack/PickUpFromInventory.gd`
+  - Pick Up From Inventory implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/backpack/PickUpFromRewardTray.gd`
+  - Pick Up From Reward Tray implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/backpack/PlaceHeld.gd`
+  - Places held artifacts into the inventory grid and updates reward tray state.
+  - Validates duplicate drill color placement restrictions.
+  - Standardizes placement failure result payloads.
+- `app-LTL/src/vocabulary/backpack/RecalculateSynergy.gd`
+  - Recalculate Synergy implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/backpack/RotateHeld.gd`
+  - Rotate Held implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/BackpackVocab.gd`
+  - Provides the public vocabulary facade for picking artifacts up from inventory.
+  - Provides facades for reward tray pickup, held placement, discard, rotate, and synergy recalculation.
+- `app-LTL/src/vocabulary/combat/RecalculateQueueColors.gd`
+  - Recalculate Queue Colors implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/combat/ShiftWeaknessMarkers.gd`
+  - Shift Weakness Markers implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/CombatVocab.gd`
+  - Prepares CombatSimulator instances from selected node results.
+  - Applies queue consumption, color-specific damage profiles, and terrain debuffs for fire inputs.
+  - Handles repair input, combat tick progression, and inventory cooldown ticking.
+  - Determines whether combat time has expired.
+- `app-LTL/src/vocabulary/node/ApplyNodeModifiers.gd`
+  - Applies selected node modifiers to combat snapshots.
+  - Calculates modifier telemetry and returns node effect results.
+- `app-LTL/src/vocabulary/NodeVocab.gd`
+  - Generates node candidates deterministically from seed, stage, and node table data.
+  - Normalizes candidate route fields plus id, type, weakness, and risk telemetry.
+  - Calculates stage-scaling combat parameters, including explicit stage health totals, and probability bump helpers.
+- `app-LTL/src/vocabulary/progression/ApplyGrowthModifiers.gd`
+  - Applies growth state to inventory artifact cooldown and damage values.
+  - Provides rarity-based default cooldown helpers.
+- `app-LTL/src/vocabulary/reward/ApplyRewardEffect.gd`
+  - Applies selected rewards to growth state.
+  - Calculates gold and XP payouts by rarity.
+- `app-LTL/src/vocabulary/reward/BuildRewardPreview.gd`
+  - Build Reward Preview implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/reward/BuildRewardTelemetry.gd`
+  - Builds reward-offer-generated telemetry payloads.
+  - Builds reward-selected telemetry payloads.
+  - Builds growth-state-changed telemetry payloads.
+- `app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd`
+  - Creates Artifact models from reward dictionaries.
+  - Converts reward rarity, type, energy, shape, cooldown, and damage values into artifact fields.
+  - Provides shape and default stat helpers.
+- `app-LTL/src/vocabulary/RewardVocab.gd`
+  - Generates stage reward offers from seed, stage, weakness, and tuning values.
+  - Applies reward type mix and type-ratio weighting.
+  - Handles reward table weight hashes and JSON loading.
+  - Provides fallback and mock reward pools.
+- `app-LTL/src/vocabulary/ReleaseContentVocab.gd`
+  - Loads M4-M9 release content tables into one deterministic bundle.
+  - Validates minimum coverage for nodes, leviathans, hazards, characters, passives, narrative, and resources.
+  - Projects deterministic hazard schedules plus base purchase, passive tree, and narrative read models.
+- `app-LTL/tests/fixtures/input_logs/basic_clear.json`
+  - basic clear verifies Godot contracts and regression behavior.
+- `app-LTL/tests/fixtures/input_logs/empty_queue_repair.json`
+  - empty queue repair verifies Godot contracts and regression behavior.
+- `app-LTL/tests/godot_contract_runner.gd`
+  - Verifies required script/scene loading and comment harness conditions.
+  - Runs headless progression, adapter, read model, and replay path contracts.
+  - Invokes reward, backpack, combat, node routing, and UI read model test groups.
+  - Provides main scene instantiation smoke tests and fixture node table helpers.
+- `app-LTL/tests/inspect_img.gd`
+  - inspect img verifies Godot contracts and regression behavior.
+- `app-LTL/tests/m2_main_scene_contract.ps1`
+  - m2 main scene contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_backpack_vocab.gd`
+  - test backpack vocab verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_combat_vocab.gd`
+  - test combat vocab verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_formal_replay_runner.gd`
+  - test formal replay runner verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_node_map_scene_smoke.gd`
+  - test node map scene smoke verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_node_routing_contract.gd`
+  - test node routing contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_reward_contract.gd`
+  - test reward contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_release_content_contract.gd`
+  - test release content contract verifies M4-M9 release tables, deterministic hazards, base unlocks, passive branches, and resource manifest paths.
+- `app-LTL/tests/test_ui_read_models.gd`
+  - test ui read models verifies Godot contracts and regression behavior.
+- `design_review.md.resolved`
+  - design review.md is a project component with a tracked responsibility.
+- `docs/architectural-gates/m2-refactoring-gate.md`
+  - m2 refactoring gate documents project decisions, verification, or work history.
+- `docs/release-resource-needs.md`
+  - release resource needs documents exact final-art and audio paths that can be populated after implementation.
+- `docs/release-visual-quality-upgrade-plan.md`
+  - release visual quality upgrade plan documents the staged roadmap, asset categories, and integration targets for bringing the UI to release-candidate quality.
+- `docs/comment-gates/2026-05-21-m0-m1-contract-comments.md`
+  - 2026 05 21 m0 m1 contract comments documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-22-m0-m1-contract-only.md`
+  - 2026 05 22 m0 m1 contract only documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-22-m0-m1-execution-only.md`
+  - 2026 05 22 m0 m1 execution only documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-22-m0-m1-implementation-approved.md`
+  - 2026 05 22 m0 m1 implementation approved documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-22-strict-implementation-gate-analysis.md`
+  - 2026 05 22 strict implementation gate analysis documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-22-strict-implementation-negative.md`
+  - 2026 05 22 strict implementation negative documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-22-strict-implementation-positive.md`
+  - 2026 05 22 strict implementation positive documents project decisions, verification, or work history.
+- `docs/comment-gates/2026-05-26-m2-refactoring-implementation.md`
+  - 2026 05 26 m2 refactoring implementation documents project decisions, verification, or work history.
+- `docs/external-ui-shader-sources.md`
+  - external ui shader sources documents GodotShaders and Godot CanvasItem references used for interaction polish.
+- `docs/comment-gates/2026-05-26-main-decoupling.md`
+  - 2026 05 26 main decoupling documents project decisions, verification, or work history.
+- `docs/comment-gates/strict-gate-fixtures/header-only-negative.txt`
+  - header only negative documents project decisions, verification, or work history.
+- `docs/comment-gates/strict-gate-fixtures/implementation-positive.txt`
+  - implementation positive documents project decisions, verification, or work history.
+- `docs/comment-implementation-rules.md`
+  - comment implementation rules documents project decisions, verification, or work history.
+- `docs/mockups/render-terrain-panel-before-after.ps1`
+  - render terrain panel before after documents project decisions, verification, or work history.
+- `docs/mockups/terrain-panel-before-after.html`
+  - terrain panel before after documents project decisions, verification, or work history.
+- `docs/mockups/terrain-panel-before-after-render.png`
+  - terrain panel before after render is a UI art resource or Godot import metadata file.
+- `docs/source-map.md`
+  - Live implementation map that records current directories, files, and responsibilities.
+- `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md`
+  - 2026 05 20 m2 formal combat scene documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-21-execution-stage-gate.md`
+  - 2026 05 21 execution stage gate documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-28-m3-pre-refactor-logical-capsules.md`
+  - 2026 05 28 m3 pre refactor logical capsules documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md`
+  - 2026 05 28 m3 reward progression contract gap plan documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md`
+  - 2026 05 28 m4 node routing plan documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-29-source-cleanup-deletion-plan.md`
+  - 2026 05 29 source cleanup deletion plan documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-31-request-analysis-execution-gates.md`
+  - 2026 05 31 request analysis execution gates documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-05-31-ui-layout-system-refactor-plan.md`
+  - 2026 05 31 ui layout system refactor plan documents project decisions, verification, or work history.
+- `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
+  - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
+- `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
+  - 2026-05-29 node map loadout balance design documents the node-map/loadout balance design decisions.
+- `LTL-harness/00_AGENTS.md`
+  - 00 AGENTS provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/docs/00_PRODUCT_SENSE.md`
+  - 00 PRODUCT SENSE explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/00_tech-debt-tracker.md`
+  - 00 tech debt tracker explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/01_PLANS.md`
+  - 01 PLANS explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/02_DESIGN.md`
+  - 02 DESIGN explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/03_TECH_STACK.md`
+  - 03 TECH STACK explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/07_TEST_DRIVEN_DEV.md`
+  - 07 TEST DRIVEN DEV explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/08_QUALITY_ASSURANCE.md`
+  - 08 QUALITY ASSURANCE explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/09_DEPLOYMENT.md`
+  - 09 DEPLOYMENT explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/10_OPERATIONS.md`
+  - 10 OPERATIONS explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/11_exec-plans/01_active/01_P0_test_harness_and_logs.md`
+  - 01 P0 test harness and logs defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/02_P1_headless_core_loop.md`
+  - 02 P1 headless core loop defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/03_P2_combat_control_slice.md`
+  - 03 P2 combat control slice defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/04_P3_backpack_and_hazard_slice.md`
+  - 04 P3 backpack and hazard slice defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/05_P4_mini_run_and_scaling.md`
+  - 05 P4 mini run and scaling defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/06_M0_redesign_gate.md`
+  - 06 M0 redesign gate defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/06b_post_M0_implementation_handoff.md`
+  - 06b post M0 implementation handoff defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/07_M1_core_domain_stabilization.md`
+  - 07 M1 core domain stabilization defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/08_M2_combat_scene_reconstruction.md`
+  - 08 M2 combat scene reconstruction defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/09_M3_reward_and_progression.md`
+  - 09 M3 reward and progression defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/10_M4_node_routing.md`
+  - 10 M4 node routing defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/11_M5_hazard_hierarchy.md`
+  - 11 M5 hazard hierarchy defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/12_M6_ui_ux_finalization.md`
+  - 12 M6 ui ux finalization defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/13_M7_narrative_integration.md`
+  - 13 M7 narrative integration defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/14_M8_vertical_slice.md`
+  - 14 M8 vertical slice defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/15_M9_release_candidate.md`
+  - 15 M9 release candidate defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/01_active/16_logical_capsule_refactor_plan.md`
+  - 16 logical capsule refactor plan defines scope and verification for an active milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/_TEMPLATE-completed.md`
+  - TEMPLATE completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/01_P0_test_harness_and_logs_completed.md`
+  - 01 P0 test harness and logs completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/02_P1_headless_core_loop_completed.md`
+  - 02 P1 headless core loop completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/03_P2_combat_control_slice_completed.md`
+  - 03 P2 combat control slice completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/04_P3_backpack_and_hazard_slice_completed.md`
+  - 04 P3 backpack and hazard slice completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/05_P4_mini_run_and_scaling_completed.md`
+  - 05 P4 mini run and scaling completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/06_M0_redesign_gate_completed.md`
+  - 06 M0 redesign gate completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/07_M1_core_domain_stabilization_completed.md`
+  - 07 M1 core domain stabilization completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/08_M2_combat_scene_reconstruction_completed.md`
+  - 08 M2 combat scene reconstruction completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/09_M3_reward_and_progression_completed.md`
+  - 09 M3 reward and progression completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/12_product-specs/01_CORE_COMBAT.md`
+  - 01 CORE COMBAT defines product rules and domain specifications.
+- `LTL-harness/docs/12_product-specs/02_INVENTORY_SYNERGY.md`
+  - 02 INVENTORY SYNERGY defines product rules and domain specifications.
+- `LTL-harness/docs/12_product-specs/03_PROGRESSION_REWARD.md`
+  - 03 PROGRESSION REWARD defines product rules and domain specifications.
+- `LTL-harness/docs/12_product-specs/04_NARRATIVE_WORLD.md`
+  - 04 NARRATIVE WORLD defines product rules and domain specifications.
+- `LTL-harness/docs/14_references/00_index.md`
+  - 00 index captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/01_vampire_survivors_dopamine.md`
+  - 01 vampire survivors dopamine captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/02_backpack_battles_synergy.md`
+  - 02 backpack battles synergy captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/03_slot_machine_mechanics.md`
+  - 03 slot machine mechanics captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/04_input_feedback_flow.md`
+  - 04 input feedback flow captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/05_godot_ui_testing_vfx.md`
+  - 05 godot ui testing vfx captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/06_indie_steam_design_principles.md`
+  - 06 indie steam design principles captures genre or UX reference principles.
+- `LTL-harness/docs/14_references/07_multi_agent_harness_personas.md`
+  - 07 multi agent harness personas captures genre or UX reference principles.
+- `LTL-harness/docs/15_pc-environment/00_README.md`
+  - 00 README explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/15_pc-environment/01_local_toolchain.youngsoon.md`
+  - 01 local toolchain.youngsoon explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/architectural-decoupling-enforcement.md`
+  - architectural decoupling enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/comment-first-enforcement.md`
+  - comment first enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/i18n-text-enforcement.md`
+  - i18n text enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/phase-gate-examples.md`
+  - phase gate examples explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/post-m0-godot-enforcement.md`
+  - post m0 godot enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/templates/backup-manifest-template.md`
+  - backup manifest template explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/templates/comment-gate-ledger-template.md`
+  - comment gate ledger template explains harness operating rules and implementation procedures.
+- `LTL-harness/README.md`
+  - README provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/tools/architectural-gate.ps1`
+  - architectural gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/comment-first-gate.ps1`
+  - comment first gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/i18n-text-gate.ps1`
+  - i18n text gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/ltl-tech-stack-gate.ps1`
+  - ltl tech stack gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/milestone-gate.ps1`
+  - milestone gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/source-map-gate.ps1`
+  - source map gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/source-map-gate.tests.ps1`
+  - source map gate.tests is a harness validation gate or automation tool.
+- `tools/apply-agent-harness-phase-gate.ps1`
+  - apply agent harness phase gate runs local verification or workflow automation.
+- `tools/run-compile-check.ps1`
+  - run compile check runs local verification or workflow automation.
+- `tools/watch-compile.ps1`
+  - watch compile runs local verification or workflow automation.
+- `구현기획서_Godot_TDD.md`
+  - Describes the Godot TDD implementation plan and prototype-first validation criteria.
+- `기획서v0.1.md`
+  - Describes the v0.1 product plan and early design direction.
+- `기획서v0.2.md`
+  - Describes the v0.2 product plan and updated design direction.
+

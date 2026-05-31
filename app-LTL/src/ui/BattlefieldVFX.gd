@@ -9,6 +9,15 @@ class_name BattlefieldVFX
 extends Control
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const REVEAL_TIMING := {
+	"rumble": 1.45,
+	"eruption": 1.75,
+	"flash": 0.55,
+	"silhouetteHold": 1.25,
+	"rarityRoll": 1.65,
+	"finalReveal": 1.20
+}
+const RARITY_ROLL_VALUES := ["COMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC"]
 
 var is_revealing := false
 var rewards_count := 0
@@ -24,6 +33,16 @@ var in_combat := false
 var pulse_time := 0.0
 var flash_alpha := 0.0
 
+static func reveal_timing_profile() -> Dictionary:
+	return REVEAL_TIMING.duplicate()
+
+static func rolling_rarity_label(actual_rarity: String, elapsed: float) -> String:
+	var safe_actual := actual_rarity.to_upper()
+	if elapsed >= float(REVEAL_TIMING.get("rarityRoll", 1.65)):
+		return safe_actual
+	var step := int(floor(maxf(0.0, elapsed) / 0.10))
+	return RARITY_ROLL_VALUES[step % RARITY_ROLL_VALUES.size()]
+
 # 실행: update combat border time state.
 func update_combat_time(left: float, limit: float, active: bool) -> void:
 	time_left = left
@@ -36,8 +55,7 @@ func start_reveal(count: int, reward_list: Array, done: Callable, grid: Control,
 	is_revealing = true
 	rewards_count = count
 	rewards = reward_list
-	stage = 0
-	timer = 0.0
+	_set_stage(0)
 	particles.clear()
 	silhouettes.clear()
 	callback = done
@@ -83,29 +101,33 @@ func _draw() -> void:
 
 # 실행: manage reveal timeline timers.
 func _timeline(grid: Control, title: Control) -> void:
-	get_tree().create_timer(1.25).timeout.connect(func():
-		stage = 1
-		get_tree().create_timer(1.45).timeout.connect(func():
-			stage = 2
+	var profile := reveal_timing_profile()
+	get_tree().create_timer(float(profile.get("rumble", 1.45))).timeout.connect(func():
+		_set_stage(1)
+		get_tree().create_timer(float(profile.get("eruption", 1.75))).timeout.connect(func():
+			_set_stage(2)
 			_spawn_shards(size / 2.0, 72 if rewards_count >= 4 else 36)
-			get_tree().create_timer(1.15).timeout.connect(func():
-				stage = 25
+			get_tree().create_timer(float(profile.get("flash", 0.55))).timeout.connect(func():
+				_set_stage(25)
 				flash_alpha = 1.0
 				_spawn_light_burst(size / 2.0)
 				queue_redraw()
-				get_tree().create_timer(0.38).timeout.connect(func():
-					stage = 3
+				get_tree().create_timer(0.42).timeout.connect(func():
+					_set_stage(3)
 					_spawn_silhouettes(size / 2.0)
 					flash_alpha = maxf(flash_alpha, 0.55)
 					queue_redraw()
-					get_tree().create_timer(1.2).timeout.connect(func():
-						stage = 4
-						get_tree().create_timer(2.0).timeout.connect(func():
-							is_revealing = false
-							grid.visible = true
-							title.visible = true
-							queue_redraw()
-							callback.call()
+					get_tree().create_timer(float(profile.get("silhouetteHold", 1.25))).timeout.connect(func():
+						_set_stage(35)
+						get_tree().create_timer(float(profile.get("rarityRoll", 1.65))).timeout.connect(func():
+							_set_stage(4)
+							get_tree().create_timer(float(profile.get("finalReveal", 1.20))).timeout.connect(func():
+								is_revealing = false
+								grid.visible = true
+								title.visible = true
+								queue_redraw()
+								callback.call()
+							)
 						)
 					)
 				)
@@ -180,8 +202,7 @@ func skip_to_silhouettes() -> void:
 	if silhouettes.is_empty():
 		_spawn_silhouettes(size / 2.0)
 	flash_alpha = 0.0
-	stage = maxi(stage, 3)
-	timer = 0.0
+	_set_stage(maxi(stage, 3))
 	queue_redraw()
 
 # 실행: spawn reward silhouette targets.
@@ -189,21 +210,33 @@ func _spawn_silhouettes(center: Vector2) -> void:
 	var spacing = size.x / (rewards_count + 1)
 	for i in range(rewards_count):
 		var reward = rewards[i]
-		silhouettes.append({"pos": center + Vector2(randf_range(-20, 20), 10), "target_pos": Vector2(spacing * (i + 1), size.y / 2 - 10.0), "size": 16.0, "label": TextCatalogScript.display_name(str(reward.get("kind", "Reward"))), "rarity": str(reward.get("rarity", "common"))})
+		silhouettes.append({"index": i, "pos": center + Vector2(randf_range(-20, 20), 10), "target_pos": Vector2(spacing * (i + 1), size.y / 2 - 10.0), "size": 16.0, "label": TextCatalogScript.display_name(str(reward.get("kind", "Reward"))), "rarity": str(reward.get("rarity", "common"))})
 
 # 실행: draw one reward silhouette.
 func _draw_silhouette(silhouette: Dictionary) -> void:
 	if stage < 3:
 		return
-	var color := _rarity_color(str(silhouette.rarity)) if stage == 4 else Color.WHITE
+	var reveal_roll := stage == 35
+	var final_reveal := stage == 4
+	var color := _rarity_color(str(silhouette.rarity)) if final_reveal else Color.WHITE
 	var pulse := 1.0 + 0.15 * sin(timer * 9.0 + silhouette.pos.x)
 	draw_circle(silhouette.pos, silhouette.size * pulse + 3.5, Color(color.r, color.g, color.b, 0.35))
 	draw_circle(silhouette.pos, silhouette.size, Color.WHITE if stage == 3 else color)
 	draw_circle(silhouette.pos, silhouette.size * 0.5, Color.BLACK)
-	if stage == 4:
+	if reveal_roll:
+		var roll_label := rolling_rarity_label(str(silhouette.rarity), timer + float(silhouette.get("index", 0)) * 0.13)
+		var roll_color := _rarity_color(str(roll_label).to_lower())
+		var font := get_theme_font("font")
+		draw_string(font, silhouette.pos + Vector2(-70.0, -22.0), "SIGNAL LOCK", HORIZONTAL_ALIGNMENT_CENTER, 140.0, 10, Color(0.86, 0.89, 0.94, 0.86))
+		draw_string(font, silhouette.pos + Vector2(-70.0, 24.0), roll_label, HORIZONTAL_ALIGNMENT_CENTER, 140.0, 11, roll_color)
+	elif final_reveal:
 		var font := get_theme_font("font")
 		draw_string(font, silhouette.pos + Vector2(-60.0, -22.0), silhouette.label, HORIZONTAL_ALIGNMENT_CENTER, 120.0, 11, Color.WHITE)
 		draw_string(font, silhouette.pos + Vector2(-60.0, 24.0), str(silhouette.rarity).to_upper(), HORIZONTAL_ALIGNMENT_CENTER, 120.0, 9, color)
+
+func _set_stage(next_stage: int) -> void:
+	stage = next_stage
+	timer = 0.0
 
 # 실행: return current crater glow alpha.
 func _glow_alpha() -> float:

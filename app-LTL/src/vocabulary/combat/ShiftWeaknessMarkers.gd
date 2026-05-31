@@ -24,6 +24,8 @@ static func shift(markers: Array, rows: int = 3, columns: int = 10, seed_val: in
 	if palette.is_empty():
 		palette = ["red"]
 	for row in range(maxi(0, rows)):
-		var color_index: int = abs(int(seed_val) + int(step) * 31 + row * 17) % palette.size()
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash("%d:%d:%d" % [int(seed_val), int(step), int(row)]) & 0x7fffffff
+		var color_index: int = rng.randi_range(0, palette.size() - 1)
 		next_markers.append({"cellId": "r%dc0" % row, "color": str(palette[color_index])})
 	return {"ok": true, "code": "shifted", "markers": next_markers}
