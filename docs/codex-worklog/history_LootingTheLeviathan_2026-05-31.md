@@ -355,3 +355,68 @@ M  app-LTL/src/process/HeadlessMiniRun.gd
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:02:00
+
+<!-- codex-worklog-signature: aaebb006c5d10e147f2b503c18fff5be302b0960638fabce7b8af596f28b764b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/Main.tscn
+M  app-LTL/src/ui/MainViewRuntime.gd
+M  app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+A  docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+A  docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:02:00
+
+<!-- codex-worklog-signature: e31c0f3e440057d84680e565d407fada75e45ca5b184260ecd7fa850fbecd088 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/Main.tscn
+M  app-LTL/src/ui/MainViewRuntime.gd
+M  app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+AM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+A  docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:02:21
+
+<!-- codex-worklog-signature: 1fcbe69fa135ea8574968e59ece67c5623b85182788545e5112a833caa91cfb5 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:03:03
+
+<!-- codex-worklog-signature: d5e939acf05b1d9aa560bc321ae719f5adee52561d2494534f7358062f21d57f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/render-terrain-panel-before-after.ps1
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
