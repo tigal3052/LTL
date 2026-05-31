@@ -466,3 +466,61 @@ M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:04:35
+
+<!-- codex-worklog-signature: 35d82f03503497d731536d571c83abe0b95c3f6a9eb41ca93019aa750a7f4e7c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/mockups/terrain-panel-before-after.html
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:04:35
+
+<!-- codex-worklog-signature: 60390415b1d751950b7965464b3421eecc5ce81ef34eb62b27aec0ed4630e049 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/terrain-panel-before-after.html
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:04:44
+
+<!-- codex-worklog-signature: 02467b83b124cec11486d311879fcd84ea9e3d9df72004f6e3120ab7ad858471 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/render-terrain-panel-before-after.ps1
+ M docs/mockups/terrain-panel-before-after.html
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:04:55
+
+<!-- codex-worklog-signature: c674aebde234dac29669466200711c3abe3bb6ef6ed9d1affc94553181aa3363 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/mockups/render-terrain-panel-before-after.ps1
+ M docs/mockups/terrain-panel-before-after-render.png
+ M docs/mockups/terrain-panel-before-after.html
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
