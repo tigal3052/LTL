@@ -10,18 +10,28 @@
 extends PanelContainer
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
+const ENERGY_QUEUE_COLUMNS := 8
 
 @onready var extractor_label: Label = $Margin/StatusBox/NodeRow/ExtractorLabel
-@onready var visual_queue_box: HBoxContainer = $Margin/StatusBox/QueueRow/VisualQueueBox
+@onready var visual_queue_box: GridContainer = $Margin/StatusBox/QueueRow/VisualQueueBox
 @onready var extractor_visual: Panel = $Margin/StatusBox/NodeRow/ExtractorVisual
 @onready var health_bar: ProgressBar = $Margin/StatusBox/HPBox/HealthBar
 @onready var shield_bar: ProgressBar = $Margin/StatusBox/ShieldBox/ShieldBar
 @onready var pin_progress_bar: ProgressBar = $Margin/StatusBox/TimerRow/PinProgressBar
 @onready var pin_label: Label = $Margin/StatusBox/TimerRow/PinLabel
 @onready var repair_status_label: Label = $Margin/StatusBox/DrillStatusRow/RepairStatusLabel
+@onready var status_footer_spacer: Control = $Margin/StatusBox/StatusFooterSpacer
+@onready var purple_status_row: HBoxContainer = $Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow
+@onready var purple_status_label: Label = $Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow/PurpleStatusLabel
+@onready var purple_status_value: Label = $Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow/PurpleStatusValue
+@onready var combat_timer_label: Label = $Margin/StatusBox/CombatTimerFooterMargin/CombatTimerFooter/CombatTimerLabel
 
 func _ready() -> void:
 	_apply_shell_theme()
+	_configure_visual_queue_grid()
+	_configure_purple_status_overlay()
+	render_combat_timer("00:00", false)
 
 # ?ㅽ뻾: update target HP and Shield bars with exact values and percentages.
 func render_target_bars(scene: Dictionary) -> void:
@@ -38,14 +48,22 @@ func render_extractor_label(scene: Dictionary) -> void:
 
 # ?ㅽ뻾: render glowing circle gems inside the queue panel.
 func render_visual_queue(scene: Dictionary) -> void:
-	for child in visual_queue_box.get_children():
-		child.queue_free()
+	_configure_visual_queue_grid()
+	_clear_visual_queue_box()
 	if not _is_status_scene(scene):
 		return
 	var queue: Dictionary = scene.get("hud", {}).get("queue", {})
 	var items: Array = queue.get("items", [])
-	for i in range(int(queue.get("capacity", 8))):
-		visual_queue_box.add_child(_queue_gem(str(items[i]) if i < items.size() else "", i == 0))
+	for i in range(int(queue.get("capacity", 16))):
+		var color_name := ""
+		if i < items.size():
+			color_name = str(items[i].get("color", "")) if items[i] is Dictionary else str(items[i])
+		visual_queue_box.add_child(_queue_gem(color_name, i == 0))
+
+# 실행: render the relocated combat countdown in the status footer.
+func render_combat_timer(timer_text: String, active: bool) -> void:
+	combat_timer_label.visible = active
+	combat_timer_label.text = timer_text if active else "00:00"
 
 # ?ㅽ뻾: render the repair critical overlay and pin/repair status.
 func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) -> void:
@@ -53,8 +71,9 @@ func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) ->
 		return
 	var phase := str(scene.get("phase", ""))
 	var hud: Dictionary = scene.get("hud", {})
+	var ceremony_active := RewardCeremonyPolicyScript.is_active_scene(scene)
 	var victory := phase == "reward_loot" and bool(scene.get("show_victory_overlay", false)) and not bool(scene.get("is_reveal_vfx_running", false))
-	if (phase == "combat" or victory) and not hud.is_empty():
+	if (phase == "combat" or ceremony_active or victory) and not hud.is_empty():
 		_render_pin_and_repair_status(hud)
 	if phase == "run_complete" and bool(scene.get("failed", false)):
 		_show_overlay(repair_overlay, TextCatalogScript.t("overlay.failed.title"), TextCatalogScript.t("overlay.failed.desc"))
@@ -67,8 +86,12 @@ func render_repair_overlay(scene: Dictionary, repair_overlay: PanelContainer) ->
 
 # ?ㅽ뻾: test whether status widgets should render for this scene.
 func _is_status_scene(scene: Dictionary) -> bool:
+	return should_render_status_scene(scene)
+
+# 실행: keep combat target widgets live during active reward ceremony beats so the last HP/time snapshot does not freeze.
+static func should_render_status_scene(scene: Dictionary) -> bool:
 	var phase := str(scene.get("phase", ""))
-	return phase == "combat" or (phase == "reward_loot" and bool(scene.get("show_victory_overlay", false)))
+	return phase == "combat" or RewardCeremonyPolicyScript.is_active_scene(scene) or (phase == "reward_loot" and bool(scene.get("show_victory_overlay", false)))
 
 # ?ㅽ뻾: create or update the value label inside a progress bar.
 func _apply_value_bar(bar: ProgressBar, value: float, max_value: float) -> void:
@@ -108,6 +131,19 @@ func _queue_gem(color_name: String, is_front: bool) -> Panel:
 	gem.add_theme_stylebox_override("panel", style)
 	return gem
 
+func _configure_visual_queue_grid() -> void:
+	if visual_queue_box == null:
+		return
+	visual_queue_box.columns = ENERGY_QUEUE_COLUMNS
+	visual_queue_box.add_theme_constant_override("h_separation", 6)
+	visual_queue_box.add_theme_constant_override("v_separation", 4)
+
+# 실행: detach stale queue gems immediately so repeated same-frame rerenders cannot inflate the status column layout.
+func _clear_visual_queue_box() -> void:
+	for child in visual_queue_box.get_children():
+		visual_queue_box.remove_child(child)
+		child.queue_free()
+
 # ?ㅽ뻾: map energy names to UI colors.
 func _energy_color(color_name: String) -> Color:
 	match color_name:
@@ -133,9 +169,9 @@ func _render_pin_and_repair_status(hud: Dictionary) -> void:
 	var depleted := int(hud.get("queue", {}).get("loaded", 0)) == 0
 	var rebuilding := bool(repair.get("active", false))
 	var status_text := TextCatalogScript.t("status.repairing") if rebuilding else (TextCatalogScript.t("status.overheated") if depleted else TextCatalogScript.t("status.normal"))
-	var terrain_text := _terrain_debuff_status(hud.get("terrainDebuffs", []))
-	repair_status_label.text = status_text if terrain_text.is_empty() else "%s | %s" % [status_text, terrain_text]
-	repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25) if rebuilding or depleted else (Color(0.72, 0.42, 0.95) if not terrain_text.is_empty() else Color(0.34, 0.68, 0.42)))
+	repair_status_label.text = status_text
+	repair_status_label.add_theme_color_override("font_color", Color(0.85, 0.25, 0.25) if rebuilding or depleted else Color(0.34, 0.68, 0.42))
+	_render_purple_status(hud)
 
 # 실행: summarize global terrain debuffs in the drill/node status row.
 func _terrain_debuff_status(value: Variant) -> String:
@@ -146,6 +182,34 @@ func _terrain_debuff_status(value: Variant) -> String:
 		if debuff is Dictionary and str(debuff.get("effect", "")) == "weakened_terrain":
 			weakened_stacks += maxi(1, int(debuff.get("stacks", 1)))
 	return TextCatalogScript.t("status.terrain_weakened", [weakened_stacks]) if weakened_stacks > 0 else ""
+
+func _render_purple_status(hud: Dictionary) -> void:
+	var pressure: Dictionary = hud.get("purplePressure", {})
+	var stack_count := int(pressure.get("stackCount", 0))
+	var buff_count := int(pressure.get("buffCount", 0))
+	var parts: Array[String] = []
+	if stack_count > 0:
+		parts.append(_purple_weakened_text(stack_count))
+	if buff_count > 0:
+		parts.append(_purple_fortified_text(buff_count))
+	purple_status_row.visible = not parts.is_empty()
+	if parts.is_empty():
+		purple_status_value.text = "-"
+		_layout_purple_status_overlay()
+		return
+	purple_status_value.text = " | ".join(parts)
+	purple_status_value.add_theme_color_override("font_color", Color(0.72, 0.42, 0.95))
+	_layout_purple_status_overlay()
+
+func _purple_weakened_text(stack_count: int) -> String:
+	if TextCatalogScript.locale() == "ko":
+		return "지형 약화 x%d" % stack_count
+	return "Terrain weakened x%d" % stack_count
+
+func _purple_fortified_text(buff_count: int) -> String:
+	if TextCatalogScript.locale() == "ko":
+		return "정상 버프 +%d" % buff_count
+	return "Stability buff +%d" % buff_count
 
 # ?ㅽ뻾: render the combat repair overlay state.
 func _render_combat_overlay(scene: Dictionary, repair_overlay: PanelContainer) -> void:
@@ -165,6 +229,22 @@ func _show_overlay(overlay: PanelContainer, title: String, description: String) 
 	overlay.visible = true
 	(overlay.get_node("Center/WarningBox/WarningLabel") as Label).text = title
 	(overlay.get_node("Center/WarningBox/DescriptionLabel") as Label).text = description
+
+func _configure_purple_status_overlay() -> void:
+	if status_footer_spacer == null or purple_status_row == null:
+		return
+	status_footer_spacer.clip_contents = true
+	purple_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_layout_purple_status_overlay()
+	if not status_footer_spacer.resized.is_connected(_layout_purple_status_overlay):
+		status_footer_spacer.resized.connect(_layout_purple_status_overlay)
+
+func _layout_purple_status_overlay() -> void:
+	if status_footer_spacer == null or purple_status_row == null:
+		return
+	var row_height := purple_status_row.get_combined_minimum_size().y
+	purple_status_row.position = Vector2.ZERO
+	purple_status_row.size = Vector2(maxf(0.0, status_footer_spacer.size.x), row_height)
 
 func _apply_shell_theme() -> void:
 	var panel := StyleBoxFlat.new()
@@ -187,6 +267,9 @@ func _apply_shell_theme() -> void:
 	extractor_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.95))
 	pin_label.add_theme_color_override("font_color", Color(0.92, 0.95, 0.98))
 	repair_status_label.add_theme_color_override("font_color", Color(0.74, 0.82, 0.88))
+	purple_status_label.add_theme_color_override("font_color", Color(0.78, 0.80, 0.88))
+	purple_status_value.add_theme_color_override("font_color", Color(0.72, 0.42, 0.95))
+	combat_timer_label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.25))
 	var extractor_style := StyleBoxFlat.new()
 	extractor_style.bg_color = Color(0.10, 0.14, 0.18, 1.0)
 	extractor_style.border_color = Color(0.35, 0.46, 0.58, 1.0)

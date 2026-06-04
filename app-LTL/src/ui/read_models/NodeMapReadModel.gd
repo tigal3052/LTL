@@ -38,6 +38,7 @@ static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
 		"selectedIndex": safe_selected,
 		"selectedColor": str(scene.get("selectedStartColor", scene.get("selectedColor", "red"))),
 		"loadoutColors": scene.get("loadoutColors", ["red", "blue", "purple", "green"]).duplicate(true),
+		"allowStartColorSelection": bool(scene.get("allowStartColorSelection", int(scene.get("stageIndex", 0)) == 0)),
 		"stageText": TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
 		"cards": cards,
 		"empty": cards.is_empty(),

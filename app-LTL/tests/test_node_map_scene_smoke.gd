@@ -18,6 +18,7 @@ func run_all_tests() -> Dictionary:
 	test_node_map_read_model_projects_cards_and_status()
 	test_node_map_scene_renders_supplied_read_model_without_generator()
 	test_node_map_scene_exposes_map_page_controls()
+	test_node_map_scene_reuses_start_color_panel_when_stage_gate_hides_it()
 	test_node_map_scene_keeps_route_text_after_color_rerender()
 	test_node_map_color_press_defers_signal_until_button_unlock()
 	test_node_map_press_defers_selection_until_button_unlock()
@@ -30,6 +31,7 @@ func run_all_tests() -> Dictionary:
 	test_node_map_uses_live_canvas_width_for_centering()
 	test_node_map_reserves_more_space_for_detail_panel()
 	test_node_map_keeps_start_near_map_bottom()
+	test_node_map_rerender_defers_old_button_destruction_until_frame_cleanup()
 	return {"ok": failures.is_empty(), "errors": failures}
 
 func test_node_input_adapter_normalizes_selection_events() -> void:
@@ -97,6 +99,39 @@ func test_node_map_scene_exposes_map_page_controls() -> void:
 	_assert(str(scene.node_button_text(0)).contains(TextCatalogScript.display_name("Safe Scar")), "node map page keeps route labels on map buttons")
 	_assert(str(scene.detail_text()).contains("Safe Scar"), "node map page exposes selected route details")
 	_assert(str(scene.summary_text()).contains("green"), "node map page summary includes selected start color")
+
+func test_node_map_scene_reuses_start_color_panel_when_stage_gate_hides_it() -> void:
+	var SceneScript = load("res://src/scenes/node_map/NodeMapScene.gd")
+	_assert(SceneScript != null, "node map scene script loads for start panel reuse")
+	if SceneScript == null:
+		return
+	var scene = SceneScript.new()
+	_assert(scene.has_method("start_color_panel_instance_id"), "node map exposes the start color panel identity for reuse regression tests")
+	_assert(scene.has_method("start_color_panel_visible"), "node map exposes the start color panel visibility for gate regression tests")
+	if not scene.has_method("start_color_panel_instance_id") or not scene.has_method("start_color_panel_visible"):
+		scene.free()
+		return
+	var model := {
+		"stageText": TextCatalogScript.t("stage.label", [1, 5]),
+		"selectedColor": "purple",
+		"loadoutColors": ["red", "blue", "purple", "green"],
+		"allowStartColorSelection": true,
+		"cards": [
+			{"label": "Safe Scar", "weaknessLabel": "green", "riskTier": "safe", "rewardBias": "baseline", "recommendedBuildHint": "Stable route", "finalStageDistance": 4, "selected": true}
+		]
+	}
+	scene.render(model)
+	var first_panel_id := int(scene.start_color_panel_instance_id())
+	_assert_eq(scene.loadout_color_count(), 4, "stage one node map renders all four start color buttons")
+	_assert_eq(bool(scene.start_color_panel_visible()), true, "stage one start color panel is visible")
+	model["stageText"] = TextCatalogScript.t("stage.label", [2, 5])
+	model["allowStartColorSelection"] = false
+	scene.render(model)
+	_assert_eq(int(scene.start_color_panel_instance_id()), first_panel_id, "stage two node map reuses the same start color panel object")
+	_assert_eq(scene.loadout_color_count(), 0, "stage two hides start color buttons without changing the page object")
+	_assert_eq(bool(scene.start_color_panel_visible()), false, "stage two only hides the start color panel")
+	_assert(not str(scene.summary_text()).contains("Selected Start Color"), "stage two summary omits starter color copy while keeping the same node map")
+	scene.free()
 
 func test_node_map_scene_keeps_route_text_after_color_rerender() -> void:
 	var SceneScript = load("res://src/scenes/node_map/NodeMapScene.gd")
@@ -340,6 +375,41 @@ func test_node_map_keeps_start_near_map_bottom() -> void:
 	_assert(scene.has_method("start_marker_bottom_gap"), "node map exposes START-to-map-bottom gap for layout contract")
 	if scene.has_method("start_marker_bottom_gap"):
 		_assert(absf(float(scene.start_marker_bottom_gap()) - 20.0) <= 1.0, "START sits about 20px above the node graph panel bottom")
+
+func test_node_map_rerender_defers_old_button_destruction_until_frame_cleanup() -> void:
+	var SceneScript = load("res://src/scenes/node_map/NodeMapScene.gd")
+	_assert(SceneScript != null, "node map scene script loads for deferred button destruction")
+	if SceneScript == null:
+		return
+	var scene = SceneScript.new()
+	var model := {
+		"stageText": TextCatalogScript.t("stage.label", [1, 5]),
+		"selectedColor": "red",
+		"loadoutColors": ["red", "blue", "purple", "green"],
+		"cards": [
+			{"label": "Safe Scar", "weaknessLabel": "green", "riskTier": "safe", "rewardBias": "baseline", "recommendedBuildHint": "Stable route", "finalStageDistance": 4, "selected": true},
+			{"label": "Hazard Rich", "weaknessLabel": "red", "riskTier": "danger", "rewardBias": "rarity_up", "recommendedBuildHint": "Repair-ready queue", "finalStageDistance": 4, "selected": false}
+		]
+	}
+	scene.render(model)
+	_assert(scene._color_buttons.size() > 0, "node map exposes start-color buttons for deferred button destruction contract")
+	_assert(scene._map_nodes.size() > 0, "node map exposes node buttons for deferred button destruction contract")
+	if scene._color_buttons.is_empty() or scene._map_nodes.is_empty():
+		return
+	var old_color_button: Variant = scene._color_buttons[0]
+	var old_node_button: Variant = scene._map_nodes[0]
+	_assert(old_color_button is Button, "node map has an initial color button before rerender")
+	_assert(old_node_button is Button, "node map has an initial node button before rerender")
+	if not (old_color_button is Button) or not (old_node_button is Button):
+		return
+	model["selectedColor"] = "blue"
+	model["cards"][0]["selected"] = false
+	model["cards"][1]["selected"] = true
+	scene.render(model)
+	_assert(is_instance_valid(old_color_button), "rerender keeps replaced color buttons alive until deferred cleanup instead of freeing hovered controls immediately")
+	_assert(is_instance_valid(old_node_button), "rerender keeps replaced node buttons alive until deferred cleanup instead of freeing hovered controls immediately")
+	_assert_eq(scene.loadout_color_count(), 4, "rerender still rebuilds exactly four live color buttons")
+	_assert_eq(scene.map_node_count(), 2, "rerender still rebuilds exactly two live node buttons")
 
 func _scene() -> Dictionary:
 	return {

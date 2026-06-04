@@ -12,32 +12,56 @@ extends RefCounted
 var active: bool = false
 var severity: String = "stable"
 var label: String = "stable"
+var families: Array = []
+var obstacle_count: int = 0
 
 # 실행: initialize the hazard model.
 func _init(act: bool = false, sev: String = "stable", lbl: String = "stable") -> void:
 	active = act
 	severity = sev
 	label = lbl
+	families = []
+	obstacle_count = 0
 
-# 실행: update the hazard state based on combat health and empty shots.
-func update_state(health: float, empty_shots: int, combat_result: String, max_health: float = 100.0) -> void:
+# 실행: update the hazard state based on combat failure, active obstacle pressure, and persistent damage reduction pressure.
+func update_state(health: float, empty_shots: int, combat_result: String, max_health: float = 100.0, obstacles: Array = [], purple_damage_reduction: float = 0.0) -> void:
+	var family_counts := {}
+	obstacle_count = 0
+	for obstacle in obstacles:
+		if not obstacle is Dictionary:
+			continue
+		var state := str(obstacle.get("state", "active"))
+		if state == "warning":
+			state = "active"
+		if state.begins_with("afterglow"):
+			continue
+		var family := str(obstacle.get("family", ""))
+		if family.is_empty():
+			continue
+		obstacle_count += 1
+		family_counts[family] = int(family_counts.get(family, 0)) + 1
+	families = family_counts.keys()
 	if combat_result in ["failed", "time_over"]:
 		active = true
 		severity = "critical"
 		label = "critical"
-	elif health <= max_health * 0.15 or empty_shots > 0:
+	elif obstacle_count > 0:
 		active = true
-		severity = "warning"
-		label = "warning"
+		severity = "critical" if obstacle_count >= 3 or purple_damage_reduction >= 0.25 else "active"
+		label = str(families[0]) if not families.is_empty() else "active"
 	else:
 		active = false
 		severity = "stable"
 		label = "stable"
+		families = []
+		obstacle_count = 0
 
 # 실행: export hazard state to dictionary.
 func to_dict() -> Dictionary:
 	return {
 		"active": active,
 		"severity": severity,
-		"label": label
+		"label": label,
+		"families": families.duplicate(true),
+		"obstacleCount": obstacle_count
 	}

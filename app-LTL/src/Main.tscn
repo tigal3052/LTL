@@ -157,7 +157,7 @@ theme_override_constants/separation = 20
 [node name="LeftColumn" type="VBoxContainer" parent="RootMargin/AppShell/TopContent"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.45
+size_flags_stretch_ratio = 2.0
 theme_override_constants/separation = 16
 
 [node name="LeftSidebar" type="PanelContainer" parent="RootMargin/AppShell/TopContent/LeftColumn"]
@@ -290,9 +290,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "에너지 큐:"
 
-[node name="VisualQueueBox" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow"]
+[node name="VisualQueueBox" type="GridContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 4
+columns = 8
 
 [node name="TimerRow" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
 layout_mode = 2
@@ -326,6 +328,42 @@ theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
 theme_override_font_sizes/font_size = 12
 text = "정상"
 
+[node name="StatusFooterSpacer" type="Control" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PurpleStatusRow" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer"]
+visible = false
+layout_mode = 0
+theme_override_constants/separation = 8
+
+[node name="PurpleStatusLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow"]
+custom_minimum_size = Vector2(78, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Purple:"
+
+[node name="PurpleStatusValue" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.42, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "-"
+
+[node name="CombatTimerFooterMargin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
+layout_mode = 2
+theme_override_constants/margin_bottom = 10
+
+[node name="CombatTimerFooter" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/CombatTimerFooterMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="CombatTimerLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/CombatTimerFooterMargin/CombatTimerFooter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.25, 1)
+theme_override_font_sizes/font_size = 36
+text = "00:00"
+horizontal_alignment = 1
+
 [node name="BackpackContainer" type="AspectRatioContainer" parent="RootMargin/AppShell/TopContent"]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -358,6 +396,7 @@ text = "백팩 엔진 공간 (8x8 격자)"
 
 [node name="GridMock" type="GridContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 2
@@ -367,7 +406,7 @@ columns = 8
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.35
+size_flags_stretch_ratio = 1.55
 theme_override_styles/panel = SubResource("StyleBoxTexture_log_panel")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/RightSidebar"]
@@ -428,7 +467,6 @@ text = "다음 목표 노드"
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
-fit_content = true
 
 [node name="BattlefieldPanel" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer"]
 custom_minimum_size = Vector2(0, 180)
@@ -441,25 +479,41 @@ script = ExtResource("4")
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 20
 
 [node name="BattlefieldBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 0
 
 [node name="BattlefieldTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 12
 text = "레비아탄 지각 표면 (3x10 격자)"
 
-[node name="BattlefieldGrid" type="GridContainer" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox"]
+[node name="BattlefieldVisualRoot" type="Control" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox"]
+custom_minimum_size = Vector2(0, 210)
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
+
+[node name="TitleMiner" type="TextureRect" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"]
+layout_mode = 0
+
+[node name="PanelShell" type="TextureRect" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"]
+layout_mode = 0
+
+[node name="LaneTop" type="ColorRect" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"]
+layout_mode = 0
+
+[node name="LaneMiddle" type="ColorRect" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"]
+layout_mode = 0
+
+[node name="LaneBottom" type="ColorRect" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"]
+layout_mode = 0
+
+[node name="BattlefieldGrid" type="GridContainer" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"]
+layout_mode = 0
 columns = 10
 
 [node name="RewardPanel" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer"]
@@ -478,6 +532,8 @@ theme_override_constants/margin_bottom = 8
 
 [node name="RewardBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 8
 
 [node name="RewardTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
@@ -488,17 +544,20 @@ text = "회수한 유물 / 보상"
 
 [node name="RewardRow" type="HBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 20
 
 [node name="RewardText" type="RichTextLabel" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 bbcode_enabled = true
-fit_content = true
 
 [node name="DiscardZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow"]
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
 
 [node name="DiscardLabel" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/DiscardZone"]
@@ -706,7 +765,6 @@ color_ramp = SubResource("Gradient_particle")
 
 [node name="VFXManager" type="Node2D" parent="."]
 script = ExtResource("7")
-particle_template = NodePath("../ParticleTemplate")
 
 [node name="MainController" type="Node" parent="."]
 script = ExtResource("8")

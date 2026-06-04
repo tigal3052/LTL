@@ -11,7 +11,7 @@ extends RefCounted
 const RewardValidatorScript = preload("res://src/validation/RewardValidator.gd")
 
 # 실행: define default tuning values shared by validators and headless runtime.
-const DEFAULT_TUNING := {"combat": {"matchDamage": 2, "normalDamage": 1, "mismatchDamage": 0}, "queue": {"capacity": 8, "repairThreshold": 3}, "stageScaling": {"stageDurabilityTotals": [32.0, 54.0, 78.0, 100.0, 120.0], "stageHealthTotals": [18.0, 31.0, 43.0, 53.0, 62.0], "baseTimeLimitTicks": 1800}, "reward": {"weaknessBonus": 2}}
+const DEFAULT_TUNING := {"combat": {"matchDamage": 2, "normalDamage": 1, "mismatchDamage": 0}, "queue": {"capacity": 16, "repairThreshold": 3}, "stageScaling": {"stageDurabilityTotals": [64.0, 108.0, 156.0, 200.0, 240.0], "stageHealthTotals": [36.0, 62.0, 86.0, 106.0, 124.0], "baseTimeLimitTicks": 1800}, "reward": {"weaknessBonus": 2}}
 
 # 실행: define root snapshot keys that every public snapshot must expose.
 const ROOT_COMMON_KEYS := ["seed", "stageIndex", "maxStages", "leviathanId", "runIndex", "runCount", "inventory", "progress", "phase", "lastNodeLabel", "runComplete", "failed", "growth"]

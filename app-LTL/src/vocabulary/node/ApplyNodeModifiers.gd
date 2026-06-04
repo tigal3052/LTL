@@ -8,6 +8,8 @@
 class_name ApplyNodeModifiers
 extends RefCounted
 
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+
 # 실행: clone the chosen node and attach explicit combat modifier metadata.
 static func apply(choice: Dictionary, tuning: Dictionary = {}) -> Dictionary:
 	var result := choice.duplicate(true)
@@ -27,7 +29,9 @@ static func apply(choice: Dictionary, tuning: Dictionary = {}) -> Dictionary:
 	combat["hazard"] = {
 		"tier": str(result.get("riskTier", "safe")),
 		"modifier": hazard_modifier,
-		"sourceNodeId": str(result.get("id", ""))
+		"sourceNodeId": str(result.get("id", "")),
+		"allowedFamilies": EnergyTempoBalanceScript.normalized_colors(result.get("weakness", []), true),
+		"spawn": result.get("hazardSpawn", {}).duplicate(true)
 	}
 	combat["telemetry"] = {
 		"event": "node_modifier_applied",

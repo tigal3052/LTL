@@ -7,6 +7,8 @@
 # 실행: define the BuildRewardPreview vocabulary capsule.
 class_name BuildRewardPreview
 extends RefCounted
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
 # 실행: build a next-combat modifier preview from reward payload fields.
 static func build(reward: Dictionary) -> Dictionary:
@@ -31,7 +33,7 @@ static func build(reward: Dictionary) -> Dictionary:
 		if shield_repair > 0:
 			parts.append("수리 효율 +%d%%" % shield_repair)
 	if payload.has("beacon_cooldown_mod"):
-		var beacon_cooldown := int(payload.get("beacon_cooldown_mod", 0))
+		var beacon_cooldown := EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", 0))))
 		modifiers["beacon_cooldown_mod"] = beacon_cooldown
 		if beacon_cooldown < 0:
 			parts.append("인접 채집기 쿨타임 %d틱 감소" % abs(beacon_cooldown))
@@ -47,6 +49,12 @@ static func build(reward: Dictionary) -> Dictionary:
 		modifiers["hazard_increase"] = hazard
 		if hazard > 0:
 			parts.append("위험도 +%d" % hazard)
+	if payload.has("effect_schema") and payload.get("effect_schema", {}) is Dictionary:
+		var schema: Dictionary = payload.get("effect_schema", {})
+		modifiers["effect_schema"] = schema.duplicate(true)
+		var summary := TextCatalogScript.effect_summary(schema)
+		if not summary.is_empty():
+			parts.append(summary)
 	if parts.is_empty():
 		parts.append("다음 전투 영향 없음")
 	return {"summary": ", ".join(parts), "modifiers": modifiers}

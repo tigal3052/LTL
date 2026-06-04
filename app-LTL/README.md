@@ -23,17 +23,20 @@ This app is now a Godot 4.3 project. The formal M0/M1/M2 implementation lives in
 Run the formal M1/M2 contract suite:
 
 ```powershell
-& 'D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe' --headless --path 'D:\Programming\ex_workspace\LootingTheLeviathan\app-LTL' --script tests/godot_contract_runner.gd --quit
+powershell -NoProfile -ExecutionPolicy Bypass -File 'D:\Programming\ex_workspace\LootingTheLeviathan\tools\invoke-godot.ps1' -Headless -Script 'tests/godot_contract_runner.gd' -LogName 'godot-contracts.log' -Quit
 ```
 
 Run the replay smoke check:
 
 ```powershell
-& 'D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe' --headless --path 'D:\Programming\ex_workspace\LootingTheLeviathan\app-LTL' --script src/tools/FormalReplayRunner.gd --quit
+powershell -NoProfile -ExecutionPolicy Bypass -File 'D:\Programming\ex_workspace\LootingTheLeviathan\tools\invoke-godot.ps1' -Headless -Script 'src/tools/FormalReplayRunner.gd' -LogName 'formal-replay.log' -Quit
 ```
 
 Expected contract output includes `GODOT_CONTRACTS_OK`. Expected replay output has
 `"phase": "run_complete"` and `"runComplete": true`.
+
+The shared `tools/invoke-godot.ps1` wrapper routes logs into `res://.tmp-godot-logs/`
+so ad hoc verification runs do not pile `.log` files into the `app-LTL/` root.
 
 ## Boundary
 

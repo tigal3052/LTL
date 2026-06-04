@@ -9,6 +9,8 @@ class_name CombatPhase
 extends RefCounted
 
 const ArtifactScript = preload("res://src/models/Artifact.gd")
+const CombatVocabScript = preload("res://src/vocabulary/CombatVocab.gd")
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
 
 # 실행: reduce combat inputs, update simulator state, and evaluate completion or failure transitions.
 static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -39,7 +41,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 			"weakness": []
 		}
 	}
-	var sim := CombatVocab.prepare_combat(dummy_choice, next_state.get("tuning", {}), int(combat_dict.get("queue", {}).get("capacity", 8)))
+	var sim: CombatSimulator = CombatVocabScript.prepare_combat(dummy_choice, next_state.get("tuning", {}), int(combat_dict.get("queue", {}).get("capacity", EnergyTempoBalanceScript.DEFAULT_QUEUE_CAPACITY)))
 	
 	# 세부 상태 필드 복사
 	sim.result = str(combat_dict.get("result", "active"))
@@ -55,7 +57,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	sim.queue = []
 	if q_data.has("items"):
 		for item in q_data["items"]:
-			sim.queue.append(str(item))
+			sim.queue.append(item.duplicate(true) if item is Dictionary else str(item))
 	sim.queue_pinned_slots = int(q_data.get("pinnedSlots", 0))
 	sim.queue_empty_shots = int(q_data.get("emptyShots", 0))
 	
@@ -80,6 +82,21 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	sim.battlefield_cols = int(b_data.get("columns", 10))
 	sim.weakness_markers = b_data.get("weaknessMarkers", []).duplicate(true)
 	sim.terrain_debuffs = b_data.get("terrainDebuffs", []).duplicate(true)
+	sim.terrain_buffs = b_data.get("terrainBuffs", []).duplicate(true)
+	sim.hazard_snapshot = combat_dict.get("hazard", {}).duplicate(true)
+	sim.obstacle_allowed_families = EnergyTempoBalanceScript.normalized_colors(
+		combat_dict.get("hazard", {}).get("allowedFamilies", b_data.get("allowedObstacleFamilies", [])),
+		false
+	)
+	if sim.obstacle_allowed_families.is_empty():
+		sim.obstacle_allowed_families = _combat_hazard_colors(combat_dict)
+	sim.obstacles = b_data.get("obstacles", []).duplicate(true)
+	sim.obstacle_miss_debt = b_data.get("obstacleMissDebt", {}).duplicate(true)
+	sim.obstacle_spawn_backlog = b_data.get("obstacleSpawnBacklog", {}).duplicate(true)
+	sim.obstacle_shift_count = int(b_data.get("obstacleShiftCount", 0))
+	sim.purple_damage_reduction_ratio = float(b_data.get("purpleDamageReductionRatio", 0.0))
+	sim.paused_obstacle_ticks = int(b_data.get("pausedObstacleTicks", 0))
+	sim.relic_runtime = combat_dict.get("relicRuntime", {}).duplicate(true)
 	
 	var s_data: Dictionary = combat_dict.get("summary", {})
 	sim.summary_shots_fired = int(s_data.get("shots_fired", 0))
@@ -99,8 +116,37 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 
 	# 수리(repair) 처리
 	if event_type == "repair":
-		CombatVocab.apply_repair(sim)
+		CombatVocabScript.apply_repair(sim)
 		next_state["combat"] = sim.to_dict()
+		return next_state
+
+	# 전장 shift와 장애물 실패/생성을 하나의 전투 이벤트로 처리
+	if event_type == "shift_battlefield":
+		CombatVocabScript.tick_combat(sim, int(event.get("ticks", 1)), inv)
+		var can_shift := not sim.disabled and not (sim.result in ["clear", "failed", "time_over"])
+		if can_shift:
+			CombatVocabScript.shift_battlefield(
+				sim,
+				int(event.get("shiftSeed", next_state.get("seed", 1))),
+				event.get("colors", _terrain_shift_colors(combat_dict)),
+				int(event.get("shiftStep", sim.obstacle_shift_count + 1)),
+				int(next_state.get("stageIndex", 0)),
+				float(combat_dict.get("hazardModifier", 1.0)),
+				inv
+			)
+		var shifted_hazard := HazardModel.new()
+		shifted_hazard.update_state(sim.health, sim.queue_empty_shots, sim.result, sim.max_health, sim.obstacles, sim.purple_damage_reduction_ratio)
+		var shifted_combat: Dictionary = sim.to_dict()
+		shifted_combat["hazard"] = shifted_hazard.to_dict()
+		_preserve_node_metadata(shifted_combat, combat_dict)
+		next_state["combat"] = shifted_combat
+		if inv != null:
+			next_state["inventory"] = inv.to_dict()
+		if sim.result in ["time_over", "failed"]:
+			next_state["phase"] = "run_complete"
+			next_state["failed"] = true
+			next_state["runComplete"] = true
+			next_state["failureReason"] = sim.result
 		return next_state
 
 	# 사격(fire) 또는 틱(hold_fire_tick), 직접 해결(resolve) 처리
@@ -116,20 +162,20 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		else:
 			var target_color = event.get("targetColor", sim.aim_target_color)
 			var target_cell_id = event.get("targetCellId", sim.aim_cell_id)
-			CombatVocab.fire_shot(sim, target_color, target_cell_id, next_state.get("tuning", {}).get("combat", {}), inv)
+			CombatVocabScript.fire_shot(sim, target_color, target_cell_id, next_state.get("tuning", {}).get("combat", {}), inv)
 
 	# 시간 경과 처리 (인풋이 tick 혹은 hold_fire_tick 일 때 틱을 경과시킴)
 	if event_type == "hold_fire_tick":
-		CombatVocab.tick_combat(sim, 2, inv) # 기본 2틱 증가
+		CombatVocabScript.tick_combat(sim, 2, inv) # 기본 2틱 증가
 	elif event_type == "tick":
-		CombatVocab.tick_combat(sim, int(event.get("ticks", 1)), inv)
+		CombatVocabScript.tick_combat(sim, int(event.get("ticks", 1)), inv)
 
 	# 방해 요소 상태 갱신
 	var hazard := HazardModel.new()
-	hazard.update_state(sim.health, sim.queue_empty_shots, sim.result, sim.max_health)
+	hazard.update_state(sim.health, sim.queue_empty_shots, sim.result, sim.max_health, sim.obstacles, sim.purple_damage_reduction_ratio)
 	
 	# 최종 시뮬레이터 상태 딕셔너리로 내보내기
-	var next_combat := sim.to_dict()
+	var next_combat: Dictionary = sim.to_dict()
 	next_combat["hazard"] = hazard.to_dict()
 	_preserve_node_metadata(next_combat, combat_dict)
 	next_state["combat"] = next_combat
@@ -162,6 +208,24 @@ static func _get_weakness_colors(markers: Array) -> Array:
 	for marker in markers:
 		colors.append(marker.get("color", "red"))
 	return colors
+
+static func _terrain_shift_colors(_combat_dict: Dictionary) -> Array:
+	return EnergyTempoBalanceScript.terrain_color_palette()
+
+static func _combat_hazard_colors(combat_dict: Dictionary) -> Array:
+	var hazard: Dictionary = combat_dict.get("hazard", {})
+	var allowed_families := EnergyTempoBalanceScript.normalized_colors(hazard.get("allowedFamilies", []), false)
+	if not allowed_families.is_empty():
+		return allowed_families
+	var node: Dictionary = combat_dict.get("node", {})
+	var node_colors := EnergyTempoBalanceScript.normalized_colors(node.get("weakness", []), false)
+	if not node_colors.is_empty():
+		return node_colors
+	var battlefield: Dictionary = combat_dict.get("battlefield", {})
+	var battlefield_colors := EnergyTempoBalanceScript.normalized_colors(battlefield.get("allowedObstacleFamilies", []), false)
+	if not battlefield_colors.is_empty():
+		return battlefield_colors
+	return EnergyTempoBalanceScript.normalized_colors([], true)
 
 # 실행: keep selected node routing metadata across combat simulator rehydration.
 static func _preserve_node_metadata(next_combat: Dictionary, previous_combat: Dictionary) -> void:

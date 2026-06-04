@@ -300,7 +300,9 @@ function Draw-AfterMockup {
         $shellY = $boardY + [int]($boardH * 0.12)
         $shellW = [int]($boardW * 0.75)
         $shellH = [int]($boardH * 0.84)
-        $Graphics.DrawImage($panelImage, $shellX, $shellY, $shellW, $shellH)
+        $panelDestRect = New-Object System.Drawing.Rectangle $shellX, $shellY, $shellW, $shellH
+        $panelSrcRect = New-Object System.Drawing.Rectangle 27, 128, 1384, 188
+        $Graphics.DrawImage($panelImage, $panelDestRect, $panelSrcRect, [System.Drawing.GraphicsUnit]::Pixel)
 
         $laneInsetX = [int]($shellW * 0.024)
         $laneInsetY = [int]($shellH * 0.125)

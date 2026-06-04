@@ -5,43 +5,50 @@ Date: 2026-05-31
 
 ## Active Work
 
-Fix the top-content height mismatch so `LeftColumn`, `Backpack`, and `RightSidebar` share the same visible height, using the backpack as the baseline and letting it consume the full vertical space between the header and the terrain panel.
+Move the live battlefield miner art into the dedicated `resources/UI/miner/` asset set, rename the base pose to `miner_45.png`, and make the battle title miner switch between 45/60/90 degree poses based on which battlefield columns the player attacks.
 
 ## Request Summary
 
-After the previous top-content spacing change, the user observed that the visible backpack panel became shorter than the left and right side panels. They asked to determine whether the issue is caused by the side panels growing or by the backpack no longer preserving the intended size, then make all three top-content panels share the same height with the backpack using the maximum available vertical space.
+The user wants the loose `app-LTL/resources/UI/miner.png` asset moved into `app-LTL/resources/UI/miner/` and renamed to `miner_45.png`, then wants the in-battle miner presentation to reuse a single on-screen slot while swapping between `miner_90.png`, `miner_60.png`, and `miner_45.png` according to the attacked battlefield column bands: columns 1-2 use 90 degrees, 3-6 use 60 degrees, and 7-10 use 45 degrees. The transition should feel intentionally polished rather than like a hard texture pop.
 
 ## Scope
 
-- Confirm the root cause in the top-content height/width sizing chain.
-- Add focused regression tests for the backpack height-baseline policy.
-- Make the top-content backpack width derive from the full available row height so the visible backpack panel reaches the same height as the left and right panels.
-- Preserve the fixed-gap horizontal policy and keep node-select right-docked behavior unchanged.
+- Move `app-LTL/resources/UI/miner.png` and its import metadata into `app-LTL/resources/UI/miner/miner_45.png`.
+- Update Godot/UI source references so the battlefield title miner uses the new `miner_45` default asset path.
+- Add deterministic column-to-pose mapping helpers for the 3x10 battlefield: columns 0-1 map to `miner_90`, 2-5 map to `miner_60`, and 6-9 map to `miner_45`.
+- Trigger a polished title-miner pose change after successful combat tile clicks, with subtle easing/tint/scale changes so the swap feels natural.
+- Update source-map documentation for the new tracked art assets and verify the Godot smoke suite plus source-map gate still pass.
 
 ## Out of Scope
 
-- Reworking the node-select page layout or map/detail vertical split.
-- Reverting pre-existing dirty workspace changes.
-- Changing gameplay balance, node routing rules, artifact rules, or non-layout data.
+- Re-exporting or repainting the supplied miner art.
+- Reintroducing a second large lower battlefield miner overlay unless required by the current request.
+- Unrelated combat balance, tile logic, or node-select layout refactors.
+- Reverting unrelated existing workspace changes.
 
 ## Steps
 
-- Add failing layout contract tests for the top-content backpack height-baseline policy.
-- Patch `MainViewRuntime.gd` so the top-content backpack width is driven by the full available row height rather than a reduced value.
-- Keep the existing top-content fixed-gap policy intact while restoring equal visible heights.
-- Run the focused Godot smoke test and whitespace diff checks.
-- Record results in history/completion worklogs.
+- Add failing regression coverage for miner pose asset-path mapping by battlefield column/cell id.
+- Move the base miner asset/import metadata into the `resources/UI/miner/` folder and update all source references to `miner_45`.
+- Extend `BattlefieldUI.gd` with pose-selection helpers plus a polished title-miner swap animation tied to combat clicks.
+- Wire the successful cell-click path to trigger the miner pose update without disturbing existing battlefield VFX.
+- Update `docs/source-map.md` for the new miner and pin resource entries.
+- Run direct headless Godot smoke, then the full `tools/run-compile-check.ps1`, and record the results in today's worklog files.
 
 ## Expected Outputs
 
-- Updated `app-LTL/src/ui/MainViewRuntime.gd`
+- Moved `app-LTL/resources/UI/miner/miner_45.png` asset plus import metadata
+- Updated `app-LTL/src/ui/BattlefieldUI.gd`
+- Updated `app-LTL/src/MainControllerRuntime.gd`
 - Updated `app-LTL/tests/test_ui_read_models.gd`
+- Updated `docs/source-map.md`
 - Updated worklog files
 
 ## Verification Method
 
-- Run direct headless Godot smoke verification with `tests/godot_contract_runner.gd -- --smoke-only`.
-- Run `git diff --check` on the touched files.
+- Run the direct headless Godot smoke command in `--smoke-only` mode to prove the new regression test fails first, then passes after implementation.
+- Run `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` after the source-map updates.
+- Run `git diff --check` on the touched runtime, asset-map, and worklog files.
 
 ## Plan Change Log
 
@@ -54,3 +61,7 @@ After the previous top-content spacing change, the user observed that the visibl
 - 2026-05-31: Follow-up clarified the desired fix: shrink the node graph bottom gap, make detail space absorb the freed height, and size the right backpack from the same row height as the left stack.
 - 2026-05-31: Active work changed to the top-content horizontal layout request: keep backpack size, widen both side panels toward it, and leave about 20px between the visible panels.
 - 2026-05-31: Follow-up bugfix narrowed the issue to the top-content height mismatch: the visible backpack panel must reclaim the full available row height and become the baseline for the left and right panels.
+- 2026-05-31: Active work changed again to the terrain-panel mockup; root cause investigation now targets the transparent top and bottom padding inside `tile_panel_nobg.png`.
+- 2026-05-31: User approved moving from mockup to live Godot implementation for the battlefield terrain panel.
+- 2026-05-31: Follow-up request changed the live battlefield composition again: shrink/move the miner into the header slot, move the countdown into the status footer, and stretch the terrain shell vertically around the 3x10 tiles.
+- 2026-05-31: Active work changed to the pose-driven battlefield miner request: move the base miner asset into the `miner/` folder as `miner_45` and switch the title miner pose by attacked tile column bands.

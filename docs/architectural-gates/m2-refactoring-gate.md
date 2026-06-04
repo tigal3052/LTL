@@ -9,5 +9,5 @@ orchestrator_forbidden_patterns: _draw_resonance_beam, _spawn_hit_particles, _se
 view_path_pattern: app-LTL/src/ui/*UI.gd
 view_threshold: 150
 view_forbidden_patterns: CombatScenePreviewController, HeadlessMiniRun, CombatSimulator, Button.new, PanelContainer.new, AudioStreamWAV.new
-view_dynamic_creation_paths: app-LTL/src/ui/ShopPanelUI.gd, app-LTL/src/ui/ArtifactTooltipUI.gd, app-LTL/src/ui/GiantTimerUI.gd
+view_dynamic_creation_paths: app-LTL/src/ui/ShopPanelUI.gd, app-LTL/src/ui/ArtifactTooltipUI.gd, app-LTL/src/ui/GiantTimerUI.gd, app-LTL/src/ui/SettingsPanelUI.gd
 strict_size_paths: app-LTL/src/MainController.gd, app-LTL/src/ui/MainUI.gd

@@ -5,6 +5,47 @@ Date: 2026-05-31
 
 ## 2026-05-31
 
+- Intent: Replace the lower-left battlefield miner with a compact title miner, move the combat timer into the status footer, and stretch the terrain shell vertically around the 3x10 tile board.
+- Files or areas touched:
+  - `app-LTL/src/Main.tscn`
+  - `app-LTL/src/ui/BattlefieldUI.gd`
+  - `app-LTL/src/ui/MainViewRuntime.gd`
+  - `app-LTL/src/ui/StatusPanelUI.gd`
+  - `app-LTL/src/ui/GiantTimerUI.gd`
+  - `app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd`
+  - `app-LTL/tests/test_ui_read_models.gd`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md`
+- Summary: Added new regression coverage for the hidden floating combat timer, the compact header miner, and the stretched terrain-shell layout metrics. Reworked the battlefield scene so the old lower-left `MinerVisual` node is gone, the title area now hosts a smaller `TitleMiner`, the shell/grid layout is driven by deterministic 20px top/bottom margin metrics, and the combat countdown now renders in a dedicated status-panel footer row instead of over the terrain strip. Kept the battlefield border/vignette timing path alive by letting `GiantTimerUI` continue pulsing the vignette even while the floating timer panel stays hidden.
+- Plan impact: Refined the same battlefield art task into a second live-layout pass focused on miner relocation, timer relocation, and taller shell spacing.
+- Verification:
+  - RED: direct headless Godot smoke failed first with the new UI tests because the floating battlefield timer was still visible, the terrain layout helper did not exist yet, and the scene lacked the header-miner/footer-timer structure.
+  - GREEN: direct headless Godot smoke passed with `GODOT_CONTRACTS_OK` after the runtime and scene changes landed.
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` still fails before Godot compilation because the pre-existing source-map gate reports missing mapped miner files (`app-LTL/resources/UI/miner/miner_60.png` and related path entries).
+
+- Intent: Apply the approved terrain-panel mockup to the live Godot battlefield UI.
+- Files or areas touched:
+  - `app-LTL/src/Main.tscn`
+  - `app-LTL/src/ui/BattlefieldUI.gd`
+  - `app-LTL/src/ui/CellView.gd`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md`
+- Summary: Reworked the combat battlefield scene area so it now has a dedicated visual root, miner overlay, crop-aware `tile_panel_nobg` shell, and three dark lane bands behind the real `BattlefieldGrid`. Replaced the old procedural rock/crystal cell drawing with the delivered non-square tile textures while preserving queue-match, hover, aimed, and disabled overlays. The live panel now uses the same visible-frame crop logic that fixed the mockup's vertical mismatch.
+- Plan impact: Shifted the terrain-art task from mockup-only validation to live source implementation.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` passed with `SOURCE_MAP_GATE_OK` and `GODOT_CONTRACTS_OK`.
+  - Godot still emitted pre-existing RID/ObjectDB/resource-leak warnings at exit.
+
+- Intent: Fix the remaining vertical mismatch in the terrain mockup by making `tile_panel_nobg` use its visible stone frame bounds rather than its full transparent canvas.
+- Files or areas touched:
+  - `docs/mockups/terrain-panel-before-after.html`
+  - `docs/mockups/render-terrain-panel-before-after.ps1`
+  - `docs/mockups/terrain-panel-before-after-render.png`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md`
+- Summary: Measured the actual alpha bounds of `tile_panel_nobg.png` and found that the visible frame occupies only `1384x188` inside a `1440x446` source image, with large transparent bands above and below. Updated the HTML background mapping and the PowerShell renderer so they crop to that visible band before scaling, then regenerated the comparison PNG. This makes the visible panel frame expand vertically around all three tile rows instead of leaving them visually outside the shell.
+- Plan impact: Refined the terrain mockup task from generic shell-height tuning to source-bounds-aware panel rendering.
+- Verification:
+  - Re-ran `docs/mockups/render-terrain-panel-before-after.ps1`.
+  - Visually inspected `docs/mockups/terrain-panel-before-after-render.png` and confirmed the three tile rows now sit inside the visible panel frame.
+
 - Intent: Build a side-by-side terrain-panel mockup comparing the current abstract grid look against a direct application of the new mining-rig and tile art.
 - Files or areas touched:
   - `docs/mockups/terrain-panel-before-after.html`
@@ -521,6 +562,474 @@ M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
  M docs/mockups/render-terrain-panel-before-after.ps1
  M docs/mockups/terrain-panel-before-after-render.png
  M docs/mockups/terrain-panel-before-after.html
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:04:58
+
+<!-- codex-worklog-signature: fcdc781ff0a8ed0d6b052fc3d006e52bcf99be9feae22a069d66a76903cd66dd -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/mockups/render-terrain-panel-before-after.ps1
+ M docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:05:33
+
+<!-- codex-worklog-signature: cf1660ad346dad02827912bc46792ad83706b7008b4a6ea242c982188c8790e1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:06:09
+
+<!-- codex-worklog-signature: 67c6375f3aacd6234ae8cf8deda585caa301a8133acb0248f92dd675d3e33b16 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:06:37
+
+<!-- codex-worklog-signature: 4184ea0cf7b2fd17eeb1ddf4c0e5644faa2f392ecff9c7935ad430eb22bbe9b9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:06:58
+
+<!-- codex-worklog-signature: 0827209c44493eb51c628d5df83a415a2aadfb2e0611eb481cfe84de1ed74646 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:08:04
+
+<!-- codex-worklog-signature: 6d0ab0b2cc25862b3c7ee57f43b844524c8d2803d339e88fd77e126ad273b0a4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:11:38
+
+<!-- codex-worklog-signature: 43cdf165759aafa241012999ab19744c425d483ffa79b3483218d394d54c7af8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/CellView.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:12:40
+
+<!-- codex-worklog-signature: 9d7f9811c6d4582855b17407856bed99890f08d427568eab151005c7d163f1c8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:12:51
+
+<!-- codex-worklog-signature: fc5f137cfa27167d2d85bbc516e1ce118e1c1785ce4c8be46db570bb7d2791c1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:26:09
+
+<!-- codex-worklog-signature: c0357fdb6ca84629a7e9d63b8e7d689cf812ee80cdcebeec8afe1d5c204d87c9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:31:55
+
+<!-- codex-worklog-signature: 1d5933b6b127fe13cd5850ecaece5e1b46f52e5d65b0c9d103922da7c0bb777f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:33:08
+
+<!-- codex-worklog-signature: ab5b0bd416d1adf92eb42f16f77be089b87fde583e613f42a335ee4c569645f3 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:36:46
+
+<!-- codex-worklog-signature: 25a46e4a74ed6e1aeb494c76ad90fff5e40709235ae0bb32f416dddfbcaa10aa -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:37:21
+
+<!-- codex-worklog-signature: 6a43b608d3500e336c194b3fbdcf8e5c0caed0c5c7239899274a676700470055 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:40:32
+
+<!-- codex-worklog-signature: b072080e72a8de1b6dbd87b1211798df7536ad677d24768be3c9da10a1750b0a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ D app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:41:33
+
+<!-- codex-worklog-signature: f91ad09c0608fbaf881ab073b7d2b6c5c29e26374ac896995cbf902e251756e2 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:41:49
+
+<!-- codex-worklog-signature: 03cab56ff414556ac5a61a1930b5933180eed7b67482735bc625b4c34cb0b3a3 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/StatusPanelUI.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:42:06
+
+<!-- codex-worklog-signature: 3e79626c517b6d1d094ca5fff4f0331ba370fd0a941fbb736ddb582b0c59d25d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/StatusPanelUI.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:42:23
+
+<!-- codex-worklog-signature: 83987a048925bad8cb44d9f43e53c40dcc69d96f1a55fc911f4e8f58df411277 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/GiantTimerUI.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/StatusPanelUI.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:43:35
+
+<!-- codex-worklog-signature: 9fbc10b4524e127d40206d8634fa2201b4cb3ef51538a0b7ebe3fdc1dcb0e106 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/GiantTimerUI.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/StatusPanelUI.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:45:02
+
+<!-- codex-worklog-signature: e5ecd58465b7606736b5466a677dcfd8a014d9c8dd5501fb2d55f771956c6fd5 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/GiantTimerUI.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/StatusPanelUI.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-05-31 23:59:54
+
+<!-- codex-worklog-signature: c7ed50fc8fa72eee0d8e648c56fc5446ebadac1031669aa11aa5289c2abc18cd -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ D app-LTL/resources/UI/miner.png
+ D app-LTL/resources/UI/miner.png.import
+ M app-LTL/src/Main.tscn
+ M app-LTL/src/ui/BattlefieldUI.gd
+ M app-LTL/src/ui/CellView.gd
+ M app-LTL/src/ui/GiantTimerUI.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/StatusPanelUI.gd
+ M app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-05-31.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-05-31.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-05-31.md
+M  docs/mockups/render-terrain-panel-before-after.ps1
+M  docs/mockups/terrain-panel-before-after-render.png
+?? app-LTL/resources/UI/miner/
+?? app-LTL/resources/UI/pin/
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

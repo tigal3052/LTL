@@ -9,6 +9,7 @@ class_name CreateArtifactFromReward
 extends RefCounted
 
 const ArtifactScript = preload("res://src/models/Artifact.gd")
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
 
 # 실행: create an Artifact instance from reward data and active growth modifiers.
 static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dictionary:
@@ -20,7 +21,11 @@ static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dicti
 	var item_type := str(payload.get("item_type", payload.get("itemType", "drill")))
 	if item_type.is_empty():
 		item_type = "drill"
-	var base_cooldown := int(payload.get("base_cooldown_ticks", payload.get("baseCooldownTicks", _default_cooldown(rarity))))
+	var default_energy_type := "" if item_type == "relic" else "red"
+	var default_base_cooldown := 1 if item_type == "relic" else _default_cooldown(rarity)
+	var default_damage := 0.0 if item_type == "relic" else _default_damage(rarity)
+	var base_cooldown := int(payload.get("base_cooldown_ticks", payload.get("baseCooldownTicks", default_base_cooldown)))
+	var native_base_cooldown := EnergyTempoBalanceScript.native_cooldown_ticks(base_cooldown)
 	var cooldown_modifier := 1.0
 	if growth_state != null and growth_state.has_method("get_cooldown_modifier"):
 		cooldown_modifier = float(growth_state.get_cooldown_modifier())
@@ -28,14 +33,17 @@ static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dicti
 		"id": str(reward.get("rewardId", "reward_%d" % randi())),
 		"name": name,
 		"shape": payload.get("shape", _default_shape(name, item_type)).duplicate(true),
-		"energyType": str(payload.get("energy_type", payload.get("energyType", "red"))),
-		"baseCooldownTicks": maxi(1, int(base_cooldown * cooldown_modifier)),
+		"energyType": str(payload.get("energy_type", payload.get("energyType", default_energy_type))),
+		"baseCooldownTicks": EnergyTempoBalanceScript.applied_cooldown_ticks(native_base_cooldown, cooldown_modifier),
+		"nativeBaseCooldownTicks": native_base_cooldown,
 		"synergy": payload.get("synergy", {"type": "same_color", "value": 2}),
-		"damage": float(payload.get("damage", _default_damage(rarity))),
+		"damage": float(payload.get("damage", default_damage)),
 		"grade": rarity,
 		"item_type": item_type,
-		"beacon_cooldown_mod": int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", _default_beacon_cooldown(rarity, item_type)))),
+		"beacon_cooldown_mod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", _default_beacon_cooldown(rarity, item_type))))),
 		"beacon_damage_mod": float(payload.get("beacon_damage_mod", payload.get("beaconDamageMod", _default_beacon_damage(rarity, item_type)))),
+		"effect_schema": payload.get("effect_schema", payload.get("effectSchema", {})),
+		"text": reward.get("text", {}),
 		"keyword": str(reward.get("presentation", {}).get("description", ""))
 	})
 	return {"ok": true, "code": "created", "artifact": artifact}

@@ -37,11 +37,18 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	var rows := maxi(1, int(battlefield.get("rows", 3)))
 	var columns := maxi(1, int(battlefield.get("columns", 10)))
 	var markers: Dictionary = {}
+	var obstacles_by_cell: Dictionary = {}
 	var aimed_cell = combat.get("aim", {}).get("cellId", null)
 	var queue_items: Array = combat.get("queue", {}).get("items", [])
-	var active_queue_color := str(queue_items[0]) if not queue_items.is_empty() else ""
+	var active_queue_color := ""
+	if not queue_items.is_empty():
+		active_queue_color = str(queue_items[0].get("color", "")) if queue_items[0] is Dictionary else str(queue_items[0])
 	for marker in battlefield.get("weaknessMarkers", []):
-		markers[marker.get("cellId", "")] = marker.get("color", null)
+		if marker is Dictionary:
+			markers[str(marker.get("cellId", ""))] = marker.duplicate(true)
+	for obstacle in battlefield.get("obstacles", []):
+		if obstacle is Dictionary:
+			obstacles_by_cell[str(obstacle.get("cellId", ""))] = obstacle.duplicate(true)
 	var frame: Dictionary = layout["battlefieldFrame"]
 	var cell_height := int(frame["height"] / rows)
 	var cell_width := int(frame["width"] / columns)
@@ -49,13 +56,42 @@ func _create_terrain(combat: Dictionary, layout: Dictionary) -> Dictionary:
 	for row in range(rows):
 		for column in range(columns):
 			var cell_id := "r%dc%d" % [row, column]
-			var weakness = markers.get(cell_id, null)
-			cells.append({"id": cell_id, "row": row, "column": column, "x": frame["x"] + column * cell_width, "y": frame["y"] + row * cell_height, "width": cell_width, "height": cell_height, "weakness": weakness, "queueMatch": not active_queue_color.is_empty() and str(weakness) == active_queue_color, "activeQueueColor": active_queue_color, "aimed": cell_id == aimed_cell})
+			var marker: Dictionary = markers.get(cell_id, {})
+			var weakness = marker.get("color", null) if not marker.is_empty() else null
+			var all_energy_weakness := bool(marker.get("allEnergyWeakness", false))
+			var obstacle: Variant = obstacles_by_cell.get(cell_id, null)
+			cells.append({
+				"id": cell_id,
+				"row": row,
+				"column": column,
+				"x": frame["x"] + column * cell_width,
+				"y": frame["y"] + row * cell_height,
+				"width": cell_width,
+				"height": cell_height,
+				"weakness": weakness,
+				"queueMatch": all_energy_weakness or (not active_queue_color.is_empty() and str(weakness) == active_queue_color),
+				"activeQueueColor": active_queue_color,
+				"aimed": cell_id == aimed_cell,
+				"obstacle": obstacle
+			})
 	return {"rows": rows, "columns": columns, "cells": cells, "activeQueueColor": active_queue_color}
 
 # 실행: project combat queue, pin, repair, hazard, aim, and disabled state into HUD data.
 func _create_hud(combat: Dictionary) -> Dictionary:
-	return {"queue": combat.get("queue", {}).duplicate(true), "pin": combat.get("pin", {}).duplicate(true), "repair": combat.get("repair", {}).duplicate(true), "hazard": combat.get("hazard", {}).duplicate(true), "aim": combat.get("aim", {}).duplicate(true), "terrainDebuffs": _global_terrain_debuffs(combat.get("battlefield", {}).get("terrainDebuffs", [])), "disabled": combat.get("disabled", false)}
+	var battlefield: Dictionary = combat.get("battlefield", {})
+	var global_debuffs := _global_terrain_debuffs(battlefield.get("terrainDebuffs", []))
+	var global_buffs := _global_terrain_buffs(battlefield.get("terrainBuffs", []))
+	return {
+		"queue": combat.get("queue", {}).duplicate(true),
+		"pin": combat.get("pin", {}).duplicate(true),
+		"repair": combat.get("repair", {}).duplicate(true),
+		"hazard": combat.get("hazard", {}).duplicate(true),
+		"aim": combat.get("aim", {}).duplicate(true),
+		"terrainDebuffs": global_debuffs,
+		"terrainBuffs": global_buffs,
+		"purplePressure": _create_purple_pressure(global_debuffs, global_buffs),
+		"disabled": combat.get("disabled", false)
+	}
 
 # 실행: keep terrain debuffs as global HUD status instead of per-cell state.
 func _global_terrain_debuffs(value: Variant) -> Array:
@@ -71,6 +107,35 @@ func _global_terrain_debuffs(value: Variant) -> Array:
 		if str(copy.get("scope", "")) == "global":
 			result.append(copy)
 	return result
+
+func _global_terrain_buffs(value: Variant) -> Array:
+	var result: Array = []
+	if not value is Array:
+		return result
+	for buff in value:
+		if not buff is Dictionary:
+			continue
+		var copy: Dictionary = buff.duplicate(true)
+		if not copy.has("scope"):
+			copy["scope"] = "global"
+		if str(copy.get("scope", "")) == "global":
+			result.append(copy)
+	return result
+
+func _create_purple_pressure(global_debuffs: Array, global_buffs: Array) -> Dictionary:
+	var stack_count := 0
+	for debuff in global_debuffs:
+		if debuff is Dictionary and str(debuff.get("effect", "")) == "weakened_terrain":
+			stack_count += maxi(1, int(debuff.get("stacks", 1)))
+	var buff_count := 0
+	for buff in global_buffs:
+		if buff is Dictionary and str(buff.get("effect", "")) == "fortified_terrain":
+			buff_count += maxi(1, int(buff.get("stacks", 1)))
+	return {
+		"stackCount": stack_count,
+		"buffCount": buff_count,
+		"active": stack_count > 0 or buff_count > 0
+	}
 
 # 실행: project target weakness, health, shield, and timer values.
 func _create_target_panel(combat: Dictionary) -> Dictionary:

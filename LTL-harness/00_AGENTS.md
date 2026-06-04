@@ -55,6 +55,14 @@ Looting The Leviathan의 프로젝트 하네스입니다. 모든 에이전트와
 - LTL 구현 단위는 `docs/11_exec-plans/01_active/`의 활성 계획 하나와 연결되어야 합니다.
 - 활성 계획이 정식 경로를 가리키면 prototype에서 먼저 만들어 본 뒤 옮기는 우회 절차를 사용하지 않습니다.
 
+### Meaningful RED 테스트 게이트
+- TDD 규칙 SoT는 `docs/07_TEST_DRIVEN_DEV.md`입니다.
+- 실패 테스트는 구현 모양이 아니라 사용자 요구 또는 시스템 계약을 실패시켜야 합니다.
+- `has_method(...)`, `load(...) != null`, missing export, missing file만으로 실패하는 테스트는 RED 근거가 아니라 guard 또는 구현 TODO로 취급합니다.
+- 새 public boundary 존재 자체가 계약인 경우에도 같은 테스트 안에서 값, 상태 전이, 이벤트 순서, 레이아웃 수치, visibility, bounds, telemetry, replay 결과 중 하나 이상을 함께 검증해야 합니다.
+- 빈 stub 또는 단순 메서드 추가만으로 GREEN이 되는 테스트는 실패 테스트로 기록하지 않습니다.
+- worklog와 완료 보고서의 RED 기록은 "helper가 없었다"가 아니라 "어떤 사용자 요구나 시스템 계약이 깨졌는지"를 기준으로 작성합니다.
+
 ### 주석우선 강제 게이트
 - 주석우선 구현 강제 규칙 SoT는 `docs/comment-first-enforcement.md`입니다.
 - 이 규칙은 권장이 아니라 구현 차단 조건입니다. 런타임 테스트가 통과해도 이 게이트가 실패하면 완료가 아닙니다.
@@ -82,7 +90,7 @@ Looting The Leviathan의 프로젝트 하네스입니다. 모든 에이전트와
 4. **Spec Gate**: `docs/12_product-specs/`에서 전투, 인벤토리, 성장, 서사의 원천 규칙을 확인합니다.
 5. **Architecture Gate**: `docs/02_DESIGN.md`, `docs/03_TECH_STACK.md`, `docs/07_TEST_DRIVEN_DEV.md`를 기준으로 도메인/데이터/뷰 경계를 정합니다.
 6. **Milestone Gate**: `docs/11_exec-plans/01_active/`에서 현재 단계 하나만 선택하여 작업을 시작하기 전, 반드시 `LTL-harness/tools/milestone-gate.ps1 -TargetPlan <계획파일명>`을 실행하여 이전 단계의 완료 보고서가 `docs/11_exec-plans/02_completed/`에 정상적으로 작성되어 존재하는지 검증해야 합니다. 이 검증에 실패할 경우, 즉시 구현을 중단하고 소스를 분석하여 이전 단계의 완료 보고서를 먼저 작성한 뒤 사용자의 승인을 얻어야 합니다.
-7. **Verification Gate**: 구현 후 `docs/08_QUALITY_ASSURANCE.md`와 `docs/10_OPERATIONS.md`의 리플레이/텔레메트리 기준으로 검증합니다.
+7. **Verification Gate**: 구현 후 `docs/07_TEST_DRIVEN_DEV.md`, `docs/08_QUALITY_ASSURANCE.md`, `docs/10_OPERATIONS.md`의 Meaningful RED, 리플레이, 텔레메트리 기준으로 검증합니다.
 
 ## Document Structure
 
@@ -126,6 +134,7 @@ app-LTL/
 - 모든 난수는 seed로 주입합니다. `Math.random()`, `randf()` 같은 전역 난수 직접 사용은 금지합니다.
 - 사용자의 체감 검증이 필요한 항목도 먼저 로그 지표를 정의합니다.
 - 실패 테스트 없이 핵심 도메인 구현을 추가하지 않습니다.
+- 실패 테스트는 `docs/07_TEST_DRIVEN_DEV.md`의 Meaningful RED 기준을 충족해야 하며, 존재성 검사만 있는 테스트를 RED 증거로 기록하지 않습니다.
 - TODO만 남긴 문서를 완료로 취급하지 않습니다.
 - 백그라운드 태스크나 비대화형(Headless) 환경에서 실행할 스크립트나 명령어는 필수 매개변수(Arguments)를 누락 없이 명시해야 합니다. 인자 누락 시 PowerShell 등의 셸이 사용자 입력을 위한 대화형 프롬프트를 띄워 무한 대기(Hang) 상태에 빠질 수 있습니다.
 - 하네스용 도구 스크립트를 작성하거나 수정할 때는 생략된 인자로 인한 프롬프트 입력을 방지하기 위해, 파라미터를 필수(`Mandatory = $true`)로 지정하는 대신 선택적으로 받고 스크립트 초입에서 검증하여 누락 시 즉시 에러(`exit 1`) 및 사용법(Usage)을 안내하도록 조치해야 합니다.
@@ -134,6 +143,7 @@ app-LTL/
 ## Definition of Ready
 
 - 작업할 마일스톤 문서에 목표, 산출물, TDD 대상, 완료 기준이 있습니다.
+- 실패 테스트가 사용자 요구 또는 시스템 계약 중 무엇을 깨뜨릴지 명시되어 있습니다.
 - 참조할 제품 사양 문서가 명시되어 있습니다.
 - 문제와 범위가 문서화되어 있습니다.
 - SoT가 지정되어 있습니다.
@@ -159,6 +169,7 @@ app-LTL/
 - 상위 함수 주석과 하위 함수 주석이 같은 세부 동작을 중복 설명하지 않습니다.
 - 주석이 현재 최종 구현과 일치합니다.
 - 해당 단계의 단위/통합 테스트가 통과합니다.
+- RED/GREEN 기록이 존재성 실패가 아니라 의미 있는 계약 실패와 그 정상화 근거를 설명합니다.
 - 동일 seed와 동일 input log로 결과가 재현됩니다.
 - 텔레메트리 필수 필드가 누락되지 않습니다.
 - 다음 단계가 참조할 계약이 문서화되어 있습니다.
@@ -201,3 +212,28 @@ app-LTL/
 - Responsibility bullets must be written in English for AI readability, even when file paths or source documents use Korean names.
 - When implementation changes a file responsibility, keep one responsibility per bullet line under that file entry.
 - `tools/run-compile-check.ps1` includes this gate before Godot contract verification.
+
+## Request Analysis Gate Addendum
+
+- Broad refactors, deletion reviews, visual QA tasks, and harness changes require a request constraint ledger under `docs/request-ledgers/`.
+- The ledger must include request summary, preserved invariants, mutable scope, refactor/delete disposition, verification checklist, and verification notes before completion.
+- Generated logs, screenshots, and reports must be written under ignored artifact paths and referenced from an artifact ledger.
+- Run `LTL-harness/tools/request-analysis-gate.ps1 -Ledger <ledger> -Mode pre-edit` before non-trivial edits when a ledger exists.
+- Run `LTL-harness/tools/request-analysis-gate.ps1 -Ledger <ledger> -Mode pre-complete -RequireArtifactLedger` before claiming broad refactor or harness work is complete.
+
+## Singleton Screen Layout Gate Addendum
+
+- Same-screen UI elements must have one owning scene, component, presenter, or layout policy.
+- Do not rebuild a separate screen for first-stage, later-stage, empty, selected, or dragging states when the user still perceives the same screen.
+- Use model fields, visibility, enabled state, and shared layout metrics to vary state inside the same screen owner.
+- If a special first-use panel exists, later states must prove the panel is hidden or disabled inside the same parent screen object, not replaced by a different component tree.
+- Shared split layouts must remain content-invariant: larger text blocks, longer logs, or more list rows may wrap or scroll, but they must not resize sibling panes or silently change the screen's width policy.
+- `LTL-harness/tools/architectural-gate.ps1` supports `singleton_layout_owner_paths`, `singleton_layout_scan_roots`, and `singleton_layout_forbidden_patterns` so release manifests can block duplicated layout construction tokens outside the approved owner files.
+- The same gate can also scan declarative layout resources through `layout_resource_path_pattern`, `layout_resource_threshold`, and `layout_resource_forbidden_patterns` to block risky autosize flags in shared screen shells.
+
+## Popup Overlay Layering Addendum
+
+- Menu-style overlays that pause or block gameplay, such as settings, codex, shop, confirm, and repair, must claim a dedicated top-layer popup z-index above combat HUD art, pin overlays, and damage popups.
+- Opening a popup overlay must also move it to the front of its sibling order; do not rely on default tree insertion order or a root panel's visibility alone.
+- This rule applies even when the popup shares the same scene tree as gameplay HUD nodes. Ownership by the main screen is not enough without an explicit front-order contract.
+- Verification for popup-menu changes must include a focused runtime/layout check that opens the overlay during combat and proves no gameplay CanvasItem renders above it.

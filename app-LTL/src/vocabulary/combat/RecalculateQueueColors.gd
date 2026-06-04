@@ -8,20 +8,38 @@
 class_name RecalculateQueueColors
 extends RefCounted
 
-# 실행: calculate a repeated queue color list from placed drill artifacts.
-static func recalculate(inventory: InventoryModel, capacity: int = 8) -> Dictionary:
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+
+# 실행: calculate a repeated queue token list from placed drill artifacts.
+static func recalculate(inventory: InventoryModel, capacity: int = EnergyTempoBalanceScript.DEFAULT_QUEUE_CAPACITY, loaded_count: int = -1) -> Dictionary:
 	if inventory == null:
 		return {"ok": false, "code": "missing_inventory", "items": []}
-	var active_colors: Array[String] = []
+	var active_drills: Array = []
 	for art_id in inventory.artifacts:
 		var art: Artifact = inventory.artifacts[art_id]
 		if art.item_type == "drill":
 			var color := str(art.energy_type)
-			if not color in active_colors:
-				active_colors.append(color)
-	if active_colors.is_empty():
-		active_colors.append("red")
-	var items: Array[String] = []
-	for i in range(maxi(0, capacity)):
-		items.append(active_colors[i % active_colors.size()])
+			var already_seen := false
+			for token in active_drills:
+				if str(token.get("color", "")) == color:
+					already_seen = true
+					break
+			if not already_seen:
+				active_drills.append({
+					"color": color,
+					"source_artifact_id": art.id,
+					"source_item_type": "drill"
+				})
+	if active_drills.is_empty():
+		active_drills.append({
+			"color": "red",
+			"source_artifact_id": "",
+			"source_item_type": "drill"
+		})
+	var items: Array = []
+	var target_count := maxi(0, capacity)
+	if loaded_count >= 0:
+		target_count = mini(target_count, maxi(0, loaded_count))
+	for i in range(target_count):
+		items.append(active_drills[i % active_drills.size()].duplicate(true))
 	return {"ok": true, "code": "recalculated", "items": items}

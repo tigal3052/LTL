@@ -72,10 +72,10 @@ func test_selected_node_uses_documented_durability_curve() -> void:
 		return
 	var combat: Dictionary = run.select_node(hazard_index)
 	_assert_eq(combat["phase"], "combat", "selected durability test enters combat")
-	_assert(absf(float(combat["combat"].get("shield", 0.0)) - 14.0) <= 0.05, "selected combat shield matches documented stage one table")
-	_assert(absf(float(combat["combat"].get("health", 0.0)) - 18.0) <= 0.05, "selected combat health matches documented stage one table")
-	_assert(absf(float(combat["combat"].get("maxShield", 0.0)) - 14.0) <= 0.05, "selected combat max shield matches documented stage one table")
-	_assert(absf(float(combat["combat"].get("maxHealth", 0.0)) - 18.0) <= 0.05, "selected combat max health matches documented stage one table")
+	_assert(absf(float(combat["combat"].get("shield", 0.0)) - 28.0) <= 0.05, "selected combat shield matches doubled stage one table")
+	_assert(absf(float(combat["combat"].get("health", 0.0)) - 36.0) <= 0.05, "selected combat health matches doubled stage one table")
+	_assert(absf(float(combat["combat"].get("maxShield", 0.0)) - 28.0) <= 0.05, "selected combat max shield matches doubled stage one table")
+	_assert(absf(float(combat["combat"].get("maxHealth", 0.0)) - 36.0) <= 0.05, "selected combat max health matches doubled stage one table")
 
 # 실행: verify scene and text read models expose readable route fields but hide raw pick weights.
 func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
@@ -94,9 +94,9 @@ func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
 
 # 실행: verify the five-stage durability curve follows the documented balance formula.
 func test_stage_durability_curve_matches_documented_targets() -> void:
-	var expected_totals := [32.0, 54.0, 78.0, 100.0, 120.0]
-	var expected_shields := [14.0, 23.0, 35.0, 47.0, 58.0]
-	var expected_health := [18.0, 31.0, 43.0, 53.0, 62.0]
+	var expected_totals := [64.0, 108.0, 156.0, 200.0, 240.0]
+	var expected_shields := [28.0, 46.0, 70.0, 94.0, 116.0]
+	var expected_health := [36.0, 62.0, 86.0, 106.0, 124.0]
 	for stage_index in range(expected_totals.size()):
 		var candidates := NodeVocabScript.generate_candidates(101, stage_index, _normal_only_table(), 1, {"maxStages": 5})
 		_assert(candidates.size() >= 1, "durability curve candidate exists for stage %d" % stage_index)
@@ -114,8 +114,8 @@ func test_offered_candidates_share_documented_stage_durability() -> void:
 	_assert(candidates.size() >= 3, "rich node table offers multiple candidates")
 	for candidate in candidates:
 		var combat: Dictionary = candidate.get("combat", {})
-		_assert(absf(float(combat.get("shield", 0.0)) - 14.0) <= 0.05, "candidate %s shield matches stage one table" % str(candidate.get("id", "")))
-		_assert(absf(float(combat.get("health", 0.0)) - 18.0) <= 0.05, "candidate %s health matches stage one table" % str(candidate.get("id", "")))
+		_assert(absf(float(combat.get("shield", 0.0)) - 28.0) <= 0.05, "candidate %s shield matches doubled stage one table" % str(candidate.get("id", "")))
+		_assert(absf(float(combat.get("health", 0.0)) - 36.0) <= 0.05, "candidate %s health matches doubled stage one table" % str(candidate.get("id", "")))
 
 # 실행: verify the mysterious crevice route cannot clear from zero health/shield.
 func test_mysterious_crevice_fixture_has_nonzero_combat_stats() -> void:

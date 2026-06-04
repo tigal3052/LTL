@@ -80,8 +80,17 @@ static func apply_drag_feedback(control: Control, is_dragging: bool, can_drop: b
 		return
 	if not control.has_meta(META_ORIGINAL_SELF_MODULATE):
 		control.set_meta(META_ORIGINAL_SELF_MODULATE, control.self_modulate)
+	if not control.has_meta(META_ORIGINAL_POS):
+		control.set_meta(META_ORIGINAL_POS, control.position)
 	var cue: Dictionary = InteractionCuePresenterScript.project_drag_state(is_dragging, can_drop)
 	control.mouse_default_cursor_shape = _cursor_from_name(str(cue.get("cursor", "arrow")))
+	if _preserve_surface_visuals_during_drag(control):
+		var base_modulate: Color = control.get_meta(META_ORIGINAL_SELF_MODULATE, control.self_modulate)
+		var base_pos: Vector2 = control.get_meta(META_ORIGINAL_POS, control.position)
+		control.self_modulate = base_modulate
+		control.modulate.a = 1.0
+		_tween_control(control, Vector2.ONE, base_pos, 1.0)
+		return
 	if _supports_shader_material(control) and control.material == null:
 		control.material = _new_material(_color_from_hex(str(cue.get("outlineColor", "#88c0d0"))))
 	var mat := control.material as ShaderMaterial
@@ -190,6 +199,11 @@ static func can_translate_control(control: Control) -> bool:
 	if control == null:
 		return false
 	return not (control.get_parent() is Container)
+
+static func _preserve_surface_visuals_during_drag(control: Control) -> bool:
+	if control == null:
+		return false
+	return control is Panel and not _supports_shader_material(control)
 
 # 실행: detect controls that represent an action, selection, drag target, or click target.
 static func _is_interactive(control: Control) -> bool:

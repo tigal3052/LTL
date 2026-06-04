@@ -8,12 +8,15 @@
 class_name Artifact
 extends RefCounted
 
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+
 # 실행: store individual artifact attributes.
 var id: String = ""
 var name: String = ""
 var shape: Array = []
 var energy_type: String = ""
 var base_cooldown_ticks: int = 1
+var native_base_cooldown_ticks: int = 1
 var effective_cooldown: int = 1
 var synergy: String = ""
 var keyword: String = ""
@@ -23,6 +26,8 @@ var grade: String = "basic"
 var item_type: String = "drill"
 var beacon_cooldown_mod: int = 0
 var beacon_damage_mod: float = 0.0
+var effect_schema: Dictionary = {}
+var text: Dictionary = {}
 
 # 실행: store dynamic placement and status states.
 var x: int = 0
@@ -39,7 +44,8 @@ func _init(data: Dictionary) -> void:
 	name = str(data.get("name", ""))
 	shape = data.get("shape", [[1]]).duplicate(true)
 	energy_type = str(data.get("energyType", ""))
-	base_cooldown_ticks = maxi(1, int(data.get("baseCooldownTicks", 100)))
+	base_cooldown_ticks = maxi(1, int(data.get("baseCooldownTicks", data.get("base_cooldown_ticks", 100))))
+	native_base_cooldown_ticks = maxi(1, int(data.get("nativeBaseCooldownTicks", data.get("native_base_cooldown_ticks", base_cooldown_ticks))))
 	effective_cooldown = base_cooldown_ticks
 	
 	# Load raw synergy config if present
@@ -56,6 +62,10 @@ func _init(data: Dictionary) -> void:
 	item_type = str(data.get("item_type", data.get("itemType", "drill")))
 	beacon_cooldown_mod = int(data.get("beacon_cooldown_mod", data.get("beaconCooldownMod", 0)))
 	beacon_damage_mod = float(data.get("beacon_damage_mod", data.get("beaconDamageMod", 0.0)))
+	var schema = data.get("effect_schema", data.get("effectSchema", {}))
+	effect_schema = schema.duplicate(true) if schema is Dictionary else {}
+	var localized_text = data.get("text", {})
+	text = localized_text.duplicate(true) if localized_text is Dictionary else {}
 	x = int(data.get("x", 0))
 	y = int(data.get("y", 0))
 	rotation = int(data.get("rotation", 0))
@@ -71,7 +81,7 @@ func tick() -> Variant:
 	if freeze_ticks > 0:
 		freeze_ticks -= 1
 		return null
-	if item_type == "beacon":
+	if item_type == "beacon" or item_type == "relic":
 		return null
 		
 	current_cooldown -= 1
@@ -114,6 +124,7 @@ func to_dict() -> Dictionary:
 		"shape": shape.duplicate(true),
 		"energyType": energy_type,
 		"baseCooldownTicks": base_cooldown_ticks,
+		"nativeBaseCooldownTicks": native_base_cooldown_ticks,
 		"effectiveCooldown": maxi(1, base_cooldown_ticks - synergy_cooldown_reduction),
 		"synergy": synergy,
 		"keyword": keyword,
@@ -129,8 +140,11 @@ func to_dict() -> Dictionary:
 		"grade": grade,
 		"item_type": item_type,
 		"itemType": item_type,
+		"native_base_cooldown_ticks": native_base_cooldown_ticks,
 		"beacon_cooldown_mod": beacon_cooldown_mod,
-		"beacon_damage_mod": beacon_damage_mod
+		"beacon_damage_mod": beacon_damage_mod,
+		"effect_schema": effect_schema.duplicate(true),
+		"text": text.duplicate(true)
 	}
 
 # 실행: generate static default drills
@@ -141,7 +155,8 @@ static func get_basic_drills() -> Array:
 		"name": "Ruby Drill",
 		"shape": [[1], [1], [1]],
 		"energyType": "red",
-		"baseCooldownTicks": 80,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(80),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(80),
 		"damage": 1.5,
 		"grade": "Basic",
 		"item_type": "drill"
@@ -151,7 +166,8 @@ static func get_basic_drills() -> Array:
 		"name": "Sapphire Drill",
 		"shape": [[1], [1]],
 		"energyType": "blue",
-		"baseCooldownTicks": 60,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(60),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(60),
 		"damage": 1.2,
 		"grade": "Basic",
 		"item_type": "drill"
@@ -161,7 +177,8 @@ static func get_basic_drills() -> Array:
 		"name": "Amethyst Drill",
 		"shape": [[1, 1], [1, 0]],
 		"energyType": "purple",
-		"baseCooldownTicks": 100,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(100),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(100),
 		"damage": 1.0,
 		"grade": "Basic",
 		"item_type": "drill"
@@ -171,7 +188,8 @@ static func get_basic_drills() -> Array:
 		"name": "Emerald Drill",
 		"shape": [[1, 1], [1, 1]],
 		"energyType": "green",
-		"baseCooldownTicks": 120,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(120),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(120),
 		"damage": 0.8,
 		"grade": "Basic",
 		"item_type": "drill"
@@ -194,11 +212,12 @@ static func get_starter_loadout(start_color: String = "red") -> Array:
 		"name": "%s Starter Beacon" % color.capitalize(),
 		"shape": [[1]],
 		"energyType": color,
-		"baseCooldownTicks": 90,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(90),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(90),
 		"damage": 0.0,
 		"grade": "Basic",
 		"item_type": "beacon",
-		"beaconCooldownMod": -4,
+		"beaconCooldownMod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(-4),
 		"beaconDamageMod": 0.4
 	})
 	return [drill, beacon]
@@ -214,6 +233,7 @@ static func _starter_drill_from(base_drill: Artifact) -> Artifact:
 		"shape": [[1]],
 		"energyType": base_drill.energy_type,
 		"baseCooldownTicks": base_drill.base_cooldown_ticks,
+		"nativeBaseCooldownTicks": base_drill.native_base_cooldown_ticks,
 		"damage": base_drill.base_damage,
 		"grade": base_drill.grade,
 		"item_type": "drill"

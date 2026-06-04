@@ -23,6 +23,8 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/TextCatalog.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/ui/read_models/TooltipReadModel.gd",
+	"res://src/ui/ArtifactCodexArtResolver.gd",
+	"res://src/ui/read_models/ArtifactCodexReadModel.gd",
 	"res://src/ui/read_models/NodeSelectReadModel.gd",
 	"res://src/ui/read_models/NodeMapReadModel.gd",
 	"res://src/ui/presenters/PhaseLayoutPresenter.gd",
@@ -35,8 +37,11 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/BackpackUI.gd",
 	"res://src/ui/BattlefieldUI.gd",
 	"res://src/ui/BattlefieldVFX.gd",
+	"res://src/ui/RewardRevealOverlay.gd",
+	"res://src/ui/legacy/LegacyRewardRevealOverlay.gd",
 	"res://src/ui/StatusPanelUI.gd",
 	"res://src/ui/ShopPanelUI.gd",
+	"res://src/ui/ArtifactCodexPanelUI.gd",
 	"res://src/ui/ArtifactTooltipUI.gd",
 	"res://src/ui/GiantTimerUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
@@ -71,6 +76,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/vocabulary/backpack/DiscardHeld.gd",
 	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
 	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
+	"res://src/vocabulary/reward/RewardCatalogOrder.gd",
 	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
 	"res://src/vocabulary/reward/BuildRewardPreview.gd",
 	"res://src/vocabulary/reward/BuildRewardTelemetry.gd",
@@ -98,6 +104,8 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/TextCatalog.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/ui/read_models/TooltipReadModel.gd",
+	"res://src/ui/ArtifactCodexArtResolver.gd",
+	"res://src/ui/read_models/ArtifactCodexReadModel.gd",
 	"res://src/ui/read_models/NodeSelectReadModel.gd",
 	"res://src/ui/presenters/PhaseLayoutPresenter.gd",
 	"res://src/ui/presenters/CombatFeedbackPresenter.gd",
@@ -109,8 +117,11 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/BackpackUI.gd",
 	"res://src/ui/BattlefieldUI.gd",
 	"res://src/ui/BattlefieldVFX.gd",
+	"res://src/ui/RewardRevealOverlay.gd",
+	"res://src/ui/legacy/LegacyRewardRevealOverlay.gd",
 	"res://src/ui/StatusPanelUI.gd",
 	"res://src/ui/ShopPanelUI.gd",
+	"res://src/ui/ArtifactCodexPanelUI.gd",
 	"res://src/ui/ArtifactTooltipUI.gd",
 	"res://src/ui/GiantTimerUI.gd",
 	"res://src/ui/LogConsoleUI.gd",
@@ -144,6 +155,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/vocabulary/backpack/DiscardHeld.gd",
 	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
 	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
+	"res://src/vocabulary/reward/RewardCatalogOrder.gd",
 	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
 	"res://src/vocabulary/reward/BuildRewardPreview.gd",
 	"res://src/vocabulary/reward/BuildRewardTelemetry.gd",
@@ -303,7 +315,7 @@ func _test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScri
 	_assert_eq(scene["terrain"]["cells"][0]["id"], "r0c0", "combat scene first cell id")
 	_assert_eq(scene["terrain"]["cells"][29]["id"], "r2c9", "combat scene last cell id")
 	_assert_eq(scene["terrain"]["cells"][0]["aimed"], true, "combat scene marks aimed cell")
-	_assert_eq(scene["hud"]["queue"]["loaded"], 8, "combat scene HUD exposes queue state")
+	_assert_eq(scene["hud"]["queue"]["loaded"], 8, "combat scene HUD exposes the half-loaded doubled queue state")
 	var read_model: Dictionary = scene_read_model.create(combat_run.snapshot())
 	_assert_eq(read_model["phase"], "combat", "scene read model exposes combat phase")
 	var hold_fire_run = HeadlessMiniRunScript.new({"seed": 53, "maxStages": 1, "nodeTable": _normal_only_table(), "tuning": {"stageScaling": {"baseShield": 0.0, "baseHealth": 1.0}}})

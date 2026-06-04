@@ -39,40 +39,50 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 
 	# 유물 등급 확률 테이블 (등급, 스테이지 단계에 따라 달라짐. 높은 스테이지에서 높은 등급 확률 증가. 신화등급 제외 총합 100%)
 	var rarity_probs := {
-		0: { "common": 0.70, "rare": 0.22, "epic": 0.07, "legendary": 0.01 },
-		1: { "common": 0.50, "rare": 0.33, "epic": 0.14, "legendary": 0.03 },
-		2: { "common": 0.30, "rare": 0.45, "epic": 0.20, "legendary": 0.05 },
-		3: { "common": 0.15, "rare": 0.40, "epic": 0.35, "legendary": 0.10 },
-		4: { "common": 0.05, "rare": 0.30, "epic": 0.45, "legendary": 0.20 }
+		0: { "common": 0.70, "rare": 0.22, "epic": 0.07, "legendary": 0.01, "mythic": 0.00 },
+		1: { "common": 0.50, "rare": 0.33, "epic": 0.14, "legendary": 0.03, "mythic": 0.00 },
+		2: { "common": 0.30, "rare": 0.45, "epic": 0.20, "legendary": 0.05, "mythic": 0.00 },
+		3: { "common": 0.15, "rare": 0.39, "epic": 0.34, "legendary": 0.10, "mythic": 0.02 },
+		4: { "common": 0.05, "rare": 0.27, "epic": 0.42, "legendary": 0.20, "mythic": 0.06 }
 	}
 
 	var stage_key := clampi(stage_index, 0, 4)
 	var probs: Dictionary = rarity_probs[stage_key]
-
-	var rolled_rewards = []
-	for i in range(count):
-		# Roll rarity grade
+	var rolled_rarities: Array[String] = []
+	for _roll_index in range(count):
 		var rarity_roll := rng.randf()
 		var rolled_rarity := "common"
 		var rarity_cumulative := 0.0
-		for rarity in ["common", "rare", "epic", "legendary"]:
+		for rarity in ["common", "rare", "epic", "legendary", "mythic"]:
 			rarity_cumulative += probs.get(rarity, 0.0)
 			if rarity_roll <= rarity_cumulative:
 				rolled_rarity = rarity
 				break
+		rolled_rarities.append(rolled_rarity)
 
-		# Filter rewards matching the rolled rarity
-		var matched_items := []
-		for item in reward_pool:
-			if str(item.get("rarity", "common")).to_lower() == rolled_rarity:
-				matched_items.append(item)
+	var forced_relic_slot := -1
+	for slot_index in range(rolled_rarities.size() - 1, -1, -1):
+		if _has_reward_type(_rarity_candidates(reward_pool, rolled_rarities[slot_index]), "relic"):
+			forced_relic_slot = slot_index
+			break
+
+	var rolled_rewards = []
+	for i in range(count):
+		var rolled_rarity := rolled_rarities[i]
+		var matched_items := _rarity_candidates(reward_pool, rolled_rarity)
 
 		# Fallback if no items found in the matching rarity tier
 		if matched_items.is_empty() and not reward_pool.is_empty():
 			for item in reward_pool:
 				matched_items.append(item)
-		matched_items = _with_reward_type_mix(matched_items, reward_pool)
-		var weighted_entries := _with_type_ratio_weights(matched_items)
+		var selection_pool := matched_items
+		var should_force_relic := i == forced_relic_slot and not _rolled_rewards_have_type(rolled_rewards, "relic")
+		if should_force_relic:
+			var relic_only := _only_reward_type(matched_items, "relic")
+			if not relic_only.is_empty():
+				selection_pool = relic_only
+		selection_pool = _with_reward_type_mix(selection_pool, reward_pool)
+		var weighted_entries := _with_type_ratio_weights(selection_pool)
 		var total_weight := _total_weight(weighted_entries)
 		var offer_weights_hash := _stable_offer_weights_hash(weighted_entries)
 
@@ -95,10 +105,12 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 			}
 			rolled_rewards.append({
 				"rewardId": "reward_%d_%d" % [combined_seed & 0xffff, i],
+				"catalogId": str(selected_item.get("id", "")),
 				"kind": str(selected_item.get("kind", "")),
 				"rarity": str(selected_item.get("rarity", "common")),
 				"qty": 1,
 				"payload": reward_payload,
+				"text": selected_item.get("text", {}).duplicate(true),
 				"presentation": selected_item.get("presentation", {}).duplicate(true),
 				"tags": selected_item.get("tags", []).duplicate(true),
 				"offer_weights_hash": offer_weights_hash,
@@ -111,24 +123,40 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 static func _with_reward_type_mix(items: Array, reward_pool: Array) -> Array:
 	return items
 
+static func _rarity_candidates(reward_pool: Array, rarity: String) -> Array:
+	var matched_items: Array = []
+	for item in reward_pool:
+		if str(item.get("rarity", "common")).to_lower() == rarity:
+			matched_items.append(item)
+	return matched_items
+
 # 실행: rebalance reward item weights so drill-like items and beacons land near 40:60.
 static func _with_type_ratio_weights(items: Array) -> Array:
-	var type_totals := {"drill": 0.0, "beacon": 0.0}
+	var type_totals := {}
 	for item in items:
 		var reward_type := _reward_item_type(item)
 		type_totals[reward_type] = float(type_totals.get(reward_type, 0.0)) + float(item.get("weight", 10.0))
-	if float(type_totals.get("drill", 0.0)) <= 0.0 or float(type_totals.get("beacon", 0.0)) <= 0.0:
+	var target_shares := {"drill": 0.35, "beacon": 0.50, "relic": 0.15}
+	var available_types: Array[String] = []
+	var total := 0.0
+	for reward_type in target_shares.keys():
+		var observed_total := float(type_totals.get(reward_type, 0.0))
+		if observed_total > 0.0:
+			available_types.append(reward_type)
+			total += observed_total
+	if available_types.size() <= 1 or total <= 0.0:
 		var raw_entries := []
 		for item in items:
 			raw_entries.append({"item": item, "weight": float(item.get("weight", 10.0))})
 		return raw_entries
-	var total := float(type_totals["drill"]) + float(type_totals["beacon"])
-	var observed_drill := float(type_totals["drill"]) / total
-	var observed_beacon := float(type_totals["beacon"]) / total
-	var multipliers := {
-		"drill": 0.40 / observed_drill,
-		"beacon": 0.60 / observed_beacon
-	}
+	var target_total := 0.0
+	for reward_type in available_types:
+		target_total += float(target_shares.get(reward_type, 0.0))
+	var multipliers := {}
+	for reward_type in available_types:
+		var observed_share := float(type_totals.get(reward_type, 0.0)) / total
+		var target_share := float(target_shares.get(reward_type, 0.0)) / target_total
+		multipliers[reward_type] = target_share / observed_share if observed_share > 0.0 else 1.0
 	var entries := []
 	for item in items:
 		var reward_type := _reward_item_type(item)
@@ -138,19 +166,40 @@ static func _with_type_ratio_weights(items: Array) -> Array:
 # 실행: infer reward type from payload, tags, and item name.
 static func _reward_item_type(item: Dictionary) -> String:
 	var payload: Dictionary = item.get("payload", {})
-	if str(payload.get("item_type", payload.get("itemType", ""))).to_lower() == "beacon":
-		return "beacon"
+	var payload_item_type := str(payload.get("item_type", payload.get("itemType", ""))).to_lower()
+	if payload_item_type in ["beacon", "relic"]:
+		return payload_item_type
 	for tag in item.get("tags", []):
-		if str(tag).to_lower() == "beacon":
-			return "beacon"
-	if str(item.get("kind", "")).to_lower().contains("beacon"):
+		var normalized_tag := str(tag).to_lower()
+		if normalized_tag in ["beacon", "relic"]:
+			return normalized_tag
+	var kind_name := str(item.get("kind", "")).to_lower()
+	if kind_name.contains("beacon"):
 		return "beacon"
+	if kind_name.contains("relic"):
+		return "relic"
 	return "drill"
 
 # 실행: check if a reward list contains a requested item type.
 static func _has_reward_type(items: Array, reward_type: String) -> bool:
 	for item in items:
 		if _reward_item_type(item) == reward_type:
+			return true
+	return false
+
+static func _only_reward_type(items: Array, reward_type: String) -> Array:
+	var filtered: Array = []
+	for item in items:
+		if _reward_item_type(item) == reward_type:
+			filtered.append(item)
+	return filtered
+
+static func _rolled_rewards_have_type(rewards: Array, reward_type: String) -> bool:
+	for reward in rewards:
+		if not reward is Dictionary:
+			continue
+		var payload: Dictionary = reward.get("payload", {})
+		if str(payload.get("item_type", "drill")).to_lower() == reward_type:
 			return true
 	return false
 

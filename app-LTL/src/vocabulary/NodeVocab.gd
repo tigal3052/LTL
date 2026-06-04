@@ -128,8 +128,8 @@ static func _compute_stage_combat_params(stage_index: int, tuning: Dictionary) -
 			"timeLimitTicks": base_time_limit
 		}
 
-	var tuned_totals: Array = scaling.get("stageDurabilityTotals", [32.0, 54.0, 78.0, 100.0, 120.0])
-	var tuned_health: Array = scaling.get("stageHealthTotals", [18.0, 31.0, 43.0, 53.0, 62.0])
+	var tuned_totals: Array = scaling.get("stageDurabilityTotals", [64.0, 108.0, 156.0, 200.0, 240.0])
+	var tuned_health: Array = scaling.get("stageHealthTotals", [36.0, 62.0, 86.0, 106.0, 124.0])
 	var curve_base := float(scaling.get("durabilityBase", 30.0))
 	var curve_growth := float(scaling.get("durabilityGrowth", 1.43))
 	var total := curve_base * pow(curve_growth, float(stage_index))

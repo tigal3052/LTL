@@ -8,12 +8,12 @@
 class_name PhaseLayoutPresenter
 extends RefCounted
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
 
 # 실행: project scene state into phase visibility and timer properties.
-static func project(scene: Dictionary, show_victory_overlay: bool) -> Dictionary:
+static func project(scene: Dictionary, _show_victory_overlay: bool) -> Dictionary:
 	var phase := str(scene.get("phase", "unknown"))
-	var is_reveal_vfx_running := bool(scene.get("is_reveal_vfx_running", false))
-	var show_victory := show_victory_overlay or is_reveal_vfx_running
+	var reward_ceremony_active := RewardCeremonyPolicyScript.is_active_scene(scene)
 	var target: Dictionary = scene.get("targetPanel", {})
 	var time_limit := float(target.get("timeLimitTicks", 2400.0))
 	var elapsed := float(target.get("elapsedTicks", 0.0))
@@ -23,6 +23,7 @@ static func project(scene: Dictionary, show_victory_overlay: bool) -> Dictionary
 	var seconds := seconds_left % 60
 	var phase_label := TextCatalogScript.t("phase.%s" % phase)
 	var is_node_select := phase == "node_select"
+	var allow_start_color_selection := RewardCeremonyPolicyScript.allow_start_color_selection(scene)
 	return {
 		"phaseText": TextCatalogScript.t("phase.label", [phase_label]),
 		"stageText": TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
@@ -33,21 +34,22 @@ static func project(scene: Dictionary, show_victory_overlay: bool) -> Dictionary
 		"backpackVisible": true,
 		"backpackCooldownVisible": phase == "combat",
 		"sidebarsVisible": not is_node_select,
-		"leftColumnTopStretchRatio": 2.45,
+		"leftColumnTopStretchRatio": 2.0,
 		"backpackTopStretchRatio": 0.0,
-		"rightSidebarTopStretchRatio": 2.35,
+		"rightSidebarTopStretchRatio": 1.55,
 		"nodeSelectBackpackDock": "right" if is_node_select else "top",
+		"allowStartColorSelection": allow_start_color_selection,
 		"nodeMapStretchRatio": 1.00,
 		"backpackStretchRatio": 0.00,
-		"battlefieldVisible": phase == "combat" or (phase == "reward_loot" and show_victory),
-		"rewardVisible": phase == "reward_loot" and not show_victory,
-		"statusVisible": phase == "combat" or (phase == "reward_loot" and show_victory),
+		"battlefieldVisible": phase == "combat" or reward_ceremony_active,
+		"rewardVisible": phase == "reward_loot" and not reward_ceremony_active,
+		"statusVisible": phase == "combat" or reward_ceremony_active,
 		"shopButtonVisible": is_node_select,
 		"closeShop": not is_node_select,
-		"giantTimerVisible": phase == "combat",
+		"giantTimerVisible": false,
 		"timerText": "%02d:%02d" % [minutes, seconds],
 		"timeLeft": time_left,
 		"timeLimit": time_limit,
 		"vignetteVisible": phase == "combat" and time_left <= 200.0,
-		"combatTimeActive": phase == "combat"
+		"combatTimeActive": phase == "combat" or reward_ceremony_active
 	}

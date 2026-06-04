@@ -14,6 +14,7 @@ const RewardLootPhaseScript = preload("res://src/phases/RewardLootPhase.gd")
 const CreateArtifactFromRewardScript = preload("res://src/vocabulary/reward/CreateArtifactFromReward.gd")
 const ApplyRewardEffectScript = preload("res://src/vocabulary/reward/ApplyRewardEffect.gd")
 const ApplyGrowthModifiersScript = preload("res://src/vocabulary/progression/ApplyGrowthModifiers.gd")
+const ArtifactCodexReadModelScript = preload("res://src/ui/read_models/ArtifactCodexReadModel.gd")
 
 var failures: Array[String] = []
 
@@ -26,17 +27,49 @@ func run_all_tests() -> Dictionary:
 	test_reward_count_tuning()
 	test_reward_offer_metadata_and_preview()
 	test_reward_pool_has_drills_and_beacons_per_rolled_rarity()
+	test_reward_table_has_balanced_expanded_artifact_pool()
+	test_reward_table_includes_launch_relic_slice()
+	test_reward_table_uses_beacon_heavy_type_distribution()
+	test_reward_table_uses_localized_text_contract()
+	test_reward_table_korean_localized_text_is_readable()
+	test_epic_plus_rewards_define_special_effect_schema()
 	test_reward_type_mix_does_not_inject_cross_rarity_beacons()
 	test_reward_type_ratio_prefers_beacons()
+	test_reward_roll_can_offer_mythic()
 	test_reward_read_model_hides_private_offer_metadata()
 	test_reward_telemetry_payloads()
+	test_reward_table_authoring_order_matches_codex_contract()
 	test_growth_state_updates()
+	test_apply_reward_effect_records_artifact_discovery()
+	test_artifact_codex_projects_discovered_and_debug_entries()
+	test_artifact_codex_projects_book_sections_selection_and_art_descriptors()
+	test_artifact_codex_selection_normalizes_when_filtered_out()
+	test_artifact_codex_sorts_entries_by_rarity_color_type_name()
 	test_reward_artifact_creation_vocab()
 	test_apply_reward_effect_vocab()
 	test_apply_growth_modifiers_vocab()
 	test_passive_purchase()
 	test_passive_modifiers()
 	return {"ok": failures.is_empty(), "errors": failures}
+
+func _project_artifact_codex(
+	table: Dictionary,
+	growth_state: Dictionary,
+	debug_all: bool = false,
+	locale := "",
+	selected_entry_id := "",
+	active_section := "all"
+) -> Dictionary:
+	var read_model_script = load("res://src/ui/read_models/ArtifactCodexReadModel.gd")
+	_assert(read_model_script != null, "artifact codex read model loads dynamically")
+	if read_model_script == null:
+		return {}
+	return read_model_script.project(table, growth_state, debug_all, locale, selected_entry_id, active_section)
+
+func _load_reward_catalog_order_script():
+	var order_script = load("res://src/vocabulary/reward/RewardCatalogOrder.gd")
+	_assert(order_script != null, "reward catalog order helper loads dynamically")
+	return order_script
 
 func _assert(condition: bool, msg: String) -> void:
 	if not condition:
@@ -188,20 +221,184 @@ func test_reward_offer_metadata_and_preview() -> void:
 # 실행: verify reward type weighting favors beacons at roughly 40:60 drill/beacon.
 func test_reward_pool_has_drills_and_beacons_per_rolled_rarity() -> void:
 	var table := _load_reward_table_fixture()
-	var rarities := ["common", "rare", "epic", "legendary"]
+	var rarities := ["common", "rare", "epic", "legendary", "mythic"]
 	for rarity in rarities:
 		var has_drill := false
 		var has_beacon := false
+		var has_relic := false
 		for item in table.get("rewards", []):
 			if str(item.get("rarity", "")).to_lower() != rarity:
 				continue
 			var item_type := str(item.get("payload", {}).get("item_type", "drill")).to_lower()
 			if item_type == "beacon":
 				has_beacon = true
+			elif item_type == "relic":
+				has_relic = true
 			else:
 				has_drill = true
 		_assert(has_drill, "%s reward pool has drill-like candidates" % rarity)
 		_assert(has_beacon, "%s reward pool has beacon candidates" % rarity)
+		if rarity in ["common", "rare", "epic"]:
+			_assert(has_relic, "%s reward pool has relic candidates" % rarity)
+
+# 실행: verify the expanded artifact table has the requested rarity and color distribution.
+func test_reward_table_has_balanced_expanded_artifact_pool() -> void:
+	var table := _load_reward_table_fixture()
+	var rewards: Array = table.get("rewards", [])
+	var expected_counts := {"common": 13, "rare": 16, "epic": 18, "legendary": 13, "mythic": 8}
+	var expected_color_counts := {"common": 2, "rare": 3, "epic": 4, "legendary": 3, "mythic": 2}
+	var seen_ids := {}
+	var counts := {}
+	var color_counts := {}
+	for rarity in expected_counts.keys():
+		counts[rarity] = 0
+		color_counts[rarity] = {"red": 0, "blue": 0, "purple": 0, "green": 0}
+	_assert_eq(rewards.size(), 68, "expanded reward table has exactly 68 artifacts")
+	for i in range(rewards.size()):
+		var reward: Dictionary = rewards[i]
+		var reward_id := str(reward.get("id", ""))
+		var rarity := str(reward.get("rarity", ""))
+		var payload: Dictionary = reward.get("payload", {})
+		var item_type := str(payload.get("item_type", "drill")).to_lower()
+		var color := str(payload.get("energy_type", ""))
+		_assert(not reward_id.is_empty(), "reward id is non-empty at index %d" % i)
+		_assert(not seen_ids.has(reward_id), "reward id is unique: %s" % reward_id)
+		seen_ids[reward_id] = true
+		_assert(expected_counts.has(rarity), "reward rarity is allowed: %s" % rarity)
+		_assert(item_type in ["drill", "beacon", "relic"], "reward item_type is allowed: %s" % item_type)
+		if item_type == "relic":
+			_assert_eq(color, "", "%s relic reward stays colorless" % reward_id)
+		else:
+			_assert(color in ["red", "blue", "purple", "green"], "reward color is allowed: %s" % color)
+		_assert(payload.has("item_type"), "reward payload explicitly declares item_type: %s" % reward_id)
+		_assert(_shape_is_valid(payload.get("shape", [])), "reward payload has valid shape: %s" % reward_id)
+		if expected_counts.has(rarity):
+			counts[rarity] = int(counts[rarity]) + 1
+			if item_type != "relic":
+				color_counts[rarity][color] = int(color_counts[rarity].get(color, 0)) + 1
+	for rarity in expected_counts.keys():
+		_assert_eq(int(counts[rarity]), int(expected_counts[rarity]), "%s reward count matches expanded pool" % rarity)
+		for color in ["red", "blue", "purple", "green"]:
+			_assert_eq(int(color_counts[rarity][color]), int(expected_color_counts[rarity]), "%s %s count matches requested distribution" % [rarity, color])
+
+func test_reward_table_includes_launch_relic_slice() -> void:
+	var table := _load_reward_table_fixture()
+	var expected_launch := {
+		"reward_common_relic_breach_seal": {"kind": "Breach Seal", "rarity": "common", "link_mode": "diagonal_1"},
+		"reward_common_relic_warning_bell": {"kind": "Warning Bell", "rarity": "common"},
+		"reward_common_relic_spare_fuse": {"kind": "Spare Fuse", "rarity": "common"},
+		"reward_legendary_relic_brake_coil": {"kind": "Brake Coil", "rarity": "legendary"},
+		"reward_common_relic_tool_rack": {"kind": "Tool Rack", "rarity": "common", "link_mode": "diagonal_1"},
+		"reward_common_relic_repair_coil": {"kind": "Repair Coil", "rarity": "common", "link_mode": "diagonal_1"},
+		"reward_rare_relic_pinbreaker_spring": {"kind": "Pinbreaker Spring", "rarity": "rare", "link_mode": "diagonal_1"},
+		"reward_epic_relic_anchor_oathplate": {"kind": "Anchor Oathplate", "rarity": "epic"},
+		"reward_rare_relic_sealant_patch": {"kind": "Sealant Patch", "rarity": "rare"},
+		"reward_rare_relic_debris_chalk": {"kind": "Debris Chalk", "rarity": "rare"},
+		"reward_rare_relic_counterflow_governor": {"kind": "Counterflow Governor", "rarity": "rare"},
+		"reward_epic_relic_recovery_winch": {"kind": "Recovery Winch", "rarity": "epic"}
+	}
+	var found := {}
+	for reward in table.get("rewards", []):
+		var reward_id := str(reward.get("id", ""))
+		if not expected_launch.has(reward_id):
+			continue
+		found[reward_id] = true
+		var payload: Dictionary = reward.get("payload", {})
+		var schema: Dictionary = payload.get("effect_schema", {})
+		var expected: Dictionary = expected_launch[reward_id]
+		_assert_eq(str(reward.get("kind", "")), str(expected.get("kind", "")), "%s launch relic keeps approved name" % reward_id)
+		_assert_eq(str(reward.get("rarity", "")).to_lower(), str(expected.get("rarity", "")), "%s launch relic keeps approved rarity" % reward_id)
+		_assert_eq(str(payload.get("item_type", "")).to_lower(), "relic", "%s launch reward declares relic item type" % reward_id)
+		_assert_eq(str(payload.get("energy_type", "")), "", "%s launch relic stays colorless" % reward_id)
+		_assert(_shape_is_valid(payload.get("shape", [])), "%s launch relic keeps a placeable shape" % reward_id)
+		_assert_eq(int(schema.get("version", 0)), 1, "%s launch relic schema version" % reward_id)
+		if expected.has("link_mode"):
+			_assert_eq(str(schema.get("link_mode", "")), str(expected.get("link_mode", "")), "%s launch relic uses approved link mode" % reward_id)
+		else:
+			_assert_eq(str(schema.get("link_mode", "")), "", "%s launch relic does not require a link mode" % reward_id)
+		_assert(str(schema.get("trigger", "")).length() > 0, "%s launch relic schema trigger exists" % reward_id)
+		_assert(str(schema.get("type", "")).length() > 0, "%s launch relic schema type exists" % reward_id)
+		_assert(_localized_pair_is_valid(reward.get("text", {}).get("name", {})), "%s launch relic has localized name text" % reward_id)
+		_assert(_localized_pair_is_valid(reward.get("text", {}).get("description", {})), "%s launch relic has localized description text" % reward_id)
+		_assert(_localized_pair_is_valid(schema.get("summary_i18n", {})), "%s launch relic has localized summary text" % reward_id)
+	for reward_id in expected_launch.keys():
+		_assert(found.has(reward_id), "launch relic is present in reward table: %s" % reward_id)
+
+# 실행: verify hero-or-higher rewards carry explicit special mechanics beyond flat stats.
+func test_reward_table_uses_beacon_heavy_type_distribution() -> void:
+	var table := _load_reward_table_fixture()
+	var expected_type_counts := {
+		"common": {"drill": 4, "beacon": 4, "relic": 5},
+		"rare": {"drill": 4, "beacon": 8, "relic": 4},
+		"epic": {"drill": 8, "beacon": 8, "relic": 2},
+		"legendary": {"drill": 4, "beacon": 8, "relic": 1},
+		"mythic": {"drill": 4, "beacon": 4, "relic": 0}
+	}
+	var total_drills := 0
+	var total_beacons := 0
+	var total_relics := 0
+	for rarity in expected_type_counts.keys():
+		var drill_count := 0
+		var beacon_count := 0
+		var relic_count := 0
+		for reward in table.get("rewards", []):
+			if str(reward.get("rarity", "")).to_lower() != rarity:
+				continue
+			var item_type := str(reward.get("payload", {}).get("item_type", "drill")).to_lower()
+			if item_type == "beacon":
+				beacon_count += 1
+			elif item_type == "relic":
+				relic_count += 1
+			else:
+				drill_count += 1
+		total_drills += drill_count
+		total_beacons += beacon_count
+		total_relics += relic_count
+		_assert_eq(drill_count, int(expected_type_counts[rarity]["drill"]), "%s drill count respects one-drill-per-color pressure" % rarity)
+		_assert_eq(beacon_count, int(expected_type_counts[rarity]["beacon"]), "%s beacon count gives combinator depth" % rarity)
+		_assert_eq(relic_count, int(expected_type_counts[rarity]["relic"]), "%s relic count matches the approved launch slice" % rarity)
+	_assert_eq(total_drills, 24, "expanded pool has 24 drill anchors")
+	_assert_eq(total_beacons, 32, "expanded pool has 32 beacon combinators")
+	_assert_eq(total_relics, 12, "expanded pool has the approved twelve relics")
+	_assert(total_beacons > total_drills, "beacon combinators outnumber one-per-color drill anchors")
+
+func test_reward_table_uses_localized_text_contract() -> void:
+	var table := _load_reward_table_fixture()
+	for reward in table.get("rewards", []):
+		var reward_id := str(reward.get("id", ""))
+		var text: Dictionary = reward.get("text", {})
+		_assert(_localized_pair_is_valid(text.get("name", {})), "%s has localized name text" % reward_id)
+		_assert(_localized_pair_is_valid(text.get("description", {})), "%s has localized description text" % reward_id)
+		var rarity := str(reward.get("rarity", "")).to_lower()
+		if rarity in ["epic", "legendary", "mythic"]:
+			var schema: Dictionary = reward.get("payload", {}).get("effect_schema", {})
+			_assert(_localized_pair_is_valid(schema.get("summary_i18n", {})), "%s has localized effect summary" % reward_id)
+
+func test_reward_table_korean_localized_text_is_readable() -> void:
+	var table := _load_reward_table_fixture()
+	for reward in table.get("rewards", []):
+		var reward_id := str(reward.get("id", ""))
+		var text: Dictionary = reward.get("text", {})
+		_assert(_korean_localized_value_is_readable(text.get("name", {}).get("ko", "")), "%s Korean reward name is readable" % reward_id)
+		_assert(_korean_localized_value_is_readable(text.get("description", {}).get("ko", "")), "%s Korean reward description is readable" % reward_id)
+		var rarity := str(reward.get("rarity", "")).to_lower()
+		if rarity in ["epic", "legendary", "mythic"]:
+			var schema: Dictionary = reward.get("payload", {}).get("effect_schema", {})
+			_assert(_korean_localized_value_is_readable(schema.get("summary_i18n", {}).get("ko", "")), "%s Korean effect summary is readable" % reward_id)
+
+func test_epic_plus_rewards_define_special_effect_schema() -> void:
+	var table := _load_reward_table_fixture()
+	for reward in table.get("rewards", []):
+		var rarity := str(reward.get("rarity", "")).to_lower()
+		if not rarity in ["epic", "legendary", "mythic"]:
+			continue
+		var payload: Dictionary = reward.get("payload", {})
+		_assert(payload.has("effect_schema"), "%s reward defines effect_schema" % str(reward.get("id", "")))
+		var schema: Dictionary = payload.get("effect_schema", {})
+		_assert_eq(int(schema.get("version", 0)), 1, "%s effect_schema version" % str(reward.get("id", "")))
+		_assert(str(schema.get("trigger", "")).length() > 0, "%s effect_schema trigger exists" % str(reward.get("id", "")))
+		_assert(str(schema.get("type", "")).length() > 0, "%s effect_schema type exists" % str(reward.get("id", "")))
+		_assert(schema.has("summary"), "%s effect_schema has player-facing summary" % str(reward.get("id", "")))
 
 # 실행: verify missing-type rarity pools are not patched with unrelated rarity items.
 func test_reward_type_mix_does_not_inject_cross_rarity_beacons() -> void:
@@ -230,19 +427,37 @@ func test_reward_type_mix_does_not_inject_cross_rarity_beacons() -> void:
 func test_reward_type_ratio_prefers_beacons() -> void:
 	var beacon_count := 0
 	var drill_count := 0
+	var relic_count := 0
 	for s in range(1, 240):
 		var rolls = RewardVocabScript.roll_stage_rewards(s, 1, [], {})
 		for reward in rolls:
-			var item_type := str(reward.get("payload", {}).get("item_type", "drill"))
+			var item_type := str(reward.get("payload", {}).get("item_type", "drill")).to_lower()
 			if item_type == "beacon":
 				beacon_count += 1
+			elif item_type == "relic":
+				relic_count += 1
 			else:
 				drill_count += 1
-	var total := beacon_count + drill_count
+	var total := beacon_count + drill_count + relic_count
 	_assert(total > 0, "reward ratio sample has data")
-	var beacon_share := float(beacon_count) / float(total)
+	var active_share_total := beacon_count + drill_count
+	_assert(active_share_total > 0, "reward ratio sample has active items")
+	var beacon_share := float(beacon_count) / float(active_share_total)
 	_assert(beacon_count > drill_count, "beacon rewards outnumber drill rewards")
+	_assert(relic_count > 0, "relic rewards appear in rolled offers")
 	_assert(beacon_share >= 0.50 and beacon_share <= 0.70, "beacon share remains near 60%%, got %.3f" % beacon_share)
+
+func test_reward_roll_can_offer_mythic() -> void:
+	var found_mythic := false
+	for s in range(1, 800):
+		var rolls = RewardVocabScript.roll_stage_rewards(s, 4, ["red", "blue", "purple", "green"], {})
+		for reward in rolls:
+			if str(reward.get("rarity", "")).to_lower() == "mythic":
+				found_mythic = true
+				break
+		if found_mythic:
+			break
+	_assert(found_mythic, "stage 4 reward rolls can offer mythic artifacts")
 
 # 실행: verify reward read model hides private roll metadata but exposes player-facing preview.
 func test_reward_read_model_hides_private_offer_metadata() -> void:
@@ -286,6 +501,25 @@ func test_reward_telemetry_payloads() -> void:
 	_assert_eq(selected_payload.get("rarity", ""), "rare", "selected telemetry carries rarity")
 	_assert_eq(int(selected_payload.get("gold_delta", 0)), 25, "selected telemetry carries gold delta")
 	_assert(selected_payload.has("next_combat_modifier_preview"), "selected telemetry carries next combat preview")
+
+func test_reward_table_authoring_order_matches_codex_contract() -> void:
+	var table := _load_reward_table_fixture()
+	_assert(table.has("rewards"), "reward table fixture parses as strict JSON before ordering assertions")
+	var rewards: Array = table.get("rewards", [])
+	_assert(rewards.size() > 0, "reward table fixture exposes reward rows for ordering assertions")
+	if rewards.is_empty():
+		return
+	var order_script = _load_reward_catalog_order_script()
+	if order_script == null:
+		return
+	var sorted_rewards: Array = order_script.sort_rewards(rewards)
+	var actual_ids := []
+	var expected_ids := []
+	for reward in rewards:
+		actual_ids.append(str((reward as Dictionary).get("id", "")))
+	for reward in sorted_rewards:
+		expected_ids.append(str((reward as Dictionary).get("id", "")))
+	_assert_eq(actual_ids, expected_ids, "reward-table source order matches the codex ordering contract")
 
 # 실행: verify claiming rewards correctly updates gold/xp and history.
 func test_growth_state_updates() -> void:
@@ -331,6 +565,135 @@ func test_growth_state_updates() -> void:
 	_assert(growth.get("rewardHistory", []).has("reward_100_0"), "rewardId registered in history")
 
 # ?ㅽ뻾: verify reward data converts into an artifact through vocabulary.
+func test_apply_reward_effect_records_artifact_discovery() -> void:
+	var growth = RunGrowthStateScript.new({"gold": 0, "xp": 0, "purchasedPassives": {}, "temporaryModifiers": {}, "runModifiers": {}, "rewardHistory": [], "artifactDiscovery": []})
+	var result = ApplyRewardEffectScript.apply(growth, {"rewardId": "offer_1", "catalogId": "reward_epic_red_beacon_3", "rarity": "epic"})
+	_assert(result["ok"], "apply reward effect succeeds for artifact discovery")
+	_assert(growth.artifact_discovery.has("reward_epic_red_beacon_3"), "catalog artifact id recorded for codex discovery")
+	ApplyRewardEffectScript.apply(growth, {"rewardId": "offer_2", "catalogId": "reward_epic_red_beacon_3", "rarity": "epic"})
+	_assert_eq(growth.artifact_discovery.count("reward_epic_red_beacon_3"), 1, "artifact discovery records each catalog id once")
+
+func test_artifact_codex_projects_discovered_and_debug_entries() -> void:
+	var table := _load_reward_table_fixture()
+	var rewards: Array = table.get("rewards", [])
+	_assert(rewards.size() > 1, "codex fixture has rewards")
+	if rewards.size() <= 1:
+		return
+	var discovered_id := str(rewards[0].get("id", ""))
+	var normal_model: Dictionary = _project_artifact_codex(table, {"artifactDiscovery": [discovered_id]}, false, "en")
+	var debug_model: Dictionary = _project_artifact_codex(table, {"artifactDiscovery": []}, true, "en")
+	_assert_eq(int(normal_model.get("totalCount", 0)), 68, "codex knows full artifact count")
+	_assert_eq(int(normal_model.get("discoveredCount", 0)), 1, "normal codex counts discovered artifacts")
+	_assert(str(normal_model.get("text", "")).contains(str(rewards[0].get("text", {}).get("name", {}).get("en", ""))), "normal codex reveals discovered artifact name")
+	_assert(str(normal_model.get("text", "")).contains("Undiscovered artifact"), "normal codex masks undiscovered artifacts")
+	_assert_eq(int(debug_model.get("visibleCount", 0)), 68, "debug codex shows every artifact")
+	_assert(not str(debug_model.get("text", "")).contains("Undiscovered artifact"), "debug codex reveals all artifact names")
+
+func test_artifact_codex_projects_book_sections_selection_and_art_descriptors() -> void:
+	var table := _load_reward_table_fixture()
+	var rewards: Array = table.get("rewards", [])
+	_assert(rewards.size() > 2, "codex fixture has enough rewards for section coverage")
+	if rewards.size() <= 2:
+		return
+	var selected_id := str(rewards[1].get("id", ""))
+	var model: Dictionary = _project_artifact_codex(table, {"artifactDiscovery": [selected_id]}, false, "en", selected_id, "all")
+	var sections: Array = model.get("sections", [])
+	_assert(sections.size() >= 4, "codex exposes section tabs")
+	_assert_eq(str(model.get("resolvedSelectedEntryId", "")), selected_id, "codex preserves visible selected entry")
+	_assert(model.has("leftPage"), "codex exposes left page payload")
+	_assert(model.has("rightPage"), "codex exposes right page payload")
+	var left_page: Dictionary = model.get("leftPage", {})
+	_assert(left_page.has("heroArt"), "codex exposes hero art descriptor")
+	var hero_art: Dictionary = left_page.get("heroArt", {})
+	_assert(hero_art.has("path"), "hero art descriptor exposes a path field")
+	_assert(hero_art.has("placeholderId"), "hero art descriptor exposes placeholder id")
+	_assert(hero_art.has("state"), "hero art descriptor exposes state")
+	var right_page: Dictionary = model.get("rightPage", {})
+	_assert(right_page.has("gridEntries"), "codex exposes grid entries for the right page")
+
+func test_artifact_codex_selection_normalizes_when_filtered_out() -> void:
+	var table := _load_reward_table_fixture()
+	var rewards: Array = table.get("rewards", [])
+	_assert(rewards.size() > 2, "codex fixture has enough rewards for normalization coverage")
+	if rewards.size() <= 2:
+		return
+	var hidden_id := str(rewards[0].get("id", ""))
+	var model: Dictionary = _project_artifact_codex(table, {"artifactDiscovery": []}, false, "en", hidden_id, "relic")
+	_assert_eq(str(model.get("activeSection", "")), "relic", "codex keeps the requested active section")
+	_assert(str(model.get("resolvedSelectedEntryId", "")) != hidden_id, "codex reselects when the requested entry is filtered out")
+
+func test_artifact_codex_sorts_entries_by_rarity_color_type_name() -> void:
+	var reward_table := {
+		"rewards": [
+			{
+				"id": "reward_rare_blue_beacon_zeta",
+				"kind": "Zeta Relay",
+				"rarity": "rare",
+				"payload": {"item_type": "beacon", "energy_type": "blue", "shape": [[1]]},
+				"text": {"name": {"ko": "zeta", "en": "Zeta Relay"}, "description": {"ko": "desc", "en": "desc"}},
+				"presentation": {"icon": "beacon_blue_rare", "description": "desc"}
+			},
+			{
+				"id": "reward_common_relic_archive",
+				"kind": "Archive Bell",
+				"rarity": "common",
+				"payload": {"item_type": "relic", "energy_type": "", "shape": [[1]]},
+				"text": {"name": {"ko": "archive", "en": "Archive Bell"}, "description": {"ko": "desc", "en": "desc"}},
+				"presentation": {"icon": "relic_common_archive", "description": "desc"}
+			},
+			{
+				"id": "reward_common_green_drill_moss",
+				"kind": "Moss Bit",
+				"rarity": "common",
+				"payload": {"item_type": "drill", "energy_type": "green", "shape": [[1]]},
+				"text": {"name": {"ko": "moss", "en": "Moss Bit"}, "description": {"ko": "desc", "en": "desc"}},
+				"presentation": {"icon": "drill_green_common", "description": "desc"}
+			},
+			{
+				"id": "reward_common_red_beacon_beta",
+				"kind": "Beta Beacon",
+				"rarity": "common",
+				"payload": {"item_type": "beacon", "energy_type": "red", "shape": [[1]]},
+				"text": {"name": {"ko": "beta", "en": "Beta Beacon"}, "description": {"ko": "desc", "en": "desc"}},
+				"presentation": {"icon": "beacon_red_common", "description": "desc"}
+			},
+			{
+				"id": "reward_common_red_drill_beta",
+				"kind": "Beta Drill",
+				"rarity": "common",
+				"payload": {"item_type": "drill", "energy_type": "red", "shape": [[1]]},
+				"text": {"name": {"ko": "beta", "en": "Beta Drill"}, "description": {"ko": "desc", "en": "desc"}},
+				"presentation": {"icon": "drill_red_common", "description": "desc"}
+			},
+			{
+				"id": "reward_common_red_drill_alpha",
+				"kind": "Alpha Drill",
+				"rarity": "common",
+				"payload": {"item_type": "drill", "energy_type": "red", "shape": [[1]]},
+				"text": {"name": {"ko": "alpha", "en": "Alpha Drill"}, "description": {"ko": "desc", "en": "desc"}},
+				"presentation": {"icon": "drill_red_common", "description": "desc"}
+			}
+		]
+	}
+	var model: Dictionary = _project_artifact_codex(reward_table, {"artifactDiscovery": []}, true, "en", "", "all")
+	var right_page: Dictionary = model.get("rightPage", {})
+	var grid_entries: Array = right_page.get("gridEntries", [])
+	var ordered_ids := []
+	for entry in grid_entries:
+		ordered_ids.append(str((entry as Dictionary).get("id", "")))
+	_assert_eq(
+		ordered_ids,
+		[
+			"reward_common_red_drill_alpha",
+			"reward_common_red_drill_beta",
+			"reward_common_red_beacon_beta",
+			"reward_common_green_drill_moss",
+			"reward_common_relic_archive",
+			"reward_rare_blue_beacon_zeta"
+		],
+		"codex sorts artifacts by rarity, color, type, and name instead of raw authoring order"
+	)
+
 func test_reward_artifact_creation_vocab() -> void:
 	var reward_item = {
 		"rewardId": "reward_artifact_1",
@@ -354,16 +717,56 @@ func test_reward_artifact_creation_vocab() -> void:
 	_assert_eq(art.item_type, "beacon", "reward artifact preserves item type")
 	_assert_eq(art.energy_type, "blue", "reward artifact preserves energy")
 	_assert_eq(art.shape, [[1, 1]], "reward artifact uses payload shape")
-	_assert_eq(art.base_cooldown_ticks, 41, "reward artifact applies growth cooldown modifier")
+	_assert_eq(art.base_cooldown_ticks, 20, "reward artifact applies the faster tempo scale before the growth cooldown modifier")
 	_assert_eq(art.damage, 1.7, "reward artifact preserves damage")
-	_assert_eq(art.beacon_cooldown_mod, -12, "reward artifact preserves beacon cooldown modifier")
+	_assert_eq(art.beacon_cooldown_mod, -24, "reward artifact doubles beacon cooldown reduction for the faster queue tempo")
 	_assert_eq(art.beacon_damage_mod, 0.4, "reward artifact preserves beacon damage modifier")
+
+	var schema_reward = reward_item.duplicate(true)
+	schema_reward["payload"]["effect_schema"] = {"version": 1, "type": "echo", "trigger": "on_fire", "summary": "test schema"}
+	var schema_result = CreateArtifactFromRewardScript.create(schema_reward)
+	_assert(schema_result["ok"], "schema reward artifact creation succeeds")
+	_assert_eq(schema_result["artifact"].effect_schema.get("type", ""), "echo", "reward artifact preserves effect schema")
 
 	var tagged_reward = reward_item.duplicate(true)
 	tagged_reward["kind"] = "Crimson Drill Core v2 (Red)"
 	var tagged_result = CreateArtifactFromRewardScript.create(tagged_reward)
 	_assert(tagged_result["ok"], "tagged reward artifact creation succeeds")
 	_assert_eq(tagged_result["artifact"].name, "Crimson Drill Core", "reward artifact name strips implementation tags")
+
+	var relic_reward = {
+		"rewardId": "reward_relic_1",
+		"kind": "Breach Seal",
+		"rarity": "common",
+		"text": {
+			"name": {"ko": "균열 봉인장", "en": "Breach Seal"},
+			"description": {"ko": "대각선으로 연결된 드릴의 첫 장애물 타격에 진행도 +1을 더합니다.", "en": "Adds +1 obstacle progress to the first hit from its diagonally linked drill each combat."}
+		},
+		"payload": {
+			"item_type": "relic",
+			"shape": [[1]],
+			"effect_schema": {
+				"version": 1,
+				"link_mode": "diagonal_1",
+				"trigger": "on_obstacle_hit",
+				"type": "obstacle_progress_bonus",
+				"summary": "Linked drill gains +1 progress on its first obstacle hit each combat.",
+				"summary_i18n": {
+					"ko": "연결된 드릴의 첫 장애물 타격은 전투당 진행도 +1을 얻습니다.",
+					"en": "Linked drill gains +1 progress on its first obstacle hit each combat."
+				}
+			}
+		},
+		"presentation": {"description": "Fallback relic description"}
+	}
+	var relic_result = CreateArtifactFromRewardScript.create(relic_reward)
+	_assert(relic_result["ok"], "relic reward artifact creation succeeds")
+	var relic_art = relic_result["artifact"]
+	_assert_eq(relic_art.item_type, "relic", "relic reward preserves item type")
+	_assert_eq(relic_art.energy_type, "", "relic reward stays colorless when materialized")
+	_assert_eq(relic_art.effect_schema.get("link_mode", ""), "diagonal_1", "relic reward preserves link mode schema")
+	_assert_eq(relic_art.beacon_cooldown_mod, 0, "relic reward does not inherit beacon cooldown tuning")
+	_assert_eq(relic_art.beacon_damage_mod, 0.0, "relic reward does not inherit beacon damage tuning")
 
 # ?ㅽ뻾: verify reward effect vocabulary updates growth.
 func test_apply_reward_effect_vocab() -> void:
@@ -383,7 +786,7 @@ func test_apply_growth_modifiers_vocab() -> void:
 	var tuning := {}
 	var result = ApplyGrowthModifiersScript.apply(inv, growth, tuning)
 	_assert(result["ok"], "apply growth modifiers succeeds")
-	_assert_eq(art.base_cooldown_ticks, 72, "growth modifier applies cooldown multiplier")
+	_assert_eq(art.base_cooldown_ticks, 32, "growth modifier applies the faster tempo-scaled cooldown multiplier")
 	_assert_eq(float(tuning.get("combat", {}).get("damage_bonus", 0.0)), 3.0, "growth modifier writes damage bonus")
 
 # 실행: verify passive purchases subtract gold and increment level.
@@ -443,5 +846,41 @@ func test_passive_modifiers() -> void:
 	}
 	
 	var growth = RunGrowthStateScript.new(growth_data)
-	_assert_eq(growth.get_cooldown_modifier(), 0.9, "level 2 CDR gives 10% reduction (0.9 multiplier)")
+	_assert_eq(growth.get_cooldown_modifier(), 0.8, "level 2 CDR gives 20% reduction (0.8 multiplier) for the faster queue tempo")
 	_assert_eq(growth.get_damage_bonus(), 3.0, "level 3 damage boost gives +3.0 damage")
+
+func _shape_is_valid(shape: Variant) -> bool:
+	if not (shape is Array) or shape.is_empty():
+		return false
+	var width := -1
+	var filled := 0
+	for row in shape:
+		if not (row is Array) or row.is_empty():
+			return false
+		if width < 0:
+			width = row.size()
+		elif row.size() != width:
+			return false
+		for cell in row:
+			var value := int(cell)
+			if value != 0 and value != 1:
+				return false
+			if value == 1:
+				filled += 1
+	return filled > 0 and width <= 8 and shape.size() <= 8
+
+func _localized_pair_is_valid(value: Variant) -> bool:
+	if not (value is Dictionary):
+		return false
+	return not str(value.get("ko", "")).strip_edges().is_empty() and not str(value.get("en", "")).strip_edges().is_empty()
+
+func _korean_localized_value_is_readable(value: Variant) -> bool:
+	var text := str(value).strip_edges()
+	if text.is_empty():
+		return false
+	if text.contains("?") or text.contains("�"):
+		return false
+	var regex := RegEx.new()
+	if regex.compile("[가-힣ㄱ-ㅎㅏ-ㅣ]") != OK:
+		return false
+	return regex.search(text) != null

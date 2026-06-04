@@ -5,6 +5,7 @@ $ErrorActionPreference = "Continue"
 $workspace = "D:\Programming\ex_workspace\LootingTheLeviathan"
 $path = Join-Path $workspace "app-LTL"
 $godotPath = "D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe"
+. (Join-Path $PSScriptRoot "godot-runner.ps1")
 
 $watcher = New-Object System.IO.FileSystemWatcher
 $watcher.Path = $path
@@ -33,9 +34,17 @@ $runCheck = {
     Write-Host "[Auto-Watch] File changed: $fullPath ($changeType)" -ForegroundColor Cyan
     Write-Host "Triggering Godot Headless compilation check..." -ForegroundColor Cyan
     
-    $process = Start-Process -FilePath $godotPath -ArgumentList "--headless", "--path", "app-LTL", "-s", "tests/godot_contract_runner.gd" -NoNewWindow -PassThru -Wait
-    
-    if ($process.ExitCode -eq 0) {
+    $result = Invoke-GodotProjectCommand `
+        -WorkspaceRoot $workspace `
+        -ProjectPath "app-LTL" `
+        -GodotPath $godotPath `
+        -Script "tests/godot_contract_runner.gd" `
+        -LogName "watch-compile.log" `
+        -Headless `
+        -Quit
+    $result.Output | ForEach-Object { Write-Host $_ }
+
+    if ($result.Code -eq 0) {
         Write-Host "=============================" -ForegroundColor Green
         Write-Host "Compilation Check: PASSED :)" -ForegroundColor Green
         Write-Host "=============================" -ForegroundColor Green
@@ -57,9 +66,17 @@ $onCreated = Register-ObjectEvent $watcher "Created" -Action {
 Write-Host "Watching GDScript & TSCN changes under: $path" -ForegroundColor Yellow
 Write-Host "Keep this window open. Press Ctrl+C to terminate the watch loop." -ForegroundColor Yellow
 Write-Host "Initial compilation check running..." -ForegroundColor Gray
-$process = Start-Process -FilePath $godotPath -ArgumentList "--headless", "--path", "app-LTL", "-s", "tests/godot_contract_runner.gd" -NoNewWindow -PassThru -Wait
+$initialResult = Invoke-GodotProjectCommand `
+    -WorkspaceRoot $workspace `
+    -ProjectPath "app-LTL" `
+    -GodotPath $godotPath `
+    -Script "tests/godot_contract_runner.gd" `
+    -LogName "watch-compile.log" `
+    -Headless `
+    -Quit
+$initialResult.Output | ForEach-Object { Write-Host $_ }
 
-if ($process.ExitCode -eq 0) {
+if ($initialResult.Code -eq 0) {
     Write-Host "Initial Check: PASSED" -ForegroundColor Green
 } else {
     Write-Host "Initial Check: FAILED" -ForegroundColor Red

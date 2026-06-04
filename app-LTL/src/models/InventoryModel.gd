@@ -118,6 +118,49 @@ func get_adjacent_drills(art: Artifact) -> Array:
 					adjacent_drills.append(nb_art)
 	return adjacent_drills
 
+# ?ㅽ뻾: query the artifacts linked from a relic through its non-orthogonal grammar.
+func get_relic_linked_artifacts(relic: Artifact) -> Array:
+	if relic == null or relic.item_type != "relic":
+		return []
+	var link_mode := str(relic.effect_schema.get("link_mode", "")).to_lower()
+	if link_mode.is_empty():
+		return []
+	var offsets := []
+	if link_mode == "skip_2":
+		offsets = [
+			Vector2i(2, 0),
+			Vector2i(-2, 0),
+			Vector2i(0, 2),
+			Vector2i(0, -2)
+		]
+	elif link_mode == "crown_link":
+		offsets = [
+			Vector2i(1, 1),
+			Vector2i(1, -1),
+			Vector2i(-1, 1),
+			Vector2i(-1, -1),
+			Vector2i(2, 0),
+			Vector2i(-2, 0),
+			Vector2i(0, 2),
+			Vector2i(0, -2)
+		]
+	else:
+		offsets = [
+			Vector2i(1, 1),
+			Vector2i(1, -1),
+			Vector2i(-1, 1),
+			Vector2i(-1, -1)
+		]
+	var linked: Array = []
+	var linked_ids := {}
+	for cell in _collect_relic_target_cells(relic, offsets):
+		var art_id := str(grid[cell.y][cell.x])
+		if art_id.is_empty() or art_id == relic.id or linked_ids.has(art_id):
+			continue
+		linked_ids[art_id] = true
+		linked.append(artifacts[art_id])
+	return linked
+
 # 실행: recalculate synergy cooldown reductions (adjacent identical energy type drops cooldown) and beacon effects.
 func calculate_synergies() -> void:
 	for art_id in artifacts:
@@ -173,6 +216,29 @@ func calculate_synergies() -> void:
 										
 		art.synergy_cooldown_reduction = adjacent_matches.size() * synergy_val
 
+	for art_id in artifacts:
+		var beacon: Artifact = artifacts[art_id]
+		if beacon.item_type != "beacon" or is_zero_approx(beacon.beacon_damage_mod):
+			continue
+		for drill in get_adjacent_drills(beacon):
+			if drill.energy_type == beacon.energy_type:
+				drill.damage = maxf(0.0, drill.damage + beacon.beacon_damage_mod)
+
+	for art_id in artifacts:
+		var relic: Artifact = artifacts[art_id]
+		if relic.item_type != "relic":
+			continue
+		if str(relic.effect_schema.get("type", "")) != "cooldown_trim":
+			continue
+		var trim: int = abs(int(relic.effect_schema.get("value", 0)))
+		if trim <= 0:
+			continue
+		for linked_artifact in get_relic_linked_artifacts(relic):
+			if linked_artifact is Artifact and linked_artifact.item_type == "drill":
+				linked_artifact.synergy_cooldown_reduction += trim
+				var effective_cooldown: int = maxi(1, int(linked_artifact.base_cooldown_ticks) - int(linked_artifact.synergy_cooldown_reduction))
+				linked_artifact.current_cooldown = clampi(int(linked_artifact.current_cooldown), 0, effective_cooldown)
+
 	# Beacon cooldown effects are applied during tick(), not as permanent stat modifiers.
 
 # 실행: progress tick for all artifacts and return generated energies color Array.
@@ -186,16 +252,56 @@ func tick() -> Array:
 		else:
 			var energy = art.tick()
 			if energy != null:
-				generated.append(str(energy))
+				generated.append({
+					"color": str(energy),
+					"source_artifact_id": art.id,
+					"source_item_type": art.item_type
+				})
 	return generated
 
 # 실행: apply a charged beacon pulse to adjacent drills by reducing their current cooldown.
 func _apply_beacon_pulse(beacon: Artifact) -> void:
-	var reduction := absi(int(beacon.beacon_cooldown_mod))
-	if reduction <= 0:
+	var delta := int(beacon.beacon_cooldown_mod)
+	if delta == 0:
 		return
 	for drill in get_adjacent_drills(beacon):
-		drill.current_cooldown = maxi(0, int(drill.current_cooldown) - reduction)
+		if drill.energy_type != beacon.energy_type:
+			continue
+		var effective_cooldown := maxi(1, int(drill.base_cooldown_ticks) - int(drill.synergy_cooldown_reduction))
+		drill.current_cooldown = clampi(int(drill.current_cooldown) + delta, 0, effective_cooldown)
+
+func _collect_relic_target_cells(relic: Artifact, offsets: Array) -> Array:
+	var occupied_cells := _occupied_cells_for(relic)
+	var occupied_lookup := {}
+	for cell in occupied_cells:
+		occupied_lookup[_cell_key(cell)] = true
+	var targets: Array = []
+	var target_lookup := {}
+	for cell in occupied_cells:
+		for offset in offsets:
+			var target := Vector2i(cell.x + offset.x, cell.y + offset.y)
+			if target.x < 0 or target.x >= width or target.y < 0 or target.y >= height:
+				continue
+			var target_key := _cell_key(target)
+			if occupied_lookup.has(target_key) or target_lookup.has(target_key):
+				continue
+			target_lookup[target_key] = true
+			targets.append(target)
+	return targets
+
+func _occupied_cells_for(art: Artifact) -> Array:
+	var occupied_cells: Array = []
+	var shape := art.shape
+	var rows: int = shape.size()
+	var cols: int = shape[0].size() if rows > 0 else 0
+	for r in range(rows):
+		for c in range(cols):
+			if shape[r][c] == 1:
+				occupied_cells.append(Vector2i(art.x + c, art.y + r))
+	return occupied_cells
+
+func _cell_key(cell: Vector2i) -> String:
+	return "%s,%s" % [cell.x, cell.y]
 
 # 실행: export inventory state to a clean dictionary snapshot.
 func to_dict() -> Dictionary:

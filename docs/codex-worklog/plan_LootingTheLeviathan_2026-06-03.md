@@ -5,60 +5,53 @@ Date: 2026-06-03
 
 ## Active Work
 
-Fix the reported M5 live regressions around obstacle family distribution, battlefield shift cadence, queue-token color rendering, relic reward surfacing, and obstacle visual identity.
-
-Provide a graphics-direction consultation for the artifact codex book UI by reviewing `ItemBook.png` together with the existing tile, pin, backpack, and log-panel assets.
+Implement and verify the newly requested gameplay/UI balance pass: remove residual hazard color borders, mark the four basic drill/beacon pairs as discovered in the codex, unify backpack layout policy so reward/backpack views stop resizing inconsistently, restrict hazard families to the selected node colors, and rebalance queue/cooldown/terrain-energy tempo around a doubled queue.
 
 ## Request Summary
 
-- Make `red`, `blue`, `purple`, and `green` obstacles appear fairly instead of red monopolizing low-pressure spawns.
-- Restore battlefield movement to every `1.5` seconds even after a non-terminal shot changes combat feedback.
-- Restore visible energy colors in the queue panel after the move to dictionary queue tokens.
-- Make stage-clear rewards actually surface the new `relic` items alongside drills and beacons.
-- Deepen obstacle visuals per family using sub-agent discussion and reflect that direction in the cell renderer.
-- Review the current codex-adjacent UI art language and deliver a text-only decoration direction for a future book-style codex pass.
+- Remove the remaining colored outer border from hazard tiles.
+- In the codex, mark the basic red/blue/green/purple drills and beacons as already discovered.
+- Refactor backpack sizing so the reward-view backpack and reward-drop backpack use one shared layout source instead of diverging.
+- Restrict hazard spawns to only the colors present on the selected terrain/node weakness set.
+- Double the energy queue and rebalance drill/beacon cooldowns, cooldown reduction, and initial terrain-energy density so the action tempo is faster without increasing total combat time.
 
 ## Scope
 
-- Inspect the runtime path for obstacle spawn ordering, shift gating, reward rolls, and queue rendering.
-- Patch combat/UI code so obstacle waves rotate families and timer-based battlefield shifts continue after transient shot results.
-- Patch reward rolling so same-rarity relics are guaranteed to surface when a generated tray includes eligible relic candidates.
-- Strengthen obstacle rendering in `src/ui/CellView.gd` with family-specific silhouettes, state cues, and clearer afterglow feedback.
-- Update regression tests for queue-token dictionaries, shift cadence, and obstacle-family rotation.
+- Remove the hazard-border draw path from battlefield cell rendering.
+- Expand codex starter discovery handling to include the four basic drill/beacon color pairs.
+- Move backpack sizing logic behind a single shared layout policy and remove the current feedback-loop sizing source for top-content reward/backpack states.
+- Carry selected terrain colors into combat hazard spawning so only matching hazard families appear.
+- Rebalance queue capacity, cooldown pacing, cooldown-reduction strength, and initial terrain-energy density for a faster click tempo within the same time limit.
+- Run focused combat/UI/reward verification and keep today's worklog aligned with the resulting implementation.
 
 ## Out of Scope
 
-- Reverting unrelated dirty-worktree changes already present in the repository.
-- Expanding the relic table into new `epic+` content tiers beyond the approved launch slice.
-- Returning to the earlier codex UI redesign thread for implementation in this pass. A graphics-only direction review is allowed.
+- Reworking unrelated M5/M6 milestone items or reverting unrelated user changes already present in the dirty tree.
+- Changing the overall combat time limit or extending the total play-session duration for this pass.
+- Replacing the reward ceremony visual language beyond the backpack layout-policy refactor needed for consistency.
 
 ## Steps
 
-- Inspect the obstacle spawn loop, shift reducer gate, reward roll path, and queue panel renderer.
-- Integrate sub-agent findings for obstacle runtime diagnosis and family-specific visual treatment.
-- Patch combat/UI/reward code and add focused regression coverage for family rotation and post-shot shifts.
-- Run targeted plus full Godot verification and record any runtime blockers if the engine crashes before contracts execute.
-- Review `ItemBook.png`, tile/pin/book-adjacent assets, and existing codex mockups to produce book-decoration guidance without touching runtime code.
+- Lock the requested behavior with focused UI/combat/reward tests before editing runtime code.
+- Refactor shared backpack layout policy so node-select and top-content reward/backpack sizing delegate to one source of truth.
+- Implement hazard border removal, codex starter discoveries, terrain-colored hazard spawning, and doubled queue tempo pacing.
+- Run focused verification and update worklog history/completion notes.
 
 ## Expected Outputs
 
-- Fairer four-family obstacle spawning in the live combat runtime
-- Restored `1.5s / 30 tick` battlefield shift behavior after non-terminal shots
-- Queue panel rendering that reads dictionary queue tokens correctly
-- Stage rewards that can visibly include launch relics
-- Stronger red/blue/purple/green obstacle overlays in the battlefield cells
-- A graphics-system recommendation for codex hero/detail framing, thumbnail states, rarity treatment, and visual consistency rules
-- Updated worklog files for 2026-06-03
+- Updated battlefield rendering with hazard overlays but no extra colored border frame
+- Codex discovery state that always reveals the four basic drill/beacon pairs
+- Shared backpack sizing policy eliminating reward/backpack layout drift
+- Combat runtime restricted to terrain-matching hazard families
+- Faster queue/cooldown/terrain-energy tempo with unchanged combat time limit
+- Focused verification notes for combat logic and UI helper behavior
 
 ## Verification Method
 
-- Focused start-flow contract run through `tests/run_start_option_contract.gd`
-- Broad regression run through `tests/godot_contract_runner.gd`
-- `git diff --check` for whitespace regressions
-- If Godot crashes before executing contracts, record the native exit code and treat automated verification as blocked
-- For the codex direction review, inspect the existing UI PNG assets plus `docs/mockups/codex-book-approaches.html` and summarize the resulting art principles.
+- Focused Godot verification for `test_combat_vocab.gd`, `test_ui_read_models.gd`, and `test_reward_contract.gd`
+- `git diff --check` on the resulting tree
 
 ## Plan Change Log
 
-- 2026-06-03: Re-scoped the stale codex UI note back to the requested M5 regression fixes and obstacle visual pass.
-- 2026-06-03: Added a consultation-only codex decoration review based on `ItemBook.png` and current UI assets; no runtime or scene implementation is included in this note.
+- 2026-06-03: Re-scoped the active plan from the earlier hazard-only pass to a broader gameplay/UI consistency pass after the new five-point user request.
+- 2026-06-03: Clarified that doubled queue tempo should increase click density while preserving the existing combat time limit.

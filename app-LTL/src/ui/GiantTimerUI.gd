@@ -17,6 +17,7 @@ var heartbeat_player: AudioStreamPlayer
 var heartbeat_volume: float = 75.0
 var heartbeat_timer: float = 1.0
 var pulse_time: float = 0.0
+var battle_pause_active := false
 
 # 실행: build timer, vignette, and heartbeat nodes.
 func _ready() -> void:
@@ -43,6 +44,10 @@ func apply_timer_state(timer_text: String, timer_visible: bool, vignette_visible
 func process_timer(delta: float, battlefield_anchor: Control) -> void:
 	if timer_panel == null or timer_label == null or vignette_overlay == null:
 		return
+	if battle_pause_active:
+		if heartbeat_player and heartbeat_player.playing:
+			heartbeat_player.stop()
+		return
 	if timer_panel.visible and battlefield_anchor != null:
 		var anchor_pos = battlefield_anchor.global_position
 		var anchor_size = battlefield_anchor.size
@@ -50,19 +55,20 @@ func process_timer(delta: float, battlefield_anchor: Control) -> void:
 		if panel_size == Vector2.ZERO:
 			panel_size = timer_panel.get_combined_minimum_size()
 		timer_panel.global_position = Vector2(anchor_pos.x + (anchor_size.x - panel_size.x) / 2.0, anchor_pos.y + 4.0)
-	if timer_panel.visible and vignette_overlay.visible:
+	if vignette_overlay.visible:
 		pulse_time += delta
 		var pulse = 0.35 + 0.65 * abs(sin(pulse_time * 6.5))
 		var vignette_style = vignette_overlay.get_theme_stylebox("panel") as StyleBoxFlat
 		if vignette_style:
 			vignette_style.border_color = Color(0.85, 0.1, 0.1, pulse * 0.35)
 			vignette_style.shadow_color = Color(1.0, 0.0, 0.0, pulse * 0.2)
-		timer_label.add_theme_color_override("font_color", Color(0.9, 0.1, 0.1).lerp(Color(0.95, 0.75, 0.25), abs(sin(pulse_time * 3.5))))
-		var timer_style = timer_panel.get_theme_stylebox("panel") as StyleBoxFlat
-		if timer_style:
-			timer_style.border_color = Color(0.9, 0.1, 0.1, 0.5 + 0.5 * pulse)
-		timer_label.pivot_offset = timer_label.size / 2.0
-		timer_label.scale = Vector2.ONE * (1.0 + 0.08 * pulse)
+		if timer_panel.visible:
+			timer_label.add_theme_color_override("font_color", Color(0.9, 0.1, 0.1).lerp(Color(0.95, 0.75, 0.25), abs(sin(pulse_time * 3.5))))
+			var timer_style = timer_panel.get_theme_stylebox("panel") as StyleBoxFlat
+			if timer_style:
+				timer_style.border_color = Color(0.9, 0.1, 0.1, 0.5 + 0.5 * pulse)
+			timer_label.pivot_offset = timer_label.size / 2.0
+			timer_label.scale = Vector2.ONE * (1.0 + 0.08 * pulse)
 		heartbeat_timer += delta
 		if heartbeat_timer >= 1.0:
 			heartbeat_timer = 0.0
@@ -83,6 +89,11 @@ func process_timer(delta: float, battlefield_anchor: Control) -> void:
 func set_volume(value: float) -> void:
 	heartbeat_volume = value
 	_update_heartbeat_volume()
+
+func set_battle_pause_active(active: bool) -> void:
+	battle_pause_active = active
+	if battle_pause_active and heartbeat_player != null and heartbeat_player.playing:
+		heartbeat_player.stop()
 
 # 실행: construct the floating timer panel.
 func _create_timer_panel() -> void:

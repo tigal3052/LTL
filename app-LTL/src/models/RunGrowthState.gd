@@ -8,6 +8,7 @@
 class_name RunGrowthState
 extends RefCounted
 
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
 const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
 
 var gold: int = 100
@@ -24,6 +25,7 @@ var scan_unlocks: Array = []
 var temporary_modifiers: Dictionary = {}
 var run_modifiers: Dictionary = {}
 var reward_history: Array = []
+var artifact_discovery: Array = []
 
 # 실행: initialize with default values.
 func _init(data: Dictionary = {}) -> void:
@@ -65,6 +67,9 @@ func from_dict(data: Dictionary) -> void:
 	var history = data.get("rewardHistory", [])
 	if history is Array:
 		reward_history = history.duplicate(true)
+	var discovery = data.get("artifactDiscovery", [])
+	if discovery is Array:
+		artifact_discovery = discovery.duplicate(true)
 
 # 실행: export state to a dictionary.
 func to_dict() -> Dictionary:
@@ -78,7 +83,8 @@ func to_dict() -> Dictionary:
 		"scanUnlocks": scan_unlocks.duplicate(true),
 		"temporaryModifiers": temporary_modifiers.duplicate(true),
 		"runModifiers": run_modifiers.duplicate(true),
-		"rewardHistory": reward_history.duplicate(true)
+		"rewardHistory": reward_history.duplicate(true),
+		"artifactDiscovery": artifact_discovery.duplicate(true)
 	}
 
 # 실행: get total starting gold including passive boost.
@@ -88,7 +94,7 @@ func get_starting_gold() -> int:
 # 실행: get multiplier for drill cooldown reduction (e.g. 0.95, 0.90).
 func get_cooldown_modifier() -> float:
 	var lvl = int(purchased_passives.get("cooldown_reduction", 0))
-	return clampf(1.0 - (lvl * 0.05), 0.5, 1.0)
+	return EnergyTempoBalanceScript.cooldown_modifier_for_level(lvl)
 
 # 실행: get base aim damage bonus (adds flat amount to mining damage).
 func get_damage_bonus() -> float:

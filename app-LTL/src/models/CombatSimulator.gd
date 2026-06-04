@@ -8,6 +8,8 @@
 class_name CombatSimulator
 extends RefCounted
 
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+
 # 실행: store core combat attributes.
 var result: String = "active"
 var shield: float = 0.0
@@ -19,8 +21,8 @@ var elapsed_ticks: int = 0
 var disabled: bool = false
 
 # 실행: store queue, pin, repair, aim, battlefield, and telemetry summary sub-states.
-var queue_capacity: int = 8
-var queue: Array[String] = []
+var queue_capacity: int = 16
+var queue: Array = []
 var queue_pinned_slots: int = 0
 var queue_empty_shots: int = 0
 
@@ -41,6 +43,16 @@ var battlefield_rows: int = 3
 var battlefield_cols: int = 10
 var weakness_markers: Array = []
 var terrain_debuffs: Array = []
+var terrain_buffs: Array = []
+var obstacles: Array = []
+var hazard_snapshot: Dictionary = {}
+var obstacle_allowed_families: Array = []
+var obstacle_miss_debt: Dictionary = {}
+var obstacle_spawn_backlog: Dictionary = {}
+var obstacle_shift_count: int = 0
+var purple_damage_reduction_ratio: float = 0.0
+var paused_obstacle_ticks: int = 0
+var relic_runtime: Dictionary = {}
 
 var summary_shots_fired: int = 0
 var summary_shots_hit_match: int = 0
@@ -64,7 +76,7 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	var init_q = combat_data.get("initialQueue", [])
 	if init_q is Array and not init_q.is_empty():
 		for item in init_q:
-			queue.append(str(item))
+			queue.append(item.duplicate(true) if item is Dictionary else str(item))
 	else:
 		# Empty queue by default, items in backpack will charge it
 		pass
@@ -88,8 +100,22 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 
 	battlefield_rows = 3
 	battlefield_cols = 10
-	weakness_markers = _create_weakness_markers(combat_data.get("weakness", []))
+	var raw_hazard: Variant = combat_data.get("hazard", {})
+	var hazard_data: Dictionary = raw_hazard if raw_hazard is Dictionary else {}
+	hazard_snapshot = hazard_data.duplicate(true)
+	obstacle_allowed_families = EnergyTempoBalanceScript.normalized_colors(hazard_data.get("allowedFamilies", []), false)
+	if obstacle_allowed_families.is_empty():
+		obstacle_allowed_families = EnergyTempoBalanceScript.normalized_colors(combat_data.get("weakness", []), true)
+	weakness_markers = _create_weakness_markers(combat_data.get("weakness", []), int(combat_data.get("terrainSeed", combat_data.get("seed", 1))))
 	terrain_debuffs = combat_data.get("terrainDebuffs", []).duplicate(true)
+	terrain_buffs = combat_data.get("terrainBuffs", []).duplicate(true)
+	obstacles = combat_data.get("obstacles", []).duplicate(true)
+	obstacle_miss_debt = _normalized_obstacle_counter(combat_data.get("obstacleMissDebt", {}))
+	obstacle_spawn_backlog = _normalized_obstacle_counter(combat_data.get("obstacleSpawnBacklog", {}))
+	obstacle_shift_count = int(combat_data.get("obstacleShiftCount", 0))
+	purple_damage_reduction_ratio = float(combat_data.get("purpleDamageReductionRatio", 0.0))
+	paused_obstacle_ticks = int(combat_data.get("pausedObstacleTicks", 0))
+	relic_runtime = combat_data.get("relicRuntime", {}).duplicate(true)
 
 	summary_shots_fired = 0
 	summary_shots_hit_match = 0
@@ -97,11 +123,8 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	summary_shots_fired_empty_queue = 0
 
 # 실행: map weakness colors onto battlefield cells.
-func _create_weakness_markers(weakness: Array) -> Array:
-	var markers: Array = []
-	for index in range(weakness.size()):
-		markers.append({"cellId": "r%dc%d" % [int(index / 10), index % 10], "color": weakness[index]})
-	return markers
+func _create_weakness_markers(_weakness: Array, seed_val: int = 1) -> Array:
+	return EnergyTempoBalanceScript.terrain_markers(battlefield_rows, battlefield_cols, seed_val, 0)
 
 # 실행: export current combat simulator attributes to a clean dictionary.
 func to_dict() -> Dictionary:
@@ -141,8 +164,17 @@ func to_dict() -> Dictionary:
 			"rows": battlefield_rows,
 			"columns": battlefield_cols,
 			"weaknessMarkers": weakness_markers.duplicate(true),
-			"terrainDebuffs": terrain_debuffs.duplicate(true)
+			"terrainDebuffs": terrain_debuffs.duplicate(true),
+			"terrainBuffs": terrain_buffs.duplicate(true),
+			"allowedObstacleFamilies": obstacle_allowed_families.duplicate(true),
+			"obstacles": obstacles.duplicate(true),
+			"obstacleMissDebt": obstacle_miss_debt.duplicate(true),
+			"obstacleSpawnBacklog": obstacle_spawn_backlog.duplicate(true),
+			"obstacleShiftCount": obstacle_shift_count,
+			"purpleDamageReductionRatio": purple_damage_reduction_ratio,
+			"pausedObstacleTicks": paused_obstacle_ticks
 		},
+		"relicRuntime": relic_runtime.duplicate(true),
 		"summary": {
 			"shots_fired": summary_shots_fired,
 			"shots_hit_match": summary_shots_hit_match,
@@ -150,3 +182,10 @@ func to_dict() -> Dictionary:
 			"shots_fired_empty_queue": summary_shots_fired_empty_queue
 		}
 	}
+
+func _normalized_obstacle_counter(value: Variant) -> Dictionary:
+	var families := {"red": 0, "blue": 0, "purple": 0, "green": 0}
+	if value is Dictionary:
+		for family in families.keys():
+			families[family] = int(value.get(family, 0))
+	return families

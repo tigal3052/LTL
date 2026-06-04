@@ -1,0 +1,31 @@
+extends SceneTree
+func _init() -> void:
+	var read_model_script = load("res://src/ui/read_models/ArtifactCodexReadModel.gd")
+	var panel_script = load("res://src/ui/ArtifactCodexPanelUI.gd")
+	var file := FileAccess.open("res://src/data/reward-table.json", FileAccess.READ)
+	var json := JSON.new()
+	json.parse(file.get_as_text())
+	var table: Dictionary = json.get_data()
+	var model: Dictionary = read_model_script.project(table, {"artifactDiscovery": []}, false, "ko", "", "beacon")
+	var root := Control.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	get_root().add_child(root)
+	var panel = panel_script.new()
+	root.add_child(panel)
+	await process_frame
+	panel.render_codex(model)
+	panel.visible = true
+	panel._apply_book_layout()
+	await process_frame
+	var book_root = panel.get_node("BookCenter/BookAspect/BookRoot")
+	var spread = panel.get_node("BookCenter/BookAspect/BookRoot/Spread")
+	var header = panel.get_node("BookCenter/BookAspect/BookRoot/HeaderBar")
+	var left_scroll = panel.get_node("BookCenter/BookAspect/BookRoot/Spread/LeftPage/LeftScroll")
+	var right_scroll = panel.get_node("BookCenter/BookAspect/BookRoot/Spread/RightPage/RightScroll")
+	print("PANEL_SIZE=", panel.size)
+	print("BOOK_ROOT_POS=", book_root.position, " SIZE=", book_root.size)
+	print("SPREAD_POS=", spread.position, " SIZE=", spread.size)
+	print("HEADER_POS=", header.position, " SIZE=", header.size)
+	print("LEFT_SCROLL_POS=", left_scroll.position, " SIZE=", left_scroll.size)
+	print("RIGHT_SCROLL_POS=", right_scroll.position, " SIZE=", right_scroll.size)
+	quit(0)

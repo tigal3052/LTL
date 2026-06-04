@@ -6,7 +6,7 @@ This file is the live implementation map for AI agents. It records each current 
 
 - Generated/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, or when an entry has an empty/TODO-style responsibility.
-- Excluded from per-file enforcement: `.git`, `.godot-user`, `.worktrees`, `.tmp-source-map-gate-tests`, `docs/codex-worklog`, and `docs/comment-gates/backups`.
+- Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/codex-worklog`, and `docs/comment-gates/backups`.
 
 ## File Map
 
@@ -228,10 +228,54 @@ This file is the live implementation map for AI agents. It records each current 
   - Log Panel is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/Log_Panel.png.import`
   - Log Panel.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/miner.png`
-  - miner is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/miner.png.import`
-  - miner.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/ItemBook.png`
+  - ItemBook is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/ItemBook.png.import`
+  - ItemBook.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/background.png`
+  - background is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/background.png.import`
+  - background.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/charactor_backpack.png`
+  - charactor backpack is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/charactor_backpack.png.import`
+  - charactor backpack.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/charactor1.png`
+  - charactor1 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/charactor1.png.import`
+  - charactor1.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/charactor1_ss.png`
+  - charactor1 ss is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/charactor/charactor1_ss.png.import`
+  - charactor1 ss.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner/miner_45.png`
+  - miner 45 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner/miner_45.png.import`
+  - miner 45.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner/miner_60.png`
+  - miner 60 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner/miner_60.png.import`
+  - miner 60.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner/miner_90.png`
+  - miner 90 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/miner/miner_90.png.import`
+  - miner 90.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_1.png`
+  - pin 1 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_1.png.import`
+  - pin 1.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_2.png`
+  - pin 2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_2.png.import`
+  - pin 2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_3.png`
+  - pin 3 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_3.png.import`
+  - pin 3.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_4.png`
+  - pin 4 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/pin/pin_4.png.import`
+  - pin 4.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/blue_tile.png`
   - blue tile is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/blue_tile.png.import`
@@ -256,8 +300,6 @@ This file is the live implementation map for AI agents. It records each current 
   - tile panel nobg is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/tile_panel_nobg.png.import`
   - tile panel nobg.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/tile/tile_panel_nobg2.png.import`
-  - tile panel nobg2.png is a UI art resource or Godot import metadata file.
 - `app-LTL/src/data/node-table.json`
   - node table stores balance or progression data.
 - `app-LTL/src/data/base-shop-table.json`
@@ -295,6 +337,7 @@ This file is the live implementation map for AI agents. It records each current 
   - Routes backpack slot, reward selection, and discard-zone inputs into inventory and reward transitions.
   - Sends node-select, combat, reward, and completion phase snapshots to MainViewRuntime render contracts.
   - Reflects shop opening, passive purchases, and growth modifier application in run state and UI.
+  - Opens the artifact codex by pairing reward-table data with run discovery history.
   - Manages combat weakness shuffle timers and queue color recalculation.
 - `app-LTL/src/models/Artifact.gd`
   - Stores artifact id, rarity, energy type, shape, cooldown, and synergy state.
@@ -427,11 +470,17 @@ This file is the live implementation map for AI agents. It records each current 
   - Docks the backpack beside the node map during node-select and applies the shell-wide interaction theme.
   - Mediates combat VFX, screenshake, tooltip, discard zone, and log console behavior.
   - Propagates locale changes and volume settings to child UI components.
+- `app-LTL/src/ui/RewardRevealOverlay.gd`
+  - Renders and controls the full-screen reward reveal ceremony overlay.
+- `app-LTL/src/ui/legacy/LegacyRewardRevealOverlay.gd`
+  - Preserves the prior reward reveal overlay contract for comparison during migration.
 - `app-LTL/src/ui/presenters/BackpackGridFactory.gd`
   - Creates backpack border cells and inner slot UI nodes.
   - Calculates artifact style, edge masks, energy colors, and border slices.
   - Calculates cooldown charge/remaining ratios and visual cooldown interpolation.
   - Creates cooldown mask styles.
+- `app-LTL/src/ui/presenters/BackpackPinLayoutPolicy.gd`
+  - Centralizes backpack pin slot, overhang, and top-content width sizing math.
 - `app-LTL/src/ui/presenters/CombatFeedbackPresenter.gd`
   - Combat Feedback Presenter projects domain state into UI presentation contracts.
 - `app-LTL/src/ui/presenters/HeartbeatSynth.gd`
@@ -441,12 +490,17 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd`
   - Determines visibility of primary UI regions for the current phase.
   - Projects victory overlay visibility plus map/backpack stretch ratios and timer/action layout state.
+- `app-LTL/src/ui/presenters/RewardCeremonyPolicy.gd`
+  - Defines reward ceremony step sequencing and interaction gate policy.
 - `app-LTL/src/ui/read_models/NodeMapReadModel.gd`
   - Projects node-map scene snapshots into card lists and selected state.
   - Aggregates route telemetry from node candidate lists.
 - `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`
   - Projects node-select candidates into UI cards with title, body, and weakness labels.
   - Converts candidate risk, reward, and weakness information into readable copy.
+- `app-LTL/src/ui/read_models/ArtifactCodexReadModel.gd`
+  - Projects artifact catalog and discovery snapshots into codex-facing section data.
+  - Builds debug-all and discovered-only artifact rows without exposing runtime-only state.
 - `app-LTL/src/ui/read_models/RewardReadModel.gd`
   - Converts a single reward into UI-facing summary data.
   - Builds reward tray, held reward, and discard zone display contracts.
@@ -468,15 +522,23 @@ This file is the live implementation map for AI agents. It records each current 
   - Renders release base-shop rows for character, starter item, and leviathan scan unlocks.
   - Renders purchase buttons from gold, XP, and passive level state.
   - Calculates passive costs and emits purchase signals.
+- `app-LTL/src/ui/ArtifactCodexPanelUI.gd`
+  - Creates the artifact codex menu panel with discovered-only and debug-all display modes.
+  - Renders projected codex rows and emits debug visibility toggle signals.
+- `app-LTL/src/ui/ArtifactCodexArtResolver.gd`
+  - Resolves codex hero and thumbnail artwork descriptors from reward-table image contracts.
+  - Falls back to default and discovery-state artwork descriptors when authored art is unavailable.
 - `app-LTL/src/ui/StatusPanelUI.gd`
   - Renders combat target shield/health bars and extractor status.
   - Visualizes the current queue gems and maps energy colors.
+  - Clears stale queue gems immediately so repeated same-frame rerenders cannot inflate the status-column layout.
   - Builds copy for repair, pin, and global terrain debuff status.
   - Manages victory, repair, and combat overlay display.
 - `app-LTL/src/ui/TextCatalog.gd`
   - Provides locale state and translation key lookup.
   - Strips implementation tags and size noise from item names/descriptions for display.
   - Converts enum, hint, rarity, and energy labels into locale-aware copy.
+  - Resolves localized reward names, reward descriptions, and effect summaries from data contracts.
 - `app-LTL/src/ui/VFXManager.gd`
   - Creates resonance beam and hit particle VFX.
   - Applies and recovers screenshake offsets during frame updates.
@@ -504,6 +566,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Provides facades for reward tray pickup, held placement, discard, rotate, and synergy recalculation.
 - `app-LTL/src/vocabulary/combat/RecalculateQueueColors.gd`
   - Recalculate Queue Colors implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/combat/SpawnNewTileObstacles.gd`
+  - Spawn New Tile Obstacles implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/combat/ShiftWeaknessMarkers.gd`
   - Shift Weakness Markers implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/CombatVocab.gd`
@@ -534,6 +598,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Creates Artifact models from reward dictionaries.
   - Converts reward rarity, type, energy, shape, cooldown, and damage values into artifact fields.
   - Provides shape and default stat helpers.
+- `app-LTL/src/vocabulary/reward/RewardCatalogOrder.gd`
+  - Reward Catalog Order implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/RewardVocab.gd`
   - Generates stage reward offers from seed, stage, weakness, and tuning values.
   - Applies reward type mix and type-ratio weighting.
@@ -556,6 +622,30 @@ This file is the live implementation map for AI agents. It records each current 
   - inspect img verifies Godot contracts and regression behavior.
 - `app-LTL/tests/m2_main_scene_contract.ps1`
   - m2 main scene contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_backpack_ui_compile_contract.gd`
+  - run backpack ui compile contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_main_layout_audit_contract.gd`
+  - run main layout audit contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_main_start_flow_contract.gd`
+  - run main start flow contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_main_viewport_probe.gd`
+  - run main viewport probe verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_node_map_scene_smoke.gd`
+  - run node map scene smoke verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_pin_miner_layout_probe.gd`
+  - run pin miner layout probe verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_reward_ceremony_contract.gd`
+  - run reward ceremony contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_reward_reveal_front_contract.gd`
+  - run reward reveal front contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_reward_cleanup_layout_contract.gd`
+  - run reward cleanup layout contract verifies repeated combat queue rerenders do not accumulate stale gems and stretch gameplay layout.
+- `app-LTL/tests/run_start_option_contract.gd`
+  - run start option contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_test_ui_read_models.gd`
+  - run test ui read models verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_test_reward_contract.gd`
+  - run test reward contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_backpack_vocab.gd`
   - test backpack vocab verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_combat_vocab.gd`
@@ -566,6 +656,8 @@ This file is the live implementation map for AI agents. It records each current 
   - test node map scene smoke verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_node_routing_contract.gd`
   - test node routing contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_start_option_contract.gd`
+  - test start option contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_reward_contract.gd`
   - test reward contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_release_content_contract.gd`
@@ -576,6 +668,14 @@ This file is the live implementation map for AI agents. It records each current 
   - design review.md is a project component with a tracked responsibility.
 - `docs/architectural-gates/m2-refactoring-gate.md`
   - m2 refactoring gate documents project decisions, verification, or work history.
+- `docs/architectural-gates/release-blocking-gate.md`
+  - release blocking gate defines release-risk checks for removed assets, UI/runtime size, and singleton node-map layout ownership.
+- `docs/architectural-gates/strict-refactor-gate.md`
+  - strict refactor gate blocks regression in newly extracted pure presenter policies.
+- `docs/architectural-gates/warning-refactor-gate.md`
+  - warning refactor gate keeps legacy size and dynamic-control debt visible without blocking incremental work.
+- `docs/request-ledgers/2026-06-02-refactor-harness-quality-gate.md`
+  - Records request constraints, mutable scope, refactor dispositions, verification notes, and artifact ledger expectations for this broad refactor.
 - `docs/release-resource-needs.md`
   - release resource needs documents exact final-art and audio paths that can be populated after implementation.
 - `docs/release-visual-quality-upgrade-plan.md`
@@ -608,6 +708,10 @@ This file is the live implementation map for AI agents. It records each current 
   - comment implementation rules documents project decisions, verification, or work history.
 - `docs/mockups/render-terrain-panel-before-after.ps1`
   - render terrain panel before after documents project decisions, verification, or work history.
+- `docs/mockups/codex-book-approaches.html`
+  - codex book approaches documents project decisions, verification, or work history.
+- `docs/mockups/codex-book-hybrid.html`
+  - codex book hybrid documents project decisions, verification, or work history.
 - `docs/mockups/terrain-panel-before-after.html`
   - terrain panel before after documents project decisions, verification, or work history.
 - `docs/mockups/terrain-panel-before-after-render.png`
@@ -630,10 +734,38 @@ This file is the live implementation map for AI agents. It records each current 
   - 2026 05 31 request analysis execution gates documents project decisions, verification, or work history.
 - `docs/superpowers/plans/2026-05-31-ui-layout-system-refactor-plan.md`
   - 2026 05 31 ui layout system refactor plan documents project decisions, verification, or work history.
+- `docs/superpowers/plans/2026-06-01-backpack-pin-layout-vfx-implementation-plan.md`
+  - Records the backpack pin layout and VFX implementation plan.
+- `docs/superpowers/plans/2026-06-01-reward-ceremony-implementation-plan.md`
+  - Records the reward ceremony implementation plan and verification path.
+- `docs/superpowers/plans/2026-06-02-refactor-harness-quality-gate-plan.md`
+  - Records the refactor review and harness quality gate modification plan.
+- `docs/superpowers/plans/2026-06-03-artifact-codex-book-implementation-plan.md`
+  - Records the artifact codex book implementation plan and verification scope.
+- `docs/superpowers/plans/2026-06-03-m5-obstacle-relic-implementation-plan.md`
+  - Records the M5 obstacle and relic implementation plan, scope, and closure checks.
+- `docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md`
+  - Records the M6 UI and UX finalization plan and milestone sequencing.
+- `docs/superpowers/plans/2026-06-04-boss-aware-hazard-new-tile-spawn-plan.md`
+  - Records the boss-aware hazard new-tile spawn plan and verification scope.
+- `docs/superpowers/plans/2026-06-04-relic-obstacle-runtime-alignment-plan.md`
+  - Records the relic obstacle runtime alignment plan for reward data, trigger vocabulary, and verification updates.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
   - 2026-05-29 node map loadout balance design documents the node-map/loadout balance design decisions.
+- `docs/superpowers/specs/2026-06-01-backpack-pin-layout-vfx-design.md`
+  - Records the backpack pin layout and VFX design decisions.
+- `docs/superpowers/specs/2026-06-01-reward-ceremony-redesign-design.md`
+  - Records the reward ceremony redesign decisions and visual contract.
+- `docs/superpowers/specs/2026-06-02-artifact-pool-expansion-design.ko.md`
+  - Records the 56-item drill/beacon pool expansion design, rarity balance, and verification scope.
+- `docs/superpowers/specs/2026-06-03-artifact-codex-book-design.ko.md`
+  - Records the artifact codex book design decisions, UI contract, and visual direction.
+- `docs/superpowers/specs/2026-06-03-m5-obstacle-relic-backpack-design.ko.md`
+  - Records the M5 obstacle, relic, and backpack design rules and intended gameplay behavior.
+- `docs/superpowers/specs/2026-06-04-tmp-work-temp-consolidation-design.md`
+  - Records the temporary work and temp-file consolidation design decisions and guardrails.
 - `LTL-harness/00_AGENTS.md`
   - 00 AGENTS provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/docs/00_PRODUCT_SENSE.md`
@@ -708,6 +840,10 @@ This file is the live implementation map for AI agents. It records each current 
   - 08 M2 combat scene reconstruction completed records outputs and verification for a completed milestone.
 - `LTL-harness/docs/11_exec-plans/02_completed/09_M3_reward_and_progression_completed.md`
   - 09 M3 reward and progression completed records outputs and verification for a completed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/10_M4_node_routing_completed.md`
+  - 10 M4 node routing completed records the verified outputs, plan deviations, and remaining gaps for the closed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/11_M5_hazard_hierarchy_completed.md`
+  - 11 M5 hazard hierarchy completed records the verified outputs, plan deviations, and remaining gaps for the closed milestone.
 - `LTL-harness/docs/12_product-specs/01_CORE_COMBAT.md`
   - 01 CORE COMBAT defines product rules and domain specifications.
 - `LTL-harness/docs/12_product-specs/02_INVENTORY_SYNERGY.md`
@@ -737,7 +873,7 @@ This file is the live implementation map for AI agents. It records each current 
 - `LTL-harness/docs/15_pc-environment/01_local_toolchain.youngsoon.md`
   - 01 local toolchain.youngsoon explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/architectural-decoupling-enforcement.md`
-  - architectural decoupling enforcement explains harness operating rules and implementation procedures.
+  - architectural decoupling enforcement explains passive-view, orchestrator, and singleton screen layout ownership rules.
 - `LTL-harness/docs/comment-first-enforcement.md`
   - comment first enforcement explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/i18n-text-enforcement.md`
@@ -746,30 +882,50 @@ This file is the live implementation map for AI agents. It records each current 
   - phase gate examples explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/post-m0-godot-enforcement.md`
   - post m0 godot enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/request-analysis-execution-gate.md`
+  - Explains the pre-edit and pre-complete request analysis gate for broad refactors and large change sets.
 - `LTL-harness/docs/templates/backup-manifest-template.md`
   - backup manifest template explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/templates/comment-gate-ledger-template.md`
   - comment gate ledger template explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/templates/request-constraint-ledger-template.md`
+  - Template for recording invariants, mutable scope, refactor/delete disposition, verification, and artifact ledger expectations.
+- `LTL-harness/docs/templates/request-execution-checklist-template.md`
+  - Template for running request analysis before edits and before completion.
 - `LTL-harness/README.md`
   - README provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/tools/architectural-gate.ps1`
-  - architectural gate is a harness validation gate or automation tool.
+  - architectural gate validates manifest-driven size, dependency, dynamic creation, singleton layout ownership, and declarative layout-resource/content-invariant shared-layout rules.
 - `LTL-harness/tools/comment-first-gate.ps1`
   - comment first gate is a harness validation gate or automation tool.
 - `LTL-harness/tools/i18n-text-gate.ps1`
-  - i18n text gate is a harness validation gate or automation tool.
+  - Enforces TextCatalog routing for UI copy and localized reward-table name/description/effect-summary contracts.
+- `LTL-harness/tools/i18n-text-gate.tests.ps1`
+  - Covers valid and invalid localized reward-data and catalog-bypass scenarios for the i18n text gate.
 - `LTL-harness/tools/ltl-tech-stack-gate.ps1`
   - ltl tech stack gate is a harness validation gate or automation tool.
 - `LTL-harness/tools/milestone-gate.ps1`
   - milestone gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/request-analysis-gate.ps1`
+  - Validates request constraint ledgers before broad edits and before completion.
+- `LTL-harness/tools/request-analysis-gate.tests.ps1`
+  - Covers valid and invalid request constraint ledger scenarios for the request analysis gate.
 - `LTL-harness/tools/source-map-gate.ps1`
   - source map gate is a harness validation gate or automation tool.
 - `LTL-harness/tools/source-map-gate.tests.ps1`
   - source map gate.tests is a harness validation gate or automation tool.
 - `tools/apply-agent-harness-phase-gate.ps1`
   - apply agent harness phase gate runs local verification or workflow automation.
+- `tools/godot-runner.ps1`
+  - Normalizes Godot log paths, prepares the local Godot temp environment, and exposes shared PowerShell runner helpers.
 - `tools/run-compile-check.ps1`
   - run compile check runs local verification or workflow automation.
+- `tools/invoke-godot.ps1`
+  - Provides the canonical local Godot CLI entry point that routes ad hoc logs into app-LTL/.tmp-godot-logs.
+- `tools/run-ltl-quality-gate.ps1`
+  - Runs the consolidated LTL source, harness, architecture, and Godot contract quality gate.
+- `tools/godot-runner.tests.ps1`
+  - Verifies the local Godot runner helper path normalization and temporary environment setup behavior.
 - `tools/watch-compile.ps1`
   - watch compile runs local verification or workflow automation.
 - `구현기획서_Godot_TDD.md`
@@ -778,4 +934,34 @@ This file is the live implementation map for AI agents. It records each current 
   - Describes the v0.1 product plan and early design direction.
 - `기획서v0.2.md`
   - Describes the v0.2 product plan and updated design direction.
+- `app-LTL/resources/UI/tile/blue_tile_hazard.png`
+  - blue tile hazard is a UI art resource for blue-family hazard overlays.
+- `app-LTL/resources/UI/tile/blue_tile_hazard.png.import`
+  - blue tile hazard import stores Godot metadata for the blue hazard overlay texture.
+- `app-LTL/resources/UI/tile/green_tile_hazard.png`
+  - green tile hazard is a UI art resource for green-family hazard overlays.
+- `app-LTL/resources/UI/tile/green_tile_hazard.png.import`
+  - green tile hazard import stores Godot metadata for the green hazard overlay texture.
+- `app-LTL/resources/UI/tile/purple_tile_hazard.png`
+  - purple tile hazard is a UI art resource for purple-family hazard overlays.
+- `app-LTL/resources/UI/tile/purple_tile_hazard.png.import`
+  - purple tile hazard import stores Godot metadata for the purple hazard overlay texture.
+- `app-LTL/resources/UI/tile/red_tile_hazard.png`
+  - red tile hazard is a UI art resource for red-family hazard overlays.
+- `app-LTL/resources/UI/tile/red_tile_hazard.png.import`
+  - red tile hazard import stores Godot metadata for the red hazard overlay texture.
+- `app-LTL/src/balance/EnergyTempoBalance.gd`
+  - EnergyTempoBalance owns queue tempo constants, cooldown scaling, and terrain energy marker palette generation.
+- `app-LTL/tests/run_test_combat_vocab.gd`
+  - run test combat vocab executes focused combat vocabulary regression tests.
+- `app-LTL/tests/tmp_codex_layout_probe.gd`
+  - tmp codex layout probe preserves a local layout inspection script for artifact codex debugging.
+- `docs/mockups/hazard-tile-approaches.html`
+  - hazard tile approaches mockup records visual comparison options for hazard tile treatment.
+- `docs/mockups/hazard-tile-state-matrix.html`
+  - hazard tile state matrix mockup records hazard tile visual states for review.
+- `docs/superpowers/plans/2026-06-03-hazard-active-only-implementation-plan.md`
+  - hazard active only implementation plan records the planned hazard visual and behavior correction steps.
+- `docs/superpowers/specs/2026-06-03-hazard-tile-visual-design.ko.md`
+  - hazard tile visual design spec records the Korean design decision for hazard tile presentation.
 

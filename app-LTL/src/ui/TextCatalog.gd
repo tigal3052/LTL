@@ -20,6 +20,7 @@ const STRINGS := {
 		"action.claim_rewards": "보상 확정",
 		"action.settings": "설정",
 		"action.shop": "상점",
+		"action.codex": "유물 도감",
 		"action.close": "닫기",
 		"action.main_menu": "메인 메뉴",
 		"action.apply_close": "적용 후 닫기",
@@ -51,6 +52,23 @@ const STRINGS := {
 		"node.final_distance": "최종 {0}",
 		"reward.empty": "남은 보상이 없습니다. '보상 확정'을 눌러 다음 노드를 선택하세요.",
 		"reward.holding": " [들고 있음]",
+		"codex.title": "유물 도감",
+		"codex.undiscovered": "미발견 유물",
+		"codex.empty": "표시할 유물이 없습니다.",
+		"codex.debug_all": "디버그: 전체 유물 표시",
+		"codex.discovered_count": "발견 {0} / {1}",
+		"codex.section.all": "전체",
+		"codex.section.drill": "드릴",
+		"codex.section.beacon": "비컨",
+		"codex.section.relic": "유물",
+		"codex.locked_body": "아직 기록되지 않은 유물이다. 더 깊은 탐사를 통해 삽화와 상세 기록이 완성된다.",
+		"codex.locked_hint": "발견 전에는 이름과 효과가 봉인된다.",
+		"codex.state.discovered": "기록됨",
+		"codex.state.locked": "미발견",
+		"codex.missing_art": "삽화 슬롯 준비 중",
+		"codex.shape": "백팩 도형",
+		"codex.shape_footprint": "{0}x{1} 칸",
+		"codex.shape_cells": "실칸 {0}",
 		"discard.idle": "버리기 구역\n[보상이나 백팩 유물을 선택한 뒤 여기에 놓으세요]",
 		"discard.active": "버리기 구역\n[클릭하면 {0}을(를) 버립니다]",
 		"tooltip.energy": "에너지",
@@ -58,6 +76,7 @@ const STRINGS := {
 		"tooltip.damage": "피해",
 		"tooltip.synergy_cdr": "시너지 쿨감",
 		"tooltip.beacon_effects": "비콘 충전 효과",
+		"tooltip.relic_link": "유물 연결",
 		"tooltip.reward_artifact": "보상 유물",
 		"tooltip.equipped_artifact": "현재 장착",
 		"tooltip.no_same_color_drill": "같은 색상 장착 드릴 없음",
@@ -69,10 +88,14 @@ const STRINGS := {
 		"rarity.mythic": "신화",
 		"item.drill": "드릴",
 		"item.beacon": "비콘",
+		"item.relic": "유물",
 		"color.red": "빨강",
 		"color.blue": "파랑",
 		"color.purple": "보라",
 		"color.green": "초록",
+		"relic_link.diagonal_1": "대각선 연결",
+		"relic_link.skip_2": "한 칸 띄운 연결",
+		"relic_link.crown_link": "왕관 연결",
 		"risk.safe": "안전",
 		"risk.medium": "보통",
 		"risk.hard": "어려움",
@@ -146,6 +169,7 @@ const STRINGS := {
 		"action.claim_rewards": "Claim Rewards",
 		"action.settings": "Settings",
 		"action.shop": "Shop",
+		"action.codex": "Artifact Codex",
 		"action.close": "Close",
 		"action.main_menu": "Main Menu",
 		"action.apply_close": "Apply & Close",
@@ -177,6 +201,23 @@ const STRINGS := {
 		"node.final_distance": "Final {0}",
 		"reward.empty": "No pending rewards left. Press 'Claim Rewards' to select your next node.",
 		"reward.holding": " [HOLDING]",
+		"codex.title": "Artifact Codex",
+		"codex.undiscovered": "Undiscovered artifact",
+		"codex.empty": "No artifacts to display.",
+		"codex.debug_all": "Debug: show all artifacts",
+		"codex.discovered_count": "Discovered {0} / {1}",
+		"codex.section.all": "All",
+		"codex.section.drill": "Drill",
+		"codex.section.beacon": "Beacon",
+		"codex.section.relic": "Relic",
+		"codex.locked_body": "This entry has not been recorded yet. Deeper expeditions will unlock its illustration and full notes.",
+		"codex.locked_hint": "Name and effects remain sealed until discovery.",
+		"codex.state.discovered": "Recorded",
+		"codex.state.locked": "Locked",
+		"codex.missing_art": "Illustration slot ready for future art",
+		"codex.shape": "Backpack Shape",
+		"codex.shape_footprint": "{0}x{1} slots",
+		"codex.shape_cells": "Filled cells {0}",
 		"discard.idle": "DISCARD ZONE\n[Select reward or backpack item to drop here]",
 		"discard.active": "DISCARD ZONE\n[Click here to discard {0}]",
 		"tooltip.energy": "Energy",
@@ -184,6 +225,7 @@ const STRINGS := {
 		"tooltip.damage": "Damage",
 		"tooltip.synergy_cdr": "Synergy CDR",
 		"tooltip.beacon_effects": "Beacon pulse effect",
+		"tooltip.relic_link": "Relic Link",
 		"tooltip.reward_artifact": "Reward Artifact",
 		"tooltip.equipped_artifact": "Equipped",
 		"tooltip.no_same_color_drill": "No same-color equipped drill",
@@ -195,10 +237,14 @@ const STRINGS := {
 		"rarity.mythic": "Mythic",
 		"item.drill": "Drill",
 		"item.beacon": "Beacon",
+		"item.relic": "Relic",
 		"color.red": "Red",
 		"color.blue": "Blue",
 		"color.purple": "Purple",
 		"color.green": "Green",
+		"relic_link.diagonal_1": "Diagonal Link",
+		"relic_link.skip_2": "One-Gap Link",
+		"relic_link.crown_link": "Crown Link",
 		"risk.safe": "Safe",
 		"risk.medium": "Medium",
 		"risk.hard": "Hard",
@@ -281,6 +327,37 @@ static func t(key: String, args: Array = [], locale_override: String = "") -> St
 	for i in range(args.size()):
 		value = value.replace("{%d}" % i, str(args[i]))
 	return value
+
+# 실행: resolve localized text embedded in data while keeping locale choice centralized.
+static func localized_text(text_block: Variant, field: String, fallback: String = "", locale_override := "") -> String:
+	var loc := locale_override if STRINGS.has(locale_override) else _locale
+	if text_block is Dictionary:
+		var localized = text_block.get(field, {})
+		if localized is Dictionary:
+			var value := str(localized.get(loc, localized.get("en", localized.get("ko", fallback)))).strip_edges()
+			if not value.is_empty():
+				return value
+	return fallback
+
+# 실행: resolve a reward display name from localized reward data.
+static func reward_name(reward: Dictionary, locale_override := "") -> String:
+	var fallback := display_name(str(reward.get("kind", "Unknown Reward")), locale_override)
+	return localized_text(reward.get("text", {}), "name", fallback, locale_override)
+
+# 실행: resolve a reward description from localized reward data.
+static func reward_description(reward: Dictionary, locale_override := "") -> String:
+	var fallback := display_description(str(reward.get("presentation", {}).get("description", "")), locale_override)
+	return localized_text(reward.get("text", {}), "description", fallback, locale_override)
+
+# 실행: resolve a localized player-facing effect summary from an effect schema.
+static func effect_summary(schema: Dictionary, locale_override := "") -> String:
+	var loc := locale_override if STRINGS.has(locale_override) else _locale
+	var localized = schema.get("summary_i18n", {})
+	if localized is Dictionary:
+		var value := str(localized.get(loc, localized.get("en", localized.get("ko", "")))).strip_edges()
+		if not value.is_empty():
+			return value
+	return str(schema.get("summary", "")).strip_edges()
 
 # 실행: localize common data-driven item and node names for display.
 static func display_name(raw_name: String, locale_override := "") -> String:

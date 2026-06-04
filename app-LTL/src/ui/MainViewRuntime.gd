@@ -9,16 +9,21 @@ extends PanelContainer
 const TooltipReadModelScript = preload("res://src/ui/read_models/TooltipReadModel.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutPresenter.gd")
+const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
+const BackpackPinLayoutPolicyScript = preload("res://src/ui/presenters/BackpackPinLayoutPolicy.gd")
 const NodeMapReadModelScript = preload("res://src/ui/read_models/NodeMapReadModel.gd")
 const NodeMapSceneScript = preload("res://src/scenes/node_map/NodeMapScene.gd")
 const ShopPanelUIScript = preload("res://src/ui/ShopPanelUI.gd")
+const ArtifactCodexPanelUIScript = preload("res://src/ui/ArtifactCodexPanelUI.gd")
+const ArtifactCodexReadModelScript = preload("res://src/ui/read_models/ArtifactCodexReadModel.gd")
 const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
 const GiantTimerUIScript = preload("res://src/ui/GiantTimerUI.gd")
+const RewardRevealOverlayScript = preload("res://src/ui/RewardRevealOverlay.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
-const NODE_SELECT_ROW_GAP := 20.0
 const NODE_SELECT_MAP_MIN_WIDTH := 460.0
-const NODE_SELECT_BACKPACK_MIN_WIDTH := 480.0
-const NODE_SELECT_BACKPACK_MAX_WIDTH := 860.0
+const VIEWPORT_SAFE_GUTTER := 16.0
+const POPUP_OVERLAY_Z_INDEX := 500
+const REWARD_REVEAL_OVERLAY_Z_INDEX := 600
 
 signal reset_pressed
 signal start_combat_pressed
@@ -43,9 +48,11 @@ signal cell_clicked(cell_id: String, color_name: String)
 signal cell_pressed(cell_id: String, color: String)
 signal cell_released
 signal key_pressed(keycode: int)
+signal combat_overlay_pause_visibility_changed(active: bool)
 
 # New Shop signals
 signal shop_open_pressed
+signal codex_open_pressed
 signal buy_passive(passive_id: String, cost: int)
 signal buy_base_item(item_id: String)
 
@@ -91,6 +98,13 @@ var shop_xp_label: Label
 var shop_buttons: Dictionary = {}
 var shop_labels: Dictionary = {}
 var current_shop_state: Dictionary = {}
+var codex_open_button: Button
+var codex_panel: ArtifactCodexPanelUI
+var current_codex_reward_table: Dictionary = {}
+var current_codex_growth_state: Dictionary = {}
+var current_codex_debug_all := false
+var current_codex_selected_entry_id := ""
+var current_codex_active_section := "all"
 
 # Giant Timer UI Dynamic nodes
 var giant_timer_panel: PanelContainer
@@ -101,6 +115,7 @@ var heartbeat_player: AudioStreamPlayer
 var _heartbeat_volume: float = 75.0
 var heartbeat_timer: float = 1.0
 var giant_timer_ui
+var reward_reveal_overlay
 
 # Tooltip UI Dynamic nodes
 var tooltip_panel: PanelContainer
@@ -109,17 +124,21 @@ var node_map_scene: NodeMapScene = null
 var node_select_content_row: HBoxContainer = null
 var backpack_original_parent: Node = null
 var backpack_original_index: int = -1
+var interaction_fx_enabled := true
+var _pending_backpack_parent: Node = null
+var _pending_backpack_parent_index := -1
+var _backpack_reparent_pending := false
+var _pending_backpack_pin_scene: Dictionary = {}
+var _shared_backpack_layout_sync_pending := false
+var _node_map_layout_refresh_pending := false
+var _node_map_followup_refresh_requested := false
+var _view_layout_ready := false
+var _viewport_shell_sync_pending := false
+var battle_pause_active := false
+var _last_combat_pause_overlay_visible := false
 
 static func node_select_backpack_width_for_row(row_size: Vector2, map_min_width: float) -> float:
-	var target_height := maxf(0.0, row_size.y)
-	var available_width := NODE_SELECT_BACKPACK_MAX_WIDTH
-	if row_size.x > 1.0:
-		available_width = maxf(0.0, row_size.x - map_min_width - NODE_SELECT_ROW_GAP)
-	var upper_bound := minf(NODE_SELECT_BACKPACK_MAX_WIDTH, available_width)
-	var lower_bound := minf(NODE_SELECT_BACKPACK_MIN_WIDTH, upper_bound)
-	if upper_bound <= 0.0:
-		return 0.0
-	return clampf(target_height, lower_bound, upper_bound)
+	return BackpackPinLayoutPolicyScript.node_select_width_for_row(row_size, map_min_width)
 
 static func top_content_backpack_horizontal_flags() -> int:
 	return Control.SIZE_SHRINK_CENTER
@@ -127,16 +146,31 @@ static func top_content_backpack_horizontal_flags() -> int:
 static func top_content_side_horizontal_flags() -> int:
 	return Control.SIZE_EXPAND_FILL
 
+static func top_content_backpack_slot_extent_for_height(target_height: float) -> float:
+	return BackpackPinLayoutPolicyScript.top_content_slot_extent_for_height(target_height)
+
+static func top_content_backpack_pin_side_outset_for_height(target_height: float) -> float:
+	return BackpackPinLayoutPolicyScript.top_content_side_outset_for_height(target_height)
+
 static func top_content_backpack_width_for_height(target_height: float) -> float:
-	var safe_height := maxf(0.0, target_height)
-	if safe_height <= 0.0:
-		return 0.0
-	return maxf(safe_height, 420.0)
+	return BackpackPinLayoutPolicyScript.top_content_width_for_height(target_height)
+
+static func top_content_backpack_ratio_for_height(target_height: float) -> float:
+	return BackpackPinLayoutPolicyScript.top_content_ratio_for_height(target_height)
+
+static func resolved_top_content_backpack_height(row_height: float, min_row_height: float, _current_backpack_height: float) -> float:
+	return BackpackPinLayoutPolicyScript.resolved_top_content_height(row_height, min_row_height)
+
+static func popup_overlay_z_index() -> int:
+	return POPUP_OVERLAY_Z_INDEX
+
+static func reward_reveal_overlay_z_index() -> int:
+	return REWARD_REVEAL_OVERLAY_Z_INDEX
 
 # ?ㅽ뻾: connect raw UI signals to custom view signals for orchestrator consumption.
 func _ready() -> void:
 	reset_button.pressed.connect(func(): reset_pressed.emit())
-	start_button.pressed.connect(func(): start_combat_pressed.emit())
+	start_button.pressed.connect(func(): call_deferred("_emit_start_combat_pressed"))
 	hold_fire_button.pressed.connect(func(): hold_fire_pressed.emit())
 	repair_button.pressed.connect(func(): repair_pressed.emit())
 	repair_button.visible = false # R button disabled/hidden since repair is automatic now
@@ -153,6 +187,12 @@ func _ready() -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 			repair_overlay_input.emit(ev)
 	)
+	settings_panel.visibility_changed.connect(func():
+		_promote_popup_overlay_when_visible(settings_panel)
+		_emit_combat_overlay_pause_visibility_changed()
+	)
+	confirm_overlay.visibility_changed.connect(func(): _promote_popup_overlay_when_visible(confirm_overlay))
+	repair_overlay.visibility_changed.connect(func(): _promote_popup_overlay_when_visible(repair_overlay))
 	backpack_ui.slot_clicked.connect(func(coord): backpack_slot_clicked.emit(coord))
 	backpack_ui.slot_hovered.connect(func(coord): backpack_slot_hovered.emit(coord))
 	backpack_ui.slot_unhovered.connect(func(coord): backpack_slot_unhovered.emit(coord))
@@ -160,20 +200,34 @@ func _ready() -> void:
 	battlefield_ui.cell_clicked.connect(func(cid, col): cell_clicked.emit(cid, col))
 	battlefield_ui.cell_pressed.connect(func(cid, col): cell_pressed.emit(cid, col))
 	battlefield_ui.cell_released.connect(func(): cell_released.emit())
+	resized.connect(_queue_shared_backpack_layout_sync)
+	top_content.resized.connect(_queue_shared_backpack_layout_sync)
+	active_phase_container.resized.connect(_queue_shared_backpack_layout_sync)
+	node_select_panel.resized.connect(_queue_shared_backpack_layout_sync)
+	resized.connect(_queue_viewport_shell_sync)
+	resized.connect(_queue_node_map_layout_refresh)
+	active_phase_container.resized.connect(_queue_node_map_layout_refresh)
+	node_select_panel.resized.connect(_queue_node_map_layout_refresh)
 
 	# Instantiate Dynamic Shop Button
 	shop_open_button = Button.new()
 	shop_open_button.text = TextCatalogScript.t("action.shop")
 	shop_open_button.pressed.connect(func(): shop_open_pressed.emit())
 	header_actions.add_child(shop_open_button)
+	codex_open_button = Button.new()
+	codex_open_button.text = TextCatalogScript.t("action.codex")
+	codex_open_button.pressed.connect(func(): codex_open_pressed.emit())
+	header_actions.add_child(codex_open_button)
 
 	_create_shop_panel()
+	_create_artifact_codex_panel()
 	_create_node_map_scene()
 	backpack_original_parent = backpack_container.get_parent()
 	backpack_original_index = backpack_container.get_index()
 
 	# Instantiate Giant Timer & Vignette Overlay
 	_create_giant_timer()
+	_create_reward_reveal_overlay()
 	_create_vignette_overlay()
 	_create_tooltip_panel()
 
@@ -182,9 +236,36 @@ func _ready() -> void:
 	settings_panel.language_changed.connect(func(_locale): apply_locale())
 	_apply_shell_theme()
 	apply_locale()
-	call_deferred("_install_interaction_fx")
+	_defer_interaction_fx_install()
+	_view_layout_ready = true
+	_emit_combat_overlay_pause_visibility_changed()
+	_queue_viewport_shell_sync()
+	_queue_shared_backpack_layout_sync()
 
 # ?ㅽ뻾: forward unhandled keys to presenter.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED and _view_layout_ready:
+		_queue_viewport_shell_sync()
+
+func _queue_viewport_shell_sync() -> void:
+	if _viewport_shell_sync_pending:
+		return
+	_viewport_shell_sync_pending = true
+	call_deferred("_sync_viewport_shell_bounds")
+
+func _sync_viewport_shell_bounds() -> void:
+	_viewport_shell_sync_pending = false
+	if not is_inside_tree():
+		return
+	var viewport_size := get_viewport_rect().size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		return
+	custom_minimum_size = Vector2.ZERO
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	clip_contents = true
+	_queue_shared_backpack_layout_sync()
+	_queue_node_map_layout_refresh()
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		key_pressed.emit(event.keycode)
@@ -212,6 +293,7 @@ func toggle_settings() -> void:
 	if settings_panel.visible:
 		settings_panel.apply_locale()
 		shop_panel.visible = false
+		set_artifact_codex_visible(false)
 
 # ?ㅽ뻾: set settings visibility directly.
 func set_settings_visible(val: bool) -> void:
@@ -226,6 +308,7 @@ func toggle_shop() -> void:
 	shop_panel.visible = not shop_panel.visible
 	if shop_panel.visible:
 		settings_panel.visible = false
+		set_artifact_codex_visible(false)
 
 # ?ㅽ뻾: set shop visibility directly.
 func set_shop_visible(val: bool) -> void:
@@ -234,6 +317,66 @@ func set_shop_visible(val: bool) -> void:
 # ?ㅽ뻾: get shop visibility state.
 func is_shop_visible() -> bool:
 	return shop_panel.visible
+
+# 실행: toggle the artifact codex visibility with the latest projected data.
+func toggle_artifact_codex(reward_table: Dictionary, growth_state: Dictionary, debug_all: bool = false) -> void:
+	if codex_panel == null:
+		return
+	current_codex_reward_table = reward_table.duplicate(true)
+	current_codex_growth_state = growth_state.duplicate(true)
+	current_codex_debug_all = debug_all
+	codex_panel.visible = not codex_panel.visible
+	if codex_panel.visible:
+		settings_panel.visible = false
+		shop_panel.visible = false
+		render_artifact_codex(current_codex_reward_table, current_codex_growth_state, current_codex_debug_all)
+
+# 실행: set artifact codex panel visibility directly.
+func set_artifact_codex_visible(val: bool) -> void:
+	if codex_panel != null:
+		codex_panel.visible = val
+
+# 실행: get artifact codex visibility state.
+func is_artifact_codex_visible() -> bool:
+	return codex_panel != null and codex_panel.visible
+
+func is_combat_pause_overlay_visible() -> bool:
+	return is_settings_visible() or is_artifact_codex_visible()
+
+func is_battle_pause_active() -> bool:
+	return battle_pause_active
+
+func set_battle_pause_active(active: bool) -> void:
+	if battle_pause_active == active:
+		return
+	battle_pause_active = active
+	if battlefield_ui != null and battlefield_ui.has_method("set_battle_pause_active"):
+		battlefield_ui.set_battle_pause_active(active)
+	if backpack_ui != null and backpack_ui.has_method("set_battle_pause_active"):
+		backpack_ui.set_battle_pause_active(active)
+	if giant_timer_ui != null and giant_timer_ui.has_method("set_battle_pause_active"):
+		giant_timer_ui.set_battle_pause_active(active)
+	if vfx_manager != null and vfx_manager.has_method("set_battle_pause_active"):
+		vfx_manager.set_battle_pause_active(active)
+
+func _promote_popup_overlay_when_visible(overlay: Control) -> void:
+	if overlay == null or not overlay.visible:
+		return
+	_bring_popup_overlay_to_front(overlay)
+
+func _bring_popup_overlay_to_front(overlay: Control) -> void:
+	if overlay == null:
+		return
+	overlay.z_index = POPUP_OVERLAY_Z_INDEX
+	if overlay.get_parent() != null:
+		overlay.move_to_front()
+
+func _emit_combat_overlay_pause_visibility_changed() -> void:
+	var active := is_combat_pause_overlay_visible()
+	if active == _last_combat_pause_overlay_visible:
+		return
+	_last_combat_pause_overlay_visible = active
+	combat_overlay_pause_visibility_changed.emit(active)
 
 # ?ㅽ뻾: render labels, manage view visibility and update status bars based on scene snapshot.
 func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
@@ -249,10 +392,12 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	backpack_container.visible = bool(layout.get("backpackVisible", true))
 	if node_map_full_page:
 		backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
+		backpack_container.ratio = 1.0
 	elif top_content.visible:
-		backpack_container.custom_minimum_size = Vector2(_top_content_backpack_width(), 0.0)
+		_apply_top_content_backpack_bounds()
 	else:
 		backpack_container.custom_minimum_size = Vector2.ZERO
+		backpack_container.ratio = 1.0
 	active_phase_container.size_flags_stretch_ratio = float(layout.get("activePhaseStretchRatio", 1.0))
 	node_select_panel.visible = bool(layout.get("nodeSelectVisible", false))
 	node_select_title.visible = not node_map_full_page
@@ -265,6 +410,12 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	shop_open_button.visible = bool(layout.get("shopButtonVisible", false))
 	if backpack_ui != null and backpack_ui.has_method("set_cooldown_visuals_enabled"):
 		backpack_ui.set_cooldown_visuals_enabled(bool(layout.get("backpackCooldownVisible", false)))
+	if backpack_ui != null and backpack_ui.has_method("update_pin_overlays"):
+		if _backpack_reparent_pending:
+			_pending_backpack_pin_scene = scene.duplicate(true)
+			call_deferred("_flush_pending_backpack_pin_scene")
+		else:
+			backpack_ui.update_pin_overlays(scene)
 	if bool(layout.get("closeShop", false)):
 		shop_panel.visible = false
 	giant_timer_panel.visible = bool(layout.get("giantTimerVisible", false))
@@ -277,33 +428,67 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	else:
 		battlefield_ui.update_combat_time(0.0, 0.0, false)
 
-	battlefield_ui.render_battlefield(scene, [])
+	if bool(layout.get("battlefieldVisible", false)) and not RewardCeremonyPolicyScript.is_active_scene(scene):
+		battlefield_ui.render_battlefield(scene, [])
 	if bool(layout.get("nodeSelectVisible", false)) and node_map_scene != null:
 		var node_map_model: Dictionary = NodeMapReadModelScript.project(scene, int(scene.get("selectedNodeIndex", 0)))
+		node_map_model["allowStartColorSelection"] = bool(layout.get("allowStartColorSelection", node_map_model.get("allowStartColorSelection", true)))
 		node_map_scene.render(node_map_model)
-		call_deferred("_sync_node_select_backpack_width")
+		_queue_shared_backpack_layout_sync()
+		_node_map_followup_refresh_requested = true
+		_queue_node_map_layout_refresh()
 	status_panel.render_target_bars(scene)
 	status_panel.render_extractor_label(scene)
 	status_panel.render_visual_queue(scene)
+	status_panel.render_combat_timer(str(layout.get("timerText", "00:00")), bool(layout.get("combatTimeActive", false)))
 	status_panel.render_repair_overlay(scene, repair_overlay)
-	call_deferred("_install_interaction_fx")
+	_defer_interaction_fx_install()
+	_queue_shared_backpack_layout_sync()
 
 # ?ㅽ뻾: set battlefield disabled tiles.
 func update_battlefield_disabled(scene: Dictionary, disabled_tiles: Array) -> void:
 	battlefield_ui.render_battlefield(scene, disabled_tiles)
 
+# 실행: start the active full-screen reward reveal overlay.
+func start_reward_reveal_vfx(rewards_list: Array, step_callback: Callable, callback: Callable) -> void:
+	if reward_reveal_overlay != null and reward_reveal_overlay.has_method("start_reveal"):
+		_bring_reward_reveal_overlay_to_front()
+		reward_reveal_overlay.start_reveal(rewards_list, step_callback, callback, _reward_lid_source_global_rect())
+		return
+	callback.call()
+
 # 실행: skip the active reward reveal into its silhouette-count stage.
 func skip_reward_reveal_to_silhouettes() -> void:
-	if battlefield_ui != null and battlefield_ui.has_method("skip_reward_reveal_to_silhouettes"):
-		battlefield_ui.skip_reward_reveal_to_silhouettes()
+	if reward_reveal_overlay != null and reward_reveal_overlay.has_method("skip_to_silhouettes"):
+		reward_reveal_overlay.skip_to_silhouettes()
+
+# 실행: cancel the active reward reveal without firing its completion callback.
+func cancel_reward_reveal_vfx() -> void:
+	if reward_reveal_overlay != null and reward_reveal_overlay.has_method("cancel_reveal"):
+		reward_reveal_overlay.cancel_reveal()
+
+# 실행: reorder the reward reveal overlay above sibling controls using the Control-compatible front-order API.
+func _bring_reward_reveal_overlay_to_front() -> void:
+	if reward_reveal_overlay == null:
+		return
+	reward_reveal_overlay.z_index = REWARD_REVEAL_OVERLAY_Z_INDEX
+	if reward_reveal_overlay.get_parent() != null:
+		reward_reveal_overlay.move_to_front()
+
+func _reward_lid_source_global_rect() -> Rect2:
+	if battlefield_ui != null and battlefield_ui.has_method("reward_lid_source_global_rect"):
+		return battlefield_ui.reward_lid_source_global_rect()
+	var fallback_size := Vector2(96.0, 60.0)
+	return Rect2(global_position + (size * 0.5) - (fallback_size * 0.5), fallback_size)
 
 # ?ㅽ뻾: update action buttons enabled state.
 func update_action_state(scene: Dictionary, show_victory_overlay: bool) -> void:
 	var phase := str(scene.get("phase", "unknown"))
+	var reward_ceremony_active := RewardCeremonyPolicyScript.is_active_scene(scene)
 	start_button.disabled = not (phase == "node_select" and scene.get("nodeSelect", {}).get("candidates", []).size() > 0)
 	hold_fire_button.disabled = not (phase == "combat" and bool(scene.get("hud", {}).get("aim", {}).get("canFire", false)))
 	repair_button.disabled = not (phase == "combat" and bool(scene.get("hud", {}).get("repair", {}).get("available", false)))
-	claim_rewards_button.disabled = (phase != "reward_loot" or show_victory_overlay)
+	claim_rewards_button.disabled = (phase != "reward_loot" or show_victory_overlay or reward_ceremony_active or bool(scene.get("is_reveal_vfx_running", false)))
 
 # ?ㅽ뻾: show or hide confirm overlay.
 func set_confirm_overlay_visible(val: bool) -> void:
@@ -331,6 +516,12 @@ func get_cell_global_pos(cell_id: String) -> Vector2:
 func get_extractor_global_pos() -> Vector2:
 	return status_panel.extractor_visual.global_position + status_panel.extractor_visual.size / 2
 
+func get_health_bar_global_pos() -> Vector2:
+	return status_panel.health_bar.global_position + Vector2(status_panel.health_bar.size.x * 0.58, -4.0)
+
+func get_shield_bar_global_pos() -> Vector2:
+	return status_panel.shield_bar.global_position + Vector2(status_panel.shield_bar.size.x * 0.58, -4.0)
+
 # ?ㅽ뻾: trigger resonance beam effect.
 func trigger_resonance_beam(start_pos: Vector2, hit_pos: Vector2, color: String) -> void:
 	vfx_manager.draw_resonance_beam(start_pos, hit_pos, color)
@@ -338,6 +529,19 @@ func trigger_resonance_beam(start_pos: Vector2, hit_pos: Vector2, color: String)
 # ?ㅽ뻾: trigger hit particle spawn.
 func trigger_hit_particles(hit_pos: Vector2, status: String, color: String) -> void:
 	vfx_manager.spawn_hit_particles(hit_pos, status, color)
+
+func trigger_damage_popups(events: Array) -> void:
+	if events.is_empty():
+		return
+	var anchored_events: Array = []
+	for event in events:
+		if not event is Dictionary:
+			continue
+		var popup: Dictionary = event.duplicate(true)
+		var channel := str(popup.get("channel", ""))
+		popup["origin"] = get_shield_bar_global_pos() if channel == "shield" else get_health_bar_global_pos()
+		anchored_events.append(popup)
+	vfx_manager.spawn_damage_popups(anchored_events)
 
 # ?ㅽ뻾: trigger screenshake VFX.
 func trigger_screenshake(duration: float, magnitude: float) -> void:
@@ -366,10 +570,11 @@ func apply_locale() -> void:
 	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow/QueueLabel", TextCatalogScript.t("panel.queue"))
 	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow/PinLabel", TextCatalogScript.t("panel.stage_timer"))
 	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow/DrillStatusLabel", TextCatalogScript.t("panel.drill_status"))
+	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow/PurpleStatusLabel", "보라 영향:" if TextCatalogScript.locale() == "ko" else "Purple:")
 	_set_label_text("RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox/EngineTitle", TextCatalogScript.t("panel.backpack"))
 	_set_label_text("RootMargin/AppShell/TopContent/RightSidebar/Margin/InspectorBox/InspectorTitle", TextCatalogScript.t("panel.log"))
 	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox/NodeSelectTitle", TextCatalogScript.t("panel.next_node"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", TextCatalogScript.t("panel.battlefield"))
+	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", "")
 	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardTitle", TextCatalogScript.t("panel.rewards"))
 	_set_label_text("ConfirmOverlay/Center/ConfirmBox/WarningLabel", TextCatalogScript.t("confirm.unclaimed.title"))
 	_set_label_text("ConfirmOverlay/Center/ConfirmBox/DescriptionLabel", TextCatalogScript.t("confirm.unclaimed.desc"))
@@ -383,10 +588,16 @@ func apply_locale() -> void:
 	claim_rewards_button.text = TextCatalogScript.t("action.claim_rewards")
 	if shop_open_button != null:
 		shop_open_button.text = TextCatalogScript.t("action.shop")
+	if codex_open_button != null:
+		codex_open_button.text = TextCatalogScript.t("action.codex")
 	if settings_panel != null and settings_panel.has_method("apply_locale"):
 		settings_panel.apply_locale()
 	if shop_panel != null and shop_panel.has_method("apply_locale"):
 		shop_panel.apply_locale()
+	if codex_panel != null and codex_panel.has_method("apply_locale"):
+		codex_panel.apply_locale()
+	if is_artifact_codex_visible() and not current_codex_reward_table.is_empty():
+		render_artifact_codex(current_codex_reward_table, current_codex_growth_state, current_codex_debug_all)
 	_apply_shell_theme()
 
 # 실행: set a Label text by relative path when present.
@@ -406,7 +617,20 @@ func _create_shop_panel() -> void:
 	shop_panel = ShopPanelUIScript.new()
 	shop_panel.buy_passive.connect(func(passive_id, cost): buy_passive.emit(passive_id, cost))
 	shop_panel.buy_base_item.connect(func(item_id): buy_base_item.emit(item_id))
+	shop_panel.visibility_changed.connect(func(): _promote_popup_overlay_when_visible(shop_panel))
 	add_child(shop_panel)
+
+# 실행: dynamically construct the artifact codex panel.
+func _create_artifact_codex_panel() -> void:
+	codex_panel = ArtifactCodexPanelUIScript.new()
+	codex_panel.debug_toggled.connect(_on_codex_debug_toggled)
+	codex_panel.entry_selected.connect(_on_codex_entry_selected)
+	codex_panel.section_selected.connect(_on_codex_section_selected)
+	codex_panel.visibility_changed.connect(func():
+		_promote_popup_overlay_when_visible(codex_panel)
+		_emit_combat_overlay_pause_visibility_changed()
+	)
+	add_child(codex_panel)
 
 # ?ㅽ뻾: dynamically construct the full-page node-map selector inside the node-select panel.
 func _create_node_map_scene() -> void:
@@ -415,13 +639,14 @@ func _create_node_map_scene() -> void:
 	node_select_content_row.alignment = BoxContainer.ALIGNMENT_BEGIN
 	node_select_content_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	node_select_content_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	node_select_content_row.add_theme_constant_override("separation", int(NODE_SELECT_ROW_GAP))
+	node_select_content_row.add_theme_constant_override("separation", int(BackpackPinLayoutPolicyScript.NODE_SELECT_ROW_GAP))
+	node_select_content_row.resized.connect(_queue_node_map_layout_refresh)
 	node_select_box.add_child(node_select_content_row)
 	node_map_scene = NodeMapSceneScript.new()
 	node_map_scene.name = "NodeMapPage"
 	node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	node_map_scene.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	node_map_scene.custom_minimum_size = Vector2(0, 360)
+	node_map_scene.custom_minimum_size = Vector2(NODE_SELECT_MAP_MIN_WIDTH, 360)
 	node_map_scene.node_selected.connect(func(index): node_meta_clicked.emit(index))
 	node_map_scene.color_selected.connect(func(color): loadout_color_selected.emit(color))
 	node_select_content_row.add_child(node_map_scene)
@@ -432,21 +657,18 @@ func _apply_node_select_backpack_dock(dock: String, map_ratio: float, backpack_r
 		return
 	if dock == "right":
 		if backpack_container.get_parent() != node_select_content_row:
-			backpack_container.get_parent().remove_child(backpack_container)
-			node_select_content_row.add_child(backpack_container)
+			_schedule_backpack_reparent(node_select_content_row)
 		if node_map_scene != null:
 			node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			node_map_scene.size_flags_stretch_ratio = map_ratio
+			node_map_scene.custom_minimum_size.x = NODE_SELECT_MAP_MIN_WIDTH
 		backpack_container.size_flags_stretch_ratio = backpack_ratio
 		backpack_container.size_flags_horizontal = Control.SIZE_SHRINK_END
 		backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0)
 	else:
 		if backpack_container.get_parent() != backpack_original_parent:
-			backpack_container.get_parent().remove_child(backpack_container)
-			backpack_original_parent.add_child(backpack_container)
-			if backpack_original_index >= 0:
-				backpack_original_parent.move_child(backpack_container, backpack_original_index)
+			_schedule_backpack_reparent(backpack_original_parent, backpack_original_index)
 		backpack_container.size_flags_stretch_ratio = 0.0
 		backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
 		backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -456,29 +678,144 @@ func _node_select_backpack_width() -> float:
 	var row_size := Vector2.ZERO
 	if node_select_content_row != null:
 		row_size = node_select_content_row.size
+		row_size.x = _viewport_safe_width_for_control(node_select_content_row, row_size.x)
 	if row_size.y <= 1.0:
 		row_size.y = maxf(active_phase_container.size.y, node_select_panel.size.y)
 	if row_size.x <= 1.0:
-		row_size.x = node_select_panel.size.x
+		row_size.x = _viewport_safe_width_for_control(node_select_panel, node_select_panel.size.x)
 	return node_select_backpack_width_for_row(row_size, NODE_SELECT_MAP_MIN_WIDTH)
 
 func _sync_node_select_backpack_width() -> void:
 	if node_select_content_row == null or backpack_container.get_parent() != node_select_content_row:
 		return
 	backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
+	backpack_container.ratio = 1.0
 	backpack_container.size_flags_horizontal = Control.SIZE_SHRINK_END
 	backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
+func _top_content_backpack_height() -> float:
+	var min_row_height := maxf(float(top_content.get_combined_minimum_size().y), BackpackPinLayoutPolicyScript.MIN_TOP_CONTENT_GRID_EXTENT)
+	return resolved_top_content_backpack_height(top_content.size.y, min_row_height, backpack_container.size.y)
+
 func _top_content_backpack_width() -> float:
-	var target_height := maxf(top_content.size.y, backpack_container.size.y)
+	var target_height := _top_content_backpack_height()
 	return top_content_backpack_width_for_height(target_height)
+
+func _apply_top_content_backpack_bounds() -> void:
+	var target_height := _top_content_backpack_height()
+	var resolved_width := top_content_backpack_width_for_height(target_height)
+	backpack_container.custom_minimum_size = Vector2(resolved_width, 0.0)
+	backpack_container.ratio = top_content_backpack_ratio_for_height(target_height)
+
+func _viewport_safe_width_for_control(control: Control, fallback_width: float) -> float:
+	var width := maxf(0.0, fallback_width)
+	if control == null or not is_inside_tree():
+		return width
+	var viewport_width := get_viewport_rect().size.x
+	if viewport_width <= 1.0:
+		return width
+	var left_edge := maxf(0.0, control.global_position.x)
+	var safe_right := maxf(0.0, viewport_width - VIEWPORT_SAFE_GUTTER)
+	var viewport_width_from_control := maxf(0.0, safe_right - left_edge)
+	if width <= 1.0:
+		return viewport_width_from_control
+	return minf(width, viewport_width_from_control)
+
+func _sync_top_content_backpack_layout() -> void:
+	if backpack_container == null or backpack_container.get_parent() != backpack_original_parent:
+		return
+	if not top_content.visible:
+		return
+	_apply_top_content_backpack_bounds()
+	backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
+	backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+func _queue_shared_backpack_layout_sync() -> void:
+	if _shared_backpack_layout_sync_pending:
+		return
+	_shared_backpack_layout_sync_pending = true
+	call_deferred("_sync_shared_backpack_layout")
+
+func _sync_shared_backpack_layout() -> void:
+	_shared_backpack_layout_sync_pending = false
+	if backpack_container == null:
+		return
+	if backpack_container.get_parent() == node_select_content_row:
+		_sync_node_select_backpack_width()
+		return
+	if backpack_container.get_parent() == backpack_original_parent:
+		_sync_top_content_backpack_layout()
+
+func _queue_node_map_layout_refresh() -> void:
+	if _node_map_layout_refresh_pending:
+		return
+	_node_map_layout_refresh_pending = true
+	call_deferred("_refresh_node_map_layout_after_frame")
+
+func _refresh_node_map_layout_after_frame() -> void:
+	await get_tree().process_frame
+	_node_map_layout_refresh_pending = false
+	if node_map_scene == null or not node_map_scene.visible:
+		return
+	_sync_shared_backpack_layout()
+	node_map_scene.rerender_current_model()
+	if _node_map_followup_refresh_requested:
+		_node_map_followup_refresh_requested = false
+		_queue_node_map_layout_refresh()
 
 # 실행: update shop label and buttons.
 func render_shop(growth_state: Dictionary) -> void:
 	if shop_panel != null and shop_panel.has_method("render_shop"):
 		shop_panel.render_shop(growth_state)
-		call_deferred("_install_interaction_fx")
+		_defer_interaction_fx_install()
 		return
+
+# 실행: project and render the artifact codex from reward data and discovery state.
+func render_artifact_codex(reward_table: Dictionary, growth_state: Dictionary, debug_all: bool = false) -> void:
+	if codex_panel == null or not codex_panel.has_method("render_codex"):
+		return
+	current_codex_reward_table = reward_table.duplicate(true)
+	current_codex_growth_state = growth_state.duplicate(true)
+	current_codex_debug_all = debug_all
+	var model := ArtifactCodexReadModelScript.project(
+		current_codex_reward_table,
+		current_codex_growth_state,
+		current_codex_debug_all,
+		"",
+		current_codex_selected_entry_id,
+		current_codex_active_section
+	)
+	current_codex_selected_entry_id = str(model.get("resolvedSelectedEntryId", ""))
+	current_codex_active_section = str(model.get("activeSection", "all"))
+	codex_panel.render_codex(model)
+	_defer_interaction_fx_install()
+
+# 실행: rerender the current codex model when the debug visibility toggle changes.
+func _on_codex_debug_toggled(debug_all: bool) -> void:
+	current_codex_debug_all = debug_all
+	if current_codex_reward_table.is_empty():
+		return
+	call_deferred("_rerender_current_codex")
+
+# 실행: persist the current codex entry selection and rerender the book detail page.
+func _on_codex_entry_selected(entry_id: String) -> void:
+	current_codex_selected_entry_id = entry_id
+	if current_codex_reward_table.is_empty():
+		return
+	call_deferred("_rerender_current_codex")
+
+# 실행: persist the current codex section tab and rerender the right-page grid.
+func _on_codex_section_selected(section_id: String) -> void:
+	current_codex_active_section = section_id
+	if current_codex_reward_table.is_empty():
+		return
+	call_deferred("_rerender_current_codex")
+
+# 실행: rerender the current codex state outside active button/toggle signal stacks.
+func _rerender_current_codex() -> void:
+	if current_codex_reward_table.is_empty():
+		return
+	render_artifact_codex(current_codex_reward_table, current_codex_growth_state, current_codex_debug_all)
 
 # 실행: install shader/tween affordance effects on interactive controls.
 func _install_interaction_fx() -> void:
@@ -505,7 +842,7 @@ func _apply_shell_theme() -> void:
 	backpack_ui.add_theme_stylebox_override("panel", surface)
 	right_sidebar.add_theme_stylebox_override("panel", surface)
 	battlefield_ui.add_theme_stylebox_override("panel", surface)
-	for button in [settings_open_button, reset_button, start_button, hold_fire_button, repair_button, claim_rewards_button, shop_open_button]:
+	for button in [settings_open_button, reset_button, start_button, hold_fire_button, repair_button, claim_rewards_button, shop_open_button, codex_open_button]:
 		if button != null:
 			_style_shell_button(button)
 
@@ -570,6 +907,14 @@ func _create_giant_timer() -> void:
 	vignette_overlay = giant_timer_ui.vignette_overlay
 	heartbeat_player = giant_timer_ui.heartbeat_player
 
+# 실행: dynamically construct the full-screen reward reveal overlay.
+func _create_reward_reveal_overlay() -> void:
+	reward_reveal_overlay = RewardRevealOverlayScript.new()
+	reward_reveal_overlay.name = "RewardRevealOverlay"
+	reward_reveal_overlay.z_index = REWARD_REVEAL_OVERLAY_Z_INDEX
+	reward_reveal_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(reward_reveal_overlay)
+
 # 실행: dynamically construct full-screen vignette overlay panel.
 func _create_vignette_overlay() -> void:
 	if giant_timer_ui != null:
@@ -578,6 +923,8 @@ func _create_vignette_overlay() -> void:
 # 실행: animate flashing timer label and pulsing red vignette overlay when time is critical.
 func _process(delta: float) -> void:
 	_update_tooltip_position()
+	if battle_pause_active:
+		return
 	if giant_timer_ui != null and giant_timer_ui.has_method("process_timer"):
 		giant_timer_ui.process_timer(delta, battlefield_ui)
 		return
@@ -638,3 +985,51 @@ func _update_tooltip_position() -> void:
 	if tooltip_panel and tooltip_panel.visible:
 		var m_pos = get_global_mouse_position()
 		tooltip_panel.global_position = m_pos + Vector2(15, 15)
+
+func _emit_start_combat_pressed() -> void:
+	start_combat_pressed.emit()
+
+func _defer_interaction_fx_install() -> void:
+	if not interaction_fx_enabled:
+		return
+	call_deferred("_install_interaction_fx")
+
+func _schedule_backpack_reparent(target_parent: Node, target_index: int = -1) -> void:
+	if backpack_container == null or target_parent == null:
+		return
+	_pending_backpack_parent = target_parent
+	_pending_backpack_parent_index = target_index
+	if _backpack_reparent_pending:
+		return
+	_backpack_reparent_pending = true
+	call_deferred("_commit_backpack_reparent")
+
+func _commit_backpack_reparent() -> void:
+	_backpack_reparent_pending = false
+	var target_parent := _pending_backpack_parent
+	if backpack_container == null or _pending_backpack_parent == null:
+		return
+	if backpack_container.get_parent() != _pending_backpack_parent:
+		var current_parent := backpack_container.get_parent()
+		if current_parent != null:
+			current_parent.remove_child(backpack_container)
+		_pending_backpack_parent.add_child(backpack_container)
+	if _pending_backpack_parent == backpack_original_parent and _pending_backpack_parent_index >= 0:
+		backpack_original_parent.move_child(backpack_container, _pending_backpack_parent_index)
+	_pending_backpack_parent = null
+	_pending_backpack_parent_index = -1
+	_queue_shared_backpack_layout_sync()
+	if target_parent == node_select_content_row:
+		_node_map_followup_refresh_requested = true
+		_queue_node_map_layout_refresh()
+	_flush_pending_backpack_pin_scene()
+
+func _flush_pending_backpack_pin_scene() -> void:
+	if _backpack_reparent_pending:
+		return
+	if backpack_ui == null or not backpack_ui.has_method("update_pin_overlays"):
+		return
+	if _pending_backpack_pin_scene.is_empty():
+		return
+	backpack_ui.update_pin_overlays(_pending_backpack_pin_scene)
+	_pending_backpack_pin_scene = {}

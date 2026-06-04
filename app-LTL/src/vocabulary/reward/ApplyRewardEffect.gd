@@ -14,6 +14,9 @@ static func apply(growth_state: RefCounted, reward: Dictionary) -> Dictionary:
 		return {"ok": false, "code": "missing_growth", "growth": growth_state, "goldDelta": 0, "xpDelta": 0}
 	var payout := payout_for_rarity(str(reward.get("rarity", "common")))
 	growth_state.reward_history.append(reward.get("rewardId", ""))
+	var catalog_id := str(reward.get("catalogId", reward.get("id", "")))
+	if not catalog_id.is_empty() and growth_state.get("artifact_discovery") is Array and not growth_state.artifact_discovery.has(catalog_id):
+		growth_state.artifact_discovery.append(catalog_id)
 	growth_state.add_gold(int(payout["gold"]))
 	growth_state.add_xp(int(payout["xp"]))
 	return {"ok": true, "code": "applied", "growth": growth_state, "goldDelta": int(payout["gold"]), "xpDelta": int(payout["xp"])}

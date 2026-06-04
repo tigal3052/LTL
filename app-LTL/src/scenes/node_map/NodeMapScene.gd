@@ -56,23 +56,25 @@ func render(model: Dictionary) -> void:
 	_ensure_children()
 	for child in _cards_container.get_children():
 		_cards_container.remove_child(child)
-		child.free()
+		child.queue_free()
 	for child in _color_row.get_children():
 		_color_row.remove_child(child)
-		child.free()
+		child.queue_free()
 	_map_nodes.clear()
 	_map_lines.clear()
 	_color_buttons.clear()
 	var selected_color := str(model.get("selectedColor", "red"))
-	var summary_lines: Array = [str(model.get("stageText", "Node Map")), "Start Color: %s" % selected_color]
-	for color in model.get("loadoutColors", ["red", "blue", "purple", "green"]):
-		var color_button := Button.new()
-		color_button.text = _color_text(str(color), str(color) == selected_color)
-		color_button.custom_minimum_size = COLOR_BUTTON_MIN_SIZE
-		_apply_color_button_style(color_button, str(color), str(color) == selected_color)
-		color_button.pressed.connect(func(c = str(color)): call_deferred("_emit_color_selected", c))
-		_color_row.add_child(color_button)
-		_color_buttons.append(color_button)
+	var stage_text := str(model.get("stageText", "Node Map"))
+	_color_row.visible = _allow_start_color_selection()
+	if _color_row.visible:
+		for color in model.get("loadoutColors", ["red", "blue", "purple", "green"]):
+			var color_button := Button.new()
+			color_button.text = _color_text(str(color), str(color) == selected_color)
+			color_button.custom_minimum_size = COLOR_BUTTON_MIN_SIZE
+			_apply_color_button_style(color_button, str(color), str(color) == selected_color)
+			color_button.pressed.connect(func(c = str(color)): call_deferred("_emit_color_selected", c))
+			_color_row.add_child(color_button)
+			_color_buttons.append(color_button)
 	var selected_detail := ""
 	var cards: Array = model.get("cards", [])
 	_build_map_scaffold(cards.size())
@@ -95,8 +97,8 @@ func render(model: Dictionary) -> void:
 		_cards_container.add_child(button)
 		_map_nodes.append(button)
 	_summary_label.text = "TACTICAL BRIEFING"
-	_summary_hint_label.text = "%s  |  Selected Start Color: %s" % [summary_lines[0], selected_color]
-	_detail_label.text = selected_detail if not selected_detail.is_empty() else str(model.get("stageText", "Node Map"))
+	_summary_hint_label.text = "%s  |  Selected Start Color: %s" % [stage_text, selected_color] if _color_row.visible else stage_text
+	_detail_label.text = selected_detail if not selected_detail.is_empty() else stage_text
 
 # ?ㅽ뻾: return the rendered card count for smoke tests.
 func card_count() -> int:
@@ -109,6 +111,13 @@ func map_node_count() -> int:
 # ??쎈뻬: return the rendered start color button count for smoke tests.
 func loadout_color_count() -> int:
 	return _color_buttons.size()
+
+func start_color_panel_instance_id() -> int:
+	_ensure_children()
+	return _color_row.get_instance_id() if _color_row != null else 0
+
+func start_color_panel_visible() -> bool:
+	return _color_row != null and _color_row.visible
 
 # ?ㅽ뻾: return the current summary text for smoke tests.
 # 신규: return the full-page layout root name for smoke tests.
@@ -193,6 +202,8 @@ func node_button_selected_state(index: int) -> bool:
 	return bool(_map_nodes[index].get_meta("selected", false))
 
 func press_color_button(index: int) -> void:
+	if not _allow_start_color_selection():
+		return
 	if index < 0 or index >= _color_buttons.size():
 		return
 	_color_buttons[index].pressed.emit()
@@ -215,6 +226,11 @@ func detail_text() -> String:
 	if _detail_label == null:
 		return ""
 	return _detail_label.text
+
+func rerender_current_model() -> void:
+	if _model.is_empty():
+		return
+	render(_model)
 
 func _refresh_layout_after_resize() -> void:
 	_layout_refresh_pending = false
@@ -341,10 +357,15 @@ func _color_text(color: String, selected: bool) -> String:
 	return "[%s]" % label if selected else label
 
 func _emit_color_selected(color: String) -> void:
+	if not _allow_start_color_selection():
+		return
 	color_selected.emit(color)
 
 func _emit_node_selected(index: int) -> void:
 	node_selected.emit(index)
+
+func _allow_start_color_selection() -> bool:
+	return bool(_model.get("allowStartColorSelection", true))
 
 func _build_map_scaffold(candidate_count: int) -> void:
 	var canvas_size := _map_canvas_extent()
@@ -381,10 +402,24 @@ func _candidate_position(index: int, count: int, card_size: Vector2) -> Vector2:
 func _map_canvas_extent() -> Vector2:
 	if _map_canvas == null:
 		return MAP_CANVAS_FALLBACK_SIZE
-	var width := _map_canvas.size.x if _map_canvas.size.x > 1.0 else maxf(_map_canvas.custom_minimum_size.x, MAP_CANVAS_FALLBACK_SIZE.x)
+	var width := _map_canvas.size.x
+	if width <= 1.0:
+		var map_parent := _map_canvas.get_parent() as Control
+		if map_parent != null and map_parent.size.x > 1.0:
+			width = map_parent.size.x
+		elif size.x > 1.0:
+			width = maxf(_map_canvas.custom_minimum_size.x, size.x - 28.0)
+		else:
+			width = maxf(_map_canvas.custom_minimum_size.x, MAP_CANVAS_FALLBACK_SIZE.x)
 	if _test_canvas_size.x > 1.0:
 		width = _test_canvas_size.x
-	var height := _map_canvas.size.y if _map_canvas.size.y > 1.0 else maxf(_map_canvas.custom_minimum_size.y, MAP_CANVAS_FALLBACK_SIZE.y)
+	var height := _map_canvas.size.y
+	if height <= 1.0:
+		var map_parent_height := _map_canvas.get_parent() as Control
+		if map_parent_height != null and map_parent_height.size.y > 1.0:
+			height = map_parent_height.size.y
+		else:
+			height = maxf(_map_canvas.custom_minimum_size.y, MAP_CANVAS_FALLBACK_SIZE.y)
 	if _test_canvas_size.y > 1.0:
 		height = _test_canvas_size.y
 	return Vector2(width, height)

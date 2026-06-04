@@ -48,7 +48,7 @@ func run_replay_file(path: String) -> Dictionary:
 # 실행: convert a fixture dictionary into runtime options and ordered replay input.
 func _normalize_fixture(payload: Dictionary) -> Dictionary:
 	var diagnostics: Array = []
-	var options: Dictionary = {"seed": int(payload.get("seed", 1)), "maxStages": maxi(1, int(payload.get("maxStages", 1))), "runCount": maxi(1, int(payload.get("runCount", 1))), "queueCapacity": int(payload.get("queueCapacity", 8)), "nodeTable": payload.get("nodeTable", _build_node_table_from_payload(payload))}
+	var options: Dictionary = {"seed": int(payload.get("seed", 1)), "maxStages": maxi(1, int(payload.get("maxStages", 1))), "runCount": maxi(1, int(payload.get("runCount", 1))), "queueCapacity": int(payload.get("queueCapacity", 16)), "nodeTable": payload.get("nodeTable", _build_node_table_from_payload(payload))}
 	var trace_enabled: bool = payload.get("trace", false) == true
 	if payload.has("node") and not payload.has("nodeTable"):
 		options["nodeTable"] = _build_node_table_from_payload(payload)

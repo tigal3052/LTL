@@ -14,11 +14,11 @@ const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 static func project(reward: Dictionary) -> Dictionary:
 	return {
 		"rewardId": reward.get("rewardId", ""),
-		"kind": TextCatalogScript.display_name(str(reward.get("kind", "Unknown Reward"))),
+		"kind": TextCatalogScript.reward_name(reward),
 		"rarity": reward.get("rarity", "common"),
 		"qty": int(reward.get("qty", 1)),
 		"presentation": {
-			"description": TextCatalogScript.display_description(str(reward.get("presentation", {}).get("description", ""))),
+			"description": TextCatalogScript.reward_description(reward),
 			"badge": reward.get("presentation", {}).get("badge", ""),
 			"icon": reward.get("presentation", {}).get("icon", "")
 		},
@@ -37,13 +37,13 @@ static func project_tray(pending_rewards: Array, held_reward_index: int = -1, he
 			var presentation: Dictionary = reward.get("presentation", {})
 			var badge = presentation.get("badge", "reward")
 			var holding = TextCatalogScript.t("reward.holding") if held_reward_index == idx else ""
-			lines.append("> [url=%d]%s x%d (%s)[/url] [color=#e5c07b][%s][/color]%s" % [idx, TextCatalogScript.display_name(str(reward.get("kind", "reward"))), int(reward.get("qty", 0)), str(reward.get("rarity", "common")).to_upper(), badge, holding])
+			lines.append("> [url=%d]%s x%d (%s)[/url] [color=#e5c07b][%s][/color]%s" % [idx, TextCatalogScript.reward_name(reward), int(reward.get("qty", 0)), str(reward.get("rarity", "common")).to_upper(), badge, holding])
 	var discard_text := TextCatalogScript.t("discard.idle")
 	var discard_active := false
 	if held_artifact != null:
 		discard_active = true
 		if held_from_rewards and held_reward_index >= 0 and held_reward_index < pending_rewards.size():
-			discard_text = TextCatalogScript.t("discard.active", [TextCatalogScript.display_name(str(pending_rewards[held_reward_index].get("kind", "")))])
+			discard_text = TextCatalogScript.t("discard.active", [TextCatalogScript.reward_name(pending_rewards[held_reward_index])])
 		else:
 			discard_text = TextCatalogScript.t("discard.active", [TextCatalogScript.display_name(str(held_artifact.name))])
 	return {"text": "\n".join(lines), "discardText": discard_text, "discardActive": discard_active}

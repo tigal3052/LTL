@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://tstdjdgcxi2w"
-path="res://.godot/imported/miner.png-246132a1dda0b09bda8a73386b42a0e0.ctex"
+uid="uid://bksy83mb2cii2"
+path="res://.godot/imported/charactor1_ss.png-bbd5780dab57565fc28913d60e0ef2d5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://resources/UI/miner.png"
-dest_files=["res://.godot/imported/miner.png-246132a1dda0b09bda8a73386b42a0e0.ctex"]
+source_file="res://resources/UI/charactor/charactor1_ss.png"
+dest_files=["res://.godot/imported/charactor1_ss.png-bbd5780dab57565fc28913d60e0ef2d5.ctex"]
 
 [params]
 

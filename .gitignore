@@ -7,6 +7,9 @@
 export.cfg
 export_credentials.cfg
 *.tmp
+*.log
+.tmp-*/
+.superpowers/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -19,6 +22,12 @@ mono_crash.*.json
 .cursor/
 .worktrees/
 .godot-user/
+.godot.codex-*/
+artifacts/
+test-artifacts/
+docs/artifact-ledgers/
+app-LTL/.tmp-*/
+app-LTL/test-artifacts/
 
 # Keep local harness workspaces out of version control
 agent-harness/
