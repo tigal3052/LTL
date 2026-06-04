@@ -450,3 +450,58 @@ app-LTL/tests/test_combat_vocab.gd
   - `powershell -ExecutionPolicy Bypass -File ..\tools\invoke-godot.ps1 -Script res://tests/run_test_combat_vocab.gd -Headless -Quit` -> `COMBAT_VOCAB_TESTS_OK`
   - `powershell -ExecutionPolicy Bypass -File ..\tools\invoke-godot.ps1 -Script res://tests/run_test_ui_read_models.gd -Headless -Quit` -> `UI_READ_MODEL_TESTS_OK` with existing Godot anchor/leak warnings at exit
   - `git diff --check -- app-LTL/src/vocabulary/CombatVocab.gd app-LTL/src/vocabulary/combat/ShiftWeaknessMarkers.gd app-LTL/src/ui/CombatSceneModel.gd app-LTL/src/ui/CellView.gd app-LTL/src/data/reward-table.json app-LTL/tests/test_combat_vocab.gd app-LTL/tests/test_ui_read_models.gd docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md` -> no whitespace errors; only LF/CRLF warnings
+
+## 2026-06-04 23:22:12
+
+<!-- codex-worklog-signature: 45820483ceea9a2f26f248891be9e7f29eeb51c0b17ab91ed2a9fcf319539dd4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  .gitignore
+M  LTL-harness/00_AGENTS.md
+M  LTL-harness/tools/i18n-text-gate.ps1
+M  app-LTL/README.md
+A  app-LTL/resources/UI/ItemBook.png
+R  app-LTL/resources/UI/tile/tile_panel_nobg2.png.import -> app-LTL/resources/UI/ItemBook.png.import
+A  app-LTL/resources/UI/charactor/background.png
+A  app-LTL/resources/UI/charactor/background.png.import
+A  app-LTL/resources/UI/charactor/charactor1.png
+A  app-LTL/resources/UI/charactor/charactor1.png.import
+A  app-LTL/resources/UI/charactor/charactor1_ss.png
+A  app-LTL/resources/UI/charactor/charactor1_ss.png.import
+A  app-LTL/resources/UI/charactor/charactor_backpack.png
+A  app-LTL/resources/UI/charactor/charactor_backpack.png.import
+R  app-LTL/resources/UI/miner.png -> app-LTL/resources/UI/miner/miner_45.png
+R  app-LTL/resources/UI/miner.png.import -> app-LTL/resources/UI/miner/miner_45.png.import
+A  app-LTL/resources/UI/miner/miner_60.png
+A  app-LTL/resources/UI/miner/miner_60.png.import
+A  app-LTL/resources/UI/miner/miner_90.png
+A  app-LTL/resources/UI/miner/miner_90.png.import
+A  app-LTL/resources/UI/pin/pin_1.png
+A  app-LTL/resources/UI/pin/pin_1.png.import
+A  app-LTL/resources/UI/pin/pin_2.png
+A  app-LTL/resources/UI/pin/pin_2.png.import
+A  app-LTL/resources/UI/pin/pin_3.png
+A  app-LTL/resources/UI/pin/pin_3.png.import
+A  app-LTL/resources/UI/pin/pin_4.png
+A  app-LTL/resources/UI/pin/pin_4.png.import
+A  app-LTL/resources/UI/tile/blue_tile_hazard.png
+A  app-LTL/resources/UI/tile/blue_tile_hazard.png.import
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:22:33
+
+<!-- codex-worklog-signature: 8e02fcfcadfe1f3ed11be816f7e7194c187b8a54cb3993ab82fbb49900d1d9a5 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
