@@ -36,6 +36,17 @@ No implementation history has been recorded yet.
 - Plan impact: 실제 HTML 구현 전, spec 리뷰 승인을 받아야 다음 단계로 진행 가능하다.
 - Verification status: spec self-review 완료. `git diff --check`는 whitespace 오류 없이 통과했고, 기존 변경 파일들에 대한 LF/CRLF 경고만 출력되었다.
 
+## 2026-06-05 page-shell contract update
+
+- Intent: 전투 HUD와 전역 메타 패널 충돌 문제를 런 전체 페이지 계약 수준에서 재정의하고, 별도 문서로 저장한다.
+- Files or areas touched:
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-05.md`
+  - `docs/codex-worklog/history_LootingTheLeviathan_2026-06-05.md`
+  - `docs/superpowers/specs/2026-06-05-phase-first-page-shell-contract-design.ko.md`
+- Summary: 현재 Main shell, PhaseLayoutPresenter, NodeMapScene, layout audit 구조를 기준으로 전역 오버레이 정책과 9개 페이지 계약을 재설계했다. 또한 HTML 목업 대상 페이지와 page-contract 중심 하네스 재설계 방향을 고정했다.
+- Plan impact: 기존 와이어프레임 spec은 목업 형식 정의로 남고, 새 문서가 런 전체 페이지 계약의 상위 source-of-truth가 된다.
+- Verification status: 새 spec self-review 완료. `git diff --check`는 whitespace 오류 없이 통과했고, 기존 변경 파일들의 LF/CRLF 경고만 유지되었다.
+
 ## 2026-06-05 10:28:12
 
 <!-- codex-worklog-signature: 149ac867543318176166adecd8fc8f362cf5a203d4030d23392aa43590a3732f -->
@@ -76,6 +87,110 @@ No implementation history has been recorded yet.
 ?? docs/codex-worklog/plan_LootingTheLeviathan_2026-06-05.md
 ?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
 ?? docs/superpowers/specs/2026-06-05-m6-wireframe-mockups-design.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-05 10:29:45
+
+<!-- codex-worklog-signature: 7610c28f9d8d66591539e482a51e9a234c788fc36ed058bf9dadf59fc1cf07ed -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+A  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+A  docs/codex-worklog/history_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+A  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-05.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+A  docs/superpowers/specs/2026-06-05-m6-wireframe-mockups-design.ko.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-05 10:46:02
+
+<!-- codex-worklog-signature: 0fa64b1a443c50a411ff5d0ec4bebe4c94b4459f79afc21611b1a48f512f611e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-05 16:12:23
+
+<!-- codex-worklog-signature: 19711238e8ccac50a0170f948574e3cd67a863653fb5c6be9f48d1635b960354 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-05 16:32:59
+
+<!-- codex-worklog-signature: 399854f6a5d8f3afe4c27ec54a8a5170f02150af8e5ff71aa557c8caa56e16d9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-05.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+?? docs/superpowers/specs/2026-06-05-phase-first-page-shell-contract-design.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-05 16:33:12
+
+<!-- codex-worklog-signature: 1954e962ee59a6f8cb5ae7a3631d046eaf47c259afd2f50c6d5572c5aeaef526 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-05.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-05.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+?? docs/superpowers/specs/2026-06-05-phase-first-page-shell-contract-design.ko.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

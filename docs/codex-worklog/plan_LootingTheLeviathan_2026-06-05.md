@@ -5,16 +5,18 @@ Date: 2026-06-05
 
 ## Active Work
 
-M6 구현 예정사항을 설명하는 분리형 HTML 와이어프레임 시안의 디자인 명세를 확정하고, 구현 전 리뷰 게이트를 통과할 준비를 한다.
+M6 와이어프레임 시안 작업을 런 전체 페이지 계약 재설계까지 확장하고, 승인된 `Phase-first page shell` 구조를 별도 spec으로 고정한다.
 
 ## Request Summary
 
-사용자가 M6 구현 예정사항을 HTML 시안으로 보고 싶어 한다. 우선 하이파이보다 와이어프레임 중심으로 가고, `전투 HUD`, `노드맵+보상`, `백팩 정리`를 각각 별도 목업으로 만들며, 각 목업에는 구현 포인트 주석을 포함한다.
+사용자가 전투 HUD가 설정/유물도감과 같은 전역 메타 패널과 충돌하는지 검토하고, 전투를 제외한 런 전체 인터페이스를 페이지 단위로 재조정해 달라고 요청했다. 또한 현재 승인된 페이지 계약 내용을 별도 문서로 저장하고, 이후 HTML 목업 생성 계획과 하네스 설계 수정 방향까지 함께 정리해야 한다.
 
 ## Scope
 
-- `docs/superpowers/specs` 아래에 와이어프레임 목업 디자인 spec 작성
-- 화면 분리 원칙, HTML 파일명, 공통 레이아웃 구조, 화면별 포함 요소 정의
+- `docs/superpowers/specs` 아래에 별도 페이지 계약 spec 작성
+- 전투 HUD와 설정/도감 패널의 구조적 충돌 분석 정리
+- `run_start`부터 `defeat`까지 페이지 계약, 전역 오버레이 정책, HTML 목업 대상 범위 정의
+- 하네스 설계를 `page contract` 중심으로 재정의
 - 오늘 worklog의 plan/history/complete를 현재 요청에 맞게 갱신
 
 ## Out of Scope
@@ -22,17 +24,20 @@ M6 구현 예정사항을 설명하는 분리형 HTML 와이어프레임 시안�
 - 실제 HTML 목업 구현
 - Godot 런타임 코드 수정
 - 하이파이 아트 시안 제작
+- 전투 페이지 HTML 구현
 
 ## Steps
 
-- 현재 목업 문서 패턴과 M6 refresh plan 기준점을 다시 확인한다.
-- 승인된 방향을 정리한 와이어프레임 디자인 spec을 작성한다.
-- spec을 self-review해서 모호성, 누락, 범위 이탈이 없는지 확인한다.
-- 사용자에게 spec 파일 리뷰를 요청하고, 승인 후 HTML 구현 단계로 넘긴다.
+- 현재 Main shell, PhaseLayoutPresenter, NodeMapScene, layout audit contract를 기준으로 구조 충돌과 하네스 현황을 다시 확인한다.
+- 승인된 `Phase-first page shell`과 9개 페이지 계약을 별도 spec으로 작성한다.
+- HTML 목업 대상/미대상 페이지와 harness 수정 방향을 문서에 고정한다.
+- spec을 self-review해서 모호성, 누락, stale scope를 제거한다.
+- 사용자에게 새 spec 파일 리뷰를 요청한다.
 
 ## Expected Outputs
 
 - `docs/superpowers/specs/2026-06-05-m6-wireframe-mockups-design.ko.md`
+- `docs/superpowers/specs/2026-06-05-phase-first-page-shell-contract-design.ko.md`
 - 갱신된 2026-06-05 worklog 문서들
 
 ## Verification Method
@@ -45,3 +50,4 @@ M6 구현 예정사항을 설명하는 분리형 HTML 와이어프레임 시안�
 
 - 2026-06-05: Worklog bootstrapped automatically by Codex hook.
 - 2026-06-05: M6 HTML 시안 요청을 반영해 분리형 와이어프레임 목업 spec 작성과 리뷰 게이트로 계획을 구체화함.
+- 2026-06-05: 전투 외 런 전체 인터페이스를 페이지 단위로 재설계하는 요청을 반영해 별도 page-shell contract spec 작성 작업으로 범위를 확장함.

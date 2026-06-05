@@ -10,11 +10,12 @@ M6 구현 예정사항을 설명하는 HTML 와이어프레임 목업 작업에 
 ## Actual Outputs
 
 - `docs/superpowers/specs/2026-06-05-m6-wireframe-mockups-design.ko.md`
+- `docs/superpowers/specs/2026-06-05-phase-first-page-shell-contract-design.ko.md`
 - 갱신된 2026-06-05 worklog 문서
 
 ## Changes From Plan
 
-- 없음. 현재는 의도한 대로 spec 작성과 리뷰 요청 단계까지 진행했다.
+- 사용자의 추가 승인에 따라, 단순 와이어프레임 spec에서 런 전체 page-shell contract spec까지 범위를 확장했다.
 
 ## Verification Results
 
@@ -23,6 +24,7 @@ M6 구현 예정사항을 설명하는 HTML 와이어프레임 목업 작업에 
 - spec self-review 완료
 - `git diff --check` 통과
 - 기존 변경 파일들에 대한 LF/CRLF 경고는 있었지만 새 문서의 whitespace 오류는 없었음
+- page-shell contract spec self-review 완료
 
 ## Blockers Or Unverified Areas
 
@@ -31,5 +33,6 @@ M6 구현 예정사항을 설명하는 HTML 와이어프레임 목업 작업에 
 
 ## Remaining Gaps
 
-- spec 승인 후 `docs/mockups` 아래 실제 HTML 3종 구현
+- spec 승인 후 `docs/mockups` 아래 실제 HTML 6종 구현
 - 구현 후 브라우저 렌더링과 좁은 폭 레이아웃 확인
+- 새 page-shell contract 기준으로 harness 실행 계획과 page contract 테스트 항목 작성
