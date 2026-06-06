@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Event Node Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0f14;
+      --panel: rgba(16, 24, 33, 0.94);
+      --panel-2: rgba(9, 13, 18, 0.72);
+      --line: rgba(208, 223, 236, 0.12);
+      --text: #eef4fa;
+      --muted: #95a6b7;
+      --soft: #c7d4df;
+      --accent: #f0c56c;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 14% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 80% 14%, rgba(134, 177, 233, 0.10), transparent 22%),
+        linear-gradient(180deg, #111922 0%, #080c11 100%);
+      padding: 28px 20px 36px;
+    }
+
+    .page {
+      width: min(1420px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .board-shell,
+    .notes,
+    .impl {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head,
+    .notes-head,
+    .impl-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .board-title {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .board-title strong {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .board-title span,
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mode-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.22);
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .board-body {
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 22%),
+        rgba(5, 8, 12, 0.28);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .hero-image,
+    .side-card,
+    .choices,
+    .choice,
+    .note-card,
+    .impl-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+    }
+
+    .hero-image {
+      min-height: 520px;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(33, 45, 58, 0.95), rgba(11, 15, 20, 0.98));
+    }
+
+    .hero-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      border: 1px dashed rgba(255, 255, 255, 0.22);
+      display: grid;
+      place-items: center;
+      color: var(--soft);
+      font-size: 18px;
+      line-height: 1.6;
+      letter-spacing: -0.01em;
+      padding: 24px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .side-card {
+      padding: 18px;
+      min-height: 220px;
+    }
+
+    .side-card h2,
+    .choices h2,
+    .notes-head h2,
+    .impl-head h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .side-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .choices {
+      margin-top: 16px;
+      padding: 16px;
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice {
+      padding: 14px 16px;
+    }
+
+    .choice strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .choice p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .notes {
+      margin-top: 16px;
+    }
+
+    .notes-body,
+    .impl-body {
+      padding: 16px;
+    }
+
+    .annotation-list {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.75;
+    }
+
+    .annotation-list li + li {
+      margin-top: 10px;
+    }
+
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .impl-card {
+      padding: 14px;
+    }
+
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .impl-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--soft);
+      line-height: 1.7;
+    }
+
+    .impl-card p {
+      margin: 0;
+      color: var(--soft);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1080px) {
+      .layout,
+      .impl-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">EVENT SURFACE</div>
+      <h1>이벤트 노드 페이지</h1>
+      <p class="subtitle">
+        이 화면은 전투 정보나 도감 탐색보다 현재 사건의 분위기와 선택 결과를 먼저 읽게 만드는 저자극 셸이다.
+        대형 이벤트 이미지와 짧은 선택지 비교가 중심이 되며, 선택 후 결과를 상상할 수 있는 최소한의 힌트만 옆에서 보조한다.
+      </p>
+    </header>
+
+    <section class="board-shell" aria-label="이벤트 노드 와이어프레임 보드">
+      <div class="board-head">
+        <div class="board-title">
+          <strong>이벤트 이미지 + 선택지 패널</strong>
+          <span>대형 이벤트 이미지와 세 개의 선택지를 가장 먼저 읽게 만드는 장면 중심 보드</span>
+        </div>
+        <div class="mode-pill">low-distraction shell</div>
+      </div>
+      <div class="board-body">
+        <div class="layout">
+          <section class="hero-image" aria-label="대형 이벤트 이미지">
+            <div class="hero-frame">대형 이벤트 이미지<br>장면 일러스트 / 상황 프롬프트 / 서사적 긴장감이 이 영역에서 가장 크게 보인다.</div>
+          </section>
+          <aside class="side-card" aria-label="리스크와 결과 메모">
+            <h2>결과 힌트 메모</h2>
+            <p>선택 전부를 정답처럼 보이게 하지 않고, 리스크나 보상 방향만 짧게 덧붙인다. 도감이나 상점으로 시선을 새지 않게 하며 사건의 선택 자체를 중심에 둔다.</p>
+          </aside>
+        </div>
+
+        <section class="choices" aria-label="선택지 패널">
+          <h2>선택지 패널</h2>
+          <div class="choice-list">
+            <article class="choice">
+              <strong>선택지 A</strong>
+              <p>안전하지만 보상이 작은 길. 즉시 손실은 적지만 다음 흐름에 강한 변화도 주지 않는다.</p>
+            </article>
+            <article class="choice">
+              <strong>선택지 B</strong>
+              <p>위험하지만 큰 보상이 있을 수 있는 길. 지금 리스크를 받아들이는 대신 다음 페이지 기대치를 높인다.</p>
+            </article>
+            <article class="choice">
+              <strong>선택지 C</strong>
+              <p>상황을 우회하거나 정보를 더 얻는 길. 즉시 결론보다 맥락과 조건을 읽는 플레이에 맞는 선택지다.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <div class="notes-head">
+        <h2>번호 주석</h2>
+        <div class="hint">choice-first annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>대형 이벤트 이미지는 페이지의 첫 시선이 머무는 주인공 영역이며, 사건의 감정과 맥락을 가장 크게 전달한다.</li>
+          <li>선택지는 짧고 읽기 쉬운 카드로 정리하고, 각 줄마다 결과 힌트를 덧붙여 선택 전 비교 부담을 줄인다.</li>
+          <li>이 셸은 노드맵이나 보상 수령 화면보다 훨씬 저자극으로 유지해 서사와 결정 자체에 집중하게 만든다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <div class="impl-head">
+        <h2>구현 노트</h2>
+        <div class="hint">allowed / blocked / key signs</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>허용 오버레이</strong>
+            <ul>
+              <li>settings</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>기본 차단</strong>
+            <ul>
+              <li>artifact codex</li>
+              <li>shop</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>핵심 구현 신호</strong>
+            <p>hero image hierarchy, choice clarity, low-distraction shell</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
