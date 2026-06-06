@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Node Select Run Flow Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-0: #0a0f14;
+      --bg-1: #101923;
+      --panel: rgba(16, 24, 33, 0.94);
+      --panel-2: rgba(9, 13, 18, 0.74);
+      --line: rgba(208, 223, 236, 0.12);
+      --line-strong: rgba(237, 205, 127, 0.28);
+      --text: #eef4fa;
+      --muted: #94a6b6;
+      --soft: #c6d3de;
+      --accent: #f0c56c;
+      --accent-2: #90c7ff;
+      --danger: #ffae9b;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.44);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(240, 197, 108, 0.12), transparent 22%),
+        radial-gradient(circle at 82% 18%, rgba(144, 199, 255, 0.10), transparent 24%),
+        radial-gradient(circle at 50% 105%, rgba(255, 255, 255, 0.04), transparent 25%),
+        linear-gradient(180deg, #121a23 0%, #080c11 100%);
+      padding: 28px 20px 36px;
+    }
+
+    .page {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 1040px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.72;
+    }
+
+    .board-shell {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .board-title {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .board-title strong {
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .board-title span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mode-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.22);
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .board {
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 22%),
+        rgba(5, 8, 12, 0.28);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .status-card {
+      min-width: 0;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(20, 28, 37, 0.96), rgba(12, 16, 22, 0.96));
+    }
+
+    .status-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-value {
+      margin-top: 10px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .status-value strong {
+      font-size: 28px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .status-value span {
+      color: var(--soft);
+      font-size: 14px;
+    }
+
+    .status-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .route-board,
+    .detail-board,
+    .notes-panel,
+    .impl-panel {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+      overflow: hidden;
+    }
+
+    .route-head,
+    .detail-head,
+    .notes-head,
+    .impl-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+    }
+
+    .route-head h2,
+    .detail-head h2,
+    .notes-head h2,
+    .impl-head h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .route-head .hint,
+    .detail-head .hint,
+    .notes-head .hint,
+    .impl-head .hint {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .route-body {
+      padding: 16px;
+    }
+
+    .path-frame {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(14, 18, 24, 0.94), rgba(8, 11, 15, 0.96));
+      padding: 14px;
+    }
+
+    .path-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.10);
+    }
+
+    .path-topline strong {
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .path-topline span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .path-lane {
+      display: grid;
+      grid-template-columns: 0.88fr repeat(5, minmax(0, 1fr)) 1.08fr 0.92fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .node-card,
+    .future-card,
+    .endpoint-card,
+    .start-card,
+    .past-card {
+      min-height: 194px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-card {
+      background:
+        linear-gradient(180deg, rgba(59, 79, 104, 0.28), rgba(15, 20, 27, 0.96));
+    }
+
+    .past-card {
+      background:
+        linear-gradient(180deg, rgba(31, 42, 52, 0.92), rgba(13, 17, 22, 0.96));
+      opacity: 0.96;
+    }
+
+    .node-card {
+      background:
+        linear-gradient(180deg, rgba(59, 48, 17, 0.46), rgba(13, 17, 22, 0.96));
+      border-color: rgba(240, 197, 108, 0.22);
+    }
+
+    .node-card.selected {
+      box-shadow: inset 0 0 0 1px rgba(240, 197, 108, 0.12);
+      outline: 1px solid rgba(240, 197, 108, 0.14);
+    }
+
+    .future-card {
+      background:
+        linear-gradient(180deg, rgba(22, 28, 36, 0.96), rgba(12, 16, 21, 0.96));
+    }
+
+    .endpoint-card {
+      background:
+        linear-gradient(180deg, rgba(52, 37, 18, 0.7), rgba(11, 15, 20, 0.98));
+      border-color: rgba(240, 197, 108, 0.18);
+    }
+
+    .node-badge,
+    .group-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--soft);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .node-badge.emphasis {
+      border-color: rgba(240, 197, 108, 0.26);
+      background: rgba(60, 46, 15, 0.38);
+      color: #f6dfaa;
+    }
+
+    .node-name {
+      margin: 12px 0 7px;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    .node-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.58;
+    }
+
+    .node-mini {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-row {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .mini-row.filled {
+      background: linear-gradient(90deg, rgba(240, 197, 108, 0.58), rgba(240, 197, 108, 0.20));
+    }
+
+    .node-foot {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .future-bridge {
+      display: grid;
+      gap: 10px;
+    }
+
+    .future-question {
+      min-height: 76px;
+      border-radius: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      display: grid;
+      place-items: center;
+      color: #cad6e0;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .future-label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .endpoint {
+      min-height: 100%;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .endpoint-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.26);
+      background: rgba(75, 54, 16, 0.36);
+      color: #f6dfaa;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .endpoint-title {
+      margin: 12px 0 8px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .endpoint-desc {
+      margin: 0;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .selected-row {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .detail-body {
+      padding: 16px;
+    }
+
+    .detail-card {
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+    }
+
+    .detail-kicker {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .detail-name {
+      margin: 10px 0 8px;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .detail-copy {
+      margin: 0;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .detail-list {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .detail-list li {
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(6, 9, 13, 0.34);
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .detail-list strong {
+      color: var(--text);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .detail-tile {
+      min-height: 92px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+    }
+
+    .detail-tile span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .detail-tile strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .notes-panel,
+    .impl-panel {
+      margin-top: 16px;
+    }
+
+    .notes-body,
+    .impl-body {
+      padding: 16px;
+    }
+
+    .annotation-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .annotation-list li {
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+      min-height: 120px;
+    }
+
+    .annotation-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.24);
+      background: rgba(64, 49, 17, 0.42);
+      color: #f7e0ad;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .annotation-title {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .annotation-text {
+      margin: 0;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .impl-card {
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+      min-height: 124px;
+    }
+
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .impl-card p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .impl-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .impl-card li + li {
+      margin-top: 6px;
+    }
+
+    .impl-card.blocked {
+      border-color: rgba(255, 174, 155, 0.22);
+      background: rgba(45, 23, 17, 0.34);
+    }
+
+    .impl-card.signals {
+      border-color: rgba(144, 199, 255, 0.22);
+      background: rgba(13, 25, 36, 0.42);
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .lane-label {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .comparison-tag {
+      display: inline-flex;
+      margin-left: 8px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.20);
+      background: rgba(60, 46, 15, 0.34);
+      color: #f8e4b5;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 1320px) {
+      .path-lane {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .path-lane > :nth-child(1) { grid-column: span 1; }
+      .path-lane > :nth-child(2),
+      .path-lane > :nth-child(3),
+      .path-lane > :nth-child(4),
+      .path-lane > :nth-child(5),
+      .path-lane > :nth-child(6) { grid-column: span 1; }
+      .path-lane > :nth-child(7) { grid-column: span 2; }
+      .path-lane > :nth-child(8) { grid-column: span 2; }
+    }
+
+    @media (max-width: 1080px) {
+      .layout,
+      .selected-row,
+      .status-strip,
+      .impl-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .annotation-list {
+        grid-template-columns: 1fr;
+      }
+
+      .path-lane {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .path-lane > * {
+        min-height: 170px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 18px 14px 24px;
+      }
+
+      .board-head,
+      .route-head,
+      .detail-head,
+      .notes-head,
+      .impl-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .path-lane {
+        grid-template-columns: 1fr;
+      }
+
+      .status-value strong {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">NODE SELECT RUN FLOW BOARD</div>
+      <h1>노드 선택 흐름 와이어프레임</h1>
+      <p class="subtitle">
+        이 화면은 전투 HUD가 아니라 <strong>경로 가독성</strong>과 <strong>노드 선택 판단</strong>을 보여주는 문서 보드다.
+        현재 실행과 스테이지 진행을 분리해 드러내고, 시작 노드부터 과거 경로, 다섯 개의 현재 선택지,
+        미지의 미래 체인, 보스전 엔드포인트까지 한 줄의 비교 경로로 읽히도록 구성한다.
+      </p>
+    </header>
+
+    <section class="board-shell" aria-label="node select wireframe board">
+      <div class="board-head">
+        <div class="board-title">
+          <strong>문서 보드 - 경로 판독 우선 레이아웃</strong>
+          <span>선택지 비교용 보드이며 전투 정보, 피해량 피드, 보상 폐기 존은 노출하지 않는다.</span>
+        </div>
+        <div class="mode-pill">route readability first</div>
+      </div>
+
+      <div class="board">
+        <div class="status-strip" aria-label="run and stage progress">
+          <div class="status-card">
+            <div class="status-label">
+              <span>실행 진행</span>
+              <span>run signal</span>
+            </div>
+            <div class="status-value">
+              <strong>Run 1/5</strong>
+              <span>현재 런 상태</span>
+            </div>
+            <div class="status-note">런 단위는 전체 여정의 큰 진행 신호로, 스테이지 진행과 별도로 표시된다.</div>
+          </div>
+          <div class="status-card">
+            <div class="status-label">
+              <span>스테이지 진행</span>
+              <span>stage signal</span>
+            </div>
+            <div class="status-value">
+              <strong>Stage 6/25</strong>
+              <span>현재 스테이지 위치</span>
+            </div>
+            <div class="status-note">스테이지는 현재 노드 선택 흐름의 위치 신호이며 런 진행과 섞지 않는다.</div>
+          </div>
+        </div>
+
+        <div class="layout">
+          <section class="route-board" aria-label="path structure">
+            <div class="route-head">
+              <h2>경로 구조</h2>
+              <div class="hint">시작 → 과거 → 선택지 5 → ? 체인 → 보스전</div>
+            </div>
+            <div class="route-body">
+              <div class="path-frame">
+                <div class="path-topline">
+                  <div>
+                    <strong>노드 비교 라인 <span class="comparison-tag">선택지 5</span></strong>
+                    <span>한 화면에 다섯 개의 live choice를 나란히 놓고 현재 의사결정을 비교한다.</span>
+                  </div>
+                  <div>
+                    <strong>경로 가독성</strong>
+                    <span>선택 후 경로 읽기가 우선</span>
+                  </div>
+                </div>
+
+                <div class="path-lane">
+                  <article class="start-card">
+                    <span class="group-badge">시작 노드</span>
+                    <p class="node-name">출발 지점</p>
+                    <p class="node-desc">런이 시작된 기준점. 이전 선택이 아닌 현재 흐름의 원점으로만 노출된다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>entry</span>
+                      <span>visible</span>
+                    </div>
+                  </article>
+
+                  <article class="past-card">
+                    <span class="group-badge">과거 노드</span>
+                    <p class="node-name">지난 경유 1</p>
+                    <p class="node-desc">이미 지난 선택. 앞으로 영향을 주는 흔적만 남기고 세부 전투는 접는다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>past</span>
+                      <span>read only</span>
+                    </div>
+                  </article>
+
+                  <article class="past-card">
+                    <span class="group-badge">과거 노드</span>
+                    <p class="node-name">지난 경유 2</p>
+                    <p class="node-desc">선택 이력을 보여주는 참조 표식. 전투 HUD처럼 숫자를 과하게 쌓지 않는다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>past</span>
+                      <span>context</span>
+                    </div>
+                  </article>
+
+                  <article class="node-card selected">
+                    <span class="node-badge emphasis">현재 선택</span>
+                    <p class="node-name">선택지 A</p>
+                    <p class="node-desc">가독성 기준으로 비교되는 첫 번째 live choice. 상태는 전투가 아니라 경로 선택을 강조한다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>choice 1</span>
+                      <span>selected</span>
+                    </div>
+                  </article>
+
+                  <article class="node-card">
+                    <span class="node-badge">현재 선택</span>
+                    <p class="node-name">선택지 B</p>
+                    <p class="node-desc">다섯 개의 실시간 선택지 중 하나. 비교 질서를 유지하기 위해 동일한 카드 구조를 사용한다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>choice 2</span>
+                      <span>live</span>
+                    </div>
+                  </article>
+
+                  <article class="node-card">
+                    <span class="node-badge">현재 선택</span>
+                    <p class="node-name">선택지 C</p>
+                    <p class="node-desc">경로 가독성을 해치지 않도록 장식 대신 구조만 남긴 비교 패널이다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>choice 3</span>
+                      <span>live</span>
+                    </div>
+                  </article>
+
+                  <article class="node-card">
+                    <span class="node-badge">현재 선택</span>
+                    <p class="node-name">선택지 D</p>
+                    <p class="node-desc">즉시 눌러야 하는 상호작용 카드가 아니라, 읽고 비교한 뒤 선택하는 경로 노드다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>choice 4</span>
+                      <span>live</span>
+                    </div>
+                  </article>
+
+                  <article class="node-card">
+                    <span class="node-badge">현재 선택</span>
+                    <p class="node-name">선택지 E</p>
+                    <p class="node-desc">마지막 live choice. 동일한 비교 형식으로 배치되어 한 눈에 차이를 읽을 수 있다.</p>
+                    <div class="node-mini">
+                      <div class="mini-row filled"></div>
+                      <div class="mini-row"></div>
+                      <div class="mini-row filled"></div>
+                    </div>
+                    <div class="node-foot">
+                      <span>choice 5</span>
+                      <span>live</span>
+                    </div>
+                  </article>
+
+                  <article class="future-card">
+                    <div class="future-bridge">
+                      <span class="group-badge">미래 노드</span>
+                      <div class="future-question">?</div>
+                      <div class="future-label">미래 경로는 의도적으로 하나의 ? 체인으로 접어서, 현재 선택이 미래 전체를 읽는 맥락만 제공한다.</div>
+                    </div>
+                    <div class="node-foot">
+                      <span>unknown</span>
+                      <span>collapsed</span>
+                    </div>
+                  </article>
+
+                  <article class="endpoint-card">
+                    <div class="endpoint">
+                      <div>
+                        <span class="endpoint-mark">보스전</span>
+                        <p class="endpoint-title">보스전 엔드포인트</p>
+                        <p class="endpoint-desc">선택 경로의 끝은 보스전으로 수렴하며, 이 장면은 결말 지점을 명확하게 지시한다.</p>
+                      </div>
+                      <div class="node-foot">
+                        <span>boss endpoint</span>
+                        <span>visible</span>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                <div class="lane-label">보드의 핵심은 전투가 아니라 경로 읽기다. 선택 흐름, 이후 흐름, 결말 흐름이 한 줄에서 분리되어 보인다.</div>
+              </div>
+
+              <div class="selected-row">
+                <section class="detail-board" aria-label="selected node detail">
+                  <div class="detail-head">
+                    <h2>선택된 노드 상세</h2>
+                    <div class="hint">selected-node detail panel</div>
+                  </div>
+                  <div class="detail-body">
+                    <div class="detail-card">
+                      <div class="detail-kicker">현재 강조 대상</div>
+                      <p class="detail-name">선택지 A - 경로 우선 보기</p>
+                      <p class="detail-copy">
+                        선택된 노드는 전투 카드가 아니라, 다음 분기 판단을 돕는 참조 패널로 보인다.
+                        현재 선택의 영향, 예정된 흐름, 보스 방향성만 읽히도록 유지한다.
+                      </p>
+                      <div class="detail-grid" aria-label="selected node summary">
+                        <div class="detail-tile">
+                          <span>읽기 포인트</span>
+                          <strong>현재 노드와 미래 ? 체인의 관계</strong>
+                        </div>
+                        <div class="detail-tile">
+                          <span>시각 원칙</span>
+                          <strong>전투 HUD보다 경로 비교를 먼저 읽기</strong>
+                        </div>
+                      </div>
+                      <ul class="detail-list">
+                        <li><strong>선택 상태:</strong> 현재 live choice 중 하나가 강조된다.</li>
+                        <li><strong>표현 방식:</strong> 수치보다 구조, 액션보다 경로 해석을 우선한다.</li>
+                        <li><strong>보조 영역:</strong> 선택 후 상세는 참조용이고 항상 열려 있는 전투 도크가 아니다.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="detail-board" aria-label="reference loadout note">
+                  <div class="detail-head">
+                    <h2>참조 / 로드아웃 표면</h2>
+                    <div class="hint">not combat dock</div>
+                  </div>
+                  <div class="detail-body">
+                    <div class="detail-card">
+                      <div class="detail-kicker">백팩 표면</div>
+                      <p class="detail-name">이 구역은 항상 열린 전투용 도크가 아니다</p>
+                      <p class="detail-copy">
+                        여기의 백팩은 전투 HUD의 고정 도크가 아니라, 필요할 때만 읽는 참조 및 로드아웃 표면으로 취급한다.
+                        노드 선택의 맥락을 보조하되 화면 중심을 점유하지 않는다.
+                      </p>
+                      <div class="node-mini" aria-hidden="true">
+                        <div class="mini-row filled"></div>
+                        <div class="mini-row"></div>
+                        <div class="mini-row"></div>
+                      </div>
+                      <div class="node-foot">
+                        <span>reference surface</span>
+                        <span>dock blocked</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes-panel" aria-label="annotation notes">
+      <div class="notes-head">
+        <h2>번호 주석</h2>
+        <div class="hint">wireframe annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>
+            <div class="annotation-index">1</div>
+            <p class="annotation-title">런과 스테이지는 서로 다른 진행 신호다</p>
+            <p class="annotation-text">Run 1/5 는 전체 여정의 큰 축이고, Stage 6/25 는 현재 노드 흐름의 위치 신호로 따로 읽히게 한다.</p>
+          </li>
+          <li>
+            <div class="annotation-index">2</div>
+            <p class="annotation-title">다섯 개의 live choice 가 한 비교 라인에 있다</p>
+            <p class="annotation-text">선택지 A부터 E까지를 동일한 카드 구조로 나란히 배치해, 스캔 순서와 비교 판단이 흔들리지 않게 한다.</p>
+          </li>
+          <li>
+            <div class="annotation-index">3</div>
+            <p class="annotation-title">미래 노드는 ? 체인으로 의도적으로 축약된다</p>
+            <p class="annotation-text">다가오지 않은 구간은 세부를 숨기고 물음표 흐름으로만 남겨, 현재 선택이 만드는 경로 감각만 전달한다.</p>
+          </li>
+          <li>
+            <div class="annotation-index">4</div>
+            <p class="annotation-title">백팩은 전투 도크가 아니라 참조 / 로드아웃 표면이다</p>
+            <p class="annotation-text">항상 열린 전투 HUD 느낌을 피하고, 필요 시 읽는 보조 표면으로 배치해 노드 선택 화면의 본질을 유지한다.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl-panel" aria-label="implementation notes">
+      <div class="impl-head">
+        <h2>구현 노트</h2>
+        <div class="hint">allowed / blocked / key signs</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>허용 오버레이</strong>
+            <ul>
+              <li>settings</li>
+              <li>artifact codex</li>
+              <li>shop</li>
+            </ul>
+          </div>
+          <div class="impl-card blocked">
+            <strong>차단 구조</strong>
+            <ul>
+              <li>combat HUD</li>
+              <li>reward discard zone</li>
+            </ul>
+          </div>
+          <div class="impl-card signals">
+            <strong>핵심 구현 신호</strong>
+            <ul>
+              <li>five live choices</li>
+              <li>unknown future chain</li>
+              <li>boss endpoint</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>의도</strong>
+            <p>이 페이지는 경로를 읽는 보드다. 선택지 비교가 먼저 보이고, 전투성 정보는 노출하지 않는다.</p>
+          </div>
+        </div>
+        <div class="footer-note">
+          한국어 라벨은 실제 UI에서 바로 읽히는 수준으로 유지하고, 영어는 제목과 구조 태그에만 사용해 문서형 와이어프레임의 의도를 분명히 한다.
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
