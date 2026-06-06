@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Run Start Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-0: #0b1014;
+      --bg-1: #111923;
+      --panel: rgba(17, 24, 33, 0.92);
+      --line: rgba(201, 221, 237, 0.12);
+      --text: #eef5fb;
+      --muted: #97a9b9;
+      --soft: #c8d7e4;
+      --accent: #f0c56c;
+      --shadow: 0 26px 72px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(240, 197, 108, 0.12), transparent 24%),
+        radial-gradient(circle at 84% 20%, rgba(132, 208, 168, 0.10), transparent 24%),
+        linear-gradient(180deg, #121a22 0%, #091015 100%);
+      padding: 28px 20px 36px;
+    }
+
+    .page {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.04;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .board-shell {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    }
+
+    .board-title {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .board-title strong {
+      font-size: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    .board-title span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .mode-pill {
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.24);
+      background: rgba(54, 43, 18, 0.42);
+      color: #f7e7bd;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .board {
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 24%),
+        rgba(6, 9, 13, 0.36);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr 0.95fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .zone {
+      min-width: 0;
+      background: linear-gradient(180deg, rgba(25, 35, 46, 0.95), rgba(14, 20, 27, 0.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .zone-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .zone-head h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .zone-head .hint {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .zone-body {
+      padding: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice-card,
+    .hero-card {
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(8, 12, 16, 0.44);
+      border-radius: 18px;
+    }
+
+    .choice-card {
+      padding: 14px;
+    }
+
+    .choice-card.selected {
+      border-color: rgba(240, 197, 108, 0.28);
+      background: linear-gradient(180deg, rgba(67, 53, 20, 0.42), rgba(12, 16, 21, 0.44));
+      box-shadow: inset 0 0 0 1px rgba(240, 197, 108, 0.08);
+    }
+
+    .choice-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02)),
+        linear-gradient(180deg, #344251, #202a36);
+      box-shadow: inset 0 -10px 18px rgba(0, 0, 0, 0.28);
+    }
+
+    .choice-name {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .choice-meta {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--soft);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-card {
+      padding: 16px;
+    }
+
+    .hero-banner {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.10);
+      margin-bottom: 14px;
+    }
+
+    .hero-portrait {
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.20), transparent 18%),
+        linear-gradient(160deg, rgba(247, 213, 140, 0.34), rgba(49, 61, 73, 0.9)),
+        #283341;
+      box-shadow: inset 0 -22px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero-name {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-sub {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat-box {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stat-label {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .hero-callout {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(132, 208, 168, 0.20);
+      background: rgba(20, 43, 34, 0.40);
+      color: #ddf8ea;
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    .hero-callout strong {
+      color: #ffffff;
+    }
+
+    .cta-row {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 16px;
+    }
+
+    .cta-box {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(240, 197, 108, 0.28);
+      background: linear-gradient(180deg, rgba(61, 47, 20, 0.60), rgba(18, 16, 12, 0.62));
+    }
+
+    .cta-box .label {
+      margin: 0 0 8px;
+      color: #f6e1af;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cta-box .copy {
+      margin: 0;
+      color: #fff6dc;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .start-btn {
+      display: grid;
+      place-items: center;
+      padding: 16px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(240, 197, 108, 0.40);
+      background: linear-gradient(180deg, #f1c66f, #b57f26);
+      color: #20150c;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-align: center;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.24);
+    }
+
+    .small-muted {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .relic-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .relic-card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .relic-card.selected {
+      border-color: rgba(240, 197, 108, 0.28);
+      background: rgba(73, 55, 18, 0.36);
+    }
+
+    .relic-name {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .relic-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .bag-preview {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(10, 13, 17, 0.56);
+    }
+
+    .bag-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .bag-head strong {
+      font-size: 15px;
+    }
+
+    .bag-head span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bag-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .bag-slot {
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+        rgba(255, 255, 255, 0.01);
+      display: grid;
+      place-items: center;
+      color: rgba(236, 243, 249, 0.62);
+      font-size: 11px;
+      line-height: 1.35;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .bag-slot.filled {
+      border-style: solid;
+      color: #f4e8c8;
+      background:
+        radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.18), transparent 24%),
+        linear-gradient(180deg, rgba(121, 92, 33, 0.72), rgba(46, 35, 19, 0.92));
+      box-shadow: inset 0 -10px 14px rgba(0, 0, 0, 0.24);
+    }
+
+    .notes,
+    .impl {
+      margin-top: 16px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(21, 29, 39, 0.92), rgba(11, 16, 22, 0.96));
+      border: 1px solid var(--line);
+    }
+
+    .notes h3,
+    .impl h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .notes ol {
+      margin: 0;
+      padding-left: 20px;
+      color: #dfe8f0;
+      line-height: 1.68;
+      font-size: 14px;
+    }
+
+    .notes li + li {
+      margin-top: 8px;
+    }
+
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .impl-item {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      line-height: 1.55;
+      font-size: 13px;
+      color: #d9e3ec;
+    }
+
+    .impl-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .impl-item.blocked {
+      border-color: rgba(215, 131, 131, 0.24);
+      background: rgba(53, 28, 28, 0.44);
+    }
+
+    .impl-item.blocked strong {
+      color: #f2c0c0;
+    }
+
+    .impl-item.signals {
+      border-color: rgba(132, 208, 168, 0.24);
+      background: rgba(24, 41, 33, 0.42);
+    }
+
+    .impl-item.signals strong {
+      color: #c0f2d8;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1180px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .impl-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 18px 14px 24px;
+      }
+
+      .board-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-banner,
+      .cta-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-grid,
+      .bag-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">RUN PREP BOARD</div>
+      <h1>런 시작 페이지</h1>
+      <p class="subtitle">
+        전투 HUD가 아니라, 출발 직전의 준비를 정리하는 문서보드형 와이어프레임이다.
+        왼쪽에서 캐릭터를 비교하고, 가운데에서 선택 결과가 확장되며, 오른쪽에서 시작 유물과 시작 백팩이 즉시 연결되는 흐름을 보여준다.
+      </p>
+    </header>
+
+    <section class="board-shell" aria-label="런 시작 와이어프레임 보드">
+      <div class="board-head">
+        <div class="board-title">
+          <strong>준비 단계 전용 보드</strong>
+          <span>캐릭터 선택, 시작 유물, 시작 백팩, 그리고 출발 CTA만 노출한다. 전투 읽기 요소는 포함하지 않는다.</span>
+        </div>
+        <div class="mode-pill">pre-combat setup only</div>
+      </div>
+
+      <div class="board">
+        <div class="grid">
+          <section class="zone" aria-label="캐릭터 목록">
+            <div class="zone-head">
+              <h2>캐릭터 선택</h2>
+              <div class="hint">좌측 비교 영역</div>
+            </div>
+            <div class="zone-body">
+              <div class="stack">
+                <article class="choice-card selected">
+                  <div class="choice-top">
+                    <div>
+                      <p class="choice-name">등불 검사관</p>
+                      <p class="choice-meta">초반 안정성 · 유물 의존 낮음 · 생존형 시작</p>
+                    </div>
+                    <div class="avatar" aria-hidden="true"></div>
+                  </div>
+                  <div class="chip-row">
+                    <span class="chip">추천 시작형</span>
+                    <span class="chip">균형형</span>
+                    <span class="chip">낮은 리스크</span>
+                  </div>
+                </article>
+
+                <article class="choice-card">
+                  <div class="choice-top">
+                    <div>
+                      <p class="choice-name">파도 항해사</p>
+                      <p class="choice-meta">자원 순환 · 유물 시너지 · 고속 전개</p>
+                    </div>
+                    <div class="avatar" aria-hidden="true"></div>
+                  </div>
+                  <div class="chip-row">
+                    <span class="chip">시너지형</span>
+                    <span class="chip">공격적</span>
+                  </div>
+                </article>
+
+                <article class="choice-card">
+                  <div class="choice-top">
+                    <div>
+                      <p class="choice-name">유물 사서</p>
+                      <p class="choice-meta">초반 탐색 · 유물 가중치 · 준비형 운영</p>
+                    </div>
+                    <div class="avatar" aria-hidden="true"></div>
+                  </div>
+                  <div class="chip-row">
+                    <span class="chip">탐색형</span>
+                    <span class="chip">세팅형</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="zone" aria-label="선택된 캐릭터 정보">
+            <div class="zone-head">
+              <h2>선택 캐릭터 확장</h2>
+              <div class="hint">중앙 확장 영역</div>
+            </div>
+            <div class="zone-body">
+              <article class="hero-card">
+                <div class="hero-banner">
+                  <div class="hero-portrait" aria-hidden="true"></div>
+                  <div>
+                    <p class="hero-name">등불 검사관</p>
+                    <p class="hero-sub">
+                      이 영역은 선택된 캐릭터의 핵심 설명과 시작 성향을 크게 보여주는 곳이다.
+                      비교 목록에서 고른 항목이 가운데로 확장되며, 준비 방향을 한 번에 이해하게 한다.
+                    </p>
+                    <div class="chip-row" aria-label="캐릭터 태그">
+                      <span class="chip">출발 성향: 안정</span>
+                      <span class="chip">핵심 키워드: 생존</span>
+                      <span class="chip">초기 목표: 전개</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="hero-grid">
+                  <div class="stat-box">
+                    <p class="stat-label">시작 장점</p>
+                    <p class="stat-value">받는 피해 완화, 초반 회복 여유</p>
+                  </div>
+                  <div class="stat-box">
+                    <p class="stat-label">권장 운영</p>
+                    <p class="stat-value">방어와 자원 확보를 먼저 고정</p>
+                  </div>
+                  <div class="stat-box">
+                    <p class="stat-label">부담 구간</p>
+                    <p class="stat-value">초기 선택지를 성급하게 바꾸지 않기</p>
+                  </div>
+                  <div class="stat-box">
+                    <p class="stat-label">시작 해석</p>
+                    <p class="stat-value">전투보다 준비와 조합을 먼저 읽는 페이지</p>
+                  </div>
+                </div>
+
+                <div class="hero-callout">
+                  <strong>와이어프레임 메모:</strong>
+                  선택 즉시 여기의 정보량이 늘어나고, 왼쪽의 다른 캐릭터와 비교하던 맥락이 사라지지 않도록
+                  전환 후에도 선택 상태가 분명하게 남아 있어야 한다.
+                </div>
+              </article>
+
+              <div class="cta-row" aria-label="출발 행동">
+                <div class="cta-box">
+                  <p class="label">시작 CTA</p>
+                  <p class="copy">유물과 백팩 구성이 완료되면 이 영역에서 바로 출발한다. 우선순위가 가장 높은 행동으로 보이도록 배치한다.</p>
+                </div>
+                <div class="start-btn">출발하기</div>
+              </div>
+              <div class="small-muted">보드 중심은 읽기와 선택의 확인용이고, 전투 HUD나 전장 정보는 의도적으로 숨긴다.</div>
+            </div>
+          </section>
+
+          <section class="zone" aria-label="시작 유물과 시작 백팩">
+            <div class="zone-head">
+              <h2>시작 유물 + 시작 백팩</h2>
+              <div class="hint">오른쪽 세팅 영역</div>
+            </div>
+            <div class="zone-body">
+              <div class="relic-grid">
+                <article class="relic-card selected">
+                  <p class="relic-name">빛가루 초상</p>
+                  <p class="relic-desc">선택 즉시 백팩 첫 열에 회복형 보급칸이 강조된다.</p>
+                </article>
+                <article class="relic-card">
+                  <p class="relic-name">수선된 지도 조각</p>
+                  <p class="relic-desc">탐색용 슬롯과 방향성 메모가 백팩에 추가로 표시된다.</p>
+                </article>
+                <article class="relic-card">
+                  <p class="relic-name">묶음 상인 토큰</p>
+                  <p class="relic-desc">상점이 아니라 시작 보급 조정용 표시만 유지한다.</p>
+                </article>
+              </div>
+
+              <div class="bag-preview">
+                <div class="bag-head">
+                  <strong>시작 백팩 미리보기</strong>
+                  <span>유물 선택 반영</span>
+                </div>
+                <div class="bag-grid" aria-label="백팩 슬롯 미리보기">
+                  <div class="bag-slot filled">유물 반영 슬롯</div>
+                  <div class="bag-slot filled">기본 보급</div>
+                  <div class="bag-slot">빈 슬롯</div>
+                  <div class="bag-slot">빈 슬롯</div>
+                  <div class="bag-slot filled">회복 아이템</div>
+                  <div class="bag-slot">빈 슬롯</div>
+                </div>
+              </div>
+
+              <div class="small-muted">유물 선택이 바뀌면 백팩 미리보기의 슬롯 상태도 즉시 갱신되는 구조를 전제로 한다.</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <h3>주석 노트</h3>
+      <ol>
+        <li>캐릭터 비교는 왼쪽에서 이루어지며, 서로 다른 시작 성향을 나란히 살피는 비교 영역이다.</li>
+        <li>선택된 결과는 가운데에서 더 큰 영웅 패널로 확장되어 핵심 설명과 시작 방향이 강조된다.</li>
+        <li>시작 유물 선택은 바로 오른쪽의 시작 백팩 미리보기에 즉시 영향을 주어 슬롯 구성이 바뀐다.</li>
+        <li>이 페이지는 전투 가독성이 아니라 시작 로드아웃 계획을 위한 준비 페이지라는 점을 시각적으로 분명히 해야 한다.</li>
+      </ol>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <h3>구현 노트</h3>
+      <div class="impl-grid">
+        <div class="impl-item">
+          <strong>허용 오버레이</strong>
+          설정, artifact codex
+        </div>
+        <div class="impl-item blocked">
+          <strong>차단 오버레이</strong>
+          shop
+        </div>
+        <div class="impl-item signals">
+          <strong>핵심 구현 신호</strong>
+          click-to-select, preview grid, start CTA hierarchy
+        </div>
+      </div>
+      <div class="footer-note">
+        이 목업은 실제 전투 정보보다 준비 단계의 선택 관계를 설명하는 문서보드로 사용한다.
+      </div>
+    </section>
+  </main>
+</body>
+</html>
