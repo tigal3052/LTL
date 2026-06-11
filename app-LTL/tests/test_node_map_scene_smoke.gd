@@ -98,7 +98,7 @@ func test_node_map_scene_exposes_map_page_controls() -> void:
 	_assert(not str(scene.summary_text()).contains("Hazard Rich"), "node map page summary does not dump the old route list")
 	_assert(str(scene.node_button_text(0)).contains(TextCatalogScript.display_name("Safe Scar")), "node map page keeps route labels on map buttons")
 	_assert(str(scene.detail_text()).contains("Safe Scar"), "node map page exposes selected route details")
-	_assert(str(scene.summary_text()).contains("green"), "node map page summary includes selected start color")
+	_assert(str(scene.summary_text()).contains(TextCatalogScript.t("color.green")), "node map page summary includes selected start color")
 
 func test_node_map_scene_reuses_start_color_panel_when_stage_gate_hides_it() -> void:
 	var SceneScript = load("res://src/scenes/node_map/NodeMapScene.gd")
@@ -154,7 +154,7 @@ func test_node_map_scene_keeps_route_text_after_color_rerender() -> void:
 	_assert_eq(scene.map_node_count(), 2, "node map keeps map nodes after color rerender")
 	_assert(str(scene.node_button_text(0)).contains(TextCatalogScript.display_name("Safe Scar")), "node map keeps selected node text after color rerender")
 	_assert(str(scene.detail_text()).contains("Safe Scar"), "node map keeps selected route detail after color rerender")
-	_assert(str(scene.summary_text()).contains("blue"), "node map updates selected color summary")
+	_assert(str(scene.summary_text()).contains(TextCatalogScript.t("color.blue")), "node map updates selected color summary")
 	_assert_eq(scene.card_count(), 2, "node map does not keep queued stale route buttons after color rerender")
 	_assert_eq(scene.loadout_color_count(), 4, "node map does not keep queued stale color buttons after color rerender")
 
@@ -255,8 +255,8 @@ func test_node_map_marks_selected_candidate_visually() -> void:
 	})
 	_assert_eq(scene.node_button_selected_state(0), false, "unselected node is not marked selected")
 	_assert_eq(scene.node_button_selected_state(1), true, "selected node is marked selected")
-	_assert(not scene.node_button_text(0).begins_with(">"), "unselected node chip has no selected prefix")
-	_assert(scene.node_button_text(1).begins_with(">"), "selected node chip has selected prefix")
+	_assert(not scene.node_button_text(0).begins_with("TARGET"), "unselected node chip has no selected target prefix")
+	_assert(scene.node_button_text(1).begins_with("TARGET"), "selected node chip uses the target prefix")
 
 func test_node_map_spreads_candidates_without_overlap() -> void:
 	var SceneScript = load("res://src/scenes/node_map/NodeMapScene.gd")

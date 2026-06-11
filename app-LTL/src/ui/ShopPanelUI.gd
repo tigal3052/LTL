@@ -104,9 +104,9 @@ func apply_locale() -> void:
 		return
 	title_label.text = TextCatalogScript.t("shop.title")
 	if passive_section_label != null:
-		passive_section_label.text = "PASSIVE TREE"
+		passive_section_label.text = TextCatalogScript.t("shop.section.passive")
 	if base_section_label != null:
-		base_section_label.text = "BASE UNLOCKS"
+		base_section_label.text = TextCatalogScript.t("shop.section.base")
 	if close_button != null:
 		close_button.text = TextCatalogScript.t("action.close")
 	for passive in PASSIVES:
@@ -126,6 +126,11 @@ func apply_locale() -> void:
 				buttons[pid].text = TextCatalogScript.t("shop.buy")
 		for item in base_shop_items:
 			var item_id := str(item.get("id", ""))
+			if base_item_labels.has(item_id):
+				base_item_labels[item_id].text = TextCatalogScript.t(
+					"shop.base_item_cost",
+					[TextCatalogScript.base_shop_label(item_id, str(item.get("label", item_id))), int(item.get("costGold", 0)), int(item.get("costXp", 0))]
+				)
 			if base_item_buttons.has(item_id):
 				base_item_buttons[item_id].text = TextCatalogScript.t("shop.buy")
 
@@ -156,10 +161,13 @@ func render_shop(growth_state: Dictionary) -> void:
 		var cost_xp := int(item.get("costXp", 0))
 		var owned := _is_base_item_owned(str(item.get("type", "")), unlock_id, unlocked_characters, unlocked_items, scan_unlocks)
 		if base_item_labels.has(item_id):
-			base_item_labels[item_id].text = "%s - %dG / %dXP" % [str(item.get("label", item_id)), cost_gold, cost_xp]
+			base_item_labels[item_id].text = TextCatalogScript.t(
+				"shop.base_item_cost",
+				[TextCatalogScript.base_shop_label(item_id, str(item.get("label", item_id))), cost_gold, cost_xp]
+			)
 		if base_item_buttons.has(item_id):
 			base_item_buttons[item_id].disabled = owned or gold_val < cost_gold or xp_val < cost_xp
-			base_item_buttons[item_id].text = "Owned" if owned else "%dG %dXP" % [cost_gold, cost_xp]
+			base_item_buttons[item_id].text = TextCatalogScript.t("shop.owned") if owned else TextCatalogScript.t("shop.base_item_button_cost", [cost_gold, cost_xp])
 
 # 실행: add one passive purchase row.
 func _add_passive_row(parent: Control, passive: Dictionary) -> void:

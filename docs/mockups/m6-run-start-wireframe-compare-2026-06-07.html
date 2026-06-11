@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character Select Cleanup Compare</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071018;
+      --panel: rgba(13, 18, 24, 0.92);
+      --line: rgba(198, 214, 230, 0.14);
+      --text: #edf4fb;
+      --muted: #9eb2c6;
+      --accent: #f0c56c;
+      --shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 85% 10%, rgba(95, 156, 255, 0.10), transparent 24%),
+        linear-gradient(180deg, #0d141b 0%, #070b10 100%);
+      padding: 24px;
+    }
+
+    .page {
+      width: min(1700px, 100%);
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 980px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .panel,
+    .notes {
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        var(--panel);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head,
+    .notes-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head strong,
+    .notes-head strong {
+      font-size: 18px;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(240, 197, 108, 0.12);
+      color: #f3dca3;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    iframe {
+      width: 100%;
+      height: 940px;
+      border: 0;
+      background: #0a1118;
+    }
+
+    .notes {
+      margin-top: 18px;
+    }
+
+    .notes-body {
+      padding: 16px 18px 18px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    .notes-body h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .notes-body ol,
+    .notes-body ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .notes-body li + li {
+      margin-top: 6px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @media (max-width: 1300px) {
+      .compare,
+      .notes-body {
+        grid-template-columns: 1fr;
+      }
+
+      iframe {
+        height: 820px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">Visual Companion</div>
+    <h1>시작 페이지 정리 비교</h1>
+    <p class="subtitle">
+      좌측은 현재 기준 목업, 우측은 이번 요청 1~9번을 반영한 정리안입니다.
+      텍스트 제거로 생기는 여백을 실제 콘텐츠 면적으로 환원하는 방향이 핵심입니다.
+    </p>
+
+    <section class="compare" aria-label="현재안과 정리안 비교">
+      <article class="panel">
+        <div class="panel-head">
+          <strong>현재안</strong>
+          <span class="pill">scaffold text-heavy</span>
+        </div>
+        <iframe src="./m6-run-start-wireframe.html" title="현재 시작 페이지 목업"></iframe>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <strong>요청 반영안</strong>
+          <span class="pill">cleaned layout</span>
+        </div>
+        <iframe src="./m6-run-start-wireframe-cleanup-proposal.html" title="정리된 시작 페이지 제안"></iframe>
+      </article>
+    </section>
+
+    <section class="notes">
+      <div class="notes-head">
+        <strong>함께 볼 포인트</strong>
+        <span class="pill">review notes</span>
+      </div>
+      <div class="notes-body">
+        <div>
+          <h3>이번 정리안의 핵심</h3>
+          <ol>
+            <li>상단의 `출항 준비 페이지`를 `캐릭터 선택`으로 바꾸고 설명 문단을 제거합니다.</li>
+            <li>보드 타이틀과 각 패널 보조 라벨을 걷어내서, 페이지가 더 덜 설명적이고 더 즉시 읽히게 만듭니다.</li>
+            <li>우측 상단에 설정 버튼을 고정해 빈 모서리를 기능 영역으로 전환합니다.</li>
+            <li>백팩 슬롯은 같은 박스 안에서 더 크게 키우고, hover 시 상세 유물 패널이 붙는 구조로 전환합니다.</li>
+            <li>CTA는 버튼만 남기고 축소해서 위 패널들이 더 많은 높이를 쓰게 합니다.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>9번 유물 선택 영역 제안</h3>
+          <ul>
+            <li><strong>추천:</strong> 텍스트 제목 없이 색상 카드 2~3개만 먼저 보이고, hover 또는 선택 시 우측 설명 패널이 바뀌는 방식</li>
+            <li><strong>대안 A:</strong> 색상 탭 바 형태로 얇게 줄이고 아래에 상세 카드 1장만 유지</li>
+            <li><strong>대안 B:</strong> 시작 유물 1개만 먼저 고르게 하고, 계열 설명은 툴팁으로 숨겨 밀도를 더 줄이기</li>
+          </ul>
+          <p class="muted">
+            지금 화면 밀도에는 첫 번째 방식이 가장 자연스럽습니다. 텍스트 헤더를 지워도 기능이 사라져 보이지 않고, 시작 백팩 hover 패널과도 표현 언어가 맞습니다.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

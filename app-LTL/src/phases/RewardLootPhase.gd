@@ -38,6 +38,9 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 				next_state["combat"] = null
 				next_state["pendingRewards"] = []
 				next_state["held"] = null
+				next_state["routeHistory"] = []
+				next_state["lastNodeLabel"] = ""
+				next_state["selectedNode"] = {}
 				return next_state
 			else:
 				# 런 완전 종료

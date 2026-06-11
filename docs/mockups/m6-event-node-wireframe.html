@@ -7,13 +7,9 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0a0f14;
-      --panel: rgba(16, 24, 33, 0.94);
-      --panel-2: rgba(9, 13, 18, 0.72);
       --line: rgba(208, 223, 236, 0.12);
       --text: #eef4fa;
       --muted: #95a6b7;
-      --soft: #c7d4df;
       --accent: #f0c56c;
       --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
     }
@@ -70,7 +66,7 @@
       border: 1px solid var(--line);
       border-radius: 28px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
         rgba(8, 11, 15, 0.78);
       box-shadow: var(--shadow);
       overflow: hidden;
@@ -120,102 +116,90 @@
     .board-body {
       padding: 18px;
       background:
-        radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 22%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent 22%),
         rgba(5, 8, 12, 0.28);
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
-      gap: 16px;
-      align-items: start;
-    }
-
-    .hero-image,
-    .side-card,
-    .choices,
-    .choice,
-    .note-card,
-    .impl-card {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
-    }
-
     .hero-image {
-      min-height: 520px;
-      padding: 18px;
+      min-height: 620px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(28, 39, 51, 0.96), rgba(10, 14, 19, 0.98));
+      padding: 20px;
       display: grid;
       place-items: center;
-      text-align: center;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.08), transparent 20%),
-        linear-gradient(180deg, rgba(33, 45, 58, 0.95), rgba(11, 15, 20, 0.98));
+      margin-bottom: 16px;
     }
 
     .hero-frame {
       width: 100%;
       height: 100%;
-      border-radius: 20px;
-      border: 1px dashed rgba(255, 255, 255, 0.22);
+      border-radius: 24px;
+      border: 1px dashed rgba(255,255,255,0.18);
       display: grid;
       place-items: center;
-      color: var(--soft);
-      font-size: 18px;
-      line-height: 1.6;
-      letter-spacing: -0.01em;
-      padding: 24px;
+      text-align: center;
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1.7;
+      padding: 28px;
       background: rgba(255,255,255,0.02);
     }
 
-    .side-card {
-      padding: 18px;
-      min-height: 220px;
+    .choices {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+      overflow: hidden;
     }
 
-    .side-card h2,
-    .choices h2,
-    .notes-head h2,
-    .impl-head h2 {
-      margin: 0 0 10px;
+    .choices-head {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .choices-head h2 {
+      margin: 0 0 6px;
       font-size: 18px;
-      line-height: 1.2;
     }
 
-    .side-card p {
+    .choices-head p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.7;
-    }
-
-    .choices {
-      margin-top: 16px;
-      padding: 16px;
+      line-height: 1.6;
+      font-size: 13px;
     }
 
     .choice-list {
       display: grid;
       gap: 12px;
+      padding: 16px;
     }
 
     .choice {
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
       padding: 14px 16px;
     }
 
     .choice strong {
       display: block;
-      font-size: 16px;
       margin-bottom: 6px;
+      font-size: 16px;
     }
 
     .choice p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.65;
       font-size: 14px;
     }
 
-    .notes {
+    .notes,
+    .impl {
       margin-top: 16px;
     }
 
@@ -241,6 +225,9 @@
     }
 
     .impl-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
       padding: 14px;
     }
 
@@ -250,24 +237,19 @@
       font-size: 15px;
     }
 
+    .impl-card p,
     .impl-card ul {
       margin: 0;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .impl-card ul {
       padding-left: 18px;
-      color: var(--soft);
-      line-height: 1.7;
     }
 
-    .impl-card p {
-      margin: 0;
-      color: var(--soft);
-      line-height: 1.7;
-    }
-
-    @media (max-width: 1080px) {
-      .layout,
-      .impl-grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 980px) {
+      .impl-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -277,44 +259,40 @@
       <div class="eyebrow">EVENT SURFACE</div>
       <h1>이벤트 노드 페이지</h1>
       <p class="subtitle">
-        이 화면은 전투 정보나 도감 탐색보다 현재 사건의 분위기와 선택 결과를 먼저 읽게 만드는 저자극 셸이다.
-        대형 이벤트 이미지와 짧은 선택지 비교가 중심이 되며, 선택 후 결과를 상상할 수 있는 최소한의 힌트만 옆에서 보조한다.
+        이 화면은 결과 힌트 보조 패널 없이, 대형 이벤트 이미지와 선택지 패널만으로 사건의 분위기와 결정을 읽게 만드는 단순한 서사 화면이다.
       </p>
     </header>
 
     <section class="board-shell" aria-label="이벤트 노드 와이어프레임 보드">
       <div class="board-head">
         <div class="board-title">
-          <strong>이벤트 이미지 + 선택지 패널</strong>
-          <span>대형 이벤트 이미지와 세 개의 선택지를 가장 먼저 읽게 만드는 장면 중심 보드</span>
+          <strong>대형 이벤트 이미지 중심 보드</strong>
+          <span>이벤트 장면이 가장 먼저 보이고, 선택지는 아래에서 짧고 분명하게 비교된다.</span>
         </div>
         <div class="mode-pill">low-distraction shell</div>
       </div>
       <div class="board-body">
-        <div class="layout">
-          <section class="hero-image" aria-label="대형 이벤트 이미지">
-            <div class="hero-frame">대형 이벤트 이미지<br>장면 일러스트 / 상황 프롬프트 / 서사적 긴장감이 이 영역에서 가장 크게 보인다.</div>
-          </section>
-          <aside class="side-card" aria-label="리스크와 결과 메모">
-            <h2>결과 힌트 메모</h2>
-            <p>선택 전부를 정답처럼 보이게 하지 않고, 리스크나 보상 방향만 짧게 덧붙인다. 도감이나 상점으로 시선을 새지 않게 하며 사건의 선택 자체를 중심에 둔다.</p>
-          </aside>
-        </div>
+        <section class="hero-image" aria-label="대형 이벤트 이미지">
+          <div class="hero-frame">대형 이벤트 이미지<br>상황 일러스트 / 서사 프롬프트 / 긴장감을 가장 크게 전달하는 메인 장면</div>
+        </section>
 
         <section class="choices" aria-label="선택지 패널">
-          <h2>선택지 패널</h2>
+          <div class="choices-head">
+            <h2>선택지 패널</h2>
+            <p>짧은 결과 힌트만 붙이고, 나머지 주의는 전부 장면 이미지에 남긴다.</p>
+          </div>
           <div class="choice-list">
             <article class="choice">
               <strong>선택지 A</strong>
-              <p>안전하지만 보상이 작은 길. 즉시 손실은 적지만 다음 흐름에 강한 변화도 주지 않는다.</p>
+              <p>안전한 대응. 손실은 적지만 얻는 변화도 작다.</p>
             </article>
             <article class="choice">
               <strong>선택지 B</strong>
-              <p>위험하지만 큰 보상이 있을 수 있는 길. 지금 리스크를 받아들이는 대신 다음 페이지 기대치를 높인다.</p>
+              <p>위험한 대응. 지금 손실을 감수하고 더 큰 보상을 노린다.</p>
             </article>
             <article class="choice">
               <strong>선택지 C</strong>
-              <p>상황을 우회하거나 정보를 더 얻는 길. 즉시 결론보다 맥락과 조건을 읽는 플레이에 맞는 선택지다.</p>
+              <p>우회하거나 더 읽는 대응. 즉시 결론 대신 상황을 더 파악하는 선택지다.</p>
             </article>
           </div>
         </section>
@@ -328,9 +306,9 @@
       </div>
       <div class="notes-body">
         <ol class="annotation-list">
-          <li>대형 이벤트 이미지는 페이지의 첫 시선이 머무는 주인공 영역이며, 사건의 감정과 맥락을 가장 크게 전달한다.</li>
-          <li>선택지는 짧고 읽기 쉬운 카드로 정리하고, 각 줄마다 결과 힌트를 덧붙여 선택 전 비교 부담을 줄인다.</li>
-          <li>이 셸은 노드맵이나 보상 수령 화면보다 훨씬 저자극으로 유지해 서사와 결정 자체에 집중하게 만든다.</li>
+          <li>이벤트 페이지의 첫 시선은 항상 대형 장면 이미지에 머물러야 하며, 보조 패널이 그 시선을 나눠 가지면 안 된다.</li>
+          <li>선택지는 짧고 읽기 쉬운 카드로 정리해 비교 부담을 줄이고, 세부 결과 설명은 이 페이지에서 최소화한다.</li>
+          <li>도감/상점 같은 외부 행동보다 사건 장면과 결정을 먼저 읽게 만드는 저자극 셸을 유지한다.</li>
         </ol>
       </div>
     </section>

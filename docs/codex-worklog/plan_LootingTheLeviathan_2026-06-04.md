@@ -5,44 +5,53 @@ Date: 2026-06-04
 
 ## Active Work
 
-Align the stale HUD queue contract with the shipped half-loaded queue design, write the official M5 completion report, and publish the current branch state.
+Audit the M6 implementation plan against the live Godot source tree, identify stale or weak plan assumptions, and write a refreshed M6 plan with stronger visual-production detail informed by reference research.
 
 ## Request Summary
 
-- The broad Godot contract suite still contains one stale HUD queue assertion that expects `16` loaded tokens even though the current design intentionally starts combat with a half-loaded doubled queue.
-- The user asked to update that contract to match the current design, then treat M5 as complete, commit the current branch state, and push it.
+- Analyze the current M6 implementation plan and the live codebase together.
+- Identify where the plan is stale, structurally weak, or too vague to prevent prototype-grade visuals.
+- Use sub-agent reference research on similar games to strengthen the M6 direction, especially for HUD readability, reward/node flow, backpack presentation, and reusable art-kit planning.
+- Write the improved plan back into workspace docs.
 
 ## Scope
 
-- Keep runtime behavior unchanged and only update the stale contract expectation that no longer matches the half-loaded queue policy.
-- Write the missing M5 completed milestone report under `LTL-harness/docs/11_exec-plans/02_completed/`.
-- Update today's worklog and source-map coverage so the closure evidence passes repository gates.
-- Verify, then commit and push the current branch state.
+- Inspect the official M6 harness milestone doc and the existing local M6 implementation plan.
+- Compare both documents against the actual `app-LTL/src/**` and `app-LTL/tests/**` structure.
+- Verify the current source state with the relevant gates and focused UI contract runners.
+- Write a refreshed M6 plan that uses the live file map, preserves already-green systems, and adds concrete visual/art-direction guidance.
+- Update today's worklog and source-map coverage for any newly added planning document.
 
 ## Out of Scope
 
-- Redesigning queue behavior to start fully loaded instead of half loaded.
-- Rewriting historical worklog entries that were accurate at the time they were recorded.
-- Cleaning or splitting unrelated in-progress workspace changes beyond the requested current-version publish.
+- Implementing the M6 runtime changes themselves in this request.
+- Re-scoping M7, M8, or M9 milestone goals.
+- Rewriting unrelated historical worklog entries or reverting unrelated workspace edits.
+- Producing final art assets in this pass; this task only needs the implementation and art-production plan.
 
 ## Steps
 
-- Reproduce the current RED failure in `tests/godot_contract_runner.gd` and confirm it is the stale `loaded == 16` HUD assertion.
-- Update the contract to the shipped half-loaded doubled-queue expectation and add the M5 completion artifacts.
-- Re-run the full contract runner, milestone gate, and quality gate evidence required for honest milestone closure.
-- Stage the current branch state, commit it, and push it to `origin`.
+- Read the official M6 milestone doc and the current local M6 implementation plan.
+- Inspect the actual UI/runtime files and test runners that now carry M6 responsibilities.
+- Run the milestone gate, compile check, UI read-model tests, reward ceremony contract, and layout audit to confirm the live baseline.
+- Synthesize plan gaps and stale assumptions.
+- Write a refreshed M6 plan with explicit current-file ownership, visual direction, asset-kit rules, and updated verification flow.
+- Update worklog/history/complete files with the analysis outcome.
 
 ## Expected Outputs
 
-- `tests/godot_contract_runner.gd` matches the current queue design and reaches `GODOT_CONTRACTS_OK`.
-- `11_M5_hazard_hierarchy_completed.md` exists with concrete outputs, verification evidence, and remaining gaps.
-- The current branch has a fresh commit and is pushed to the remote branch.
+- A written audit of how the current M6 plan diverges from the live codebase.
+- A refreshed M6 plan document that is safe to execute against the current tree.
+- Updated worklog/source-map entries for the new planning artifact.
+- Verification evidence showing the current baseline is already green, so the refresh plan can focus on real gaps instead of stale recovery work.
 
 ## Verification Method
 
-- `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\invoke-godot.ps1 -Headless -Script tests/godot_contract_runner.gd -Quit`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run-ltl-quality-gate.ps1`
 - `powershell -NoProfile -ExecutionPolicy Bypass -File .\LTL-harness\tools\milestone-gate.ps1 -TargetPlan 12_M6_ui_ux_finalization.md -Root D:\Programming\ex_workspace\LootingTheLeviathan`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\run-compile-check.ps1`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\invoke-godot.ps1 -Headless -Script tests/run_test_ui_read_models.gd -Quit`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\invoke-godot.ps1 -Headless -Script tests/run_reward_ceremony_contract.gd -Quit`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\invoke-godot.ps1 -Headless -Script tests/run_main_layout_audit_contract.gd -Quit`
 - `git diff --check`
 
 ## Plan Change Log
@@ -54,3 +63,4 @@ Align the stale HUD queue contract with the shipped half-loaded queue design, wr
 - 2026-06-04: Re-scoped to the popup top-layer follow-up after a combat screenshot showed codex/settings menus rendering underneath active gameplay HUD art.
 - 2026-06-04: Re-scoped to the post-click combat bottom-gap drift after comparing before/after screenshots and tracing the change to the purple status HUD lane.
 - 2026-06-04: Re-scoped to close M5 honestly by aligning the stale HUD queue assertion with the shipped half-loaded queue design, writing the missing M5 completion report, and publishing the current branch state.
+- 2026-06-04: Re-scoped again to an M6 planning audit: compare the official milestone and local implementation plan against the live source tree, verify the green baseline, and write a refreshed M6 plan with reference-backed visual detail.

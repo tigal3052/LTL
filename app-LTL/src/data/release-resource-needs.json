@@ -1,10 +1,10 @@
 {
   "resources": [
-	{"id": "surface_panel", "path": "res://resources/UI/backgrounds/leviathan_surface_panel.png", "type": "image", "purpose": "combat background surface", "fallback": "procedural_panel"},
-	{"id": "node_map_spine", "path": "res://resources/UI/backgrounds/node_map_leviathan_spine.png", "type": "image", "purpose": "node select spine map", "fallback": "procedural_map"},
-	{"id": "climber_idle", "path": "res://resources/UI/portraits/climber_rig_idle.png", "type": "image", "purpose": "default character portrait", "fallback": "flat_portrait"},
-	{"id": "climber_aim", "path": "res://resources/UI/portraits/climber_rig_aim.png", "type": "image", "purpose": "aiming portrait pose", "fallback": "flat_portrait"},
-	{"id": "climber_warning", "path": "res://resources/UI/portraits/climber_rig_warning.png", "type": "image", "purpose": "hazard warning portrait", "fallback": "flat_portrait"},
+	{"id": "surface_panel", "path": "res://resources/charactor/background.png", "type": "image", "purpose": "combat background surface", "fallback": "procedural_panel"},
+	{"id": "node_map_spine", "path": "res://resources/Leviathan/Leviathan_turtle.png", "type": "image", "purpose": "node select leviathan contract backdrop", "fallback": "procedural_map"},
+	{"id": "climber_idle", "path": "res://resources/charactor/charactor1.png", "type": "image", "purpose": "default character portrait", "fallback": "flat_portrait"},
+	{"id": "climber_aim", "path": "res://resources/charactor/charactor1_ss.png", "type": "image", "purpose": "aiming portrait pose", "fallback": "flat_portrait"},
+	{"id": "climber_warning", "path": "res://resources/charactor/charactor_backpack.png", "type": "image", "purpose": "hazard warning portrait", "fallback": "flat_portrait"},
 	{"id": "pulse_red_triangle", "path": "res://resources/UI/icons/pulse_red_triangle.png", "type": "image", "purpose": "red pulse icon", "fallback": "shape_icon"},
 	{"id": "pulse_blue_ring", "path": "res://resources/UI/icons/pulse_blue_ring.png", "type": "image", "purpose": "blue pulse icon", "fallback": "shape_icon"},
 	{"id": "pulse_purple_diamond", "path": "res://resources/UI/icons/pulse_purple_diamond.png", "type": "image", "purpose": "purple pulse icon", "fallback": "shape_icon"},

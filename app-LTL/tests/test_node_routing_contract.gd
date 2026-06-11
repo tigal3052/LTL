@@ -19,9 +19,11 @@ var failures: Array[String] = []
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_candidates_are_deterministic_and_include_safe_route()
-	test_final_stage_pins_boss_candidate_without_losing_safe_route()
+	test_final_stage_locks_to_boss_candidate_only()
 	test_selected_node_modifiers_reach_combat_snapshot()
 	test_selected_node_uses_documented_durability_curve()
+	test_route_history_persists_selected_nodes_across_stage_advances()
+	test_route_history_persists_selected_route_slots()
 	test_scene_read_model_projects_route_fields_without_pick_weights()
 	test_stage_durability_curve_matches_documented_targets()
 	test_offered_candidates_share_documented_stage_durability()
@@ -40,12 +42,12 @@ func test_candidates_are_deterministic_and_include_safe_route() -> void:
 	_assert(first[0].has("routeHash"), "node routing candidate includes route hash")
 	_assert(first[0].has("finalStageDistance"), "node routing candidate includes final stage distance")
 
-# 실행: verify the final stage exposes a boss route and still keeps a normal fallback.
-func test_final_stage_pins_boss_candidate_without_losing_safe_route() -> void:
+# 실행: verify the final stage locks to the boss route only.
+func test_final_stage_locks_to_boss_candidate_only() -> void:
 	var candidates := NodeVocabScript.generate_candidates(11, 2, _node_table(), 4, {"maxStages": 3, "nodeRouting": {"minCandidates": 3, "maxCandidates": 4}})
+	_assert_eq(candidates.size(), 1, "final stage locks to exactly one boss candidate")
 	_assert_eq(candidates[0].get("id", ""), "boss_spine", "final stage pins boss candidate first")
 	_assert_eq(candidates[0].get("nodeType", ""), "boss", "final stage boss candidate type")
-	_assert(_contains_id(candidates, "normal"), "final stage keeps normal fallback")
 	_assert_eq(candidates[0].get("finalStageDistance", -1), 0, "boss final stage distance is zero")
 
 # 실행: verify selected node modifiers become explicit combat metadata.
@@ -76,6 +78,65 @@ func test_selected_node_uses_documented_durability_curve() -> void:
 	_assert(absf(float(combat["combat"].get("health", 0.0)) - 36.0) <= 0.05, "selected combat health matches doubled stage one table")
 	_assert(absf(float(combat["combat"].get("maxShield", 0.0)) - 28.0) <= 0.05, "selected combat max shield matches doubled stage one table")
 	_assert(absf(float(combat["combat"].get("maxHealth", 0.0)) - 36.0) <= 0.05, "selected combat max health matches doubled stage one table")
+
+# 실행: verify cleared routes persist as history and future unexplored stages stay projected as unknown markers.
+func test_route_history_persists_selected_nodes_across_stage_advances() -> void:
+	var run = HeadlessMiniRunScript.new({"seed": 73, "maxStages": 5, "candidateCount": 5, "nodeTable": _node_table()})
+	var stage_one_snapshot: Dictionary = run.snapshot()
+	_assert_eq(stage_one_snapshot.get("routeHistory", []).size(), 0, "stage-one snapshot starts without prior route history")
+	var stage_one_label := str(stage_one_snapshot["candidates"][0].get("label", ""))
+
+	run.select_node(0)
+	run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	var stage_two_snapshot: Dictionary = run.claim_rewards()
+	var stage_two_history: Array = stage_two_snapshot.get("routeHistory", [])
+	_assert_eq(stage_two_snapshot["phase"], "node_select", "claiming the stage-one clear returns to node select")
+	_assert_eq(stage_two_snapshot["stageIndex"], 1, "claiming the stage-one clear advances to stage two")
+	_assert_eq(stage_two_history.size(), 1, "stage-two snapshot keeps the cleared stage-one route in history")
+	if not stage_two_history.is_empty():
+		_assert_eq(str(stage_two_history[0].get("label", "")), stage_one_label, "stage-two history keeps the cleared stage-one label")
+
+	var stage_two_choice_index := mini(2, stage_two_snapshot.get("candidates", []).size() - 1)
+	_assert(stage_two_choice_index >= 0, "stage-two snapshot exposes selectable route candidates for history tracking")
+	if stage_two_choice_index < 0:
+		return
+	var stage_two_label := str(stage_two_snapshot["candidates"][stage_two_choice_index].get("label", ""))
+	run.select_node(stage_two_choice_index)
+	run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	var stage_three_snapshot: Dictionary = run.claim_rewards()
+	var stage_three_history: Array = stage_three_snapshot.get("routeHistory", [])
+	_assert_eq(stage_three_snapshot["phase"], "node_select", "claiming the stage-two clear returns to node select")
+	_assert_eq(stage_three_snapshot["stageIndex"], 2, "claiming the stage-two clear advances to stage three")
+	_assert_eq(stage_three_history.size(), 2, "stage-three snapshot keeps both cleared routes in history")
+	if stage_three_history.size() >= 1:
+		_assert_eq(str(stage_three_history[0].get("label", "")), stage_one_label, "stage-three history keeps the cleared stage-one label")
+	if stage_three_history.size() >= 2:
+		_assert_eq(str(stage_three_history[1].get("label", "")), stage_two_label, "stage-three history keeps the cleared stage-two label")
+
+	var scene := SceneReadModelScript.new().create(stage_three_snapshot)
+	_assert_eq(scene.get("routeHistory", []).size(), 2, "scene read model projects cleared node history")
+	_assert_eq(int(scene.get("futureUnknownCount", -1)), 1, "scene read model keeps one unexplored non-boss stage hidden behind a ? marker at stage three")
+
+func test_route_history_persists_selected_route_slots() -> void:
+	var run = HeadlessMiniRunScript.new({"seed": 73, "maxStages": 5, "candidateCount": 5, "nodeTable": _node_table()})
+	run.select_node(0)
+	run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	var stage_two_snapshot: Dictionary = run.claim_rewards()
+	var selected_slot := mini(3, stage_two_snapshot.get("candidates", []).size() - 1)
+	_assert(selected_slot >= 0, "stage-two snapshot exposes a route slot for persistence checks")
+	if selected_slot < 0:
+		return
+	run.select_node(selected_slot)
+	run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	var stage_three_snapshot: Dictionary = run.claim_rewards()
+	var route_history: Array = stage_three_snapshot.get("routeHistory", [])
+	_assert_eq(route_history.size(), 2, "route-slot persistence snapshot keeps two cleared entries")
+	if route_history.size() >= 2:
+		_assert_eq(int(route_history[1].get("routeSlotIndex", -1)), selected_slot, "route history keeps the selected branch slot index")
+	var scene := SceneReadModelScript.new().create(stage_three_snapshot)
+	var projected_history: Array = scene.get("routeHistory", [])
+	if projected_history.size() >= 2:
+		_assert_eq(int(projected_history[1].get("routeSlotIndex", -1)), selected_slot, "scene read model keeps the selected branch slot index")
 
 # 실행: verify scene and text read models expose readable route fields but hide raw pick weights.
 func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:

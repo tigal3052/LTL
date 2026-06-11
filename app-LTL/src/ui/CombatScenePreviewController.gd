@@ -17,7 +17,10 @@ var seed: int = 53
 var viewport_width: int = 1440
 var viewport_height: int = 1080
 var max_stages: int = 1
+var run_count: int = 1
 var start_color: String = "red"
+var leviathan_id: String = "ossuary_tortoise"
+var progress_state: Dictionary = {"clearedLeviathanIds": []}
 var node_table_override: Dictionary = {}
 var init_options: Dictionary = {}
 var run
@@ -31,7 +34,10 @@ func _init(options: Dictionary = {}) -> void:
 	viewport_width = int(options.get("viewportWidth", 1440))
 	viewport_height = int(options.get("viewportHeight", 1080))
 	max_stages = maxi(1, int(options.get("maxStages", 1)))
+	run_count = maxi(1, int(options.get("runCount", 1)))
 	start_color = str(options.get("startColor", "red"))
+	leviathan_id = str(options.get("leviathanId", "ossuary_tortoise"))
+	progress_state = options.get("progress", {"clearedLeviathanIds": []}).duplicate(true)
 	node_table_override = options.get("nodeTable", {}).duplicate(true)
 	reset()
 
@@ -50,7 +56,15 @@ func get_scene() -> Dictionary:
 	scene["failed"] = read_model.get("failed", false)
 	scene["failureReason"] = read_model.get("failureReason", "")
 	scene["inventory"] = read_model.get("inventory", []).duplicate(true)
-	scene["nodeSelect"] = {"candidates": read_model.get("candidates", []).duplicate(true)}
+	scene["nodeSelect"] = {
+		"candidates": read_model.get("candidates", []).duplicate(true),
+		"routeHistory": read_model.get("routeHistory", []).duplicate(true),
+		"futureUnknownCount": int(read_model.get("futureUnknownCount", 0)),
+		"isBossStage": bool(read_model.get("isBossStage", false)),
+		"isFixedStartStage": bool(read_model.get("isFixedStartStage", false))
+	}
+	scene["routeHistory"] = scene["nodeSelect"]["routeHistory"].duplicate(true)
+	scene["futureUnknownCount"] = int(scene["nodeSelect"].get("futureUnknownCount", 0))
 	scene["reward"] = reward_state.duplicate(true)
 	scene["progress"] = read_model.get("progress", {}).duplicate(true)
 	scene["combat"] = read_model.get("combat", null)
@@ -81,7 +95,15 @@ func claim_rewards() -> Dictionary:
 	return get_scene()
 
 func reset() -> Dictionary:
-	var run_opts := {"seed": seed, "maxStages": max_stages, "nodeTable": _node_table(), "startColor": start_color}
+	var run_opts := {
+		"seed": seed,
+		"maxStages": max_stages,
+		"runCount": run_count,
+		"nodeTable": _node_table(),
+		"startColor": start_color,
+		"leviathanId": leviathan_id,
+		"progress": progress_state.duplicate(true)
+	}
 	if init_options.has("tuning"):
 		run_opts["tuning"] = init_options["tuning"]
 	if init_options.has("queueCapacity"):
@@ -97,12 +119,15 @@ func set_start_color(color: String) -> Dictionary:
 func _node_table() -> Dictionary:
 	if not node_table_override.is_empty():
 		return node_table_override.duplicate(true)
-	return {"nodes": [
-		{"id": "normal", "label": "Safe Scar", "nodeType": "normal", "riskTier": "safe", "weakness": [], "pickWeight": 0, "shieldMul": 1.0, "healthMul": 1.0, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0},
-		{"id": "crimson_vein", "label": "Crimson Vein", "nodeType": "weakness_red", "riskTier": "medium", "weakness": ["red"], "pickWeight": 35, "shieldMul": 1.05, "healthMul": 1.02, "rewardBias": "red_energy", "recommendedBuildHint": "Red pulse drill", "difficultyModifier": 1.05, "rewardModifier": 1.1, "hazardModifier": 1.0},
-		{"id": "azure_fault", "label": "Azure Fault", "nodeType": "weakness_blue", "riskTier": "medium", "weakness": ["blue"], "pickWeight": 35, "shieldMul": 1.02, "healthMul": 1.05, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.05, "rewardModifier": 1.05, "hazardModifier": 1.0},
-		{"id": "violet_cluster", "label": "Violet Cluster", "nodeType": "weakness_purple", "riskTier": "medium", "weakness": ["purple"], "pickWeight": 28, "shieldMul": 1.08, "healthMul": 1.0, "rewardBias": "multi_energy", "recommendedBuildHint": "Blue or purple coverage", "difficultyModifier": 1.1, "rewardModifier": 1.12, "hazardModifier": 1.0},
-		{"id": "verdant_core", "label": "Verdant Core", "nodeType": "weakness_green", "riskTier": "medium", "weakness": ["green"], "pickWeight": 28, "shieldMul": 1.0, "healthMul": 1.08, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.08, "rewardModifier": 1.08, "hazardModifier": 1.0},
-		{"id": "twin_resonance", "label": "Twin Resonance", "nodeType": "mixed_weakness", "riskTier": "hard", "weakness": ["red", "blue"], "pickWeight": 14, "shieldMul": 1.1, "healthMul": 1.1, "rewardBias": "multi_energy", "recommendedBuildHint": "Blue or purple coverage", "difficultyModifier": 1.18, "rewardModifier": 1.22, "hazardModifier": 1.08},
-		{"id": "mysterious_crevice", "label": "Mysterious Crevice", "nodeType": "mysterious_crevice", "riskTier": "unknown", "weakness": [], "pickWeight": 10, "shieldMul": 0.75, "healthMul": 0.75, "isEvent": true, "rewardBias": "mystery", "recommendedBuildHint": "Short volatile encounter", "difficultyModifier": 0.85, "rewardModifier": 1.2, "hazardModifier": 0.9}
-	]}
+	var file := FileAccess.open("res://src/data/node-table.json", FileAccess.READ)
+	if file != null:
+		var json := JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			var data = json.get_data()
+			if data is Dictionary and data.has("nodes"):
+				return data
+	return {
+		"nodes": [
+			{"id": "normal", "label": "Safe Scar", "nodeType": "normal", "riskTier": "safe", "weakness": [], "pickWeight": 1, "shieldMul": 1.0, "healthMul": 1.0, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0}
+		]
+	}

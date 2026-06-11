@@ -10,6 +10,7 @@ extends PanelContainer
 signal slot_clicked(coord: Vector2)
 signal slot_hovered(coord: Vector2)
 signal slot_unhovered(coord: Vector2)
+signal slot_drag_started(coord: Vector2)
 
 const ArtifactClass = preload("res://src/models/Artifact.gd")
 const GridFactory = preload("res://src/ui/presenters/BackpackGridFactory.gd")
@@ -135,7 +136,7 @@ func _process(_delta: float) -> void:
 	if ghost_container and ghost_container.visible and held_artifact:
 		var shape = held_artifact.shape
 		var slot_size := _ghost_slot_size()
-		ghost_container.global_position = get_global_mouse_position() - _ghost_footprint(shape, slot_size) / 2.0
+		ghost_container.global_position = ghost_global_position_for_cursor(get_global_mouse_position(), shape, slot_size)
 	if pin_live_layout_retry_budget > 0:
 		pin_live_layout_retry_budget -= 1
 		_layout_pin_overlays()
@@ -349,9 +350,25 @@ func _interactive_slot(grid_column: int, grid_row: int, texture: Texture2D) -> P
 	slot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	if not SLOT_HOVER_FX_ENABLED:
 		slot.set_meta(InteractionFXScript.META_SKIP, true)
+	var state := {"pressed": false, "dragging": false, "press_pos": Vector2.ZERO}
 	slot.gui_input.connect(func(event: InputEvent):
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			slot_clicked.emit(Vector2(grid_column, grid_row))
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				state["pressed"] = true
+				state["dragging"] = false
+				state["press_pos"] = event.position
+			else:
+				var was_pressed := bool(state.get("pressed", false))
+				var was_dragging := bool(state.get("dragging", false))
+				state["pressed"] = false
+				state["dragging"] = false
+				if was_pressed and not was_dragging:
+					slot_clicked.emit(Vector2(grid_column, grid_row))
+		elif event is InputEventMouseMotion and bool(state.get("pressed", false)) and not bool(state.get("dragging", false)):
+			var press_pos: Vector2 = state.get("press_pos", Vector2.ZERO)
+			if event.position.distance_to(press_pos) >= 10.0:
+				state["dragging"] = true
+				slot_drag_started.emit(Vector2(grid_column, grid_row))
 	)
 	slot.mouse_entered.connect(func(): slot_hovered.emit(Vector2(grid_column, grid_row)))
 	slot.mouse_exited.connect(func(): slot_unhovered.emit(Vector2(grid_column, grid_row)))
@@ -373,6 +390,19 @@ func _update_drag_slot_feedback() -> void:
 				if slot != null:
 					InteractionFXScript.apply_drag_feedback(slot, held_artifact != null, can_drop_artifact(current_inventory, held_artifact, column, row))
 
+func slot_coord_at_global_pos(global_pos: Vector2) -> Vector2:
+	for row in range(8):
+		for column in range(8):
+			var slot_idx := (row + 1) * 10 + (column + 1)
+			if slot_idx >= backpack_grid_mock.get_child_count():
+				continue
+			var slot := backpack_grid_mock.get_child(slot_idx) as Control
+			if slot == null:
+				continue
+			if slot.get_global_rect().has_point(global_pos):
+				return Vector2(column, row)
+	return Vector2(-1, -1)
+
 # ?ㅽ뻾: expose the same placement rule for UI drag affordance and tests.
 static func can_drop_artifact(inventory, artifact, column: int, row: int) -> bool:
 	if inventory == null or artifact == null:
@@ -391,6 +421,9 @@ func ghost_cell_size_for_slot(slot_size: Vector2) -> Vector2:
 	if slot_size.x > 0.0 and slot_size.y > 0.0:
 		return slot_size
 	return GHOST_FALLBACK_CELL_SIZE
+
+func ghost_global_position_for_cursor(cursor_global_pos: Vector2, _shape: Array, _slot_size: Vector2) -> Vector2:
+	return cursor_global_pos
 
 # 실행: create one ghost grid cell.
 func _ghost_cell(energy_type: String, filled: bool, shape: Array, row: int, column: int, slot_size: Vector2) -> Control:

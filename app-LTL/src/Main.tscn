@@ -97,6 +97,8 @@ script = ExtResource("1")
 
 [node name="RootMargin" type="MarginContainer" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
@@ -104,6 +106,8 @@ theme_override_constants/margin_bottom = 16
 
 [node name="AppShell" type="VBoxContainer" parent="RootMargin"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 
 [node name="Header" type="PanelContainer" parent="RootMargin/AppShell"]
@@ -113,9 +117,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/Header"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 0
 
 [node name="PhaseRow" type="HBoxContainer" parent="RootMargin/AppShell/Header/Margin"]
 layout_mode = 2
@@ -126,19 +130,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 18
-text = "LOOTING THE LEVIATHAN"
 
 [node name="PhaseLabel" type="Label" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
 theme_override_font_sizes/font_size = 14
-text = "단계"
 
 [node name="StageLabel" type="Label" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
 theme_override_font_sizes/font_size = 14
-text = "스테이지"
 
 [node name="HeaderActions" type="HBoxContainer" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2
@@ -146,7 +147,6 @@ theme_override_constants/separation = 10
 
 [node name="SettingsOpenButton" type="Button" parent="RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions"]
 layout_mode = 2
-text = "⚙ 설정"
 
 [node name="TopContent" type="HBoxContainer" parent="RootMargin/AppShell"]
 layout_mode = 2
@@ -181,7 +181,6 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "탐사자 상태"
 
 [node name="PortraitPlaceholder" type="Panel" parent="RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox"]
 custom_minimum_size = Vector2(0, 88)
@@ -195,7 +194,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "[채굴자 프로필]"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -203,12 +201,6 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "Loadout:
-- Resonator Core
-- Ruby Drill
-- Sapphire Lens
-- Amethyst Crystal
-- Emerald Condenser"
 
 [node name="StatusPanel" type="PanelContainer" parent="RootMargin/AppShell/TopContent/LeftColumn"]
 layout_mode = 2
@@ -231,7 +223,6 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "드릴 및 노드 상태"
 
 [node name="NodeRow" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
 layout_mode = 2
@@ -246,7 +237,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_extractor")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
 theme_override_font_sizes/font_size = 12
-text = "노드: —"
 
 [node name="HPBox" type="HBoxContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
 layout_mode = 2
@@ -256,7 +246,6 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "레비아탄 체력:"
 
 [node name="HealthBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox"]
 custom_minimum_size = Vector2(0, 14)
@@ -272,7 +261,6 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "보호막:"
 
 [node name="ShieldBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox"]
 custom_minimum_size = Vector2(0, 14)
@@ -288,7 +276,6 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "에너지 큐:"
 
 [node name="VisualQueueBox" type="GridContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow"]
 layout_mode = 2
@@ -304,7 +291,6 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "스테이지 제한 시간:"
 
 [node name="PinProgressBar" type="ProgressBar" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow"]
 custom_minimum_size = Vector2(0, 14)
@@ -320,13 +306,11 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "드릴 상태:"
 
 [node name="RepairStatusLabel" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
 theme_override_font_sizes/font_size = 12
-text = "정상"
 
 [node name="StatusFooterSpacer" type="Control" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
 layout_mode = 2
@@ -341,13 +325,11 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(78, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "Purple:"
 
 [node name="PurpleStatusValue" type="Label" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.42, 0.95, 1)
 theme_override_font_sizes/font_size = 12
-text = "-"
 
 [node name="CombatTimerFooterMargin" type="MarginContainer" parent="RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox"]
 layout_mode = 2
@@ -361,7 +343,6 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.75, 0.25, 1)
 theme_override_font_sizes/font_size = 36
-text = "00:00"
 horizontal_alignment = 1
 
 [node name="BackpackContainer" type="AspectRatioContainer" parent="RootMargin/AppShell/TopContent"]
@@ -392,7 +373,6 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "백팩 엔진 공간 (8x8 격자)"
 
 [node name="GridMock" type="GridContainer" parent="RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox"]
 layout_mode = 2
@@ -424,49 +404,17 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
 theme_override_font_sizes/font_size = 14
-text = "시스템 로그와 정보"
 
 [node name="InspectorText" type="RichTextLabel" parent="RootMargin/AppShell/TopContent/RightSidebar/Margin/InspectorBox"]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
-text = "시스템 준비 완료.
-노드 선택 대기 중..."
 script = ExtResource("6")
 
 [node name="ActivePhaseContainer" type="MarginContainer" parent="RootMargin/AppShell"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="NodeSelectPanel" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer"]
-custom_minimum_size = Vector2(0, 180)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
-
-[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
-
-[node name="NodeSelectBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="NodeSelectTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
-theme_override_font_sizes/font_size = 14
-text = "다음 목표 노드"
-
-[node name="NodeSelectText" type="RichTextLabel" parent="RootMargin/AppShell/ActivePhaseContainer/NodeSelectPanel/Margin/NodeSelectBox"]
-layout_mode = 2
-size_flags_vertical = 3
-bbcode_enabled = true
 
 [node name="BattlefieldPanel" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer"]
 custom_minimum_size = Vector2(0, 180)
@@ -490,7 +438,6 @@ theme_override_constants/separation = 0
 [node name="BattlefieldTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "레비아탄 지각 표면 (3x10 격자)"
 
 [node name="BattlefieldVisualRoot" type="Control" parent="RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox"]
 custom_minimum_size = Vector2(0, 210)
@@ -517,7 +464,7 @@ layout_mode = 0
 columns = 10
 
 [node name="RewardPanel" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer"]
-custom_minimum_size = Vector2(0, 180)
+custom_minimum_size = Vector2(0, 360)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -534,38 +481,420 @@ theme_override_constants/margin_bottom = 8
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 16
 
-[node name="RewardTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
+[node name="BoardHead" type="HBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="BoardTitleBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="RewardTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="RewardSubtitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox"]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
 theme_override_font_sizes/font_size = 12
-text = "회수한 유물 / 보상"
+autowrap_mode = 3
 
-[node name="RewardRow" type="HBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
+[node name="ModePill" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead"]
+custom_minimum_size = Vector2(176, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.894118, 0.709804, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RewardBoardScroll" type="ScrollContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+horizontal_scroll_mode = 0
 
-[node name="RewardText" type="RichTextLabel" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow"]
+[node name="RewardBoard" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="RewardGrid" type="HBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="RewardsZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid"]
+custom_minimum_size = Vector2(0, 280)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.9
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ZoneTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="ZoneHint" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="RewardCloudBox" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox"]
+clip_contents = true
+custom_minimum_size = Vector2(0, 248)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="CloudMargin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="CloudVBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="RewardCardGrid" type="Control" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox"]
+custom_minimum_size = Vector2(0, 196)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CloudNote" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="WorkspaceZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid"]
+custom_minimum_size = Vector2(0, 280)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.1
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ZoneTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="ZoneHint" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="WorkspaceNote" type="RichTextLabel" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox"]
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+size_flags_horizontal = 3
 bbcode_enabled = true
+scroll_active = false
 
-[node name="DiscardZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow"]
-custom_minimum_size = Vector2(200, 60)
+[node name="BackpackHost" type="CenterContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox"]
+custom_minimum_size = Vector2(0, 236)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="InspectorZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid"]
+custom_minimum_size = Vector2(0, 280)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ZoneTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="ZoneHint" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="InspectorStage" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="InspectorKicker" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.772549, 0.423529, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="InspectorName" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.945098, 0.956863, 0.980392, 1)
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 3
+
+[node name="InspectorSummary" type="RichTextLabel" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+scroll_active = false
+
+[node name="InspectorFacts" type="GridContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="FootprintCard" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="FootprintBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="FootprintTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 13
+
+[node name="FootprintInfo" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="FootprintGrid" type="GridContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="BottomRow" type="HBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="DiscardZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow"]
+custom_minimum_size = Vector2(0, 132)
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
 
-[node name="DiscardLabel" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/DiscardZone"]
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone"]
 layout_mode = 2
-text = "🗑 버리기 구역
-[보상을 선택한 뒤 여기에 놓으세요]"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ZoneTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="ZoneHint" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.733333, 0.568627, 0.568627, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="DiscardCard" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="DiscardCardBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="DiscardCardTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/DiscardCardBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.945098, 0.956863, 0.980392, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="DiscardLabel" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/DiscardCardBox"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.784314, 0.819608, 0.87451, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+
+[node name="ConfirmZone" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow"]
+custom_minimum_size = Vector2(0, 132)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.72
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ZoneTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="ZoneHint" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="ClaimCard" type="PanelContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="ClaimCardBox" type="VBoxContainer" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ClaimCardTitle" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.945098, 0.956863, 0.980392, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="ClaimCardBody" type="Label" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.784314, 0.819608, 0.87451, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 3
+
+[node name="ClaimInlineButton" type="Button" parent="RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="ActionBar" type="HBoxContainer" parent="RootMargin/AppShell"]
 layout_mode = 2
@@ -573,23 +902,18 @@ theme_override_constants/separation = 12
 
 [node name="ResetButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "탐사 초기화"
 
 [node name="StartButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "전투 시작"
 
 [node name="HoldFireButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "연속 발사"
 
 [node name="RepairButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "수리 시작"
 
 [node name="ClaimRewardsButton" type="Button" parent="RootMargin/AppShell/ActionBar"]
 layout_mode = 2
-text = "보상 확정"
 
 [node name="RepairOverlay" type="PanelContainer" parent="."]
 visible = false
@@ -608,15 +932,12 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.878431, 0.878431, 1)
 theme_override_font_sizes/font_size = 24
-text = "⚠️ MINING DRILL CRITICAL FAILURE ⚠️"
 horizontal_alignment = 1
 
 [node name="DescriptionLabel" type="Label" parent="RepairOverlay/Center/WarningBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.756863, 0.756863, 1)
 theme_override_font_sizes/font_size = 14
-text = "코어가 과열되어 에너지 큐가 비었습니다.
-[R] 또는 수리 버튼을 눌러 드릴 코어를 재시작하세요."
 horizontal_alignment = 1
 
 [node name="ConfirmOverlay" type="PanelContainer" parent="."]
@@ -637,15 +958,12 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.878431, 0.878431, 1)
 theme_override_font_sizes/font_size = 20
-text = "⚠️ 미획득 보상 경고 ⚠️"
 horizontal_alignment = 1
 
 [node name="WarningDescription" type="Label" parent="ConfirmOverlay/Center/ConfirmBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.756863, 0.756863, 1)
 theme_override_font_sizes/font_size = 14
-text = "아직 남은 보상이 있습니다. 그래도 진행하시겠습니까?
-지나간 보상은 습득할 수 없습니다."
 horizontal_alignment = 1
 
 [node name="ButtonsRow" type="HBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox"]
@@ -656,12 +974,10 @@ alignment = 1
 [node name="ConfirmButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "진행하기"
 
 [node name="CancelButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "취소"
 
 [node name="SettingsPanel" type="PanelContainer" parent="."]
 visible = false
@@ -681,7 +997,6 @@ theme_override_constants/separation = 20
 layout_mode = 2
 theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
 theme_override_font_sizes/font_size = 22
-text = "시스템 설정"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="SettingsPanel/Center/SettingsBox"]
@@ -695,12 +1010,10 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 14
-text = "플레이 설정"
 
 [node name="ScreenshakeCheckbox" type="CheckBox" parent="SettingsPanel/Center/SettingsBox/GameplaySection"]
 layout_mode = 2
 button_pressed = true
-text = "화면 흔들림과 피격 섬광"
 
 [node name="ScreenSection" type="VBoxContainer" parent="SettingsPanel/Center/SettingsBox"]
 layout_mode = 2
@@ -710,11 +1023,9 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 14
-text = "화면 설정"
 
 [node name="FullscreenCheckbox" type="CheckBox" parent="SettingsPanel/Center/SettingsBox/ScreenSection"]
 layout_mode = 2
-text = "전체 화면"
 
 [node name="SoundSection" type="VBoxContainer" parent="SettingsPanel/Center/SettingsBox"]
 layout_mode = 2
@@ -724,7 +1035,6 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.701961, 0.74902, 0.803922, 1)
 theme_override_font_sizes/font_size = 14
-text = "소리 설정"
 
 [node name="VolumeSlider" type="HSlider" parent="SettingsPanel/Center/SettingsBox/SoundSection"]
 layout_mode = 2
@@ -741,12 +1051,10 @@ alignment = 1
 [node name="MainMenuButton" type="Button" parent="SettingsPanel/Center/SettingsBox/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "메인 메뉴"
 
 [node name="CloseSettingsButton" type="Button" parent="SettingsPanel/Center/SettingsBox/ButtonsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "적용 후 닫기"
 
 [node name="ParticleTemplate" type="CPUParticles2D" parent="."]
 emitting = false

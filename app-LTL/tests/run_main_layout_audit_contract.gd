@@ -14,14 +14,19 @@ func _run() -> void:
 	if MainScene == null:
 		_finish()
 		return
+	await _assert_character_select_layout(MainScene)
+	await _assert_leviathan_select_layout(MainScene)
+	await _assert_defeat_layout(MainScene)
+	await _assert_stage_one_node_select_layout(MainScene)
 	await _assert_stage_two_node_select_layout(MainScene)
+	await _assert_boss_node_select_layout(MainScene)
 	await _assert_combat_layout(MainScene)
 	await _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene)
 	await _assert_combat_overlay_pause_behavior(MainScene)
 	await _assert_reward_tray_layout(MainScene)
 	await _assert_reward_reveal_layout(MainScene)
 	await _assert_overlay_layouts(MainScene)
-	_finish()
+	await _finish()
 
 func _assert(condition: bool, label: String) -> void:
 	if not condition:
@@ -45,6 +50,29 @@ func _assert_control_inside_viewport(control: Control, label: String) -> void:
 	_assert(rect.end.x <= viewport.end.x + 0.5, "%s stays inside the viewport right edge (rect=%s viewport=%s)" % [label, str(rect), str(viewport)])
 	_assert(rect.end.y <= viewport.end.y + 0.5, "%s stays inside the viewport bottom edge (rect=%s viewport=%s)" % [label, str(rect), str(viewport)])
 
+func _assert_control_inside_parent(control: Control, parent: Control, label: String) -> void:
+	_assert(control != null, "%s exists for parent containment" % label)
+	_assert(parent != null, "%s has a parent container for containment" % label)
+	if control == null or parent == null:
+		return
+	var rect := control.get_global_rect()
+	var parent_rect := parent.get_global_rect()
+	_assert(rect.position.x >= parent_rect.position.x - 0.5, "%s stays inside the parent left edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
+	_assert(rect.position.y >= parent_rect.position.y - 0.5, "%s stays inside the parent top edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
+	_assert(rect.end.x <= parent_rect.end.x + 0.5, "%s stays inside the parent right edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
+	_assert(rect.end.y <= parent_rect.end.y + 0.5, "%s stays inside the parent bottom edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
+
+func _assert_page_shell_host(main_instance: Node, page: Control, expected_host_property: String, label: String, require_viewport_host := false) -> void:
+	_assert(page != null, "%s exists for host ownership audit" % label)
+	var expected_host = main_instance.get(expected_host_property) as Control
+	_assert(expected_host != null, "%s host exists for host ownership audit" % label)
+	if page == null or expected_host == null:
+		return
+	_assert(page.get_parent() == expected_host, "%s mounts under %s instead of leaking into a different layout shell" % [label, expected_host_property])
+	_assert_control_inside_parent(page, expected_host, "%s root" % label)
+	if require_viewport_host:
+		_assert_control_inside_viewport(expected_host, "%s host" % label)
+
 func _assert_visible_controls_inside_viewport(main_instance: Node, label: String) -> void:
 	var viewport := _viewport_rect()
 	var stack: Array[Node] = [main_instance]
@@ -61,11 +89,13 @@ func _assert_visible_controls_inside_viewport(main_instance: Node, label: String
 func _finish() -> void:
 	if failures.is_empty():
 		print("MAIN_LAYOUT_AUDIT_CONTRACT_OK")
-		call_deferred("quit", 0)
+		await process_frame
+		quit(0)
 		return
 	for failure in failures:
 		push_error(failure)
-	call_deferred("quit", 1)
+	await process_frame
+	quit(1)
 
 func _instantiate_main(MainScene: PackedScene) -> Node:
 	root.size = VIEWPORT_SIZE
@@ -79,27 +109,189 @@ func _instantiate_main(MainScene: PackedScene) -> Node:
 	await process_frame
 	return main_instance
 
-func _assert_combat_layout(MainScene: PackedScene) -> void:
+func _boot_to_node_select(main_instance: Node, color := "red", leviathan_id := "storm_wyvern") -> Node:
+	var controller = main_instance.get_node_or_null("MainController")
+	_assert(controller != null, "main controller exists during layout-flow boot")
+	if controller == null:
+		return null
+	var character_page = main_instance.get("character_select_page")
+	_assert(character_page != null, "character select page exists during layout-flow boot")
+	if character_page != null:
+		character_page.color_selected.emit(color)
+		character_page.continue_requested.emit()
+	await process_frame
+	await process_frame
+	var leviathan_page = main_instance.get("leviathan_select_page")
+	_assert(leviathan_page != null, "leviathan select page exists during layout-flow boot")
+	if leviathan_page != null:
+		leviathan_page.leviathan_selected.emit(leviathan_id)
+		leviathan_page.start_requested.emit()
+	await process_frame
+	await process_frame
+	await process_frame
+	return controller
+
+func _node_select_page(main_instance: Node) -> Node:
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	return page_scenes.get("node_select", null)
+
+func _press_route_button(main_instance: Node, index: int, label: String) -> void:
+	var node_select_page = _node_select_page(main_instance)
+	_assert(node_select_page != null, "node select page exists for %s" % label)
+	if node_select_page == null:
+		return
+	_assert(node_select_page.has_method("press_route_button"), "node select page exposes route-button automation for %s" % label)
+	if not node_select_page.has_method("press_route_button"):
+		return
+	node_select_page.call("press_route_button", index)
+
+func _assert_character_select_layout(MainScene: PackedScene) -> void:
+	var main_instance = await _instantiate_main(MainScene)
+	if main_instance == null:
+		return
+	_assert_eq(str(main_instance.get("active_page_id")), "character_select", "main scene starts on character select for layout audit")
+	var character_page = main_instance.get("character_select_page") as Control
+	_assert(character_page != null, "character select page exists for layout audit")
+	if character_page == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	var meta_page_host = main_instance.get("meta_page_shell_host") as Control
+	var gameplay_page_host = main_instance.get("page_shell_host") as Control
+	_assert_page_shell_host(main_instance, character_page, "meta_page_shell_host", "character select page", true)
+	_assert(meta_page_host != null and bool(meta_page_host.visible), "character select uses the dedicated viewport-sized meta page host")
+	_assert(gameplay_page_host == null or not bool(gameplay_page_host.visible), "character select keeps the gameplay page host hidden")
+	var page_stack = character_page.get_node_or_null("Margin/VStack") as Control
+	var board_shell = character_page.get_node_or_null("Margin/VStack/BoardShell") as Control
+	var roster_scroll = character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/RosterScroll") as Control
+	var hero_stage = character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage") as Control
+	var continue_button = character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/ContinueButton") as Control
+	_assert_control_inside_parent(page_stack, character_page, "character select stack")
+	_assert_control_inside_parent(board_shell, character_page, "character select board shell")
+	_assert_control_inside_viewport(page_stack, "character select stack")
+	_assert_control_inside_viewport(board_shell, "character select board shell")
+	_assert_control_inside_viewport(roster_scroll, "character select roster scroll host")
+	_assert_control_inside_viewport(hero_stage, "character select hero stage")
+	_assert_control_inside_viewport(continue_button, "character select continue button")
+	main_instance.queue_free()
+	await process_frame
+
+func _assert_leviathan_select_layout(MainScene: PackedScene) -> void:
+	var main_instance = await _instantiate_main(MainScene)
+	if main_instance == null:
+		return
+	var character_page = main_instance.get("character_select_page")
+	_assert(character_page != null, "character select page exists before leviathan layout audit")
+	if character_page != null:
+		character_page.color_selected.emit("blue")
+		character_page.continue_requested.emit()
+	await process_frame
+	await process_frame
+	_assert_eq(str(main_instance.get("active_page_id")), "leviathan_select", "character select advances to leviathan select for layout audit")
+	var leviathan_page = main_instance.get("leviathan_select_page") as Control
+	_assert(leviathan_page != null, "leviathan select page exists for layout audit")
+	if leviathan_page == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	var meta_page_host = main_instance.get("meta_page_shell_host") as Control
+	var gameplay_page_host = main_instance.get("page_shell_host") as Control
+	_assert_page_shell_host(main_instance, leviathan_page, "meta_page_shell_host", "leviathan select page", true)
+	_assert(meta_page_host != null and bool(meta_page_host.visible), "leviathan select keeps the dedicated meta page host visible")
+	_assert(gameplay_page_host == null or not bool(gameplay_page_host.visible), "leviathan select keeps the gameplay page host hidden")
+	var layout = leviathan_page.get_node_or_null("Margin/Layout") as Control
+	var board_panel = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel") as Control
+	var target_ribbon = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel/TargetRibbon") as Control
+	var start_frame = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame") as Control
+	var start_button = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame/StartButton") as Control
+	_assert_control_inside_parent(layout, leviathan_page, "leviathan select layout")
+	_assert_control_inside_parent(board_panel, leviathan_page, "leviathan select board panel")
+	_assert_control_inside_viewport(layout, "leviathan select layout")
+	_assert_control_inside_viewport(board_panel, "leviathan select board panel")
+	_assert_control_inside_viewport(target_ribbon, "leviathan select target ribbon")
+	_assert_control_inside_viewport(start_frame, "leviathan select start frame")
+	_assert_control_inside_viewport(start_button, "leviathan select looting-start button")
+	if target_ribbon != null and board_panel != null:
+		_assert(absf(target_ribbon.get_global_rect().position.x - board_panel.get_global_rect().position.x) <= 1.0, "leviathan select target ribbon starts flush with the board panel left edge")
+		_assert(absf(target_ribbon.get_global_rect().end.x - board_panel.get_global_rect().end.x) <= 1.0, "leviathan select target ribbon ends flush with the board panel right edge")
+		_assert(target_ribbon.get_global_rect().size.y <= 96.0, "leviathan select target ribbon stays a shallow bottom banner instead of expanding to board height")
+		_assert(target_ribbon.get_global_rect().position.y >= board_panel.get_global_rect().end.y - 220.0, "leviathan select target ribbon stays in the lower board band")
+	if start_frame != null and board_panel != null:
+		_assert(start_frame.get_global_rect().size.y <= 86.0, "leviathan select start frame keeps a tighter responsive CTA lane instead of expanding to board height")
+		_assert(start_frame.get_global_rect().position.y >= board_panel.get_global_rect().end.y - 128.0, "leviathan select start frame stays pinned to the lower board edge")
+	if start_button != null:
+		var button_height := start_button.get_global_rect().size.y
+		_assert(button_height >= 66.0 and button_height <= 74.0, "leviathan select CTA button resolves near the intended 70px baseline at the canonical viewport (height=%.2f)" % button_height)
+	main_instance.queue_free()
+	await process_frame
+
+func _assert_defeat_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
 	var controller = main_instance.get_node_or_null("MainController")
+	_assert(controller != null, "main controller exists for defeat-page layout audit")
+	if controller == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	var character_page = main_instance.get("character_select_page")
+	if character_page != null:
+		character_page.color_selected.emit("green")
+		character_page.continue_requested.emit()
+	await process_frame
+	await process_frame
+	var leviathan_page = main_instance.get("leviathan_select_page")
+	if leviathan_page != null:
+		leviathan_page.leviathan_selected.emit("storm_wyvern")
+		leviathan_page.start_requested.emit()
+	await process_frame
+	await process_frame
+	await process_frame
+	_press_route_button(main_instance, 0, "defeat-page layout audit")
+	await process_frame
+	var start_button = main_instance.get("start_button") as Button
+	_assert(start_button != null, "start button exists for defeat-page layout audit")
+	if start_button != null:
+		start_button.pressed.emit()
+	await process_frame
+	await process_frame
+	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "failed"})
+	controller.call("_render_scene", controller.preview_controller.get_scene())
+	await process_frame
+	await process_frame
+	_assert_eq(str(main_instance.get("active_page_id")), "defeat", "layout audit reaches the defeat page")
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	var defeat_page = page_scenes.get("defeat", null) as Control
+	_assert(defeat_page != null, "defeat page exists for layout audit")
+	if defeat_page != null:
+		_assert_page_shell_host(main_instance, defeat_page, "meta_page_shell_host", "defeat page", true)
+		_assert_control_inside_viewport(defeat_page, "defeat page root")
+		_assert_visible_controls_inside_viewport(defeat_page, "defeat page")
+	var repair_overlay = main_instance.get("repair_overlay") as Control
+	_assert(repair_overlay != null, "repair overlay exists for defeat-page layout audit")
+	if repair_overlay != null:
+		_assert_eq(repair_overlay.visible, false, "defeat page keeps the legacy repair overlay hidden during full-page layout")
+	main_instance.queue_free()
+	await process_frame
+
+func _assert_combat_layout(MainScene: PackedScene) -> void:
+	var main_instance = await _instantiate_main(MainScene)
+	if main_instance == null:
+		return
+	var controller = await _boot_to_node_select(main_instance, "red", "ossuary_tortoise")
 	_assert(controller != null, "main controller exists for combat layout audit")
 	if controller == null:
 		main_instance.queue_free()
 		await process_frame
 		return
-	var node_map_scene = main_instance.get("node_map_scene")
 	var start_button = main_instance.get("start_button") as Button
-	_assert(node_map_scene != null, "node map scene exists for combat layout audit")
 	_assert(start_button != null, "start button exists for combat layout audit")
-	if node_map_scene == null or start_button == null:
+	if start_button == null:
 		main_instance.queue_free()
 		await process_frame
 		return
-	node_map_scene.press_color_button(0)
-	if node_map_scene.map_node_count() > 0:
-		node_map_scene.press_node_button(0)
+	_press_route_button(main_instance, 0, "combat layout audit")
 	await process_frame
 	await process_frame
 	start_button.pressed.emit()
@@ -110,11 +302,12 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	var backpack_container = main_instance.get("backpack_container") as Control
 	var right_sidebar = main_instance.get("right_sidebar") as Control
 	var visual_queue_box = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow/VisualQueueBox") as GridContainer
+	var queue_hint_label = main_instance.find_child("QueueHintLabel", true, false) as Label
 	_assert(top_content != null, "top-content row exists for combat layout audit")
 	_assert(left_column != null, "left sidebar exists for combat layout audit")
 	_assert(backpack_container != null, "combat backpack exists for combat layout audit")
 	_assert(right_sidebar != null, "right sidebar exists for combat layout audit")
-	_assert(visual_queue_box != null, "combat status panel energy queue uses a grid container for two-row wrapping")
+	_assert(visual_queue_box != null, "combat status panel energy queue uses a compact now/next/reserve grid container")
 	if top_content != null and left_column != null and backpack_container != null and right_sidebar != null:
 		_assert(bool(top_content.visible), "combat keeps the top-content row visible")
 		_assert(float(left_column.position.x) >= -0.5, "combat left column stays inside the top-content row")
@@ -128,7 +321,8 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 		_assert(float(left_column.size.x) <= 500.0, "combat left status column compresses around the priority backpack panel (width=%.2f)" % left_column.size.x)
 		_assert(float(right_sidebar.size.x) <= 430.0, "combat log sidebar compresses around the priority backpack panel (width=%.2f)" % right_sidebar.size.x)
 	if visual_queue_box != null:
-		_assert_eq(int(visual_queue_box.columns), 8, "combat energy queue wraps sixteen slots into two rows of eight")
+		_assert_eq(int(visual_queue_box.columns), 3, "combat energy queue renders now / next / reserve columns")
+	_assert(queue_hint_label != null, "combat status panel exposes a queue hint label under the queue hub")
 	_assert_visible_controls_inside_viewport(main_instance, "combat")
 	main_instance.queue_free()
 	await process_frame
@@ -137,19 +331,15 @@ func _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene: PackedScen
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
-	var controller = main_instance.get_node_or_null("MainController")
-	var node_map_scene = main_instance.get("node_map_scene")
+	var controller = await _boot_to_node_select(main_instance, "red", "ossuary_tortoise")
 	var start_button = main_instance.get("start_button") as Button
 	_assert(controller != null, "main controller exists for combat purple-status layout audit")
-	_assert(node_map_scene != null, "node map scene exists for combat purple-status layout audit")
 	_assert(start_button != null, "start button exists for combat purple-status layout audit")
-	if controller == null or node_map_scene == null or start_button == null:
+	if controller == null or start_button == null:
 		main_instance.queue_free()
 		await process_frame
 		return
-	node_map_scene.press_color_button(0)
-	if node_map_scene.map_node_count() > 0:
-		node_map_scene.press_node_button(0)
+	_press_route_button(main_instance, 0, "combat purple-status layout audit")
 	await process_frame
 	await process_frame
 	start_button.pressed.emit()
@@ -188,14 +378,12 @@ func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
-	var controller = main_instance.get_node_or_null("MainController")
+	var controller = await _boot_to_node_select(main_instance, "red", "ossuary_tortoise")
 	var start_button = main_instance.get("start_button") as Button
-	var node_map_scene = main_instance.get("node_map_scene")
 	_assert(controller != null, "main controller exists for combat overlay pause audit")
 	_assert(start_button != null, "start button exists for combat overlay pause audit")
-	_assert(node_map_scene != null, "node map scene exists for combat overlay pause audit")
 	_assert(controller != null and controller.has_method("is_battle_pause_active"), "main controller exposes battle-only overlay pause query for combat overlay audit")
-	if controller == null or start_button == null or node_map_scene == null:
+	if controller == null or start_button == null:
 		main_instance.queue_free()
 		await process_frame
 		return
@@ -203,9 +391,7 @@ func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
 		main_instance.queue_free()
 		await process_frame
 		return
-	node_map_scene.press_color_button(0)
-	if node_map_scene.map_node_count() > 0:
-		node_map_scene.press_node_button(0)
+	_press_route_button(main_instance, 0, "combat overlay pause audit")
 	await process_frame
 	await process_frame
 	start_button.pressed.emit()
@@ -230,46 +416,138 @@ func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
 	main_instance.queue_free()
 	await process_frame
 
+func _assert_stage_one_node_select_layout(MainScene: PackedScene) -> void:
+	var main_instance = await _instantiate_main(MainScene)
+	if main_instance == null:
+		return
+	var controller = await _boot_to_node_select(main_instance)
+	_assert(controller != null, "main controller exists for stage-one node-select layout audit")
+	if controller == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	var gameplay_page_host = main_instance.get("page_shell_host") as Control
+	var meta_page_host = main_instance.get("meta_page_shell_host") as Control
+	_assert(gameplay_page_host != null and bool(gameplay_page_host.visible), "stage-one node select keeps the gameplay page host visible")
+	_assert(meta_page_host == null or not bool(meta_page_host.visible), "stage-one node select keeps the meta page host hidden")
+	_assert_header_actions_inside_window(main_instance, "stage-one node-select")
+	_assert_node_select_layout_inside_window(main_instance, "stage-one node-select", false, 0, true, 0)
+	_assert_visible_controls_inside_viewport(main_instance, "stage-one node-select")
+	main_instance.queue_free()
+	await process_frame
+
 func _assert_stage_two_node_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
-	var controller = main_instance.get_node_or_null("MainController")
+	var controller = await _boot_to_node_select(main_instance, "red", "ossuary_tortoise")
 	_assert(controller != null, "main controller exists for stage-two node-select layout audit")
 	if controller == null:
 		main_instance.queue_free()
 		await process_frame
 		return
-	controller.call("_render_scene", {
-		"phase": "combat",
-		"terrain": {"rows": 0, "columns": 0, "cells": []},
-		"hud": {
-			"aim": {"canFire": true},
-			"repair": {"active": false, "available": false},
-			"queue": {"items": [], "capacity": 16, "loaded": 8},
-			"pin": {"active": false},
-			"hazard": {"severity": "stable"}
-		},
-		"targetPanel": {"timeLimitTicks": 1200.0, "elapsedTicks": 0.0},
-		"stageIndex": 0,
-		"maxStages": 5
-	})
+	var initial_page_scenes: Dictionary = main_instance.get("page_scenes")
+	var stage_one_page = initial_page_scenes.get("node_select", null) as Control
+	_assert(stage_one_page != null, "stage-one node-select page exists before the stage-two reentry audit")
+	var stage_one_page_id := stage_one_page.get_instance_id() if stage_one_page != null else 0
+	var start_button = main_instance.get("start_button") as Button
+	_assert(start_button != null, "start button exists for stage-two node-select layout audit")
+	if start_button == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	start_button.pressed.emit()
 	await process_frame
 	await process_frame
-	var stage_two_scene: Dictionary = controller.get("current_scene").duplicate(true)
-	stage_two_scene["phase"] = "node_select"
-	stage_two_scene["stageIndex"] = 1
-	stage_two_scene["maxStages"] = maxi(2, int(stage_two_scene.get("maxStages", 5)))
-	stage_two_scene["allowStartColorSelection"] = false
-	stage_two_scene["selectedStartColor"] = str(stage_two_scene.get("selectedStartColor", "red"))
-	stage_two_scene["selectedNodeIndex"] = 0
-	controller.call("_render_scene", stage_two_scene)
+	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	controller.call("_render_scene", controller.preview_controller.get_scene())
+	await process_frame
+	await process_frame
+	controller.call("_proceed_to_node_select")
 	await process_frame
 	await process_frame
 	await process_frame
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	var node_select_page = page_scenes.get("node_select", null) as Control
+	_assert(node_select_page != null, "stage-two node-select page still exists after the reward reentry")
+	if node_select_page != null and stage_one_page != null:
+		_assert_eq(
+			int(node_select_page.get_instance_id()),
+			int(stage_one_page_id),
+			"stage-two node-select reuses the same node-select page instance instead of swapping to a different screen"
+		)
+	var gameplay_page_host = main_instance.get("page_shell_host") as Control
+	var meta_page_host = main_instance.get("meta_page_shell_host") as Control
+	_assert_page_shell_host(main_instance, node_select_page, "page_shell_host", "node select page")
+	_assert(gameplay_page_host != null and bool(gameplay_page_host.visible), "node select keeps the gameplay page host visible")
+	_assert(meta_page_host == null or not bool(meta_page_host.visible), "node select keeps the meta page host hidden")
 	_assert_header_actions_inside_window(main_instance, "stage-two node-select")
-	_assert_node_select_layout_inside_window(main_instance, "stage-two node-select", false)
+	_assert_node_select_layout_inside_window(main_instance, "stage-two node-select", false, 5, false, 1)
 	_assert_visible_controls_inside_viewport(main_instance, "stage-two node-select")
+	main_instance.queue_free()
+	await process_frame
+
+func _assert_boss_node_select_layout(MainScene: PackedScene) -> void:
+	var main_instance = await _instantiate_main(MainScene)
+	if main_instance == null:
+		return
+	var controller = await _boot_to_node_select(main_instance, "purple", "ossuary_tortoise")
+	_assert(controller != null, "main controller exists for boss node-select layout audit")
+	if controller == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	var initial_page_scenes: Dictionary = main_instance.get("page_scenes")
+	var stage_one_page = initial_page_scenes.get("node_select", null) as Control
+	_assert(stage_one_page != null, "stage-one node-select page exists before the boss-lock reentry audit")
+	var stage_one_page_id := stage_one_page.get_instance_id() if stage_one_page != null else 0
+	var start_button = main_instance.get("start_button") as Button
+	_assert(start_button != null, "start button exists for boss node-select layout audit")
+	if start_button == null:
+		main_instance.queue_free()
+		await process_frame
+		return
+	start_button.pressed.emit()
+	await process_frame
+	await process_frame
+	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	controller.call("_render_scene", controller.preview_controller.get_scene())
+	await process_frame
+	await process_frame
+	controller.call("_proceed_to_node_select")
+	await process_frame
+	await process_frame
+	_press_route_button(main_instance, 1, "boss node-select layout audit")
+	await process_frame
+	await process_frame
+	start_button.pressed.emit()
+	await process_frame
+	await process_frame
+	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	controller.call("_render_scene", controller.preview_controller.get_scene())
+	await process_frame
+	await process_frame
+	controller.call("_proceed_to_node_select")
+	await process_frame
+	await process_frame
+	await process_frame
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	var node_select_page = page_scenes.get("node_select", null) as Control
+	_assert(node_select_page != null, "boss-lock node-select page still exists after the branch-stage reentry")
+	if node_select_page != null and stage_one_page != null:
+		_assert_eq(
+			int(node_select_page.get_instance_id()),
+			int(stage_one_page_id),
+			"boss-lock node-select reuses the same node-select page instance instead of swapping to a different screen"
+		)
+	var gameplay_page_host = main_instance.get("page_shell_host") as Control
+	var meta_page_host = main_instance.get("meta_page_shell_host") as Control
+	_assert_page_shell_host(main_instance, node_select_page, "page_shell_host", "boss node select page")
+	_assert(gameplay_page_host != null and bool(gameplay_page_host.visible), "boss node select keeps the gameplay page host visible")
+	_assert(meta_page_host == null or not bool(meta_page_host.visible), "boss node select keeps the meta page host hidden")
+	_assert_header_actions_inside_window(main_instance, "boss node-select")
+	_assert_node_select_layout_inside_window(main_instance, "boss node-select", false, 0, false, 2)
+	_assert_visible_controls_inside_viewport(main_instance, "boss node-select")
 	main_instance.queue_free()
 	await process_frame
 
@@ -277,7 +555,7 @@ func _assert_reward_tray_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
-	var controller = main_instance.get_node_or_null("MainController")
+	var controller = await _boot_to_node_select(main_instance)
 	_assert(controller != null, "main controller exists for reward tray layout audit")
 	if controller == null:
 		main_instance.queue_free()
@@ -292,6 +570,7 @@ func _assert_reward_tray_layout(MainScene: PackedScene) -> void:
 	]
 	controller.call("_render_scene", {
 		"phase": "reward_loot",
+		"pageId": "reward",
 		"rewardPresentationStep": "tray_review",
 		"reward": {"pendingRewards": rewards},
 		"terrain": {"rows": 0, "columns": 0, "cells": []},
@@ -304,27 +583,31 @@ func _assert_reward_tray_layout(MainScene: PackedScene) -> void:
 	await process_frame
 	var reward_panel = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel") as Control
 	var reward_box = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox") as VBoxContainer
-	var reward_title = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardTitle") as Label
-	var reward_row = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow") as HBoxContainer
-	var reward_text = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/RewardText") as RichTextLabel
-	var discard_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/DiscardZone") as Control
+	var reward_title = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle") as Label
+	var reward_grid = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid") as HBoxContainer
+	var backpack_host = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var inspector_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as Control
+	var discard_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as Control
+	var confirm_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone") as Control
 	_assert(reward_panel != null, "reward panel exists for reward tray layout audit")
 	_assert(reward_box != null, "reward tray box exists for reward tray layout audit")
 	_assert(reward_title != null, "reward tray title exists for reward tray layout audit")
-	_assert(reward_row != null, "reward tray row exists for reward tray layout audit")
-	_assert(reward_text != null, "reward tray text surface exists for reward tray layout audit")
+	_assert(reward_grid != null, "reward tray board grid exists for reward tray layout audit")
+	_assert(backpack_host != null, "reward tray workspace host exists for reward tray layout audit")
+	_assert(inspector_zone != null, "reward tray inspector exists for reward tray layout audit")
 	_assert(discard_zone != null, "discard zone exists for reward tray layout audit")
-	if reward_panel != null and reward_box != null and reward_title != null and reward_row != null and reward_text != null and discard_zone != null:
-		var row_gap := float(reward_row.get_theme_constant("separation"))
-		var reward_box_gap := float(reward_box.get_theme_constant("separation"))
+	_assert(confirm_zone != null, "confirm zone exists for reward tray layout audit")
+	if reward_panel != null and reward_box != null and reward_title != null and reward_grid != null and backpack_host != null and inspector_zone != null and discard_zone != null and confirm_zone != null:
 		var panel_local_right: float = reward_panel.global_position.x + reward_panel.size.x
 		_assert(bool(reward_panel.visible), "reward tray render keeps the reward panel visible")
-		_assert(float(reward_row.size.x) <= float(reward_box.size.x) + 1.0, "reward tray row stays inside the reward box width (row=%.2f box=%.2f)" % [reward_row.size.x, reward_box.size.x])
-		_assert(float(reward_text.position.x + reward_text.size.x) <= float(discard_zone.position.x) - row_gap + 1.0, "reward tray text surface stays left of the discard zone gap (text=%.2f discard=%.2f)" % [reward_text.position.x + reward_text.size.x, discard_zone.position.x])
-		_assert(float(discard_zone.position.x + discard_zone.size.x) <= float(reward_row.size.x) + 1.0, "discard zone stays inside the reward row width (discard=%.2f row=%.2f)" % [discard_zone.position.x + discard_zone.size.x, reward_row.size.x])
+		_assert(float(reward_grid.size.x) <= float(reward_box.size.x) + 1.0, "reward tray board grid stays inside the reward box width (grid=%.2f box=%.2f)" % [reward_grid.size.x, reward_box.size.x])
+		_assert(float(backpack_host.global_position.x) >= float(reward_grid.global_position.x) - 0.5, "reward tray workspace host stays inside the board grid left edge")
+		_assert(float(inspector_zone.global_position.x) >= float(backpack_host.global_position.x) - 0.5, "reward tray inspector stays to the right of the shared workspace host")
+		_assert(float(confirm_zone.global_position.x) >= float(discard_zone.global_position.x) - 0.5, "reward tray confirm zone stays in the bottom row beside the discard zone")
+		_assert(float(discard_zone.position.x + discard_zone.size.x) <= float(reward_box.size.x) + 1.0, "discard zone stays inside the reward panel width (discard=%.2f panel=%.2f)" % [discard_zone.position.x + discard_zone.size.x, reward_box.size.x])
 		_assert(float(discard_zone.global_position.x + discard_zone.size.x) <= panel_local_right - 8.0, "discard zone stays inside the live reward panel instead of clipping right (discard=%.2f panel=%.2f)" % [discard_zone.global_position.x + discard_zone.size.x, panel_local_right])
-		var expected_row_height := maxf(120.0, float(reward_box.size.y - reward_title.size.y - reward_box_gap))
-		_assert(float(reward_row.size.y) >= expected_row_height - 4.0, "reward tray row uses the available panel height instead of collapsing to its minimum (row=%.2f expected=%.2f)" % [reward_row.size.y, expected_row_height])
+		_assert(float(reward_grid.size.y) >= 280.0, "reward tray board grid reserves a tall central body instead of collapsing to the old shallow strip (grid=%.2f)" % reward_grid.size.y)
+		_assert(float(backpack_host.size.y) >= 220.0, "reward tray workspace host keeps a dedicated placement area for the shared backpack (host=%.2f)" % backpack_host.size.y)
 	_assert_visible_controls_inside_viewport(main_instance, "reward tray")
 	main_instance.queue_free()
 	await process_frame
@@ -333,6 +616,7 @@ func _assert_reward_reveal_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
+	await _boot_to_node_select(main_instance)
 	var overlay = main_instance.get("reward_reveal_overlay") as Control
 	_assert(overlay != null, "reward reveal overlay exists for layout audit")
 	if overlay == null:
@@ -379,6 +663,7 @@ func _assert_overlay_layouts(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
 		return
+	await _boot_to_node_select(main_instance)
 	var settings_overlay = main_instance.get("settings_panel") as Control
 	var shop_overlay = main_instance.get("shop_panel") as Control
 	var codex_overlay = main_instance.get("codex_panel") as Control
@@ -447,26 +732,64 @@ func _assert_header_actions_inside_window(main_instance: Node, label: String) ->
 		_assert(float(button.global_position.x) >= header.global_position.x - 0.5, "header button stays inside the left shell edge for %s: %s" % [label, button.name])
 		_assert(float(button.global_position.x + button.size.x) <= header_right + 0.5, "header button stays inside the right shell edge for %s: %s" % [label, button.name])
 
-func _assert_node_select_layout_inside_window(main_instance: Node, label: String, expect_color_picker: bool) -> void:
-	var row = main_instance.get("node_select_content_row") as HBoxContainer
-	var panel = main_instance.get("node_select_panel") as Control
-	var backpack = main_instance.get("backpack_container") as Control
-	var node_map_scene = main_instance.get("node_map_scene")
-	_assert(row != null, "node-select content row exists for %s" % label)
-	_assert(panel != null, "node-select panel exists for %s" % label)
-	_assert(backpack != null, "node-select backpack container exists for %s" % label)
-	_assert(node_map_scene != null, "node-select node-map scene exists for %s" % label)
-	if row == null or panel == null or backpack == null or node_map_scene == null:
+func _assert_node_select_layout_inside_window(main_instance: Node, label: String, expect_color_picker: bool, expected_route_button_count: int, expect_future_preview: bool, expected_history_marker_count: int) -> void:
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	var node_select_page: Control = null
+	var board_shell: Control = null
+	var hero_section: Control = null
+	var roadmap_frame: Control = null
+	var roadmap_canvas: Control = null
+	var info_card: Control = null
+	var future_preview: Control = null
+	var boss_hotspot: Control = null
+	var retired_split_shell: Control = null
+	if not page_scenes.is_empty():
+		node_select_page = page_scenes.get("node_select", null) as Control
+	if node_select_page != null:
+		hero_section = node_select_page.get_node_or_null("Margin/VStack/HeroSection") as Control
+		board_shell = node_select_page.get_node_or_null("Margin/VStack/BoardShell") as Control
+		roadmap_frame = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame") as Control
+		roadmap_canvas = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas") as Control
+		info_card = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/InfoCard") as Control
+		future_preview = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/NodeLayer/FuturePreviewHotspot") as Control
+		boss_hotspot = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/NodeLayer/BossHotspot") as Control
+		retired_split_shell = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/RouteSplit") as Control
+	var shared_backpack = main_instance.get("backpack_container") as Control
+	var legacy_node_map = main_instance.get("node_map_scene") as Control
+	_assert(node_select_page != null, "node-select runtime page exists for %s" % label)
+	_assert(hero_section != null, "node-select runtime page exposes the hero section for %s" % label)
+	_assert(board_shell != null, "node-select runtime page exposes the board shell for %s" % label)
+	_assert(roadmap_frame != null, "node-select runtime page exposes the roadmap frame for %s" % label)
+	_assert(roadmap_canvas != null, "node-select runtime page exposes the roadmap canvas for %s" % label)
+	_assert(info_card != null, "node-select runtime page exposes the left-side hover info card for %s" % label)
+	_assert(boss_hotspot != null, "node-select runtime page exposes the boss hotspot for %s" % label)
+	if expect_future_preview:
+		_assert(future_preview != null, "node-select runtime page exposes a separate future preview marker for %s" % label)
+	else:
+		_assert(future_preview == null, "node-select runtime page removes the future preview marker when no further non-boss stage remains for %s" % label)
+	_assert(retired_split_shell == null, "node-select runtime page removes the retired split map/backpack shell for %s" % label)
+	if node_select_page == null or hero_section == null or board_shell == null or roadmap_frame == null or roadmap_canvas == null or info_card == null or boss_hotspot == null:
 		return
-	var row_gap := float(row.get_theme_constant("separation"))
 	var window_right: float = _viewport_rect().end.x
-	_assert(backpack.get_parent() == row, "node-select backpack is docked into the row for %s" % label)
-	_assert(float(panel.global_position.x + panel.size.x) <= window_right + 0.5, "node-select panel stays inside the main window for %s" % label)
-	_assert(float(row.global_position.x + row.size.x) <= float(panel.global_position.x + panel.size.x) + 0.5, "node-select content row stays inside the node-select panel for %s" % label)
-	_assert(float(backpack.global_position.x + backpack.size.x) <= window_right + 0.5, "node-select backpack stays inside the main window for %s" % label)
-	_assert(float(backpack.position.x + backpack.size.x) <= float(row.size.x) + 1.0, "node-select backpack stays inside the row width for %s" % label)
-	_assert(float(node_map_scene.size.x) >= 460.0, "node-select node map keeps the explicit map minimum width for %s" % label)
-	_assert(float(node_map_scene.size.x + backpack.size.x + row_gap) <= float(row.size.x) + 1.5, "node-select map/backpack split stays within the row width for %s" % label)
-	var graph_center_delta := absf(float(node_map_scene.node_visual_center_x()) - float(node_map_scene.map_canvas_center_x()))
-	_assert(graph_center_delta <= 24.0, "node-select graph stays centered inside the map canvas for %s (delta=%.3f)" % [label, graph_center_delta])
-	_assert_eq(node_map_scene.loadout_color_count(), 4 if expect_color_picker else 0, "node-select color-picker visibility matches the stage contract for %s" % label)
+	_assert(float(node_select_page.global_position.x + node_select_page.size.x) <= window_right + 0.5, "node-select runtime page stays inside the main window for %s" % label)
+	_assert_control_inside_parent(hero_section, node_select_page, "node-select hero section for %s" % label)
+	_assert(float(board_shell.global_position.x + board_shell.size.x) <= window_right + 0.5, "node-select board shell stays inside the main window for %s" % label)
+	_assert_control_inside_parent(roadmap_frame, board_shell, "node-select roadmap frame for %s" % label)
+	_assert_control_inside_parent(roadmap_canvas, roadmap_frame, "node-select roadmap canvas for %s" % label)
+	_assert_control_inside_parent(info_card, roadmap_canvas, "node-select info card for %s" % label)
+	_assert_control_inside_parent(boss_hotspot, roadmap_canvas, "node-select boss hotspot for %s" % label)
+	if expect_future_preview and future_preview != null:
+		_assert_control_inside_parent(future_preview, roadmap_canvas, "node-select future preview marker for %s" % label)
+	var route_button_count := -1
+	if node_select_page.has_method("route_button_count"):
+		route_button_count = int(node_select_page.call("route_button_count"))
+	_assert(route_button_count == expected_route_button_count, "node-select roadmap renders the expected current route count for %s" % label)
+	if node_select_page.has_method("history_marker_count"):
+		_assert_eq(int(node_select_page.call("history_marker_count")), expected_history_marker_count, "node-select roadmap renders the expected cleared-history count for %s" % label)
+	for route_index in range(expected_route_button_count):
+		var route_button := node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/NodeLayer/RouteButton%d" % route_index) as Control
+		_assert_control_inside_parent(route_button, roadmap_canvas, "node-select route button %d for %s" % [route_index, label])
+	_assert(shared_backpack == null or not bool(shared_backpack.visible), "node-select keeps the shared backpack hidden for %s" % label)
+	_assert(legacy_node_map == null or not bool(legacy_node_map.visible), "node-select keeps the retired node-map scene detached for %s" % label)
+	if node_select_page.has_method("start_color_chip_count"):
+		_assert_eq(int(node_select_page.call("start_color_chip_count")), 0 if not expect_color_picker else 4, "node-select start-color chip visibility matches the stage contract for %s" % label)

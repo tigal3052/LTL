@@ -34,7 +34,7 @@ static func project_reward_comparison(reward: Dictionary, equipped_artifacts: Ar
 static func _normalize(value: Variant) -> Dictionary:
 	if value is Dictionary:
 		var payload: Dictionary = value.get("payload", {})
-		var raw_name := str(value.get("kind", "Unknown Item"))
+		var raw_name := str(value.get("kind", TextCatalogScript.t("character.unknown_item")))
 		var grade_val := str(value.get("rarity", "common")).to_lower()
 		var item_type_val := str(payload.get("item_type", payload.get("itemType", "drill"))).to_lower()
 		if payload.get("item_type", "") == "beacon" or raw_name.to_lower().contains("beacon"):

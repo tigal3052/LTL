@@ -557,3 +557,341 @@ A  docs/mockups/m6-event-node-wireframe.html
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 21:49:29
+
+<!-- codex-worklog-signature: 5dedd0cf2a2a2fc41298b8e4e9676dc29fa266c62de392eec6d21502319c8c69 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:08:30
+
+<!-- codex-worklog-signature: 7befc2c308e6300c644a4101ee2d773c4c9ca81b1e75f0790b79764f1cd52604 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:13:18
+
+<!-- codex-worklog-signature: 24fc3cbaeb4e26bfd8a43a6560ac24d49e2b4f833c781d286643e9556c965814 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:15:36
+
+<!-- codex-worklog-signature: 051833ddc0b2ae58872e76094bdad0b3fea60dc1445f84fe5787c4baa36e30ec -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:17:20
+
+<!-- codex-worklog-signature: f901593788f68b81152d78450e9d5f7799e2c141164721490513f89a45e25239 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:18:26
+
+<!-- codex-worklog-signature: 1f5fc9df5f1041a76c3817a2768d02e2f4b0f381890a4c9dd4a118249d3caaa9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:19:22
+
+<!-- codex-worklog-signature: 1613d79f767c6135a904c4138d816e258f9382b82c8cd139e1958992c038957f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:20:29
+
+<!-- codex-worklog-signature: c5bdce605d8c59efb98d03897d027ec8c81b522a967f9ec4e76ce7eb0447d805 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:45:00
+
+- Intent: Rework the non-combat mockups so they present as image-led interface boards rather than text-heavy component inventories.
+- Files or areas touched:
+  - `docs/mockups/m6-run-start-wireframe.html`
+  - `docs/mockups/m6-reward-claim-wireframe.html`
+  - `docs/mockups/m6-node-select-run-flow-wireframe.html`
+  - `docs/mockups/m6-event-node-wireframe.html`
+  - `docs/mockups/m6-boss-reward-pick-wireframe.html`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-06.md`
+  - `docs/codex-worklog/complete_LootingTheLeviathan_2026-06-06.md`
+- Summary:
+  - `run_start`: removed the small explanatory stat/info blocks and replaced them with a larger character image board, a larger single description, color-coded starter relic selection, and a minimal backpack preview.
+  - `reward_claim`: converted the reward list into floating item images with gentle motion, moved item effects and footprint reading into a fixed click-to-inspect detail panel, and preserved an explicit memo that real placement changes to drag-to-place.
+  - `node_select`: removed the progress subpanel and node-detail panel, switched the page to a title plus tall roadmap image, and limited stage messaging to current local progress like `Stage 3/5`.
+  - `event_node`: simplified the layout around the large event image and removed the separate result-hint memo panel.
+  - `boss_reward_pick`: removed the extra comparison/detail panel so the page reads as a cleaner three-card choice.
+- Plan impact: The day's plan was updated because the scope changed from single-page implementation to cross-page redesign.
+- Verification:
+  - Targeted content checks passed for the requested titles, interaction notes, and stage-label changes.
+  - `git diff --check` passed for the edited mockup files with only existing LF/CRLF warnings.
+
+## 2026-06-06 23:55:00
+
+- Intent: Refine the revised image-first mockups after a second round of layout feedback focused on map readability and panel proportions.
+- Files or areas touched:
+  - `docs/mockups/m6-node-select-run-flow-wireframe.html`
+  - `docs/mockups/m6-reward-claim-wireframe.html`
+  - `docs/mockups/m6-run-start-wireframe.html`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-06.md`
+  - `docs/codex-worklog/complete_LootingTheLeviathan_2026-06-06.md`
+- Summary:
+  - `node_select`: flipped the route reading direction so the run starts at the bottom and rises toward the boss, then replaced straight branch bars with wavy dotted routes and small arrow cues inspired by Slay the Spire readability while keeping the LTL visual tone.
+  - `reward_claim`: restored the discard area as a red warning zone and forced the three top panels to share the same vertical bottom alignment so the backpack area no longer reads as a special off-grid layout.
+  - `run_start`: narrowed the character selector into a scrollable portrait-and-name roster, widened the central hero presentation, and moved the start CTA under the relic and starter-backpack flow in the right column.
+- Plan impact: The worklog plan was updated because the task shifted from broad image-first redesign to targeted usability refinements.
+- Verification:
+  - Targeted `rg` checks passed for bottom-to-top route wording, dotted-route notes, scrollable roster cues, relocated `출발하기` CTA, red discard styling, and alignment-related CSS.
+  - `git diff --check` passed for the edited files with only LF/CRLF warnings.
+
+## 2026-06-06 23:20:46
+
+<!-- codex-worklog-signature: 9e65d36858366d9627434f1fb3de48db0cff88d455ab9de3d97c3dd2b0ab038a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:21:37
+
+<!-- codex-worklog-signature: cf6b0be0b486a354dcf0ad91353cfa408897012b2c976b47f78e6215a40208bf -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-06.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:22:08
+
+<!-- codex-worklog-signature: 007fcc1edf8f9d8b0e9a9d634d0d42011ba52908be8c9e0ebd90aa54f74adc20 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-06.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:22:23
+
+<!-- codex-worklog-signature: df15d0c3d45ebb4f56ddd5262f2e6529b043cc47a95fc93028e1841e1484a166 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-06.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-06 23:45:29
+
+<!-- codex-worklog-signature: cca3b8d8dd9f2dc5fd2c622876dc573abb81d25f1f8308e324566db10ef28f47 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-06.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-06.md
+ M docs/mockups/m6-boss-reward-pick-wireframe.html
+ M docs/mockups/m6-event-node-wireframe.html
+ M docs/mockups/m6-node-select-run-flow-wireframe.html
+ M docs/mockups/m6-reward-claim-wireframe.html
+ M docs/mockups/m6-run-start-wireframe.html
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.

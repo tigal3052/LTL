@@ -9,6 +9,8 @@ extends Node2D
 var shake_timer: float = 0.0
 var shake_intensity: float = 0.0
 var shake_enabled: bool = true
+var flash_enabled: bool = true
+var particles_enabled: bool = true
 var target_control: Control = null
 var battle_pause_active: bool = false
 
@@ -41,7 +43,7 @@ func set_battle_pause_active(active: bool) -> void:
 # 실행: trigger Line2D magic resonance beam animation.
 func draw_resonance_beam(start_pos: Vector2, end_pos: Vector2, color_name: String) -> void:
 	var line := Line2D.new()
-	line.width = 5.0
+	line.width = 3.0 if not flash_enabled else 5.0
 	var c_color := Color(0.95, 0.75, 0.25, 0.9)
 	if color_name == "red":
 		c_color = Color(0.9, 0.2, 0.2, 0.9)
@@ -51,7 +53,7 @@ func draw_resonance_beam(start_pos: Vector2, end_pos: Vector2, color_name: Strin
 		c_color = Color(0.2, 0.8, 0.3, 0.9)
 	elif color_name == "purple":
 		c_color = Color(0.7, 0.2, 0.8, 0.9)
-	line.default_color = c_color
+	line.default_color = c_color if flash_enabled else Color(c_color.r, c_color.g, c_color.b, c_color.a * 0.55)
 	var steps = 8
 	var dir = end_pos - start_pos
 	var perp = Vector2(-dir.y, dir.x).normalized()
@@ -59,7 +61,7 @@ func draw_resonance_beam(start_pos: Vector2, end_pos: Vector2, color_name: Strin
 	for i in range(1, steps):
 		var t = float(i) / steps
 		var pt = start_pos + dir * t
-		var offset = perp * randf_range(-6.0, 6.0)
+		var offset = perp * randf_range(-3.0, 3.0) if not flash_enabled else perp * randf_range(-6.0, 6.0)
 		line.add_point(pt + offset - global_position)
 	line.add_point(end_pos - global_position)
 	add_child(line)
@@ -69,7 +71,7 @@ func draw_resonance_beam(start_pos: Vector2, end_pos: Vector2, color_name: Strin
 
 # 실행: spawn CPUParticles2D mineral hit burst.
 func spawn_hit_particles(pos: Vector2, outcome: String, color_name: String) -> void:
-	if particle_template == null:
+	if particle_template == null or not particles_enabled:
 		return
 	var p = particle_template.duplicate() as CPUParticles2D
 	add_child(p)
@@ -81,21 +83,26 @@ func spawn_hit_particles(pos: Vector2, outcome: String, color_name: String) -> v
 			elif color_name == "green": c_color = Color(0.3, 0.8, 0.4)
 			elif color_name == "purple": c_color = Color(0.7, 0.3, 0.8)
 			p.color = c_color
-			p.amount = 20
+			p.amount = 10 if not flash_enabled else 20
 			p.initial_velocity_min = 120.0
 			p.initial_velocity_max = 220.0
 		"mismatch":
 			p.color = Color(0.65, 0.68, 0.72)
-			p.amount = 12
+			p.amount = 8 if not flash_enabled else 12
 			p.initial_velocity_min = 80.0
 			p.initial_velocity_max = 140.0
 		_:
 			p.color = Color(0.4, 0.35, 0.3, 0.6)
-			p.amount = 8
+			p.amount = 6 if not flash_enabled else 8
 			p.initial_velocity_min = 40.0
 			p.initial_velocity_max = 80.0
 	p.emitting = true
 	get_tree().create_timer(1.0).timeout.connect(p.queue_free)
+
+func set_accessibility_state(state: Dictionary) -> void:
+	shake_enabled = bool(state.get("screenshake", shake_enabled))
+	flash_enabled = not bool(state.get("reducedFlash", false))
+	particles_enabled = not bool(state.get("reducedParticles", false))
 
 func spawn_damage_popups(events: Array) -> void:
 	for index in range(events.size()):

@@ -14,7 +14,9 @@ signal cell_released()
 
 const CellViewScript = preload("res://src/ui/CellView.gd")
 const BattlefieldVFXScript = preload("res://src/ui/BattlefieldVFX.gd")
+const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TILE_PANEL_TEXTURE := preload("res://resources/UI/tile/tile_panel_nobg.png")
+const BATTLE_BACKDROP_PATH := "res://resources/charactor/background.png"
 const MINER_45_TEXTURE_PATH := "res://resources/UI/miner/miner_45.png"
 const MINER_60_TEXTURE_PATH := "res://resources/UI/miner/miner_60.png"
 const MINER_90_TEXTURE_PATH := "res://resources/UI/miner/miner_90.png"
@@ -52,9 +54,12 @@ var vfx_overlay
 var title_miner_pose_tween: Tween
 var miner_pose_textures: Dictionary = {}
 var battle_pause_active := false
+var battle_backdrop: TextureRect
+var backdrop_drift_time := 0.0
 
 # 실행: configure the art-backed shell layers and mount the VFX overlay.
 func _ready() -> void:
+	_install_backdrop()
 	_configure_visual_layers()
 	battlefield_visual_root.resized.connect(_layout_battlefield_visuals)
 	battlefield_title.resized.connect(_layout_battlefield_visuals)
@@ -64,6 +69,14 @@ func _ready() -> void:
 	vfx_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vfx_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(vfx_overlay)
+	set_process(true)
+
+func _process(delta: float) -> void:
+	if battle_backdrop == null or battle_pause_active:
+		return
+	backdrop_drift_time += delta
+	battle_backdrop.scale = Vector2.ONE * (1.015 + sin(backdrop_drift_time * 0.45) * 0.01)
+	battle_backdrop.position.y = -6.0 + sin(backdrop_drift_time * 0.30) * 4.0
 
 func set_battle_pause_active(active: bool) -> void:
 	battle_pause_active = active
@@ -109,6 +122,21 @@ func _configure_visual_layers() -> void:
 	battlefield_grid.add_theme_constant_override("h_separation", 3)
 	battlefield_grid.add_theme_constant_override("v_separation", 5)
 	battlefield_grid.z_index = 2
+
+func _install_backdrop() -> void:
+	if battlefield_visual_root == null or battle_backdrop != null:
+		return
+	battle_backdrop = TextureRect.new()
+	battle_backdrop.name = "BattleBackdrop"
+	battle_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	battle_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	battle_backdrop.texture = LTLThemeScript.art_texture(BATTLE_BACKDROP_PATH)
+	battle_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	battle_backdrop.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	battle_backdrop.self_modulate = Color(0.48, 0.48, 0.48, 0.34)
+	battle_backdrop.z_index = -2
+	battlefield_visual_root.add_child(battle_backdrop)
+	battlefield_visual_root.move_child(battle_backdrop, 0)
 
 # 실행: expose the board layout policy for regression tests and runtime reuse.
 func layout_metrics_for_board(board_size: Vector2) -> Dictionary:
@@ -179,6 +207,9 @@ func _layout_battlefield_visuals() -> void:
 
 	panel_shell.position = shell_rect.position
 	panel_shell.size = shell_rect.size
+	if battle_backdrop != null:
+		battle_backdrop.position = shell_rect.position + Vector2(-6.0, -6.0)
+		battle_backdrop.size = shell_rect.size + Vector2(12.0, 12.0)
 
 	var lanes: Array[ColorRect] = [lane_top, lane_middle, lane_bottom]
 	for index in range(mini(lanes.size(), lane_rects.size())):

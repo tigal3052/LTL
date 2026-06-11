@@ -102,6 +102,12 @@ func _draw() -> void:
 	if not obstacle.is_empty():
 		_draw_obstacle_overlay(tile_rect)
 
+	if not active_queue_color.is_empty() and weakness != null and not str(weakness).is_empty() and not is_disabled_tile:
+		if queue_match:
+			_draw_match_frame(tile_rect, active_queue_color)
+		else:
+			_draw_mismatch_frame(tile_rect)
+
 	if hover_active and not is_disabled_tile:
 		draw_rect(tile_rect.grow(-4.0), Color(1.0, 1.0, 1.0, 0.05), true)
 		if press_active:
@@ -280,3 +286,25 @@ func _draw_obstacle_progress_bar(inner: Rect2, tile_rect: Rect2, color: Color, p
 	var bar_rect := Rect2(full_rect.position, Vector2(inner.size.x * progress_ratio, 3.0))
 	draw_rect(full_rect, Color(0, 0, 0, 0.28), true)
 	draw_rect(bar_rect, color, true)
+
+func _draw_match_frame(tile_rect: Rect2, color_name: String) -> void:
+	var accent := _energy_color(color_name, 0.95)
+	var inner := tile_rect.grow(-2.5)
+	draw_rect(inner, Color(accent.r, accent.g, accent.b, 0.10), false, 2.0)
+	var notch := 7.0
+	draw_line(inner.position, inner.position + Vector2(notch, 0.0), accent, 2.0)
+	draw_line(inner.position, inner.position + Vector2(0.0, notch), accent, 2.0)
+	draw_line(Vector2(inner.end.x, inner.position.y), Vector2(inner.end.x - notch, inner.position.y), accent, 2.0)
+	draw_line(Vector2(inner.end.x, inner.position.y), Vector2(inner.end.x, inner.position.y + notch), accent, 2.0)
+	draw_line(Vector2(inner.position.x, inner.end.y), Vector2(inner.position.x + notch, inner.end.y), accent, 2.0)
+	draw_line(Vector2(inner.position.x, inner.end.y), Vector2(inner.position.x, inner.end.y - notch), accent, 2.0)
+	draw_line(inner.end, inner.end + Vector2(-notch, 0.0), accent, 2.0)
+	draw_line(inner.end, inner.end + Vector2(0.0, -notch), accent, 2.0)
+
+func _draw_mismatch_frame(tile_rect: Rect2) -> void:
+	var accent := Color(1.0, 0.88, 0.58, 0.70)
+	var inner := tile_rect.grow(-3.0)
+	draw_line(inner.position + Vector2(0.0, 4.0), inner.position + Vector2(10.0, 0.0), accent, 1.6)
+	draw_line(inner.end + Vector2(-10.0, 0.0), inner.end + Vector2(0.0, -4.0), accent, 1.6)
+	draw_line(Vector2(inner.position.x + 4.0, inner.end.y), Vector2(inner.position.x + 12.0, inner.end.y - 4.0), accent, 1.6)
+	draw_line(Vector2(inner.end.x - 12.0, inner.position.y + 4.0), Vector2(inner.end.x - 2.0, inner.position.y), accent, 1.6)

@@ -144,6 +144,28 @@ Date: 2026-06-04
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
 
+## 2026-06-04 23:59:03
+
+- Intent: Audit the M6 plan against the live UI/runtime tree and replace stale execution assumptions with a refreshed, reference-backed implementation plan.
+- Files or areas touched:
+  - `docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md`
+  - `docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md`
+  - `docs/source-map.md`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md`
+- Summary:
+  - Verified the live baseline is already green with `MILESTONE_GATE_OK`, `SOURCE_MAP_GATE_OK`, `GODOT_CONTRACTS_OK`, `UI_READ_MODEL_TESTS_OK`, and `REWARD_CEREMONY_CONTRACT_OK`, so the old “recover the baseline first” M6 sequencing is stale.
+  - Traced the real M6 file map to the shipped `Main.tscn` / `MainViewRuntime` architecture instead of the older `HudRoot` / `RewardPresentation` style file assumptions.
+  - Wrote a new refresh plan that focuses M6 on combat cue projection, non-color-only status language, reward and node-map rhythm, backpack surface polish, practical failure/retry UX, real accessibility toggles, and reusable art-kit planning.
+  - Folded sub-agent research into the plan direction: `Dome Keeper`, `FTL`, and `Into the Breach` for HUD/readability discipline; `Slay the Spire`, `Hades`, and `Balatro` for node/reward cadence; `DREDGE`, `Dome Keeper`, and `Backpack Hero` for material language and backpack presentation.
+- Plan impact:
+  - The June 3 M6 plan is now historical context, and the June 4 refresh plan is the execution source of truth for current-source work.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 12_M6_ui_ux_finalization.md -Root D:\Programming\ex_workspace\LootingTheLeviathan` -> `MILESTONE_GATE_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` -> `SOURCE_MAP_GATE_OK`, `GODOT_CONTRACTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -Headless -Script tests/run_test_ui_read_models.gd -Quit` -> `UI_READ_MODEL_TESTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -Headless -Script tests/run_reward_ceremony_contract.gd -Quit` -> `REWARD_CEREMONY_CONTRACT_OK`
+  - `git diff --check` -> no whitespace errors; only existing LF/CRLF warnings in docs
+
 ## 2026-06-04 16:35:00
 
 - Intent: Implement the approved boss-aware hazard spawning change so terrain-panel hazards spawn only from newly generated tiles and can be tuned per node.
@@ -502,6 +524,146 @@ A  app-LTL/resources/UI/tile/blue_tile_hazard.png.import
 - Files or areas touched:
 ``text
  M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:24:57
+
+<!-- codex-worklog-signature: 4665b9a1f16fc5f8ff693293a307d156b65be2237c613ea3983846cfd5ea3a62 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:39:13
+
+<!-- codex-worklog-signature: 1d6a733c58a4cf17ffa2f0c7991c497a21b3679c954dcf8139f246f9f57a90ab -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:57:19
+
+<!-- codex-worklog-signature: bf0d3aa1b6f7cf276a9f93a151d207d0dd6c1b2d743ea9a0b94dde1aa53eac2c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:57:30
+
+<!-- codex-worklog-signature: aa30bddb1b3829dd99be407209df87428591b5ea66b9b65e78d2d068b1dc662d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:57:39
+
+<!-- codex-worklog-signature: ed5c52f474dcf8f9ed004aab63961410688e3ecd6ffee6107538067a6fecd9a4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:58:13
+
+<!-- codex-worklog-signature: 2f74eac523241d5ca0d9f626e5c202ff4be3c4da2bc4915a0180d1c224ee4e79 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:58:24
+
+<!-- codex-worklog-signature: 81ebf04c10056a1003d6a005002cc4f6c0bf784a7478a11cc98a419448f3798c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:58:24
+
+<!-- codex-worklog-signature: 81ebf04c10056a1003d6a005002cc4f6c0bf784a7478a11cc98a419448f3798c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-04 23:59:42
+
+<!-- codex-worklog-signature: 22b0df808baf31d2f9bfe11d59abe0fed1f304df0065ebb4b02e7afc0bd77076 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-04.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-04.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md
+?? docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

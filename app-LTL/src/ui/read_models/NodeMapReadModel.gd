@@ -1,15 +1,9 @@
-# 怨꾩빟:
-# - Responsibility: project scene-safe node candidates into route-card data for NodeMapScene.
-# - Input: SceneReadModel-style dictionary and selected index.
-# - Output: display cards, route status, and node_map_rendered telemetry.
-# - Prohibited: node candidate generation, phase mutation, raw pick-weight exposure.
-#
-# ?ㅽ뻾: define the NodeMapReadModel class identity.
 class_name NodeMapReadModel
 extends RefCounted
-const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 
-# ?ㅽ뻾: project node-select scene data into node-map card data.
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const LEVIATHAN_TABLE_PATH := "res://src/data/leviathan-table.json"
+
 static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
 	var candidates: Array = scene.get("candidates", scene.get("nodeSelect", {}).get("candidates", []))
 	var cards: Array = []
@@ -34,18 +28,29 @@ static func project(scene: Dictionary, selected_index: int = 0) -> Dictionary:
 			"selected": idx == safe_selected,
 			"disabled": false
 		})
+	var leviathan := _leviathan_for_scene(scene)
+	var selected_card: Dictionary = cards[safe_selected] if not cards.is_empty() else {}
 	return {
 		"selectedIndex": safe_selected,
 		"selectedColor": str(scene.get("selectedStartColor", scene.get("selectedColor", "red"))),
 		"loadoutColors": scene.get("loadoutColors", ["red", "blue", "purple", "green"]).duplicate(true),
 		"allowStartColorSelection": bool(scene.get("allowStartColorSelection", int(scene.get("stageIndex", 0)) == 0)),
 		"stageText": TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
+		"runStructure": TextCatalogScript.t("node_map.run_structure", [
+			int(scene.get("runIndex", int(scene.get("stageIndex", 0)))) + 1,
+			int(leviathan.get("runCount", 1)),
+			int(leviathan.get("stageCount", maxi(1, int(scene.get("maxStages", 1))))),
+			int(cards.size())
+		]),
+		"leviathan": leviathan,
+		"targetLabel": str(selected_card.get("label", leviathan.get("name", TextCatalogScript.t("node_runtime.leviathan_default")))),
+		"targetHint": str(selected_card.get("recommendedBuildHint", leviathan.get("biome", ""))),
+		"targetWeakness": str(selected_card.get("weaknessLabel", "")),
 		"cards": cards,
 		"empty": cards.is_empty(),
 		"telemetry": _telemetry(cards)
 	}
 
-# ?ㅽ뻾: build a node_map_rendered telemetry payload from projected cards.
 static func _telemetry(cards: Array) -> Dictionary:
 	var ids: Array = []
 	var types: Array = []
@@ -66,3 +71,41 @@ static func _telemetry(cards: Array) -> Dictionary:
 		"candidate_risk_tiers": risks,
 		"route_hashes": route_hashes
 	}
+
+static func _leviathan_for_scene(scene: Dictionary) -> Dictionary:
+	var table := _load_leviathans()
+	if table.is_empty():
+		return {
+			"id": "contract",
+			"name": TextCatalogScript.t("node_runtime.leviathan_default"),
+			"biome": TextCatalogScript.t("leviathan.biome_unknown"),
+			"runCount": 1,
+			"stageCount": maxi(1, int(scene.get("maxStages", 1))),
+			"imagePath": "res://resources/Leviathan/Leviathan_turtle.png"
+		}
+	var stage_index := int(scene.get("stageIndex", 0))
+	var selected: Dictionary = table[stage_index % table.size()].duplicate(true)
+	var image_paths := [
+		"res://resources/Leviathan/Leviathan_turtle.png",
+		"res://resources/Leviathan/Leviathan_lizard.png",
+		"res://resources/Leviathan/Leviathan_golem.png"
+	]
+	selected["imagePath"] = image_paths[stage_index % image_paths.size()]
+	selected["runCount"] = int(selected.get("runCount", selected.get("runCnt", 1)))
+	selected["stageCount"] = int(selected.get("stageCount", selected.get("stageCnt", maxi(1, int(scene.get("maxStages", 1))))))
+	return selected
+
+static func _load_leviathans() -> Array:
+	if not FileAccess.file_exists(LEVIATHAN_TABLE_PATH):
+		return []
+	var file := FileAccess.open(LEVIATHAN_TABLE_PATH, FileAccess.READ)
+	if file == null:
+		return []
+	var parsed = JSON.parse_string(file.get_as_text())
+	if not (parsed is Dictionary):
+		return []
+	var result: Array = []
+	for entry in parsed.get("leviathans", []):
+		if entry is Dictionary:
+			result.append(entry.duplicate(true))
+	return result

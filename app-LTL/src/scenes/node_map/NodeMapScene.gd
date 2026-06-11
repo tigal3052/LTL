@@ -9,6 +9,7 @@ class_name NodeMapScene
 extends Control
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 signal node_selected(index: int)
 signal color_selected(color: String)
 
@@ -31,6 +32,13 @@ var _color_row: HBoxContainer = null
 var _content_row: VBoxContainer = null
 var _cards_container: Control = null
 var _map_canvas: Control = null
+var _map_frame: PanelContainer = null
+var _hero_backdrop: TextureRect = null
+var _hero_dimmer: ColorRect = null
+var _hero_overlay_top: Label = null
+var _hero_contract_card: PanelContainer = null
+var _hero_contract_label: RichTextLabel = null
+var _hero_sprite: TextureRect = null
 var _detail_panel: PanelContainer = null
 var _detail_label: RichTextLabel = null
 var _map_lines: Array[ColorRect] = []
@@ -38,17 +46,28 @@ var _map_nodes: Array[Button] = []
 var _color_buttons: Array[Button] = []
 var _layout_refresh_pending := false
 var _test_canvas_size := Vector2.ZERO
+var _hover_card_index := -1
+var _hero_anim_time := 0.0
+var characterSpriteSheetPath := ""
 
 # ?ㅽ뻾: build child controls when the scene enters the tree.
 func _ready() -> void:
 	_ensure_children()
 	if not _model.is_empty():
 		render(_model)
+	set_process(true)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and not _model.is_empty() and is_inside_tree() and not _layout_refresh_pending:
 		_layout_refresh_pending = true
 		call_deferred("_refresh_layout_after_resize")
+
+func _process(delta: float) -> void:
+	if _hero_sprite == null or _hero_sprite.texture == null:
+		return
+	_hero_anim_time += delta
+	_hero_sprite.texture = _character_sprite_frame(int(floor(_hero_anim_time * 5.0)) % 20)
+	_hero_sprite.position.y = maxf(0.0, _map_canvas_extent().y - _hero_sprite.size.y - 10.0) + sin(_hero_anim_time * 2.0) * 2.0
 
 # ?ㅽ뻾: render supplied read-model data without calling domain generators.
 func render(model: Dictionary) -> void:
@@ -63,6 +82,7 @@ func render(model: Dictionary) -> void:
 	_map_nodes.clear()
 	_map_lines.clear()
 	_color_buttons.clear()
+	_hover_card_index = -1
 	var selected_color := str(model.get("selectedColor", "red"))
 	var stage_text := str(model.get("stageText", "Node Map"))
 	_color_row.visible = _allow_start_color_selection()
@@ -77,13 +97,14 @@ func render(model: Dictionary) -> void:
 			_color_buttons.append(color_button)
 	var selected_detail := ""
 	var cards: Array = model.get("cards", [])
+	_apply_hero_surface(model)
 	_build_map_scaffold(cards.size())
 	for index in range(cards.size()):
 		var card: Dictionary = cards[index]
 		var line := _card_line(card)
 		var selected := bool(card.get("selected", false))
 		if selected:
-			selected_detail = _detail_copy(card)
+			selected_detail = _contract_copy(model, card)
 		var button := Button.new()
 		button.text = _node_chip_text(card, selected)
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -94,11 +115,13 @@ func render(model: Dictionary) -> void:
 		button.set_meta("selected", selected)
 		_apply_node_button_style(button, card, selected)
 		button.pressed.connect(func(idx = index): call_deferred("_emit_node_selected", idx))
+		button.mouse_entered.connect(func(idx = index): _preview_card(idx))
+		button.mouse_exited.connect(func(): _restore_selected_detail())
 		_cards_container.add_child(button)
 		_map_nodes.append(button)
-	_summary_label.text = "TACTICAL BRIEFING"
-	_summary_hint_label.text = "%s  |  Selected Start Color: %s" % [stage_text, selected_color] if _color_row.visible else stage_text
-	_detail_label.text = selected_detail if not selected_detail.is_empty() else stage_text
+	_summary_label.text = str(model.get("leviathan", {}).get("name", "TACTICAL BRIEFING")).to_upper()
+	_summary_hint_label.text = "%s  |  %s" % [str(model.get("runStructure", stage_text)), _start_color_summary(selected_color)]
+	_detail_label.text = selected_detail if not selected_detail.is_empty() else _contract_copy(model, {})
 
 # ?ㅽ뻾: return the rendered card count for smoke tests.
 func card_count() -> int:
@@ -286,28 +309,75 @@ func _ensure_children() -> void:
 		_content_row.add_theme_constant_override("separation", 16)
 		_root.add_child(_content_row)
 	if _cards_container == null:
-		var map_frame := PanelContainer.new()
-		map_frame.add_theme_stylebox_override("panel", _surface_style(Color(0.08, 0.11, 0.14, 0.98), Color(0.19, 0.28, 0.36, 1.0)))
-		map_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		map_frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		map_frame.custom_minimum_size = Vector2(0, MAP_CANVAS_MIN_HEIGHT + MAP_FRAME_VERTICAL_PADDING)
-		_content_row.add_child(map_frame)
+		_map_frame = PanelContainer.new()
+		_map_frame.add_theme_stylebox_override("panel", _surface_style(Color(0.08, 0.11, 0.14, 0.98), Color(0.19, 0.28, 0.36, 1.0)))
+		_map_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_map_frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		_map_frame.custom_minimum_size = Vector2(0, MAP_CANVAS_MIN_HEIGHT + MAP_FRAME_VERTICAL_PADDING)
+		_content_row.add_child(_map_frame)
 		var map_margin := MarginContainer.new()
 		map_margin.add_theme_constant_override("margin_left", 14)
 		map_margin.add_theme_constant_override("margin_top", 14)
 		map_margin.add_theme_constant_override("margin_right", 14)
 		map_margin.add_theme_constant_override("margin_bottom", 14)
-		map_frame.add_child(map_margin)
+		_map_frame.add_child(map_margin)
 		_map_canvas = Control.new()
 		_map_canvas.name = "RunMapCanvas"
 		_map_canvas.custom_minimum_size = Vector2(0, MAP_CANVAS_MIN_HEIGHT)
 		_map_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_map_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		_cards_container = _map_canvas
-		_cards_container.name = "RunMapCanvas"
+		map_margin.add_child(_map_canvas)
+		_hero_backdrop = TextureRect.new()
+		_hero_backdrop.name = "HeroBackdrop"
+		_hero_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_hero_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		_hero_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_hero_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_map_canvas.add_child(_hero_backdrop)
+		_hero_dimmer = ColorRect.new()
+		_hero_dimmer.name = "HeroDimmer"
+		_hero_dimmer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_hero_dimmer.color = Color(0.02, 0.04, 0.06, 0.54)
+		_hero_dimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_map_canvas.add_child(_hero_dimmer)
+		_hero_overlay_top = Label.new()
+		_hero_overlay_top.name = "HeroOverlayTop"
+		_hero_overlay_top.position = Vector2(18.0, 14.0)
+		_hero_overlay_top.add_theme_font_size_override("font_size", 18)
+		_hero_overlay_top.add_theme_color_override("font_color", Color(0.96, 0.95, 0.90, 1.0))
+		_map_canvas.add_child(_hero_overlay_top)
+		_hero_contract_card = PanelContainer.new()
+		_hero_contract_card.name = "HeroContractCard"
+		_hero_contract_card.custom_minimum_size = Vector2(280.0, 132.0)
+		_hero_contract_card.add_theme_stylebox_override("panel", _surface_style(Color(0.10, 0.09, 0.07, 0.88), Color(0.70, 0.58, 0.28, 0.92)))
+		_map_canvas.add_child(_hero_contract_card)
+		var card_margin := MarginContainer.new()
+		card_margin.add_theme_constant_override("margin_left", 14)
+		card_margin.add_theme_constant_override("margin_top", 12)
+		card_margin.add_theme_constant_override("margin_right", 14)
+		card_margin.add_theme_constant_override("margin_bottom", 12)
+		_hero_contract_card.add_child(card_margin)
+		_hero_contract_label = RichTextLabel.new()
+		_hero_contract_label.bbcode_enabled = true
+		_hero_contract_label.fit_content = false
+		_hero_contract_label.scroll_active = false
+		_hero_contract_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_hero_contract_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		card_margin.add_child(_hero_contract_label)
+		_hero_sprite = TextureRect.new()
+		_hero_sprite.name = "HeroSprite"
+		_hero_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_hero_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
+		_hero_sprite.size = Vector2(138.0, 252.0)
+		_hero_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hero_sprite.self_modulate = Color(0.92, 0.92, 0.92, 0.88)
+		_map_canvas.add_child(_hero_sprite)
+		_cards_container = Control.new()
+		_cards_container.name = "RunMapNodes"
 		_cards_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_cards_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		map_margin.add_child(_cards_container)
+		_cards_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_map_canvas.add_child(_cards_container)
 	if _detail_label == null:
 		_detail_panel = PanelContainer.new()
 		_detail_panel.add_theme_stylebox_override("panel", _surface_style(Color(0.12, 0.15, 0.19, 0.98), Color(0.34, 0.41, 0.49, 1.0)))
@@ -324,6 +394,7 @@ func _ensure_children() -> void:
 		_detail_label = RichTextLabel.new()
 		_detail_label.name = "DetailLabel"
 		_detail_label.bbcode_enabled = true
+		_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_detail_label.fit_content = false
 		_detail_label.scroll_active = true
 		_detail_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -341,7 +412,7 @@ func _card_line(card: Dictionary) -> String:
 	var reward := TextCatalogScript.enum_label("reward_bias", str(card.get("rewardBias", "baseline")))
 	var hint := TextCatalogScript.hint_label(str(card.get("recommendedBuildHint", "")))
 	var durability := int(round(float(card.get("totalDurability", float(card.get("shield", 0.0)) + float(card.get("health", 0.0))))))
-	var durability_text := "Durability %d" % durability if durability > 0 else ""
+	var durability_text := TextCatalogScript.t("node_map.durability", [durability]) if durability > 0 else ""
 	return "%s%s %s %s %s %s" % [
 		selected_prefix,
 		TextCatalogScript.t("node.card.base", [label, weakness, risk]),
@@ -366,6 +437,39 @@ func _emit_node_selected(index: int) -> void:
 
 func _allow_start_color_selection() -> bool:
 	return bool(_model.get("allowStartColorSelection", true))
+
+func _preview_card(index: int) -> void:
+	if index < 0 or index >= _model.get("cards", []).size():
+		return
+	_hover_card_index = index
+	_detail_label.text = _contract_copy(_model, _model.get("cards", [])[index])
+
+func _restore_selected_detail() -> void:
+	_hover_card_index = -1
+	var cards: Array = _model.get("cards", [])
+	var selected_index := int(_model.get("selectedIndex", 0))
+	var selected_card: Dictionary = cards[selected_index] if selected_index >= 0 and selected_index < cards.size() else {}
+	_detail_label.text = _contract_copy(_model, selected_card)
+
+func _apply_hero_surface(model: Dictionary) -> void:
+	if _hero_backdrop != null:
+		var leviathan: Dictionary = model.get("leviathan", {})
+		_hero_backdrop.texture = LTLThemeScript.art_texture(str(leviathan.get("imagePath", "")))
+	if _hero_overlay_top != null:
+		_hero_overlay_top.text = str(model.get("runStructure", ""))
+	if _hero_contract_label != null:
+		_hero_contract_label.text = _contract_card_text(model)
+	if _hero_contract_card != null:
+		var canvas_size := _map_canvas_extent()
+		var card_size := _hero_contract_card.custom_minimum_size
+		_hero_contract_card.position = Vector2(
+			maxf(16.0, canvas_size.x - card_size.x - 18.0),
+			maxf(16.0, canvas_size.y - card_size.y - 18.0)
+		)
+		_hero_contract_card.size = card_size
+	if _hero_sprite != null:
+		_hero_sprite.texture = _character_sprite_frame(0)
+		_hero_sprite.position = Vector2(18.0, maxf(0.0, _map_canvas_extent().y - _hero_sprite.size.y - 10.0))
 
 func _build_map_scaffold(candidate_count: int) -> void:
 	var canvas_size := _map_canvas_extent()
@@ -464,10 +568,10 @@ func _add_static_map_node(label: String, center: Vector2, color: Color) -> void:
 func _node_chip_text(card: Dictionary, selected: bool) -> String:
 	var icon := _risk_icon(str(card.get("riskTier", "safe")))
 	var label := TextCatalogScript.display_name(str(card.get("label", "")))
-	var durability := int(round(float(card.get("totalDurability", float(card.get("shield", 0.0)) + float(card.get("health", 0.0))))))
-	var suffix := "\n%d" % durability if durability > 0 else ""
-	var prefix := ">" if selected else icon
-	return "%s\n%s%s" % [prefix, label, suffix]
+	var weakness := str(card.get("weaknessLabel", ""))
+	var weakness_badge := _weakness_badge(weakness)
+	var prefix := "TARGET" if selected else icon
+	return "%s %s\n%s" % [prefix, weakness_badge, label]
 
 func _risk_icon(risk: String) -> String:
 	match risk:
@@ -482,22 +586,62 @@ func _risk_icon(risk: String) -> String:
 		_:
 			return "o"
 
-func _detail_copy(card: Dictionary) -> String:
+func _weakness_badge(weakness: String) -> String:
+	match weakness:
+		"red":
+			return "▲"
+		"blue":
+			return "◌"
+		"purple":
+			return "◆"
+		"green":
+			return "✦"
+	return "•"
+
+func _contract_copy(model: Dictionary, card: Dictionary) -> String:
+	var leviathan: Dictionary = model.get("leviathan", {})
+	var target_label := str(card.get("label", model.get("targetLabel", leviathan.get("name", TextCatalogScript.t("node_runtime.leviathan_default")))))
 	var risk := TextCatalogScript.enum_label("risk", str(card.get("riskTier", "safe")))
 	var reward := TextCatalogScript.enum_label("reward_bias", str(card.get("rewardBias", "baseline")))
-	var weakness := str(card.get("weaknessLabel", ""))
+	var weakness := str(card.get("weaknessLabel", model.get("targetWeakness", "")))
 	if weakness in ["red", "blue", "purple", "green"]:
 		weakness = TextCatalogScript.t("color.%s" % weakness)
-	var hint := TextCatalogScript.hint_label(str(card.get("recommendedBuildHint", "")))
-	return "[b]%s[/b]\n\nRisk  %s\nWeakness  %s\nReward Bias  %s\nDurability  %d\nBoss Distance  %d\n\n%s" % [
-		str(card.get("label", "")),
+	var hint := TextCatalogScript.hint_label(str(card.get("recommendedBuildHint", model.get("targetHint", leviathan.get("biome", "")))))
+	return TextCatalogScript.t("node_map.contract.template", [
+		target_label,
 		risk,
 		weakness if not weakness.is_empty() else "-",
 		reward,
-		int(round(float(card.get("totalDurability", 0.0)))),
 		int(card.get("finalStageDistance", 0)),
 		hint
-	]
+	])
+
+func _contract_card_text(model: Dictionary) -> String:
+	var leviathan: Dictionary = model.get("leviathan", {})
+	var clear_text := TextCatalogScript.t("node_map.clear") if int(model.get("selectedIndex", 0)) > 0 else TextCatalogScript.t("node_map.open")
+	return TextCatalogScript.t("node_map.hero_card.template", [
+		str(model.get("targetLabel", leviathan.get("name", TextCatalogScript.t("node_runtime.leviathan_default")))),
+		str(model.get("targetHint", leviathan.get("biome", ""))),
+		TextCatalogScript.t("node_map.stamp", [clear_text]),
+		TextCatalogScript.t("node_map.start_cta")
+	])
+
+func _start_color_summary(color_name: String) -> String:
+	var label := TextCatalogScript.t("color.%s" % color_name) if color_name in ["red", "blue", "purple", "green"] else color_name
+	return TextCatalogScript.t("node_map.start_color", [label])
+
+func _character_sprite_frame(index: int) -> Texture2D:
+	if characterSpriteSheetPath.is_empty():
+		return null
+	var sheet := LTLThemeScript.art_texture(characterSpriteSheetPath)
+	if sheet == null:
+		return null
+	var frame_width := 1024.0 / 5.0
+	var frame_height := 1536.0 / 4.0
+	var safe_index := posmod(index, 20)
+	var column := safe_index % 5
+	var row := int(floor(float(safe_index) / 5.0))
+	return LTLThemeScript.atlas_frame(sheet, Rect2(column * frame_width, row * frame_height, frame_width, frame_height))
 
 func _apply_color_button_style(button: Button, color_name: String, selected: bool) -> void:
 	var base := _surface_style(Color(0.13, 0.16, 0.20, 0.98), Color(0.24, 0.31, 0.38, 1.0))

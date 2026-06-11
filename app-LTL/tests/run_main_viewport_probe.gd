@@ -133,13 +133,14 @@ func _dump_layout(main_instance: Node, label: String) -> void:
 		"BackpackContainer": main_instance.get("backpack_container"),
 		"RightSidebar": main_instance.get("right_sidebar"),
 		"ActivePhaseContainer": main_instance.get("active_phase_container"),
-		"NodeSelectPanel": main_instance.get("node_select_panel"),
+		"NodeSelectRuntimePage": main_instance.get("node_select_runtime_page"),
 		"NodeMapRow": main_instance.get("node_select_content_row"),
 		"BattlefieldPanel": main_instance.get("battlefield_ui"),
 		"BattlefieldVisualRoot": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"),
 		"RewardPanel": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel"),
-		"RewardRow": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow"),
-		"DiscardZone": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardRow/DiscardZone"),
+		"RewardGrid": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid"),
+		"BackpackHost": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost"),
+		"DiscardZone": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone"),
 		"ActionBar": main_instance.get("action_bar")
 	}
 	for key in targets.keys():

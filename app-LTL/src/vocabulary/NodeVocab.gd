@@ -35,23 +35,29 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 	var selected: Array = []
 	var selected_ids = {}
 	var is_final_stage := stage_index >= max_stages - 1
-	if is_final_stage and not boss_node.is_empty():
-		selected.append(boss_node.duplicate(true))
-		selected_ids[boss_node.get("id", "")] = true
-	selected.append(normal_node.duplicate(true))
-	selected_ids[normal_node.get("id", "")] = true
+	if is_final_stage:
+		if not boss_node.is_empty():
+			selected.append(boss_node.duplicate(true))
+			selected_ids[boss_node.get("id", "")] = true
+		else:
+			selected.append(normal_node.duplicate(true))
+			selected_ids[normal_node.get("id", "")] = true
+	else:
+		selected.append(normal_node.duplicate(true))
+		selected_ids[normal_node.get("id", "")] = true
 
-	var available_nodes: Array = []
-	for node in nodes:
-		if selected_ids.has(node.get("id", "")):
-			continue
-		available_nodes.append({"node": node, "score": rng.randf() / maxf(0.001, float(node.get("pickWeight", 1.0)))})
-	available_nodes.sort_custom(func(a, b): return float(a["score"]) < float(b["score"]))
-	for entry in available_nodes:
-		if selected.size() >= desired_count:
-			break
-		selected.append(entry["node"].duplicate(true))
-		selected_ids[entry["node"].get("id", "")] = true
+	if not is_final_stage:
+		var available_nodes: Array = []
+		for node in nodes:
+			if selected_ids.has(node.get("id", "")):
+				continue
+			available_nodes.append({"node": node, "score": rng.randf() / maxf(0.001, float(node.get("pickWeight", 1.0)))})
+		available_nodes.sort_custom(func(a, b): return float(a["score"]) < float(b["score"]))
+		for entry in available_nodes:
+			if selected.size() >= desired_count:
+				break
+			selected.append(entry["node"].duplicate(true))
+			selected_ids[entry["node"].get("id", "")] = true
 
 	var result: Array = []
 	for node in selected:

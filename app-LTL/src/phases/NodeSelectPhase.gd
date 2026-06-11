@@ -56,6 +56,9 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		var next_state := state.duplicate(true)
 		next_state["phase"] = "combat"
 		next_state["lastNodeLabel"] = choice.get("label", "")
+		var route_history: Array = next_state.get("routeHistory", []).duplicate(true)
+		route_history.append(_history_entry_for_choice(choice, int(state.get("stageIndex", 0)), idx))
+		next_state["routeHistory"] = route_history
 
 		var q_capacity: int = int(state.get("queueCapacity", EnergyTempoBalanceScript.DEFAULT_QUEUE_CAPACITY))
 		var initial_q = []
@@ -98,3 +101,17 @@ static func _restore_inventory(inv_data: Variant) -> InventoryModel:
 		var artifact := ArtifactScript.new(art_dict)
 		inventory.place_artifact(artifact, artifact.x, artifact.y)
 	return inventory
+
+static func _history_entry_for_choice(choice: Dictionary, stage_index: int, route_slot_index: int) -> Dictionary:
+	return {
+		"stageIndex": stage_index,
+		"routeSlotIndex": route_slot_index,
+		"id": str(choice.get("id", "")),
+		"label": str(choice.get("label", "")),
+		"nodeType": str(choice.get("nodeType", "normal")),
+		"riskTier": str(choice.get("riskTier", "safe")),
+		"rewardBias": str(choice.get("rewardBias", "baseline")),
+		"recommendedBuildHint": str(choice.get("recommendedBuildHint", "")),
+		"isEvent": bool(choice.get("isEvent", false)),
+		"weakness": choice.get("weakness", []).duplicate(true)
+	}

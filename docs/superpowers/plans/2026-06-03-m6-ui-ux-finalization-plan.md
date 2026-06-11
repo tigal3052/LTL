@@ -1,5 +1,7 @@
 # M6 UI/UX Finalization Implementation Plan
 
+> **Refresh note (2026-06-04):** This June 3 plan captured the milestone intent, but parts of its file map and sequencing are now stale against the live tree. Use [`docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md`](D:/Programming/ex_workspace/LootingTheLeviathan/docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md) as the execution source of truth for current-source work.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn the current M2-M5 combat, reward, node-map, and backpack systems into a readable, repeatable, accessibility-aware UI stack, while treating the codex-book redesign as a deliberate follow-on slice instead of the first blocking deliverable.

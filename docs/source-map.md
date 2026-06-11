@@ -232,22 +232,354 @@ This file is the live implementation map for AI agents. It records each current 
   - ItemBook is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/ItemBook.png.import`
   - ItemBook.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/background.png`
-  - background is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/background.png.import`
-  - background.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/charactor_backpack.png`
-  - charactor backpack is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/charactor_backpack.png.import`
-  - charactor backpack.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/charactor1.png`
-  - charactor1 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/charactor1.png.import`
-  - charactor1.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/charactor1_ss.png`
-  - charactor1 ss is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/charactor/charactor1_ss.png.import`
-  - charactor1 ss.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/charactor/background.png`
+  - Combat backdrop art for the battle-stage leviathan surface shell.
+- `app-LTL/resources/charactor/background.png.import`
+  - Godot import metadata for the combat backdrop art.
+- `app-LTL/resources/charactor/charactor_backpack.png`
+  - Character support illustration used for warning and inventory-adjacent presentation.
+- `app-LTL/resources/charactor/charactor_backpack.png.import`
+  - Godot import metadata for the backpack character illustration.
+- `app-LTL/resources/charactor/charactor1.png`
+  - Primary release character portrait art used across the explorer status panel.
+- `app-LTL/resources/charactor/charactor1.png.import`
+  - Godot import metadata for the primary character portrait.
+- `app-LTL/resources/charactor/charactor1_ss.png`
+  - Character sprite sheet used for idle animation loops in combat and node-map presentation.
+- `app-LTL/resources/charactor/charactor1_ss.png.import`
+  - Godot import metadata for the character sprite sheet.
+- `app-LTL/resources/charactor/defeat/defeat_01.png`
+  - Defeat-page animation frame 01 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_01.png.import`
+  - Godot import metadata for defeat-page animation frame 01.
+- `app-LTL/resources/charactor/defeat/defeat_02.png`
+  - Defeat-page animation frame 02 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_02.png.import`
+  - Godot import metadata for defeat-page animation frame 02.
+- `app-LTL/resources/charactor/defeat/defeat_03.png`
+  - Defeat-page animation frame 03 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_03.png.import`
+  - Godot import metadata for defeat-page animation frame 03.
+- `app-LTL/resources/charactor/defeat/defeat_04.png`
+  - Defeat-page animation frame 04 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_04.png.import`
+  - Godot import metadata for defeat-page animation frame 04.
+- `app-LTL/resources/charactor/defeat/defeat_05.png`
+  - Defeat-page animation frame 05 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_05.png.import`
+  - Godot import metadata for defeat-page animation frame 05.
+- `app-LTL/resources/charactor/defeat/defeat_06.png`
+  - Defeat-page animation frame 06 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_06.png.import`
+  - Godot import metadata for defeat-page animation frame 06.
+- `app-LTL/resources/charactor/defeat/defeat_07.png`
+  - Defeat-page animation frame 07 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_07.png.import`
+  - Godot import metadata for defeat-page animation frame 07.
+- `app-LTL/resources/charactor/defeat/defeat_08.png`
+  - Defeat-page animation frame 08 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_08.png.import`
+  - Godot import metadata for defeat-page animation frame 08.
+- `app-LTL/resources/charactor/defeat/defeat_09.png`
+  - Defeat-page animation frame 09 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_09.png.import`
+  - Godot import metadata for defeat-page animation frame 09.
+- `app-LTL/resources/charactor/defeat/defeat_10.png`
+  - Defeat-page animation frame 10 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_10.png.import`
+  - Godot import metadata for defeat-page animation frame 10.
+- `app-LTL/resources/charactor/defeat/defeat_11.png`
+  - Defeat-page animation frame 11 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_11.png.import`
+  - Godot import metadata for defeat-page animation frame 11.
+- `app-LTL/resources/charactor/defeat/defeat_12.png`
+  - Defeat-page animation frame 12 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_12.png.import`
+  - Godot import metadata for defeat-page animation frame 12.
+- `app-LTL/resources/charactor/defeat/defeat_13.png`
+  - Defeat-page animation frame 13 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_13.png.import`
+  - Godot import metadata for defeat-page animation frame 13.
+- `app-LTL/resources/charactor/defeat/defeat_14.png`
+  - Defeat-page animation frame 14 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_14.png.import`
+  - Godot import metadata for defeat-page animation frame 14.
+- `app-LTL/resources/charactor/defeat/defeat_15.png`
+  - Defeat-page animation frame 15 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_15.png.import`
+  - Godot import metadata for defeat-page animation frame 15.
+- `app-LTL/resources/charactor/defeat/defeat_16.png`
+  - Defeat-page animation frame 16 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_16.png.import`
+  - Godot import metadata for defeat-page animation frame 16.
+- `app-LTL/resources/charactor/defeat/defeat_17.png`
+  - Defeat-page animation frame 17 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_17.png.import`
+  - Godot import metadata for defeat-page animation frame 17.
+- `app-LTL/resources/charactor/defeat/defeat_18.png`
+  - Defeat-page animation frame 18 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_18.png.import`
+  - Godot import metadata for defeat-page animation frame 18.
+- `app-LTL/resources/charactor/defeat/defeat_19.png`
+  - Defeat-page animation frame 19 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_19.png.import`
+  - Godot import metadata for defeat-page animation frame 19.
+- `app-LTL/resources/charactor/defeat/defeat_20.png`
+  - Defeat-page animation frame 20 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_20.png.import`
+  - Godot import metadata for defeat-page animation frame 20.
+- `app-LTL/resources/charactor/defeat/defeat_21.png`
+  - Defeat-page animation frame 21 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_21.png.import`
+  - Godot import metadata for defeat-page animation frame 21.
+- `app-LTL/resources/charactor/defeat/defeat_22.png`
+  - Defeat-page animation frame 22 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_22.png.import`
+  - Godot import metadata for defeat-page animation frame 22.
+- `app-LTL/resources/charactor/defeat/defeat_23.png`
+  - Defeat-page animation frame 23 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_23.png.import`
+  - Godot import metadata for defeat-page animation frame 23.
+- `app-LTL/resources/charactor/defeat/defeat_24.png`
+  - Defeat-page animation frame 24 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_24.png.import`
+  - Godot import metadata for defeat-page animation frame 24.
+- `app-LTL/resources/charactor/defeat/defeat_25.png`
+  - Defeat-page animation frame 25 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_25.png.import`
+  - Godot import metadata for defeat-page animation frame 25.
+- `app-LTL/resources/charactor/defeat/defeat_26.png`
+  - Defeat-page animation frame 26 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_26.png.import`
+  - Godot import metadata for defeat-page animation frame 26.
+- `app-LTL/resources/charactor/defeat/defeat_27.png`
+  - Defeat-page animation frame 27 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_27.png.import`
+  - Godot import metadata for defeat-page animation frame 27.
+- `app-LTL/resources/charactor/defeat/defeat_28.png`
+  - Defeat-page animation frame 28 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_28.png.import`
+  - Godot import metadata for defeat-page animation frame 28.
+- `app-LTL/resources/charactor/defeat/defeat_29.png`
+  - Defeat-page animation frame 29 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_29.png.import`
+  - Godot import metadata for defeat-page animation frame 29.
+- `app-LTL/resources/charactor/defeat/defeat_30.png`
+  - Defeat-page animation frame 30 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_30.png.import`
+  - Godot import metadata for defeat-page animation frame 30.
+- `app-LTL/resources/charactor/defeat/defeat_31.png`
+  - Defeat-page animation frame 31 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_31.png.import`
+  - Godot import metadata for defeat-page animation frame 31.
+- `app-LTL/resources/charactor/defeat/defeat_32.png`
+  - Defeat-page animation frame 32 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_32.png.import`
+  - Godot import metadata for defeat-page animation frame 32.
+- `app-LTL/resources/charactor/defeat/defeat_33.png`
+  - Defeat-page animation frame 33 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_33.png.import`
+  - Godot import metadata for defeat-page animation frame 33.
+- `app-LTL/resources/charactor/defeat/defeat_34.png`
+  - Defeat-page animation frame 34 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_34.png.import`
+  - Godot import metadata for defeat-page animation frame 34.
+- `app-LTL/resources/charactor/defeat/defeat_35.png`
+  - Defeat-page animation frame 35 for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_35.png.import`
+  - Godot import metadata for defeat-page animation frame 35.
+- `app-LTL/resources/charactor/defeat/defeat_sheet.png`
+  - Packed defeat-page sprite sheet for the primary failure sequence.
+- `app-LTL/resources/charactor/defeat/defeat_sheet.png.import`
+  - Godot import metadata for the packed defeat-page sprite sheet.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_01.png`
+  - Alternate primary-character defeat frame 01 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_01.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 01.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_02.png`
+  - Alternate primary-character defeat frame 02 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_02.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 02.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_03.png`
+  - Alternate primary-character defeat frame 03 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_03.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 03.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_04.png`
+  - Alternate primary-character defeat frame 04 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_04.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 04.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_05.png`
+  - Alternate primary-character defeat frame 05 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_05.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 05.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_06.png`
+  - Alternate primary-character defeat frame 06 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_06.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 06.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_07.png`
+  - Alternate primary-character defeat frame 07 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_07.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 07.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_08.png`
+  - Alternate primary-character defeat frame 08 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_08.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 08.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_09.png`
+  - Alternate primary-character defeat frame 09 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_09.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 09.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_10.png`
+  - Alternate primary-character defeat frame 10 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_10.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 10.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_11.png`
+  - Alternate primary-character defeat frame 11 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_11.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 11.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_12.png`
+  - Alternate primary-character defeat frame 12 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_12.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 12.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_13.png`
+  - Alternate primary-character defeat frame 13 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_13.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 13.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_14.png`
+  - Alternate primary-character defeat frame 14 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_14.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 14.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_15.png`
+  - Alternate primary-character defeat frame 15 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_15.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 15.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_16.png`
+  - Alternate primary-character defeat frame 16 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_16.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 16.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_17.png`
+  - Alternate primary-character defeat frame 17 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_17.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 17.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_18.png`
+  - Alternate primary-character defeat frame 18 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_18.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 18.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_19.png`
+  - Alternate primary-character defeat frame 19 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_19.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 19.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_20.png`
+  - Alternate primary-character defeat frame 20 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_20.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 20.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_21.png`
+  - Alternate primary-character defeat frame 21 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_21.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 21.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_22.png`
+  - Alternate primary-character defeat frame 22 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_22.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 22.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_23.png`
+  - Alternate primary-character defeat frame 23 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_23.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 23.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_24.png`
+  - Alternate primary-character defeat frame 24 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_24.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 24.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_25.png`
+  - Alternate primary-character defeat frame 25 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_25.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 25.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_26.png`
+  - Alternate primary-character defeat frame 26 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_26.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 26.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_27.png`
+  - Alternate primary-character defeat frame 27 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_27.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 27.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_28.png`
+  - Alternate primary-character defeat frame 28 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_28.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 28.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_30.png`
+  - Alternate primary-character defeat frame 30 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_30.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 30.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_31.png`
+  - Alternate primary-character defeat frame 31 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_31.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 31.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_32.png`
+  - Alternate primary-character defeat frame 32 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_32.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 32.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_33.png`
+  - Alternate primary-character defeat frame 33 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_33.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 33.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_34.png`
+  - Alternate primary-character defeat frame 34 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_34.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 34.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_35.png`
+  - Alternate primary-character defeat frame 35 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_35.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 35.
+- `app-LTL/resources/Leviathan/Leviathan_drake.png`
+  - Leviathan full-body art used for alternate roster selection and contract presentation.
+- `app-LTL/resources/Leviathan/Leviathan_drake.png.import`
+  - Godot import metadata for the alternate roster leviathan full-body art.
+- `app-LTL/resources/Leviathan/Leviathan_golem.png`
+  - Leviathan full-body art used for failure and late-stage contract presentation.
+- `app-LTL/resources/Leviathan/Leviathan_golem.png.import`
+  - Godot import metadata for the late-stage leviathan full-body art.
+- `app-LTL/resources/Leviathan/Leviathan_lizard.png`
+  - Leviathan full-body art used for reward and mid-stage presentation surfaces.
+- `app-LTL/resources/Leviathan/Leviathan_lizard.png.import`
+  - Godot import metadata for the mid-stage leviathan full-body art.
+- `app-LTL/resources/Leviathan/Leviathan_turtle.png`
+  - Leviathan full-body art used for node-map route briefing and early-stage presentation.
+- `app-LTL/resources/Leviathan/Leviathan_turtle.png.import`
+  - Godot import metadata for the early-stage leviathan full-body art.
+- `app-LTL/resources/sound/reward_open.wav`
+  - Reward ceremony lid-open audio used for the fullscreen reveal transition.
+- `app-LTL/resources/sound/reward_open.wav.import`
+  - Godot import metadata for the primary reward ceremony lid-open audio.
+- `app-LTL/resources/sound/reward_open2.wav`
+  - Alternate reward ceremony lid-open audio variant preserved for runtime cue tuning.
+- `app-LTL/resources/sound/reward_open2.wav.import`
+  - Godot import metadata for the alternate reward ceremony lid-open audio.
+- `app-LTL/resources/sound/reward_open3.wav`
+  - Third reward ceremony lid-open audio variant preserved for runtime cue tuning.
+- `app-LTL/resources/sound/reward_open3.wav.import`
+  - Godot import metadata for the third reward ceremony lid-open audio variant.
+- `app-LTL/resources/sound/reward_thump.wav`
+  - Heavy reward ceremony impact audio used for major reveal confirmation beats.
+- `app-LTL/resources/sound/reward_thump.wav.import`
+  - Godot import metadata for the primary reward ceremony impact audio.
+- `app-LTL/resources/sound/reward_thump2.wav`
+  - Alternate heavy reward ceremony impact audio variant preserved for runtime cue tuning.
+- `app-LTL/resources/sound/reward_thump2.wav.import`
+  - Godot import metadata for the alternate reward ceremony impact audio.
+- `app-LTL/resources/sound/reward_thump3.wav`
+  - Compact reward ceremony impact audio variant preserved for runtime cue tuning.
+- `app-LTL/resources/sound/reward_thump3.wav.import`
+  - Godot import metadata for the compact reward ceremony impact audio variant.
+- `app-LTL/resources/sound/tile_hit.wav`
+  - Baseline tile-hit audio used for combat feedback and queue timing confirmation.
+- `app-LTL/resources/sound/tile_hit.wav.import`
+  - Godot import metadata for the baseline tile-hit audio.
+- `app-LTL/resources/sound/tile_hit2.wav`
+  - Alternate tile-hit audio used for combat feedback variation.
+- `app-LTL/resources/sound/tile_hit2.wav.import`
+  - Godot import metadata for the alternate tile-hit audio.
+- `app-LTL/resources/sound/tile_miss.wav`
+  - Tile-miss audio used for mismatch and failed-hit combat feedback.
+- `app-LTL/resources/sound/tile_miss.wav.import`
+  - Godot import metadata for the tile-miss combat feedback audio.
 - `app-LTL/resources/UI/miner/miner_45.png`
   - miner 45 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/miner/miner_45.png.import`
@@ -322,13 +654,17 @@ This file is the live implementation map for AI agents. It records each current 
   - release resource needs table stores final-art paths and procedural fallback tags.
 - `app-LTL/src/data/reward-table.json`
   - reward table stores balance or progression data.
+- `app-LTL/src/data/i18n/text-en.json`
+  - English UI text catalog for runtime page copy, node-map strings, and reward-board localization.
+- `app-LTL/src/data/i18n/text-ko.json`
+  - Korean UI text catalog for runtime page copy, node-map strings, and reward-board localization.
 - `app-LTL/src/domain/FormalContracts.gd`
   - Validates required fields and duplicate ids for artifact, node, reward, leviathan, and progress data tables.
   - Merges game tuning defaults, including documented stage durability and stage health curves, and validates phase-specific requirements in public run snapshots.
   - Standardizes validation results as normalized payloads plus error arrays.
   - Provides clone/coerce helpers and M3-compatible validator shims for contract checks.
 - `app-LTL/src/Main.tscn`
-  - Main is a project component with a tracked responsibility.
+  - Declares the shared main-scene shell, combat surfaces, reward tray, and reusable backpack/status/sidebar nodes.
 - `app-LTL/src/MainController.gd`
   - Serves as the formal main controller entry script by inheriting MainControllerRuntime.
 - `app-LTL/src/MainControllerRuntime.gd`
@@ -411,6 +747,42 @@ This file is the live implementation map for AI agents. It records each current 
   - Builds a resize-safe `START + candidate choices` node map and exposes smoke-test helpers for graph layout verification.
 - `app-LTL/src/scenes/node_map/NodeMapScene.tscn`
   - Node Map Scene defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/StageBackdropPage.gd`
+  - Provides the reusable full-bleed page-shell controller for page-specific backdrops and headings.
+- `app-LTL/src/scenes/pages/StageBackdropPage.tscn`
+  - Shared page-shell scene used by node-select, battle, reward, boss, and event page shells.
+- `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
+  - Renders the character selection page, starter-color buttons, and continue CTA.
+- `app-LTL/src/scenes/pages/CharacterSelectPage.tscn`
+  - Character selection page scene matching the M6 run-start wireframe intent.
+- `app-LTL/src/scenes/pages/LeviathanSelectPage.gd`
+  - Renders the leviathan contract roster, hero board, target card, and looting-start CTA.
+- `app-LTL/src/scenes/pages/LeviathanSelectPage.tscn`
+  - Leviathan selection page scene matching the M6 leviathan-select wireframe.
+- `app-LTL/src/scenes/pages/OutcomePage.gd`
+  - Provides the shared outcome-page controller used by defeat and temporary clear pages.
+- `app-LTL/src/scenes/pages/OutcomePage.tscn`
+  - Shared outcome page scene for defeat and clear shells.
+- `app-LTL/src/scenes/pages/NodeSelectRuntimePage.gd`
+  - Applies the dedicated node-select runtime shell state for the crossroads board, hover card, staged route buttons, and selected Leviathan copy.
+- `app-LTL/src/scenes/pages/NodeSelectRuntimePage.tscn`
+  - Dedicated node-select runtime shell scene exposing the hero section, Leviathan board head, and roadmap canvas without the retired split map/backpack hosts.
+- `app-LTL/src/scenes/pages/BattlePage.tscn`
+  - Normal combat page shell scene that preserves the existing battle UI layout.
+- `app-LTL/src/scenes/pages/BossBattlePage.tscn`
+  - Boss combat page shell scene used when the selected route is a boss node.
+- `app-LTL/src/scenes/pages/RewardPage.tscn`
+  - Normal reward page shell scene matching the reward-claim wireframe.
+- `app-LTL/src/scenes/pages/BossRewardPage.tscn`
+  - Boss reward page shell scene matching the boss-reward wireframe.
+- `app-LTL/src/scenes/pages/EventNodePage.tscn`
+  - Event-node page shell scene matching the event-node wireframe.
+- `app-LTL/src/scenes/pages/DefeatPage.gd`
+  - Renders the defeat page state, failure copy, and restart/escape outcome actions.
+- `app-LTL/src/scenes/pages/DefeatPage.tscn`
+  - Defeat page scene matching the defeat wireframe and returning to character select.
+- `app-LTL/src/scenes/pages/ClearPage.tscn`
+  - Temporary clear page scene with only clear copy and a return-to-character-select CTA.
 - `app-LTL/src/tools/FormalReplayRunner.gd`
   - Provides the list of formal replay fixture paths.
   - Runs each replay fixture through ReplayProcess and returns result lists.
@@ -467,7 +839,7 @@ This file is the live implementation map for AI agents. It records each current 
   - Renders backpack, battlefield, status, reward tray, node select, and action button state.
   - Manages settings/shop panel visibility and input shortcuts.
   - Relays passive and base-shop purchase events from the shop panel to the controller.
-  - Docks the backpack beside the node map during node-select and applies the shell-wide interaction theme.
+  - Mounts the shared node-map scene into the dedicated node-select runtime page and re-docks the shared backpack between gameplay and node-select hosts.
   - Mediates combat VFX, screenshake, tooltip, discard zone, and log console behavior.
   - Propagates locale changes and volume settings to child UI components.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
@@ -492,6 +864,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Projects victory overlay visibility plus map/backpack stretch ratios and timer/action layout state.
 - `app-LTL/src/ui/presenters/RewardCeremonyPolicy.gd`
   - Defines reward ceremony step sequencing and interaction gate policy.
+- `app-LTL/src/ui/read_models/HudReadModel.gd`
+  - Projects combat HUD snapshots into now, next, reserve, hazard, repair, and aim display state.
+  - Builds queue-match and feedback flags for status-panel presentation without mutating runtime state.
+- `app-LTL/src/ui/read_models/FailureReadModel.gd`
+  - Projects defeat, repair-lock, empty-queue, and victory overlay copy into UI-safe dictionaries.
+  - Keeps failure overlays localized and decoupled from the controller and scene tree.
 - `app-LTL/src/ui/read_models/NodeMapReadModel.gd`
   - Projects node-map scene snapshots into card lists and selected state.
   - Aggregates route telemetry from node candidate lists.
@@ -539,10 +917,13 @@ This file is the live implementation map for AI agents. It records each current 
   - Strips implementation tags and size noise from item names/descriptions for display.
   - Converts enum, hint, rarity, and energy labels into locale-aware copy.
   - Resolves localized reward names, reward descriptions, and effect summaries from data contracts.
+- `app-LTL/src/ui/theme/LTLTheme.gd`
+  - Centralizes shared panel, overlay, queue, and art-loading theme helpers for M6 presentation surfaces.
+  - Provides style-box and texture helpers that let runtime UI layers share release-grade art direction.
 - `app-LTL/src/ui/VFXManager.gd`
   - Creates resonance beam and hit particle VFX.
   - Applies and recovers screenshake offsets during frame updates.
-  - Handles VFX color mapping and node cleanup.
+  - Handles VFX color mapping, accessibility-aware flash/particle reduction, and node cleanup.
 - `app-LTL/src/validation/RewardValidator.gd`
   - Validates required fields and value ranges for reward offers.
   - Collects duplicate ids and row-level errors across the reward table.
@@ -624,18 +1005,34 @@ This file is the live implementation map for AI agents. It records each current 
   - m2 main scene contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_backpack_ui_compile_contract.gd`
   - run backpack ui compile contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_combat_layout_containment_contract.gd`
+  - Verifies combat HUD, gameplay shell, and phase surfaces stay inside the runtime viewport containment budget.
+- `app-LTL/tests/run_defeat_page_contract.gd`
+  - Verifies the defeat-page shell copy, CTA flow, and return path stay aligned with the formal outcome-page contract.
+- `app-LTL/tests/run_i18n_localization_smoke.gd`
+  - Verifies the formal text catalog can switch Korean and English output without breaking live UI copy lookup.
 - `app-LTL/tests/run_main_layout_audit_contract.gd`
   - run main layout audit contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_main_start_flow_contract.gd`
-  - run main start flow contract verifies Godot contracts and regression behavior.
+  - Verifies the M6 page flow from character select through leviathan select, node select, combat, reward, boss clear, defeat, and return-to-character-select routes.
+- `app-LTL/tests/run_page_scene_mapping_contract.gd`
+  - Verifies each active page mockup, including the June 8 node-select crossroads shell, is backed by an instantiable Godot scene file.
 - `app-LTL/tests/run_main_viewport_probe.gd`
   - run main viewport probe verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_node_map_scene_smoke.gd`
   - run node map scene smoke verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_node_select_runtime_contract.gd`
+  - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
   - run pin miner layout probe verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_ceremony_contract.gd`
   - run reward ceremony contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_reward_handoff_contract.gd`
+  - Verifies reward-ceremony completion hands the live reward page off to tray review with the shared backpack docked into the workspace host.
+- `app-LTL/tests/run_reward_claim_board_contract.gd`
+  - Verifies reward-board deck, workspace, inspector, discard, and claim layout contracts under live selection changes.
+- `app-LTL/tests/run_reward_inspector_stability_contract.gd`
+  - Verifies reward-inspector rerenders do not resize the outer reward board during repeated card inspection.
 - `app-LTL/tests/run_reward_reveal_front_contract.gd`
   - run reward reveal front contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_cleanup_layout_contract.gd`
@@ -644,8 +1041,32 @@ This file is the live implementation map for AI agents. It records each current 
   - run start option contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_test_ui_read_models.gd`
   - run test ui read models verifies Godot contracts and regression behavior.
+- `app-LTL/tests/support/UiReadModelTestSuite.gd`
+  - Shared base suite for split UI read-model tests with common preload dependencies, assertion helpers, and reveal-cancel callbacks.
 - `app-LTL/tests/run_test_reward_contract.gd`
   - run test reward contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_test_node_routing_contract.gd`
+  - Executes the focused node-routing contract runner for the formal node-select and progression path surface.
+- `app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd`
+  - Covers shared backpack shell sizing, pin overlay geometry, and grid-layout contracts for the split UI read-model surface.
+- `app-LTL/tests/ui_read_models/ui_battlefield_hud_suite.gd`
+  - Covers battlefield layout, hazard presentation, HUD queue projection, and combat shell read-model contracts.
+- `app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd`
+  - Covers codex panel projection plus reward-board and reward-inspector read-model contracts.
+- `app-LTL/tests/ui_read_models/ui_defeat_visual_suite.gd`
+  - Covers defeat-page model and scene-shell contracts plus nearby failure-overlay expectations.
+- `app-LTL/tests/ui_read_models/ui_interaction_controller_suite.gd`
+  - Covers interaction cue, drag/drop, cooldown, targeting, and controller-side combat feedback contracts.
+- `app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd`
+  - Covers fullscreen overlay API and popup front-order contracts that sit outside the reward-reveal ceremony subset.
+- `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`
+  - Covers phase-layout visibility, node-select shell policy, and top-content/backpack sizing contracts.
+- `app-LTL/tests/ui_read_models/ui_reward_reveal_ceremony_suite.gd`
+  - Covers reward-reveal ceremony sequencing, presentation gating, anticipation beats, and rarity reveal behavior.
+- `app-LTL/tests/ui_read_models/ui_reward_reveal_layout_suite.gd`
+  - Covers reward-reveal safe-area, layout, and count-burst geometry contracts for the split suite surface.
+- `app-LTL/tests/ui_read_models/ui_text_tooltip_suite.gd`
+  - Covers localized tooltip, text-catalog, roster, and basic reward read-model text projection contracts.
 - `app-LTL/tests/test_backpack_vocab.gd`
   - test backpack vocab verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_combat_vocab.gd`
@@ -656,6 +1077,8 @@ This file is the live implementation map for AI agents. It records each current 
   - test node map scene smoke verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_node_routing_contract.gd`
   - test node routing contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_reward_claim_board_contract.gd`
+  - Verifies reward-board layout invariants and inspector-driven containment behavior at the focused test-file level.
 - `app-LTL/tests/test_start_option_contract.gd`
   - test start option contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_reward_contract.gd`
@@ -663,7 +1086,7 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/tests/test_release_content_contract.gd`
   - test release content contract verifies M4-M9 release tables, deterministic hazards, base unlocks, passive branches, and resource manifest paths.
 - `app-LTL/tests/test_ui_read_models.gd`
-  - test ui read models verifies Godot contracts and regression behavior.
+  - Thin aggregator that preserves the public UI read-model test runner surface while delegating real coverage to smaller leaf suites.
 - `design_review.md.resolved`
   - design review.md is a project component with a tracked responsibility.
 - `docs/architectural-gates/m2-refactoring-gate.md`
@@ -674,8 +1097,24 @@ This file is the live implementation map for AI agents. It records each current 
   - strict refactor gate blocks regression in newly extracted pure presenter policies.
 - `docs/architectural-gates/warning-refactor-gate.md`
   - warning refactor gate keeps legacy size and dynamic-control debt visible without blocking incremental work.
+- `docs/m6-manual-signoff-checklist.ko.md`
+  - Current Korean manual QA checklist and honest completion gate reminder for M6 sign-off.
 - `docs/request-ledgers/2026-06-02-refactor-harness-quality-gate.md`
   - Records request constraints, mutable scope, refactor dispositions, verification notes, and artifact ledger expectations for this broad refactor.
+- `docs/request-ledgers/2026-06-07-page-contract-harness-hardening.md`
+  - Records request constraints, preserved runtime invariants, mutable harness scope, and verification obligations for the page-contract gate hardening pass.
+- `docs/request-ledgers/2026-06-07-character-select-layout-containment.md`
+  - Records request constraints, containment evidence, and verification obligations for the live character-select layout hardening follow-up.
+- `docs/request-ledgers/2026-06-08-test-suite-size-gate.md`
+  - Records the split-test refactor scope, preserved runner contracts, and verification obligations for the new test-size gate.
+- `docs/request-ledgers/2026-06-09-source-map-request-mapping.md`
+  - Records the harness review and integration scope for turning the live source map into a practical request-analysis input.
+- `docs/request-ledgers/2026-06-09-source-map-drift-cleanup.md`
+  - Records the focused cleanup scope and verification obligations for bringing the live source map back in sync with the current formal tree.
+- `docs/request-ledgers/2026-06-09-transition-safety-gate.md`
+  - Records the transition-safety gate request scope, preserved page-contract invariants, and blocking verification obligations.
+- `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
+  - Records the two-phase scope, preserved runtime invariants, and verification obligations for the M6 gate-fix checkpoint plus runtime-separation surgery pass.
 - `docs/release-resource-needs.md`
   - release resource needs documents exact final-art and audio paths that can be populated after implementation.
 - `docs/release-visual-quality-upgrade-plan.md`
@@ -716,8 +1155,34 @@ This file is the live implementation map for AI agents. It records each current 
   - terrain panel before after documents project decisions, verification, or work history.
 - `docs/mockups/terrain-panel-before-after-render.png`
   - terrain panel before after render is a UI art resource or Godot import metadata file.
+- `docs/mockups/m6-run-start-wireframe.html`
+  - Release-wireframe mockup for the M6 run-start shell and onboarding composition.
+- `docs/mockups/m6-run-start-wireframe-cleanup-proposal.html`
+  - Comparison mockup that proposes the simplified run-start shell after copy and helper cleanup.
+- `docs/mockups/m6-run-start-wireframe-compare-2026-06-07.html`
+  - Review mockup that compares the June 7 run-start CTA direction against the prior wireframe shell.
+- `docs/mockups/2026-06-07-leviathan-cta-directions.html`
+  - Review mockup that compares June 7 leviathan looting-start CTA direction options in a browser-ready layout.
+- `docs/mockups/2026-06-07-leviathan-cta-directions-9up.html`
+  - Review mockup that lays out the nine-up June 7 leviathan CTA direction comparison board.
+- `docs/mockups/2026-06-07-leviathan-cta-duel-3-vs-6.html`
+  - Review mockup that contrasts the shortlisted third and sixth leviathan CTA directions side by side.
+- `docs/mockups/2026-06-08-node-select-crossroads-3up.html`
+  - Review mockup that compares the three-up June 8 node-select crossroads redesign directions.
+- `docs/mockups/m6-node-select-run-flow-wireframe.html`
+  - Release-wireframe mockup for the M6 route-selection page and leviathan flow presentation.
+- `docs/mockups/m6-reward-claim-wireframe.html`
+  - Release-wireframe mockup for the M6 reward-claim page and backpack/inspect interaction.
+- `docs/mockups/m6-event-node-wireframe.html`
+  - Release-wireframe mockup for the M6 event-node page and large narrative art treatment.
+- `docs/mockups/m6-boss-reward-pick-wireframe.html`
+  - Release-wireframe mockup for the M6 boss reward pick page and finale reward framing.
+- `docs/mockups/m6-defeat-page-wireframe.html`
+  - Release-wireframe mockup for the M6 defeat page and restart/escape presentation.
+- `docs/mockups/m6-leviathan-select-wireframe.html`
+  - Release-wireframe mockup for the M6 leviathan selection and contract briefing page.
 - `docs/source-map.md`
-  - Live implementation map that records current directories, files, and responsibilities.
+  - Live implementation map that records current directories, files, responsibilities, and harness request-triage lookup targets.
 - `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md`
   - 2026 05 20 m2 formal combat scene documents project decisions, verification, or work history.
 - `docs/superpowers/plans/2026-05-21-execution-stage-gate.md`
@@ -748,8 +1213,18 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the M6 UI and UX finalization plan and milestone sequencing.
 - `docs/superpowers/plans/2026-06-04-boss-aware-hazard-new-tile-spawn-plan.md`
   - Records the boss-aware hazard new-tile spawn plan and verification scope.
+- `docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md`
+  - Records the refreshed M6 UI and UX finalization plan after auditing the live codebase and reference direction.
 - `docs/superpowers/plans/2026-06-04-relic-obstacle-runtime-alignment-plan.md`
   - Records the relic obstacle runtime alignment plan for reward data, trigger vocabulary, and verification updates.
+- `docs/superpowers/plans/2026-06-05-phase-first-page-shell-wireframes-and-harness-plan.md`
+  - Records the M6 phase-first page shell wireframe rollout and harness-verification sequence.
+- `docs/superpowers/plans/2026-06-07-node-select-runtime-page-replacement-plan.md`
+  - Records the clean node-select runtime-page replacement plan, routing swap, verification sequence, and legacy deletion scope.
+- `docs/superpowers/plans/2026-06-07-leviathan-monument-condensed-implementation.md`
+  - Records the approved Monument Condensed leviathan CTA implementation sequence and verification notes.
+- `docs/superpowers/plans/2026-06-09-transition-safety-gate-implementation.md`
+  - Records the implementation plan for the transition-safety gate, its ledger wiring, and the expected verification sequence.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
@@ -764,10 +1239,22 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the artifact codex book design decisions, UI contract, and visual direction.
 - `docs/superpowers/specs/2026-06-03-m5-obstacle-relic-backpack-design.ko.md`
   - Records the M5 obstacle, relic, and backpack design rules and intended gameplay behavior.
+- `docs/superpowers/specs/2026-06-05-m6-wireframe-mockups-design.ko.md`
+  - Records the M6 page-by-page wireframe mockup design direction and review criteria.
+- `docs/superpowers/specs/2026-06-05-page-contract-harness-audit-design.ko.md`
+  - Records the harness-audit design contract for the phase-first page shell rollout.
+- `docs/superpowers/specs/2026-06-05-phase-first-page-shell-contract-design.ko.md`
+  - Records the phase-first page shell composition contract for run start, node flow, reward, event, and defeat pages.
+- `docs/superpowers/specs/2026-06-07-leviathan-looting-start-cta-directions-design.ko.md`
+  - Records the June 7 looting-start CTA direction options and final recommendation for the leviathan select page.
+- `docs/superpowers/specs/2026-06-08-node-select-crossroads-redesign-design.ko.md`
+  - Records the June 8 node-select crossroads redesign direction, stage gating, and containment expectations.
+- `docs/superpowers/specs/2026-06-09-transition-safety-gate-design.ko.md`
+  - Records the June 9 transition-safety gate design and the contract expectations for safer page and phase handoffs.
 - `docs/superpowers/specs/2026-06-04-tmp-work-temp-consolidation-design.md`
   - Records the temporary work and temp-file consolidation design decisions and guardrails.
 - `LTL-harness/00_AGENTS.md`
-  - 00 AGENTS provides an LTL harness entrypoint or agent rule set.
+  - 00 AGENTS defines the LTL harness agent rules, including request-analysis and source-map usage requirements.
 - `LTL-harness/docs/00_PRODUCT_SENSE.md`
   - 00 PRODUCT SENSE explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/00_tech-debt-tracker.md`
@@ -786,6 +1273,8 @@ This file is the live implementation map for AI agents. It records each current 
   - 09 DEPLOYMENT explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/10_OPERATIONS.md`
   - 10 OPERATIONS explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/transition-safety-gate.md`
+  - Documents the transition-safety gate contract, including allowed page and phase handoff sequences plus failure semantics.
 - `LTL-harness/docs/11_exec-plans/01_active/01_P0_test_harness_and_logs.md`
   - 01 P0 test harness and logs defines scope and verification for an active milestone.
 - `LTL-harness/docs/11_exec-plans/01_active/02_P1_headless_core_loop.md`
@@ -878,22 +1367,24 @@ This file is the live implementation map for AI agents. It records each current 
   - comment first enforcement explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/i18n-text-enforcement.md`
   - i18n text enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/page-contract-execution-gate.md`
+  - Defines the required mockup-to-scene, flow, hidden-surface, and gate-run rules for mockup-backed runtime pages.
 - `LTL-harness/docs/phase-gate-examples.md`
   - phase gate examples explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/post-m0-godot-enforcement.md`
   - post m0 godot enforcement explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/request-analysis-execution-gate.md`
-  - Explains the pre-edit and pre-complete request analysis gate for broad refactors and large change sets.
+  - Explains the source-map-first request analysis flow and the pre-edit and pre-complete gate for broad refactors and large change sets.
 - `LTL-harness/docs/templates/backup-manifest-template.md`
   - backup manifest template explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/templates/comment-gate-ledger-template.md`
   - comment gate ledger template explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/templates/request-constraint-ledger-template.md`
-  - Template for recording invariants, mutable scope, refactor/delete disposition, verification, and artifact ledger expectations.
+  - Template for recording invariants, mutable scope, source-map findings, refactor/delete disposition, verification, and artifact ledger expectations.
 - `LTL-harness/docs/templates/request-execution-checklist-template.md`
   - Template for running request analysis before edits and before completion.
 - `LTL-harness/README.md`
-  - README provides an LTL harness entrypoint or agent rule set.
+  - README introduces the harness workflow, including source-map verification and source-map-driven request triage.
 - `LTL-harness/tools/architectural-gate.ps1`
   - architectural gate validates manifest-driven size, dependency, dynamic creation, singleton layout ownership, and declarative layout-resource/content-invariant shared-layout rules.
 - `LTL-harness/tools/comment-first-gate.ps1`
@@ -906,24 +1397,40 @@ This file is the live implementation map for AI agents. It records each current 
   - ltl tech stack gate is a harness validation gate or automation tool.
 - `LTL-harness/tools/milestone-gate.ps1`
   - milestone gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/page-contract-gate.ps1`
+  - Runs the blocking page-contract verification suite that checks mockup-scene mapping, page semantics, runtime flow, and layout containment.
+- `LTL-harness/tools/page-contract-gate.tests.ps1`
+  - Covers missing-root and current-repository success scenarios for the page-contract gate script.
 - `LTL-harness/tools/request-analysis-gate.ps1`
-  - Validates request constraint ledgers before broad edits and before completion.
+  - Validates request constraint ledgers before broad edits and before completion, including required source-map findings.
 - `LTL-harness/tools/request-analysis-gate.tests.ps1`
-  - Covers valid and invalid request constraint ledger scenarios for the request analysis gate.
+  - Covers valid and invalid request constraint ledger scenarios, including missing source-map findings.
+- `LTL-harness/tools/request-source-map.ps1`
+  - Queries the live source map and prints request-scoped candidate files plus responsibility notes for faster source triage.
+- `LTL-harness/tools/request-source-map.tests.ps1`
+  - Covers keyword, path-prefix, zero-match, and missing-filter scenarios for the request source-map helper.
 - `LTL-harness/tools/source-map-gate.ps1`
   - source map gate is a harness validation gate or automation tool.
 - `LTL-harness/tools/source-map-gate.tests.ps1`
   - source map gate.tests is a harness validation gate or automation tool.
+- `LTL-harness/tools/test-size-gate.ps1`
+  - Enforces strict size caps on the split UI read-model suite surface and warns on untouched legacy oversized test files.
+- `LTL-harness/tools/test-size-gate.tests.ps1`
+  - Covers strict-pass, strict-fail, and warning-only scenarios for the test-size gate script.
+- `LTL-harness/tools/transition-safety-gate.ps1`
+  - Runs the blocking transition-safety verification that checks approved page and phase handoff paths before broader quality gates continue.
+- `LTL-harness/tools/transition-safety-gate.tests.ps1`
+  - Covers the transition-safety gate success path and ledger/root failure scenarios.
 - `tools/apply-agent-harness-phase-gate.ps1`
   - apply agent harness phase gate runs local verification or workflow automation.
 - `tools/godot-runner.ps1`
   - Normalizes Godot log paths, prepares the local Godot temp environment, and exposes shared PowerShell runner helpers.
 - `tools/run-compile-check.ps1`
-  - run compile check runs local verification or workflow automation.
+  - Runs the fast local verification path, including source-map, test-size, page-contract, and Godot smoke checks.
 - `tools/invoke-godot.ps1`
   - Provides the canonical local Godot CLI entry point that routes ad hoc logs into app-LTL/.tmp-godot-logs.
 - `tools/run-ltl-quality-gate.ps1`
-  - Runs the consolidated LTL source, harness, architecture, and Godot contract quality gate.
+  - Runs the consolidated LTL source, harness, request-analysis, test-size, architecture, and Godot contract quality gate.
 - `tools/godot-runner.tests.ps1`
   - Verifies the local Godot runner helper path normalization and temporary environment setup behavior.
 - `tools/watch-compile.ps1`
@@ -954,8 +1461,16 @@ This file is the live implementation map for AI agents. It records each current 
   - EnergyTempoBalance owns queue tempo constants, cooldown scaling, and terrain energy marker palette generation.
 - `app-LTL/tests/run_test_combat_vocab.gd`
   - run test combat vocab executes focused combat vocabulary regression tests.
-- `app-LTL/tests/tmp_codex_layout_probe.gd`
-  - tmp codex layout probe preserves a local layout inspection script for artifact codex debugging.
+- `app-LTL/tests/run_character_select_cleanup_contract.gd`
+  - run character select cleanup contract verifies the simplified character-select shell copy and hover-detail behavior.
+- `app-LTL/tests/run_node_select_visual_capture.gd`
+  - run node select visual capture now fails fast so headless dummy-renderer runs cannot be mistaken for real node-select QA evidence.
+- `app-LTL/tests/run_node_select_visual_hold.gd`
+  - run node select visual hold boots the live meta flow into node select and keeps the real Godot window open for manual capture.
+- `app-LTL/tests/run_leviathan_select_visual_hold.gd`
+  - run leviathan select visual hold boots the live meta flow into leviathan select and keeps the real Godot window open for manual capture.
+- `tools/capture-node-select-runtime.ps1`
+  - capture node select runtime launches the live Godot window, waits for the node-select hold script to settle, and writes the canonical QA screenshot artifact.
 - `docs/mockups/hazard-tile-approaches.html`
   - hazard tile approaches mockup records visual comparison options for hazard tile treatment.
 - `docs/mockups/hazard-tile-state-matrix.html`

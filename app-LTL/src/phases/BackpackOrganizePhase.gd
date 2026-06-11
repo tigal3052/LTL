@@ -34,6 +34,9 @@ static func _advance_after_organize(next_state: Dictionary) -> Dictionary:
 				int(next_state.get("candidateCount", 3)),
 				next_state.get("tuning", {})
 			)
+			next_state["routeHistory"] = []
+			next_state["lastNodeLabel"] = ""
+			next_state["selectedNode"] = {}
 		else:
 			next_state["phase"] = "run_complete"
 			next_state["candidates"] = []

@@ -16,6 +16,7 @@ class_name RewardRevealOverlay
 extends Control
 
 signal ceremony_step_changed(step: String)
+signal ceremony_finished
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const EXCAVATION_LID_TEXTURE = preload("res://resources/UI/tile/tile_panel_nobg.png")
@@ -46,7 +47,6 @@ var current_step := "count_tease"
 var current_reveal_index := 0
 var readable := false
 var source_lid_rect := Rect2()
-
  # 실행: expose a stable timing profile for tests and tuning.
 static func reveal_timing_profile() -> Dictionary:
 	return REVEAL_TIMING.duplicate()
@@ -901,12 +901,13 @@ func _finish_reveal() -> void:
 	timer = 0.0
 	confirm_pulse = 0.0
 	particles.clear()
-	var done := callback
 	callback = Callable()
 	step_callback = Callable()
 	queue_redraw()
-	if done.is_valid():
-		done.call()
+	call_deferred("_emit_ceremony_finished")
+
+func _emit_ceremony_finished() -> void:
+	ceremony_finished.emit("tray_review")
 
 func _current_reward() -> Dictionary:
 	if current_reveal_index < 0 or current_reveal_index >= sorted_rewards.size():
@@ -922,53 +923,33 @@ func _current_highlight_color() -> Color:
 	return Color(0.92, 0.74, 0.36, 1.0)
 
 func _count_tease_title() -> String:
-	if TextCatalogScript.locale() == "ko":
-		return "채굴 봉인이 떠오릅니다"
-	return "The excavation seal is rising"
+	return TextCatalogScript.t("reward_reveal.count_tease_title")
 
 func _count_tease_subtitle() -> String:
 	match str(presentation.get("quantityTeaseBand", "small")):
 		"standard":
-			if TextCatalogScript.locale() == "ko":
-				return "봉인 안쪽의 빛이 점점 빨라집니다"
-			return "Light is accelerating inside the seal"
+			return TextCatalogScript.t("reward_reveal.count_tease_subtitle.standard")
 		"jackpot":
-			if TextCatalogScript.locale() == "ko":
-				return "강한 공명이 타일을 완전히 감싸고 있습니다"
-			return "A heavy resonance is wrapping the tile"
+			return TextCatalogScript.t("reward_reveal.count_tease_subtitle.jackpot")
 		_:
-			if TextCatalogScript.locale() == "ko":
-				return "봉인된 지형 타일이 달아오르고 있습니다"
-			return "A sealed terrain lid is heating up"
+			return TextCatalogScript.t("reward_reveal.count_tease_subtitle.small")
 
 func _count_lock_title(reward_count: int) -> String:
-	if TextCatalogScript.locale() == "ko":
-		return "%d개의 유물이 튀어나왔습니다" % reward_count
-	return "%d artifacts burst out" % reward_count
+	return TextCatalogScript.t("reward_reveal.count_lock.title", [reward_count])
 
 func _count_lock_subtitle() -> String:
-	if TextCatalogScript.locale() == "ko":
-		return "이제 하나씩 발굴 결과를 확인하세요"
-	return "Inspect each find one by one"
+	return TextCatalogScript.t("reward_reveal.count_lock.subtitle")
 
 func _reveal_queue_title() -> String:
-	if TextCatalogScript.locale() == "ko":
-		return "발굴 결과 확인"
-	return "Inspecting the excavation"
+	return TextCatalogScript.t("reward_reveal.queue.title")
 
 func _reveal_queue_subtitle() -> String:
-	if TextCatalogScript.locale() == "ko":
-		return "낮은 등급부터 차례대로 개봉됩니다"
-	return "Rewards open from low rarity to high rarity"
+	return TextCatalogScript.t("reward_reveal.queue.subtitle")
 
 func _confirm_prompt_text() -> String:
 	if current_step == "reveal_queue" and current_reveal_index + 1 >= sorted_rewards.size():
-		if TextCatalogScript.locale() == "ko":
-			return "클릭하거나 Enter로 보상 정리 화면으로 이동"
-		return "Click or press Enter to return to the reward tray"
-	if TextCatalogScript.locale() == "ko":
-		return "클릭하거나 Enter로 다음 단계 진행"
-	return "Click or press Enter to continue"
+		return TextCatalogScript.t("reward_reveal.confirm.return_tray")
+	return TextCatalogScript.t("reward_reveal.confirm.continue")
 
 static func _hero_reward_index(reward_list: Array) -> int:
 	if reward_list.is_empty():

@@ -124,6 +124,16 @@ try {
       "-Mode", "pre-complete",
       "-RequireArtifactLedger"
     ) "REQUEST_ANALYSIS_GATE_OK"
+
+    Invoke-NativeStep "request analysis gate self-test" "powershell" @(
+      "-NoProfile", "-ExecutionPolicy", "Bypass",
+      "-File", "LTL-harness/tools/request-analysis-gate.tests.ps1"
+    ) "REQUEST_ANALYSIS_GATE_TESTS_OK"
+
+    Invoke-NativeStep "request source map self-test" "powershell" @(
+      "-NoProfile", "-ExecutionPolicy", "Bypass",
+      "-File", "LTL-harness/tools/request-source-map.tests.ps1"
+    ) "REQUEST_SOURCE_MAP_TESTS_OK"
   }
 
   Invoke-NativeStep "source map gate" "powershell" @(
@@ -136,6 +146,17 @@ try {
     "-NoProfile", "-ExecutionPolicy", "Bypass",
     "-File", "LTL-harness/tools/source-map-gate.tests.ps1"
   ) "SOURCE_MAP_GATE_TESTS_OK"
+
+  Invoke-NativeStep "test size gate" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/test-size-gate.ps1",
+    "-Root", $resolvedRoot
+  ) "TEST_SIZE_GATE_OK"
+
+  Invoke-NativeStep "test size gate self-test" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/test-size-gate.tests.ps1"
+  ) "TEST_SIZE_GATE_TESTS_OK"
 
   Invoke-NativeStep "formal stack gate" "powershell" @(
     "-NoProfile", "-ExecutionPolicy", "Bypass",
@@ -166,8 +187,27 @@ try {
     }
   }
 
+  Invoke-NativeStep "page contract gate" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/page-contract-gate.ps1",
+    "-Root", $resolvedRoot,
+    "-GodotPath", $GodotPath
+  ) "PAGE_CONTRACT_GATE_OK"
+
+  Invoke-NativeStep "transition safety gate" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/transition-safety-gate.ps1",
+    "-Root", $resolvedRoot,
+    "-GodotPath", $GodotPath,
+    "-Ledger", $RequestLedger
+  ) "TRANSITION_SAFETY_GATE_OK"
+
+  Invoke-NativeStep "transition safety gate self-test" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/transition-safety-gate.tests.ps1"
+  ) "TRANSITION_SAFETY_GATE_TESTS_OK"
+
   if (-not $SkipGodotContracts) {
-    Invoke-GodotScript "ui read model contracts" "tests/run_test_ui_read_models.gd" "UI_READ_MODEL_TESTS_OK"
     Invoke-GodotScript "reward ceremony contracts" "tests/run_reward_ceremony_contract.gd" "REWARD_CEREMONY_CONTRACT_OK"
     Invoke-GodotScript "full Godot contracts" "tests/godot_contract_runner.gd" "GODOT_CONTRACTS_OK"
   }

@@ -1,31 +1,21 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>M6 Reward Claim Wireframe</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg-0: #0b1015;
-      --bg-1: #111922;
-      --panel: rgba(15, 22, 30, 0.94);
-      --panel-2: rgba(10, 15, 20, 0.94);
-      --line: rgba(198, 217, 232, 0.12);
-      --line-strong: rgba(238, 200, 118, 0.28);
-      --text: #eef4f9;
-      --muted: #98a9b8;
-      --soft: #c8d6e1;
+      --line: rgba(208, 223, 236, 0.12);
+      --text: #eef4fa;
+      --muted: #95a6b7;
+      --soft: #c7d4df;
       --accent: #f0c56c;
-      --accent-2: #89c9ff;
-      --danger: #ffb2a3;
-      --safe: #9ddda4;
-      --shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -33,15 +23,14 @@
       color: var(--text);
       font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
       background:
-        radial-gradient(circle at 12% 12%, rgba(240, 197, 108, 0.10), transparent 22%),
-        radial-gradient(circle at 82% 18%, rgba(137, 201, 255, 0.10), transparent 24%),
-        radial-gradient(circle at 50% 112%, rgba(255, 255, 255, 0.04), transparent 28%),
-        linear-gradient(180deg, #111923 0%, #080c11 100%);
+        radial-gradient(circle at 12% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 82% 14%, rgba(104, 175, 255, 0.10), transparent 22%),
+        linear-gradient(180deg, #121a23 0%, #080c11 100%);
       padding: 28px 20px 36px;
     }
 
     .page {
-      width: min(1540px, 100%);
+      width: min(1480px, 100%);
       margin: 0 auto;
     }
 
@@ -53,43 +42,47 @@
       color: var(--accent);
       font-size: 12px;
       font-weight: 800;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
     }
 
     h1 {
       margin: 10px 0 10px;
       font-size: clamp(32px, 4vw, 48px);
-      line-height: 1.04;
+      line-height: 1.03;
       letter-spacing: -0.03em;
     }
 
     .subtitle {
       margin: 0;
-      max-width: 1040px;
+      max-width: 1020px;
       color: var(--muted);
       font-size: 16px;
-      line-height: 1.7;
+      line-height: 1.72;
     }
 
-    .board-shell {
+    .board-shell,
+    .notes,
+    .impl {
       border: 1px solid var(--line);
       border-radius: 28px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
-        rgba(6, 9, 13, 0.58);
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    .board-head {
+    .board-head,
+    .notes-head,
+    .impl-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       padding: 18px 22px;
       border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
     }
 
     .board-title {
@@ -101,10 +94,10 @@
     .board-title strong {
       font-size: 20px;
       line-height: 1.2;
-      letter-spacing: -0.01em;
     }
 
-    .board-title span {
+    .board-title span,
+    .hint {
       color: var(--muted);
       font-size: 13px;
       line-height: 1.55;
@@ -114,34 +107,47 @@
       padding: 10px 14px;
       border-radius: 999px;
       border: 1px solid rgba(240, 197, 108, 0.22);
-      background: rgba(52, 41, 18, 0.44);
-      color: #f8e4b4;
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.04em;
       white-space: nowrap;
     }
 
     .board {
       padding: 18px;
       background:
-        radial-gradient(circle at top right, rgba(255, 255, 255, 0.03), transparent 24%),
-        rgba(5, 8, 12, 0.34);
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent 22%),
+        rgba(5, 8, 12, 0.28);
+    }
+
+    .hidden-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .board-grid {
       display: grid;
-      grid-template-columns: minmax(280px, 0.9fr) minmax(520px, 1.3fr) minmax(320px, 1fr);
+      grid-template-columns: 0.86fr 1.1fr 0.98fr;
       gap: 16px;
       align-items: stretch;
     }
 
-    .zone {
-      min-width: 0;
+    .zone,
+    .discard-zone,
+    .confirm-zone,
+    .impl-card {
       border: 1px solid var(--line);
       border-radius: 24px;
-      overflow: hidden;
       background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+      overflow: hidden;
+    }
+
+    .zone {
+      display: flex;
+      flex-direction: column;
+      min-height: 658px;
     }
 
     .zone-head {
@@ -151,435 +157,349 @@
       gap: 12px;
       padding: 16px 16px 12px;
       border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
     }
 
     .zone-head h2 {
       margin: 0;
       font-size: 18px;
       line-height: 1.2;
-      letter-spacing: -0.01em;
     }
 
     .zone-head .hint {
-      color: var(--muted);
       font-size: 12px;
       white-space: nowrap;
     }
 
     .zone-body {
       padding: 16px;
-    }
-
-    .list-stack {
-      display: grid;
-      gap: 12px;
-    }
-
-    .relic-card {
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(10, 15, 20, 0.56);
-      padding: 14px;
-    }
-
-    .relic-card.selected {
-      border-color: rgba(240, 197, 108, 0.30);
-      background: linear-gradient(180deg, rgba(65, 50, 19, 0.42), rgba(12, 16, 21, 0.52));
-      box-shadow: inset 0 0 0 1px rgba(240, 197, 108, 0.08);
-    }
-
-    .relic-top {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
+      flex-direction: column;
+      flex: 1;
     }
 
-    .relic-thumb {
-      width: 46px;
-      height: 46px;
-      flex: 0 0 auto;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .reward-cloud {
+      position: relative;
+      flex: 1;
+      min-height: 420px;
+      border-radius: 22px;
+      border: 1px dashed rgba(255,255,255,0.16);
       background:
-        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.18), transparent 18%),
-        linear-gradient(160deg, rgba(242, 197, 109, 0.28), rgba(39, 51, 64, 0.94));
-      box-shadow: inset 0 -12px 16px rgba(0, 0, 0, 0.24);
+        radial-gradient(circle at 50% 14%, rgba(255,255,255,0.05), transparent 18%),
+        rgba(255,255,255,0.02);
+      overflow: hidden;
     }
 
-    .relic-name {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 800;
-      line-height: 1.25;
+    .float-card {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        linear-gradient(180deg, rgba(68, 92, 118, 0.95), rgba(25, 36, 48, 0.98));
+      box-shadow: 0 16px 28px rgba(0,0,0,0.28);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 10px;
+      color: var(--soft);
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+      animation: drift 5.6s ease-in-out infinite;
     }
 
-    .relic-meta {
-      margin: 4px 0 0;
-      color: var(--muted);
+    .float-card span {
       font-size: 12px;
       line-height: 1.45;
     }
 
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
+    .float-card::before {
+      content: "";
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.18);
+      display: block;
+      background: rgba(255,255,255,0.08);
+      box-shadow: inset 0 -10px 18px rgba(0,0,0,0.18);
+      margin-bottom: 8px;
     }
 
-    .chip {
-      padding: 6px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--soft);
-      font-size: 11px;
-      letter-spacing: 0.02em;
+    .float-card.a { top: 40px; left: 36px; animation-delay: 0s; }
+    .float-card.b { top: 188px; left: 122px; animation-delay: -1.7s; }
+    .float-card.c { top: 108px; right: 42px; animation-delay: -3.2s; }
+
+    @keyframes drift {
+      0%, 100% { transform: translateY(0px) rotate(-1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+
+    #reward-a:checked ~ .board-shell .float-card.a,
+    #reward-b:checked ~ .board-shell .float-card.b,
+    #reward-c:checked ~ .board-shell .float-card.c {
+      border-color: rgba(240,197,108,0.34);
+      box-shadow: 0 18px 30px rgba(0,0,0,0.30), 0 0 0 1px rgba(240,197,108,0.12);
+      transform: translateY(-4px) scale(1.03);
+    }
+
+    .cloud-note {
+      position: absolute;
+      left: 16px;
+      bottom: 14px;
+      right: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     .workspace {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 14px;
+      justify-content: flex-start;
     }
 
-    .backpack-stage {
-      border-radius: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background:
-        radial-gradient(circle at top, rgba(255,255,255,0.05), transparent 20%),
-        linear-gradient(180deg, rgba(15, 22, 29, 0.96), rgba(8, 11, 15, 0.98));
-      padding: 14px;
+    .drag-note {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      color: var(--soft);
+      line-height: 1.7;
+      font-size: 14px;
     }
 
     .backpack-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(6, 54px);
+      gap: 8px;
+      justify-content: start;
+      margin-top: auto;
     }
 
     .slot {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
       position: relative;
-      aspect-ratio: 1 / 1;
-      border-radius: 16px;
-      border: 1px dashed rgba(201, 219, 233, 0.18);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
-        rgba(255, 255, 255, 0.02);
-      overflow: hidden;
     }
 
-    .slot.filled {
-      border-style: solid;
-      border-color: rgba(240, 197, 108, 0.16);
-      background: linear-gradient(180deg, rgba(53, 65, 78, 0.84), rgba(22, 29, 36, 0.88));
-    }
-
-    .slot::before {
+    .slot.filled::after {
       content: "";
       position: absolute;
-      inset: 18% 22%;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.16);
-      opacity: 0.5;
+      inset: 8px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(132, 198, 255, 0.92), rgba(51, 99, 168, 0.92));
     }
 
-    .slot.filled::before {
-      inset: 16%;
-      background:
-        radial-gradient(circle at 50% 30%, rgba(255,255,255,0.42), rgba(255,255,255,0) 34%),
-        linear-gradient(180deg, rgba(143, 186, 222, 0.34), rgba(61, 78, 97, 0.88));
-      opacity: 1;
-      transform: rotate(0deg);
-    }
-
-    .slot-label {
+    .slot.foot-a::before,
+    .slot.foot-b::before,
+    .slot.foot-c::before {
+      content: "";
       position: absolute;
-      left: 8px;
-      right: 8px;
-      bottom: 8px;
-      color: rgba(230, 239, 246, 0.74);
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      text-align: center;
+      inset: 10px;
+      border-radius: 10px;
+      border: 2px dashed rgba(240,197,108,0.40);
     }
 
-    .workspace-copy {
-      padding: 14px 16px 16px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--soft);
-      line-height: 1.65;
-      font-size: 14px;
+    .slot.foot-b::before {
+      inset: 8px 16px 8px 8px;
     }
 
-    .workspace-copy strong {
-      color: #fff4d3;
-    }
-
-    .inspector {
-      position: relative;
-      border-radius: 24px;
-      border: 1px solid rgba(240, 197, 108, 0.34);
-      background:
-        linear-gradient(180deg, rgba(68, 54, 22, 0.34), rgba(11, 16, 21, 0.94)),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 236, 196, 0.06),
-        0 0 0 1px rgba(255, 236, 196, 0.04);
-    }
-
-    .inspector::after {
-      content: "고정 독서 표면";
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(240, 197, 108, 0.24);
-      background: rgba(44, 34, 14, 0.62);
-      color: #f8e4b4;
-      font-size: 11px;
-      letter-spacing: 0.04em;
+    .slot.foot-c::before {
+      inset: 16px 8px 8px 8px;
     }
 
     .inspector-stage {
       padding: 16px;
+      display: flex;
+      flex: 1;
     }
 
     .inspector-panel {
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      border: 1px solid rgba(240,197,108,0.22);
       background:
-        linear-gradient(180deg, rgba(255, 248, 226, 0.08), rgba(255, 255, 255, 0.02)),
-        rgba(10, 14, 18, 0.54);
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 244, 204, 0.04),
-        0 12px 24px rgba(0, 0, 0, 0.22);
-      padding: 16px;
+        linear-gradient(180deg, rgba(55, 43, 18, 0.34), rgba(14, 18, 24, 0.92)),
+        rgba(255,255,255,0.02);
+      padding: 18px;
+      min-height: 460px;
+      width: 100%;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
     }
 
     .inspector-kicker {
-      color: #ffe3a0;
+      color: var(--accent);
       font-size: 12px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .detail-state {
+      display: none;
+    }
+
+    #reward-a:checked ~ .board-shell .detail-a,
+    #reward-b:checked ~ .board-shell .detail-b,
+    #reward-c:checked ~ .board-shell .detail-c {
+      display: block;
+    }
+
+    .empty-state {
+      display: none;
+      color: var(--soft);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    #reward-none:checked ~ .board-shell .empty-state {
+      display: block;
     }
 
     .inspector-name {
-      margin: 0 0 8px;
-      font-size: 18px;
-      font-weight: 900;
-      line-height: 1.25;
-      color: #fff4dc;
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
     }
 
     .inspector-copy {
-      margin: 0;
-      color: #dbe6ee;
-      font-size: 13px;
-      line-height: 1.65;
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 15px;
     }
 
-    .inspector-grid {
+    .detail-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-top: 14px;
+      margin-bottom: 14px;
     }
 
-    .inspector-tile {
-      min-height: 92px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      background: rgba(255, 255, 255, 0.03);
+    .detail-tile {
       padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
     }
 
-    .inspector-tile span {
+    .detail-tile span {
       display: block;
+      margin-bottom: 6px;
       color: var(--muted);
-      font-size: 11px;
-      letter-spacing: 0.06em;
+      font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
 
-    .inspector-tile strong {
-      display: block;
-      margin-top: 8px;
+    .detail-tile strong {
       font-size: 14px;
-      line-height: 1.45;
-      color: var(--text);
-    }
-
-    .detail-strip {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .detail-line {
-      padding: 11px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      background: rgba(255, 255, 255, 0.03);
-      color: #dce7ef;
-      font-size: 13px;
       line-height: 1.55;
     }
 
-    .detail-line strong {
-      color: #fff4d1;
+    .footprint {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .footprint strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .footprint-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 28px);
+      gap: 6px;
+    }
+
+    .footprint-grid div {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .footprint-grid div.on {
+      background: linear-gradient(180deg, rgba(240,197,108,0.95), rgba(169,119,26,0.92));
     }
 
     .bottom-row {
-      margin-top: 16px;
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) 340px;
+      grid-template-columns: 1fr 0.72fr;
       gap: 16px;
-      align-items: stretch;
+      margin-top: 16px;
     }
 
     .discard-zone {
-      border: 1px dashed rgba(255, 178, 163, 0.38);
-      border-radius: 22px;
+      border-color: rgba(192, 72, 79, 0.42);
       background:
-        linear-gradient(180deg, rgba(53, 22, 19, 0.62), rgba(17, 11, 14, 0.92));
-      overflow: hidden;
+        linear-gradient(180deg, rgba(58, 20, 24, 0.96), rgba(22, 8, 10, 0.98));
     }
 
     .discard-zone .zone-head {
-      border-bottom-color: rgba(255, 178, 163, 0.22);
+      border-bottom-color: rgba(192, 72, 79, 0.26);
+      background: linear-gradient(180deg, rgba(120, 39, 46, 0.24), rgba(58, 20, 24, 0.10));
     }
 
-    .discard-zone .zone-head .hint {
-      color: #ffc2b7;
-    }
-
-    .discard-body {
+    .discard-body,
+    .confirm-body {
       padding: 16px;
-      display: grid;
-      gap: 12px;
+    }
+
+    .discard-card,
+    .cta-card {
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
     }
 
     .discard-card {
-      min-height: 150px;
-      border-radius: 18px;
-      border: 1px dashed rgba(255, 178, 163, 0.28);
+      border-color: rgba(217, 98, 107, 0.26);
       background:
-        radial-gradient(circle at center, rgba(255, 178, 163, 0.08), transparent 42%),
-        rgba(255, 255, 255, 0.02);
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 16px;
-      color: #ffd0c6;
+        linear-gradient(180deg, rgba(143, 35, 47, 0.22), rgba(47, 13, 17, 0.24)),
+        rgba(255,255,255,0.02);
     }
 
-    .discard-card strong {
+    .discard-card strong,
+    .cta-card strong {
       display: block;
       margin-bottom: 8px;
-      font-size: 17px;
-      color: #ffe1dc;
-    }
-
-    .discard-card span {
-      color: #f0b9af;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .confirm-zone {
-      border: 1px solid rgba(157, 221, 164, 0.22);
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(20, 44, 26, 0.72), rgba(10, 16, 12, 0.94));
-      overflow: hidden;
-      display: grid;
-      align-content: stretch;
-    }
-
-    .confirm-zone .zone-head {
-      border-bottom-color: rgba(157, 221, 164, 0.18);
-    }
-
-    .confirm-zone .zone-head .hint {
-      color: #b9efc1;
-    }
-
-    .confirm-body {
-      padding: 16px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .confirm-copy {
-      margin: 0;
-      color: #d9eadc;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 54px;
-      border-radius: 16px;
-      border: 1px solid rgba(157, 221, 164, 0.26);
-      background: linear-gradient(135deg, rgba(61, 127, 80, 0.92), rgba(36, 70, 46, 0.96));
-      color: #f4fff6;
       font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
     }
 
-    .cta-note {
+    .discard-card p,
+    .cta-card p {
       margin: 0;
-      color: #b9efc1;
-      font-size: 12px;
-      line-height: 1.5;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .cta-button {
+      margin-top: 12px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(240,197,108,0.26);
+      background: linear-gradient(180deg, rgba(98, 74, 25, 0.46), rgba(44, 31, 10, 0.60));
+      text-align: center;
+      font-weight: 700;
     }
 
     .notes,
     .impl {
       margin-top: 16px;
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
-      overflow: hidden;
-    }
-
-    .notes-head,
-    .impl-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-    }
-
-    .notes-head h2,
-    .impl-head h2 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.2;
-      letter-spacing: -0.01em;
-    }
-
-    .notes-head .hint,
-    .impl-head .hint {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
     }
 
     .notes-body,
@@ -589,54 +509,12 @@
 
     .annotation-list {
       margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      padding-left: 22px;
+      line-height: 1.75;
     }
 
-    .annotation-list li {
-      display: flex;
-      gap: 12px;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-      padding: 14px;
-      min-width: 0;
-    }
-
-    .annotation-index {
-      flex: 0 0 auto;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(240, 197, 108, 0.16);
-      border: 1px solid rgba(240, 197, 108, 0.22);
-      color: #ffe9b7;
-      font-weight: 800;
-    }
-
-    .annotation-text-wrap {
-      min-width: 0;
-    }
-
-    .annotation-title {
-      margin: 0 0 6px;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.45;
-      color: #fff5dc;
-    }
-
-    .annotation-text {
-      margin: 0;
-      color: var(--soft);
-      font-size: 12px;
-      line-height: 1.6;
+    .annotation-list li + li {
+      margin-top: 10px;
     }
 
     .impl-grid {
@@ -646,284 +524,221 @@
     }
 
     .impl-card {
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
       padding: 14px;
-      min-width: 0;
     }
 
-    .impl-card h3 {
-      margin: 0 0 10px;
-      font-size: 14px;
-      color: #fff4da;
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
     }
 
-    .impl-card ul {
+    .impl-card ul,
+    .impl-card p {
       margin: 0;
-      padding-left: 18px;
-      color: #d7e0e8;
-      font-size: 13px;
+      color: var(--soft);
       line-height: 1.7;
     }
 
-    .impl-card ul li + li {
-      margin-top: 4px;
+    .impl-card ul {
+      padding-left: 18px;
     }
 
-    .impl-card .tag {
-      display: inline-flex;
-      margin-bottom: 10px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #d7e0e8;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .impl-card.signals {
-      border-color: rgba(240, 197, 108, 0.18);
-      background: linear-gradient(180deg, rgba(64, 48, 17, 0.30), rgba(255, 255, 255, 0.03));
-    }
-
-    .impl-card.signals ul {
-      color: #f0ead7;
-    }
-
-    .impl-card.signals strong {
-      color: #ffe6ad;
-    }
-
-    .code-note {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(137, 201, 255, 0.16);
-      background: rgba(137, 201, 255, 0.05);
-      color: #dbeaf6;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 1320px) {
-      .board-grid {
+    @media (max-width: 1220px) {
+      .board-grid,
+      .bottom-row,
+      .impl-grid,
+      .detail-grid {
         grid-template-columns: 1fr;
-      }
-
-      .bottom-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 960px) {
-      .annotation-list,
-      .impl-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .backpack-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 18px 14px 24px;
-      }
-
-      .board {
-        padding: 14px;
-      }
-
-      .board-head,
-      .zone-head,
-      .notes-head,
-      .impl-head {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .backpack-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <section class="hero">
-      <div class="eyebrow">Reward Claim Wireframe</div>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">REWARD CLAIM</div>
       <h1>보상 수령 페이지</h1>
       <p class="subtitle">
-        수령한 유물을 왼쪽 보상 목록에서 고르고, 가운데 백팩 배치 공간에서 자리를 잡은 뒤,
-        오른쪽 <strong>상세 정보 패널</strong>로 효과와 시너지를 고정된 표면에서 읽는 구조를 보여준다.
-        툴팁 중심이 아니라 <strong>click-to-inspect</strong> 흐름으로 효과를 해석하고 배치를 결정하는 페이지다.
+        보상은 더 이상 왼쪽 목록을 읽는 방식이 아니라, 화면에 떠다니는 아이템 이미지를 보고 골라야 한다.
+        클릭은 오직 오른쪽 <strong>상세 정보 패널</strong>을 여는 용도이며, 실제 이동과 배치는 드래그로 처리된다는 메모를 분명히 남긴다.
       </p>
-    </section>
+    </header>
+
+    <input class="hidden-input" type="radio" name="reward" id="reward-none" checked>
+    <input class="hidden-input" type="radio" name="reward" id="reward-a">
+    <input class="hidden-input" type="radio" name="reward" id="reward-b">
+    <input class="hidden-input" type="radio" name="reward" id="reward-c">
 
     <section class="board-shell" aria-label="보상 수령 와이어프레임 보드">
       <div class="board-head">
         <div class="board-title">
-          <strong>문서 보드 - 수령 보상 판독 / 배치 / 확정 레이아웃</strong>
-          <span>reward_claim: 보상 이미지 목록, 백팩 그리드, 고정 인스펙터, 파기 영역, 확인 CTA를 한 화면에서 읽는 구조</span>
+          <strong>아이템 이미지 군집 + 고정 인스펙터</strong>
+          <span>reward_claim: 떠다니는 보상 이미지, 드래그 배치 공간, 클릭 전용 상세 패널, 분리된 파기 영역, 확인 CTA</span>
         </div>
-        <div class="mode-pill">fixed inspector / discard safety</div>
+        <div class="mode-pill">click to inspect / drag to place</div>
       </div>
 
       <div class="board">
         <div class="board-grid">
-          <section class="zone" aria-label="reward list">
+          <section class="zone" aria-label="보상 이미지 군집">
             <div class="zone-head">
-              <h2>보상 리스트</h2>
-              <div class="hint">selection source</div>
+              <h2>보상 이미지 군집</h2>
+              <div class="hint">floating item images</div>
             </div>
             <div class="zone-body">
-              <div class="list-stack">
-                <article class="relic-card selected">
-                  <div class="relic-top">
-                    <div class="relic-thumb" aria-hidden="true"></div>
-                    <div>
-                      <p class="relic-name">유물 A - 정화의 코어</p>
-                      <p class="relic-meta">클릭해서 상세 효과를 읽고, 백팩 배치 여부를 판단하는 첫 번째 선택지.</p>
-                    </div>
-                  </div>
-                  <div class="chips">
-                    <span class="chip">효과</span>
-                    <span class="chip">시너지</span>
-                    <span class="chip">희귀도</span>
-                  </div>
-                </article>
-                <article class="relic-card">
-                  <div class="relic-top">
-                    <div class="relic-thumb" aria-hidden="true"></div>
-                    <div>
-                      <p class="relic-name">유물 B - 균형의 칩</p>
-                      <p class="relic-meta">중간 슬롯 적합도와 조합 조건을 비교하는 보조 선택지.</p>
-                    </div>
-                  </div>
-                  <div class="chips">
-                    <span class="chip">공격</span>
-                    <span class="chip">방어</span>
-                  </div>
-                </article>
-                <article class="relic-card">
-                  <div class="relic-top">
-                    <div class="relic-thumb" aria-hidden="true"></div>
-                    <div>
-                      <p class="relic-name">유물 C - 잔향의 조각</p>
-                      <p class="relic-meta">파기 또는 보관을 비교하기 위한 추가 후보.</p>
-                    </div>
-                  </div>
-                  <div class="chips">
-                    <span class="chip">연계</span>
-                    <span class="chip">유지</span>
-                  </div>
-                </article>
+              <div class="reward-cloud">
+                <label class="float-card a" for="reward-a"><span>유물 A<br>정화의 코어</span></label>
+                <label class="float-card b" for="reward-b"><span>유물 B<br>균형의 칩</span></label>
+                <label class="float-card c" for="reward-c"><span>유물 C<br>잔향의 조각</span></label>
+                <div class="cloud-note">목록형 텍스트 대신 잔잔하게 떠다니는 보상 이미지를 먼저 보여주고, 클릭한 아이템만 오른쪽 패널에서 읽는다.</div>
               </div>
             </div>
           </section>
 
-          <section class="zone" aria-label="backpack workspace">
+          <section class="zone" aria-label="백팩 배치 공간">
             <div class="zone-head">
               <h2>백팩 배치 공간</h2>
-              <div class="hint">placement workspace / grid</div>
+              <div class="hint">drag placement workspace</div>
             </div>
             <div class="zone-body workspace">
-              <div class="backpack-stage">
-                <div class="backpack-grid" aria-label="backpack slots">
-                  <div class="slot filled"><div class="slot-label">slot 1</div></div>
-                  <div class="slot"><div class="slot-label">slot 2</div></div>
-                  <div class="slot filled"><div class="slot-label">slot 3</div></div>
-                  <div class="slot"><div class="slot-label">slot 4</div></div>
-                  <div class="slot"><div class="slot-label">slot 5</div></div>
-                  <div class="slot"><div class="slot-label">slot 6</div></div>
-                  <div class="slot filled"><div class="slot-label">slot 7</div></div>
-                  <div class="slot"><div class="slot-label">slot 8</div></div>
-                  <div class="slot"><div class="slot-label">slot 9</div></div>
-                  <div class="slot"><div class="slot-label">slot 10</div></div>
-                  <div class="slot"><div class="slot-label">slot 11</div></div>
-                  <div class="slot"><div class="slot-label">slot 12</div></div>
-                  <div class="slot"><div class="slot-label">slot 13</div></div>
-                  <div class="slot"><div class="slot-label">slot 14</div></div>
-                  <div class="slot"><div class="slot-label">slot 15</div></div>
-                </div>
+              <div class="drag-note">
+                클릭은 상세 정보 확인용이다. 실제 아이템 이동과 배치는 <strong>드래그</strong>로 처리되며,
+                기존의 클릭 앤 클릭 이동 방식은 이 페이지에서 제거된다.
               </div>
-              <div class="workspace-copy">
-                <strong>배치 판단은 이 공간에서 일어난다.</strong>
-                보상 리스트에서 고른 아이템을 읽은 뒤, 백팩 그리드의 여유 칸과 조합 방향을 비교한다.
-                이 표면은 전투 화면이 아니라 정리와 수령 확인을 위한 <strong>배치 워크스페이스</strong>다.
+              <div class="backpack-grid" aria-label="백팩 슬롯">
+                <div class="slot filled"></div>
+                <div class="slot filled"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot filled"></div>
+                <div class="slot foot-a"></div>
+                <div class="slot foot-a"></div>
+                <div class="slot"></div>
+                <div class="slot foot-b"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot foot-c"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
               </div>
             </div>
           </section>
 
-          <section class="zone inspector" aria-label="detail inspector">
+          <section class="zone" aria-label="상세 정보 패널">
             <div class="zone-head">
               <h2>상세 정보 패널</h2>
               <div class="hint">stable reading surface</div>
             </div>
             <div class="inspector-stage">
               <div class="inspector-panel">
-                <div class="inspector-kicker">click-to-inspect</div>
-                <p class="inspector-name">유물 A - 정화의 코어</p>
-                <p class="inspector-copy">
-                  클릭으로 선택한 유물의 효과, 조건, 시너지 후보를 고정 표면에서 계속 읽는다.
-                  hover-only tooltip이 아니라, 현재 비교 중인 아이템의 상태를 유지하면서 판독하는 읽기 패널이다.
-                </p>
-
-                <div class="inspector-grid" aria-label="detail summary">
-                  <div class="inspector-tile">
-                    <span>주 효과</span>
-                    <strong>배치 시 정화 계열 보너스 강화</strong>
-                  </div>
-                  <div class="inspector-tile">
-                    <span>시너지</span>
-                    <strong>인접 유물과 연결될 때 추가 슬롯 효율</strong>
-                  </div>
+                <div class="empty-state">
+                  <div class="inspector-kicker">click-to-inspect</div>
+                  아직 아무 아이템도 읽고 있지 않다.<br>
+                  왼쪽의 떠다니는 보상 이미지를 클릭하면 효과, 시너지, 백팩칸 배치 형태가 이 패널에 고정 표시된다.
                 </div>
 
-                <div class="detail-strip">
-                  <div class="detail-line"><strong>판독 방식:</strong> 마우스 오버보다 클릭 선택이 우선이다.</div>
-                  <div class="detail-line"><strong>상태 유지:</strong> 상세 정보는 오른쪽에 계속 노출되어 비교가 끊기지 않는다.</div>
-                  <div class="detail-line"><strong>안정성:</strong> 독서 표면은 스크롤이나 선택 변화에도 고정된 위치를 유지한다.</div>
-                </div>
+                <article class="detail-state detail-a">
+                  <div class="inspector-kicker">click-to-inspect</div>
+                  <p class="inspector-name">유물 A - 정화의 코어</p>
+                  <p class="inspector-copy">정화 계열 효과를 강화하고, 좁은 2칸 가로 배치가 필요한 선택지다. 클릭으로 이 상태를 열고, 배치는 드래그로 따로 진행한다.</p>
+                  <div class="detail-grid">
+                    <div class="detail-tile">
+                      <span>효과</span>
+                      <strong>정화 후 보급 효율 상승</strong>
+                    </div>
+                    <div class="detail-tile">
+                      <span>시너지</span>
+                      <strong>연속 정리 루틴과 궁합</strong>
+                    </div>
+                  </div>
+                  <div class="footprint">
+                    <strong>백팩칸 배치 형태</strong>
+                    <div class="footprint-grid">
+                      <div class="on"></div><div class="on"></div><div></div><div></div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="detail-state detail-b">
+                  <div class="inspector-kicker">click-to-inspect</div>
+                  <p class="inspector-name">유물 B - 균형의 칩</p>
+                  <p class="inspector-copy">공격/방어 균형형 유물. 세로형 칸을 차지하며, 상세 확인 후 드래그로 적합한 슬롯을 찾아 배치하는 흐름이다.</p>
+                  <div class="detail-grid">
+                    <div class="detail-tile">
+                      <span>효과</span>
+                      <strong>중간 안정성 보정</strong>
+                    </div>
+                    <div class="detail-tile">
+                      <span>시너지</span>
+                      <strong>혼합 조합의 빈칸 메움</strong>
+                    </div>
+                  </div>
+                  <div class="footprint">
+                    <strong>백팩칸 배치 형태</strong>
+                    <div class="footprint-grid">
+                      <div class="on"></div><div></div><div></div><div></div>
+                      <div class="on"></div><div></div><div></div><div></div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="detail-state detail-c">
+                  <div class="inspector-kicker">click-to-inspect</div>
+                  <p class="inspector-name">유물 C - 잔향의 조각</p>
+                  <p class="inspector-copy">연계용 보조 유물. 긴 설명보다 배치 형태와 연계 조건을 먼저 보고, 가치가 낮으면 아래 파기 영역으로 보내는 후보가 된다.</p>
+                  <div class="detail-grid">
+                    <div class="detail-tile">
+                      <span>효과</span>
+                      <strong>연계 발동 시 잔향 증가</strong>
+                    </div>
+                    <div class="detail-tile">
+                      <span>시너지</span>
+                      <strong>조합형 빌드에서 가치 상승</strong>
+                    </div>
+                  </div>
+                  <div class="footprint">
+                    <strong>백팩칸 배치 형태</strong>
+                    <div class="footprint-grid">
+                      <div></div><div class="on"></div><div></div><div></div>
+                      <div class="on"></div><div class="on"></div><div></div><div></div>
+                    </div>
+                  </div>
+                </article>
               </div>
             </div>
           </section>
         </div>
 
         <div class="bottom-row">
-          <section class="discard-zone" aria-label="discard zone">
+          <section class="discard-zone" aria-label="파기 영역">
             <div class="zone-head">
               <h2>파기 영역</h2>
-              <div class="hint">separated discard zone</div>
+              <div class="hint">discard safety</div>
             </div>
             <div class="discard-body">
               <div class="discard-card">
-                <div>
-                  <strong>드롭해서 파기</strong>
-                  <span>
-                    이 구역은 백팩과 떨어져 있어서 실수 삭제를 줄인다.
-                    선택한 유물은 여기로 명확히 이동해야만 파기 처리된다.
-                  </span>
-                </div>
+                <strong>별도 파기 구역</strong>
+                <p>백팩과 떨어진 바닥면으로 분리해 실수로 버리는 일을 줄인다. 의도적으로 끌어다 놓은 드래그만 받아들이는 구조를 메모한다.</p>
               </div>
             </div>
           </section>
 
-          <section class="confirm-zone" aria-label="confirm cta">
+          <section class="confirm-zone" aria-label="확인 CTA">
             <div class="zone-head">
               <h2>확인 CTA</h2>
-              <div class="hint">commit reward claim</div>
+              <div class="hint">claim confirm</div>
             </div>
             <div class="confirm-body">
-              <p class="confirm-copy">
-                배치와 파기 결정을 마친 다음, 최종 수령을 확정한다.
-                효과 해석과 자리 배치가 끝나야 다음 진행으로 넘어간다.
-              </p>
-              <div class="cta">보상 수령 확정</div>
-              <p class="cta-note">배치 결과와 상세 판독이 모두 끝난 뒤에만 눌러지는 최종 버튼.</p>
+              <div class="cta-card">
+                <strong>보상 수령 확정</strong>
+                <p>상세 읽기와 드래그 배치가 모두 끝난 뒤에만 누르는 마지막 단계다.</p>
+                <div class="cta-button">보상 수령 확정</div>
+              </div>
             </div>
           </section>
         </div>
@@ -933,38 +748,14 @@
     <section class="notes" aria-label="annotation notes">
       <div class="notes-head">
         <h2>번호 주석</h2>
-        <div class="hint">wireframe annotations</div>
+        <div class="hint">interaction-first annotations</div>
       </div>
       <div class="notes-body">
         <ol class="annotation-list">
-          <li>
-            <div class="annotation-index">1</div>
-            <div class="annotation-text-wrap">
-              <p class="annotation-title">보상 리스트는 선택의 출발점이다</p>
-              <p class="annotation-text">왼쪽 목록이 보상 이미지와 후보를 모아두는 source surface이며, 여기서 어떤 유물을 읽을지 결정한다.</p>
-            </div>
-          </li>
-          <li>
-            <div class="annotation-index">2</div>
-            <div class="annotation-text-wrap">
-              <p class="annotation-title">백팩은 배치를 시도하는 작업 공간이다</p>
-              <p class="annotation-text">가운데 그리드는 아이템을 잠시 놓아보고 자리, 조합, 남은 공간을 판단하는 placement workspace다.</p>
-            </div>
-          </li>
-          <li>
-            <div class="annotation-index">3</div>
-            <div class="annotation-text-wrap">
-              <p class="annotation-title">상세 정보는 오른쪽 고정 인스펙터에 남는다</p>
-              <p class="annotation-text">hover-only tooltip이 아니라 click-to-inspect 상태를 유지하는 stable reading surface로 구현한다.</p>
-            </div>
-          </li>
-          <li>
-            <div class="annotation-index">4</div>
-            <div class="annotation-text-wrap">
-              <p class="annotation-title">파기 영역은 백팩과 분리해 실수를 줄인다</p>
-              <p class="annotation-text">삭제 동작은 별도 구역으로 분리해 accidental deletion 가능성을 낮추고, 의도된 드롭만 받아들인다.</p>
-            </div>
-          </li>
+          <li>보상 리스트는 목록 텍스트가 아니라 떠다니는 이미지 군집으로 보여주고, 왼쪽이 선택의 출발점 역할만 맡는다.</li>
+          <li>가운데 백팩은 배치 실험을 하는 작업 공간이며, 클릭으로 이동하는 대신 드래그 배치를 전제로 한다.</li>
+          <li>상세 정보는 오른쪽 고정 패널에만 남기고, hover-only 툴팁 대신 click-to-inspect 흐름으로 읽게 만든다.</li>
+          <li>파기 영역은 백팩과 떨어진 별도 면으로 분리해 accidental deletion을 줄인다.</li>
         </ol>
       </div>
     </section>
@@ -977,37 +768,26 @@
       <div class="impl-body">
         <div class="impl-grid">
           <div class="impl-card">
-            <div class="tag">allowed overlays</div>
-            <h3>허용되는 오버레이</h3>
+            <strong>허용 오버레이</strong>
             <ul>
-              <li>설정</li>
+              <li>settings</li>
               <li>artifact codex</li>
             </ul>
           </div>
           <div class="impl-card">
-            <div class="tag">blocked structure</div>
-            <h3>숨겨야 하는 구조</h3>
+            <strong>숨겨야 하는 구조</strong>
             <ul>
               <li>battlefield</li>
               <li>node path row</li>
             </ul>
           </div>
-          <div class="impl-card signals">
-            <div class="tag">key implementation signs</div>
-            <h3>핵심 구현 신호</h3>
-            <ul>
-              <li><strong>click-to-inspect</strong>가 상세 패널을 구동한다.</li>
-              <li><strong>fixed inspector</strong>가 오른쪽에 항상 남는다.</li>
-              <li><strong>discard safety</strong>가 파기 영역을 분리한다.</li>
-            </ul>
-            <div class="code-note">
-              이 페이지는 수령 후 판독과 배치를 우선 읽히게 하는 wireframe contract이며,
-              전투 HUD나 이동 경로는 보이지 않도록 유지한다.
-            </div>
+          <div class="impl-card">
+            <strong>핵심 구현 신호</strong>
+            <p>click-to-inspect, fixed inspector, drag-to-place memo, discard safety</p>
           </div>
         </div>
       </div>
     </section>
-  </div>
+  </main>
 </body>
 </html>

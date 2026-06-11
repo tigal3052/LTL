@@ -38,6 +38,9 @@ class ViewStub:
 	func set_reward_text(_value: String) -> void:
 		pass
 
+	func render_reward_tray(_model: Dictionary) -> void:
+		pass
+
 	func update_discard_zone(_label_text: String, _is_active: bool) -> void:
 		pass
 
@@ -75,6 +78,7 @@ func test_stage_one_start_color_selection_enters_combat_without_terminating() ->
 	controller.growth_state = RunGrowthStateScript.new(controller.preview_controller.run.state.get("growth", {}))
 	controller.current_scene = controller.preview_controller.reset()
 	controller._load_backpack_items_into_inventory()
+	controller.page_override_id = ""
 
 	_assert_eq(str(controller.current_scene.get("phase", "")), "node_select", "starter-option contract begins on stage-one node_select")
 	controller._on_loadout_color_selected("blue")
@@ -108,6 +112,7 @@ func test_timer_shift_keeps_advancing_after_match_feedback() -> void:
 	controller.growth_state = RunGrowthStateScript.new(controller.preview_controller.run.state.get("growth", {}))
 	controller.current_scene = controller.preview_controller.reset()
 	controller._load_backpack_items_into_inventory()
+	controller.page_override_id = ""
 	controller._on_start_pressed()
 	var before_markers: Array = controller.preview_controller.run.state.get("combat", {}).get("battlefield", {}).get("weaknessMarkers", []).duplicate(true)
 	controller.current_scene = controller.preview_controller.fire("r0c0", controller._get_active_queue_color())
@@ -133,6 +138,7 @@ func test_combat_overlay_pause_blocks_shift_until_resume() -> void:
 	controller.growth_state = RunGrowthStateScript.new(controller.preview_controller.run.state.get("growth", {}))
 	controller.current_scene = controller.preview_controller.reset()
 	controller._load_backpack_items_into_inventory()
+	controller.page_override_id = ""
 	controller._on_start_pressed()
 	_assert(controller.has_method("_set_battle_pause_active"), "main controller runtime exposes battle-only overlay pause ownership helper")
 	if not controller.has_method("_set_battle_pause_active"):

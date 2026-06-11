@@ -380,3 +380,62 @@ Completed the `앵커 판` relic fix so its fifth weakness-hit trigger no longer
 ### Remaining Gaps
 
 - If design later decides Anchor Oathplate's all-energy weakness should also affect newly inserted tiles after a battlefield shift, that would need an additional persistence rule. The current fix preserves the state only on the tiles that were visible when the trigger fired, matching the prior "current board mutation" behavior.
+
+## M6 plan audit and refresh
+
+### Completion Summary
+
+Completed an M6 planning audit instead of runtime implementation. The key outcome is that the existing June 3 M6 plan is no longer safe to execute as-is because its baseline-recovery task and parts of its file map are stale against the live tree. A new June 4 refresh plan now captures the real file ownership, the actual green baseline, and a more detailed visual-production direction so M6 can move beyond prototype-grade presentation.
+
+### Actual Outputs
+
+- Confirmed the current baseline is already green:
+  - `MILESTONE_GATE_OK`
+  - `SOURCE_MAP_GATE_OK`
+  - `GODOT_CONTRACTS_OK`
+  - `UI_READ_MODEL_TESTS_OK`
+  - `REWARD_CEREMONY_CONTRACT_OK`
+- Added `docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md` as the current-source execution plan.
+- Updated `docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md` with a refresh note pointing to the new plan.
+- Updated `docs/source-map.md` and today's worklog plan/history so the new planning artifact is tracked.
+- Reframed M6 around the actual shipped UI stack:
+  - `Main.tscn`
+  - `MainControllerRuntime.gd`
+  - `MainViewRuntime.gd`
+  - `StatusPanelUI.gd`
+  - `BattlefieldUI.gd`
+  - `RewardRevealOverlay.gd`
+  - `NodeMapScene.gd`
+  - `BackpackUI.gd`
+- Added concrete reference-backed visual direction:
+  - combat readability from `Dome Keeper`, `FTL`, `Into the Breach`
+  - reward and route cadence from `Slay the Spire`, `Hades`, `Balatro`
+  - material and backpack language from `DREDGE`, `Dome Keeper`, `Backpack Hero`
+
+### Changes From Plan
+
+- Instead of editing the old M6 plan in place and risking loss of historical context, I kept it as a legacy plan and added a refreshed replacement file that is easier to compare against the live tree.
+- I did not modify the official harness milestone doc in this pass; the refresh plan now acts as the practical execution layer while the harness doc remains the milestone-intent layer.
+
+### Verification Results
+
+- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 12_M6_ui_ux_finalization.md -Root D:\Programming\ex_workspace\LootingTheLeviathan` -> `MILESTONE_GATE_OK`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` -> `SOURCE_MAP_GATE_OK`, `GODOT_CONTRACTS_OK`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -Headless -Script tests/run_test_ui_read_models.gd -Quit` -> `UI_READ_MODEL_TESTS_OK`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -Headless -Script tests/run_reward_ceremony_contract.gd -Quit` -> `REWARD_CEREMONY_CONTRACT_OK`
+- `git diff --check` -> no whitespace errors; only existing LF/CRLF warnings in docs
+
+### Blockers Or Unverified Areas
+
+- I did not run a dedicated screenshot capture matrix in this request because the task stopped at planning and audit.
+- `run_main_layout_audit_contract.gd` returned exit code `0` during spot-checking, but the tool output did not echo the success marker line in that one run, so I relied on the broader compile/contracts pass and the audit runner’s successful exit.
+
+### Remaining Gaps
+
+- The refreshed M6 plan still needs to be executed. The biggest open implementation items remain:
+  - explicit HUD cue projection
+  - non-color-only status language
+  - practical failure/retry explanation UI
+  - accessibility persistence beyond the current settings scope
+  - structured UI telemetry
+  - reusable theme and art-kit rollout

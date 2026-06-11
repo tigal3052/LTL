@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://src/scenes/pages/OutcomePage.tscn" id="1"]
+
+[node name="ClearPage" instance=ExtResource("1")]
+default_title = ""
+default_description = ""
+default_button_text = ""
+default_art_path = "res://resources/Leviathan/Leviathan_lizard.png"

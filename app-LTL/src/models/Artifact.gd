@@ -207,6 +207,7 @@ static func get_starter_loadout(start_color: String = "red") -> Array:
 	if base_drill == null:
 		base_drill = get_basic_drills()[0]
 	var drill = _starter_drill_from(base_drill)
+	var beacon_text := _starter_text_block(color, "beacon")
 	var beacon = Artifact.new({
 		"id": "starter_%s_beacon" % color,
 		"name": "%s Starter Beacon" % color.capitalize(),
@@ -218,7 +219,9 @@ static func get_starter_loadout(start_color: String = "red") -> Array:
 		"grade": "Basic",
 		"item_type": "beacon",
 		"beaconCooldownMod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(-4),
-		"beaconDamageMod": 0.4
+		"beaconDamageMod": 0.4,
+		"text": beacon_text,
+		"keyword": _starter_keyword(beacon_text)
 	})
 	return [drill, beacon]
 
@@ -227,6 +230,7 @@ static func get_starter_loadout_positions() -> Array:
 	return [Vector2(2, 2), Vector2(3, 2)]
 
 static func _starter_drill_from(base_drill: Artifact) -> Artifact:
+	var drill_text := _starter_text_block(base_drill.energy_type, "drill")
 	return Artifact.new({
 		"id": "starter_%s_drill" % base_drill.energy_type,
 		"name": "%s Starter Drill" % base_drill.energy_type.capitalize(),
@@ -236,7 +240,9 @@ static func _starter_drill_from(base_drill: Artifact) -> Artifact:
 		"nativeBaseCooldownTicks": base_drill.native_base_cooldown_ticks,
 		"damage": base_drill.base_damage,
 		"grade": base_drill.grade,
-		"item_type": "drill"
+		"item_type": "drill",
+		"text": drill_text,
+		"keyword": _starter_keyword(drill_text)
 	})
 
 static func _normalized_start_color(start_color: String) -> String:
@@ -244,3 +250,43 @@ static func _normalized_start_color(start_color: String) -> String:
 	if color in ["red", "blue", "purple", "green"]:
 		return color
 	return "red"
+
+static func _starter_text_block(color: String, item_type: String) -> Dictionary:
+	var color_key := _normalized_start_color(color)
+	var ko_color: String = {"red": "붉은", "blue": "푸른", "purple": "보라", "green": "초록"}.get(color_key, "붉은")
+	var en_color: String = {"red": "Red", "blue": "Blue", "purple": "Purple", "green": "Green"}.get(color_key, "Red")
+	var ko_identity: String = {
+		"red": "붉은 계열은 높은 피해와 과열 압박, 지연 후 폭발 보상을 다룹니다.",
+		"blue": "푸른 계열은 보호막 제어와 주기 안정화, 완만한 운영을 다룹니다.",
+		"purple": "보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다.",
+		"green": "초록 계열은 지속 화력, 회복 흐름, 넓은 점유를 다룹니다."
+	}.get(color_key, "붉은 계열은 높은 피해와 과열 압박, 지연 후 폭발 보상을 다룹니다.")
+	var en_identity: String = {
+		"red": "focuses on high damage, overheat pressure, and delay-for-burst rewards.",
+		"blue": "focuses on shield control, steady cooldown pacing, and safer sequencing.",
+		"purple": "focuses on marks, echoes, weakened terrain, and positional links.",
+		"green": "focuses on sustained output, recovery flow, and broad board coverage."
+	}.get(color_key, "focuses on high damage, overheat pressure, and delay-for-burst rewards.")
+	if item_type == "beacon":
+		return {
+			"name": {"ko": "%s 시작 비콘" % ko_color, "en": "%s Starter Beacon" % en_color},
+			"description": {
+				"ko": "%s 시작 비콘 · 기본 비콘 유물입니다. %s 인접한 같은 색 유물의 쿨타임과 피해 보정을 조절해 시작 드릴을 안정적으로 보조합니다." % [ko_color, ko_identity],
+				"en": "%s Starter Beacon · A basic beacon artifact that %s It supports adjacent same-color artifacts with cooldown and damage tuning for the opening backpack layout." % [en_color, en_identity]
+			}
+		}
+	return {
+		"name": {"ko": "%s 시작 드릴" % ko_color, "en": "%s Starter Drill" % en_color},
+		"description": {
+			"ko": "%s 시작 드릴 · 기본 드릴 유물입니다. %s 직접 공격과 같은 색 에너지 생산의 기본 흐름을 익히기 위한 시작 장비입니다." % [ko_color, ko_identity],
+			"en": "%s Starter Drill · A basic drill artifact that %s It teaches the opening loop of direct attacks and same-color energy generation." % [en_color, en_identity]
+		}
+	}
+
+static func _starter_keyword(text_block: Dictionary) -> String:
+	var descriptions = text_block.get("description", {})
+	if descriptions is Dictionary:
+		var english := str(descriptions.get("en", descriptions.get("ko", ""))).strip_edges()
+		if not english.is_empty():
+			return english
+	return ""

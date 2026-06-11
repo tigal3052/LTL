@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run Start Cleanup Proposal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a1016;
+      --panel: rgba(14, 21, 29, 0.96);
+      --panel-2: rgba(20, 29, 40, 0.94);
+      --line: rgba(196, 214, 232, 0.14);
+      --text: #eef4fa;
+      --muted: #95a8bb;
+      --soft: #c7d6e6;
+      --accent: #f0c56c;
+      --danger: #7e231f;
+      --danger-2: #611a18;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 16% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 82% 12%, rgba(92, 151, 255, 0.10), transparent 24%),
+        linear-gradient(180deg, #10171e 0%, #080d12 100%);
+      padding: 28px 24px 36px;
+    }
+
+    .page {
+      width: min(1520px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 0;
+      font-size: clamp(34px, 4vw, 48px);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+    }
+
+    .settings-btn {
+      margin-top: 4px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(240, 197, 108, 0.22);
+      background: rgba(31, 40, 52, 0.82);
+      color: var(--soft);
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+      box-shadow: var(--shadow);
+    }
+
+    .board-shell {
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(8, 11, 15, 0.84);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-top {
+      display: flex;
+      justify-content: flex-end;
+      padding: 18px 22px 8px;
+    }
+
+    .mode-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.22);
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .board {
+      padding: 14px 18px 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 0.58fr 1.48fr 0.94fr;
+      gap: 16px;
+      align-items: stretch;
+      min-height: 810px;
+    }
+
+    .zone {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.98), rgba(8, 12, 18, 0.98));
+      display: flex;
+      flex-direction: column;
+    }
+
+    .zone-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .zone-head h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .zone-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 14px;
+    }
+
+    .selector-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .selector-list::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .selector-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .choice-card,
+    .hero-stage,
+    .hero-copy,
+    .palette-card,
+    .bag-preview,
+    .cta-box,
+    .tooltip-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .choice-card {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+    }
+
+    .choice-card.selected {
+      border-color: rgba(240, 197, 108, 0.28);
+      background: linear-gradient(180deg, rgba(69, 54, 20, 0.34), rgba(12, 16, 21, 0.44));
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(180deg, #6d4e2a, #241a11);
+    }
+
+    .choice-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .choice-meta {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .hero-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      height: 100%;
+    }
+
+    .hero-stage {
+      min-height: 470px;
+      padding: 18px;
+      background:
+        linear-gradient(rgba(11, 16, 23, 0.20), rgba(11, 16, 23, 0.20)),
+        linear-gradient(180deg, rgba(52, 67, 84, 0.96), rgba(18, 25, 32, 0.98));
+    }
+
+    .stage-art {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 432px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.10);
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(8, 13, 18, 0.34), rgba(8, 13, 18, 0.34)),
+        linear-gradient(135deg, #5f7693 0%, #314355 42%, #1a2530 100%);
+    }
+
+    .stage-art::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 22% 28%, rgba(220, 235, 255, 0.30), transparent 18%),
+        linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(9,13,18,0.45) 100%);
+    }
+
+    .mountain {
+      position: absolute;
+      inset: auto 0 0;
+      height: 58%;
+      background:
+        linear-gradient(135deg, rgba(87, 104, 120, 0.94) 0%, rgba(53, 66, 79, 0.98) 48%, rgba(21, 31, 41, 0.98) 100%);
+      clip-path: polygon(0% 100%, 0% 68%, 12% 60%, 24% 66%, 38% 46%, 54% 54%, 66% 34%, 78% 44%, 100% 18%, 100% 100%);
+    }
+
+    .character {
+      position: absolute;
+      left: 50%;
+      bottom: 42px;
+      width: 118px;
+      height: 218px;
+      transform: translateX(-50%);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 50% 16%, #f1c39b 0 18%, transparent 19%),
+        linear-gradient(180deg, transparent 0 16%, #8d5a31 16% 31%, #cc9f73 31% 56%, #41372e 56% 84%, #1d2027 84% 100%);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.30);
+    }
+
+    .hero-copy {
+      flex: 1;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hero-name {
+      margin: 0;
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-sub {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.72;
+      font-size: 15px;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag-row span {
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--soft);
+      font-size: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .hero-summary {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      color: var(--soft);
+      line-height: 1.78;
+      font-size: 14px;
+    }
+
+    .prep-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .palette-card,
+    .bag-preview {
+      padding: 16px;
+    }
+
+    .relic-palette {
+      display: grid;
+      gap: 10px;
+    }
+
+    .relic-choice {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      display: grid;
+      gap: 8px;
+    }
+
+    .relic-choice.selected {
+      border-color: rgba(240, 197, 108, 0.22);
+      background: linear-gradient(180deg, rgba(63, 47, 19, 0.34), rgba(255,255,255,0.02));
+    }
+
+    .relic-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .relic-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: inset 0 -4px rgba(0,0,0,0.18);
+      flex: 0 0 auto;
+    }
+
+    .relic-choice p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.62;
+    }
+
+    .bag-preview {
+      display: grid;
+      gap: 14px;
+      min-height: 246px;
+    }
+
+    .bag-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.95fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .bag-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .bag-slot {
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bag-slot.relic::after,
+    .bag-slot.relic-secondary::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(222, 93, 103, 0.96), rgba(133, 40, 52, 0.96));
+      box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+    }
+
+    .bag-slot.relic-secondary::after {
+      background: linear-gradient(180deg, rgba(240,197,108,0.96), rgba(169,119,26,0.96));
+    }
+
+    .tooltip-card {
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(23, 31, 42, 0.96), rgba(14, 18, 27, 0.98));
+    }
+
+    .tooltip-card .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(240, 197, 108, 0.12);
+      color: #f4d99d;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .tooltip-card strong {
+      display: block;
+      margin: 12px 0 8px;
+      font-size: 16px;
+    }
+
+    .tooltip-card p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.68;
+    }
+
+    .tooltip-card ul {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.62;
+    }
+
+    .cta-box {
+      margin-top: auto;
+      padding: 12px;
+      border-color: rgba(240, 197, 108, 0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    }
+
+    .start-btn {
+      padding: 18px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(240, 197, 108, 0.26);
+      background: linear-gradient(180deg, rgba(126, 35, 31, 0.96), rgba(97, 26, 24, 0.96));
+      text-align: center;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+      box-shadow: inset 0 1px rgba(255,255,255,0.10);
+    }
+
+    .annotations {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(8, 11, 15, 0.72);
+      padding: 16px 18px;
+    }
+
+    .annotations h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .annotations ol {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .annotations li + li {
+      margin-top: 6px;
+    }
+
+    @media (max-width: 1180px) {
+      .grid {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .bag-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">RUN PREP BOARD</div>
+        <h1>캐릭터 선택</h1>
+      </div>
+      <div class="settings-btn">설정</div>
+    </header>
+
+    <section class="board-shell" aria-label="정리된 캐릭터 선택 페이지 제안">
+      <div class="board-top">
+        <div class="mode-pill">pre-combat setup only</div>
+      </div>
+      <div class="board">
+        <div class="grid">
+          <section class="zone" aria-label="캐릭터 목록">
+            <div class="zone-head">
+              <h2>캐릭터 선택</h2>
+            </div>
+            <div class="zone-body">
+              <div class="selector-list">
+                <article class="choice-card selected">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">심해 구명병</p>
+                    <p class="choice-meta">선택 중</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">조류 추적자</p>
+                    <p class="choice-meta">unlock candidate</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">현상 사서</p>
+                    <p class="choice-meta">support archetype</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">진향 채굴자</p>
+                    <p class="choice-meta">future slot</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">격벽 잠수사</p>
+                    <p class="choice-meta">future slot</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">압력 도해사</p>
+                    <p class="choice-meta">future slot</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="zone" aria-label="선택 캐릭터 스테이지">
+            <div class="zone-body">
+              <div class="hero-column">
+                <div class="hero-stage">
+                  <div class="stage-art">
+                    <div class="mountain"></div>
+                    <div class="character"></div>
+                  </div>
+                </div>
+
+                <div class="hero-copy">
+                  <p class="hero-name">심해 구명병</p>
+                  <p class="hero-sub">균열 전열 채굴사</p>
+                  <div class="tag-row">
+                    <span>전열 압박</span>
+                    <span>붉은 유물</span>
+                    <span>출항 직관형</span>
+                  </div>
+                  <div class="hero-summary">
+                    짧은 설명만 남기고, 메인 이미지를 페이지의 주인공으로 키운 상태입니다.
+                    상단 보조 문장과 패널 제목이 사라진 자리를 중앙 스테이지와 선택 요약이 가져가도록 정리합니다.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="zone" aria-label="유물 및 백팩 준비">
+            <div class="zone-body">
+              <div class="prep-column">
+                <div class="palette-card">
+                  <div class="relic-palette">
+                    <article class="relic-choice selected">
+                      <div class="relic-top">
+                        <div class="relic-swatch" style="background:#8d61db;"></div>
+                        <strong>보라 유물</strong>
+                      </div>
+                      <p>변칙과 증폭을 앞세우는 고위험 출발선.</p>
+                    </article>
+                    <article class="relic-choice">
+                      <div class="relic-top">
+                        <div class="relic-swatch" style="background:#4bc07d;"></div>
+                        <strong>녹색 유물</strong>
+                      </div>
+                      <p>회복과 유지력을 밀어주는 안정형 출발선.</p>
+                    </article>
+                  </div>
+                </div>
+
+                <div class="bag-preview">
+                  <div class="bag-layout">
+                    <div class="bag-grid" aria-label="확대된 시작 백팩 미리보기">
+                      <div class="bag-slot relic"></div>
+                      <div class="bag-slot relic-secondary"></div>
+                      <div class="bag-slot"></div>
+                      <div class="bag-slot"></div>
+                      <div class="bag-slot"></div>
+                      <div class="bag-slot"></div>
+                    </div>
+                    <aside class="tooltip-card" aria-label="유물 상세 정보 예시">
+                      <div class="badge">hover tooltip</div>
+                      <strong>심해 코어 잔향</strong>
+                      <p>마우스를 올리면 시작 유물의 핵심 효과와 배치 힌트를 바로 확인하는 패널입니다.</p>
+                      <ul>
+                        <li>전투 시작 시 압력 2 부여</li>
+                        <li>좌상단 슬롯에 둘 때 추가 증폭</li>
+                        <li>같은 계열 유물과 조합 보너스 표시</li>
+                      </ul>
+                    </aside>
+                  </div>
+                </div>
+
+                <div class="cta-box" aria-label="레비아탄 선택 이동">
+                  <div class="start-btn">레비아탄 선택으로</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="annotations">
+      <h3>반영 포인트</h3>
+      <ol>
+        <li>상단 제목은 `캐릭터 선택`으로 교체하고 설명 문장은 제거합니다.</li>
+        <li>설정 버튼을 우측 상단으로 끌어올려 현재 빈 구석을 살립니다.</li>
+        <li>보드 헤더 설명을 지우고 확보한 높이를 세 개 메인 패널로 재분배합니다.</li>
+        <li>중앙과 우측 패널의 보조 라벨은 모두 제거해 시선이 실제 콘텐츠로 바로 들어가게 합니다.</li>
+        <li>백팩 미리보기는 같은 면적을 유지하되 슬롯 크기를 키우고, hover 상세 패널을 붙입니다.</li>
+        <li>CTA는 버튼만 남기고 높이를 줄여, 위쪽 선택 UI가 더 많은 공간을 쓰게 합니다.</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>

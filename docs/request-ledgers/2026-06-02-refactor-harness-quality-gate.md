@@ -18,6 +18,22 @@
 - Pure UI presenter/policy helpers and delegating call sites under `app-LTL/src/ui/`.
 - Generic reusable harness files under `D:\Programming\ex_workspace\agent-harness`.
 
+## Source Map Findings
+
+- `docs/source-map.md`
+  - The live map already tracks the harness docs, gate scripts, and UI files touched by this refactor, so the request can stay scoped to tracked formal paths.
+- `LTL-harness/tools/source-map-gate.ps1`
+  - Generated-artifact exclusions and tracked formal-source expectations live here, which is directly relevant to this quality-gate cleanup.
+- `LTL-harness/tools/request-analysis-gate.ps1`
+  - Request-ledger validation is part of the same harness-hardening surface and should remain aligned with source-map obligations.
+- `tools/run-ltl-quality-gate.ps1`
+  - The consolidated quality gate is already mapped as the SoT orchestration point for the full harness verification pass.
+
+## Transition Safety Review
+
+- no transition impact
+- reason: this ledger governs broad harness aggregation and verification orchestration rather than a runtime page, overlay, or phase handoff implementation
+
 ## Refactor/Delete Disposition
 
 - Keep and refactor `RewardRevealOverlay.gd`, `BackpackUI.gd`, and `MainViewRuntime.gd`; do not delete active runtime scripts.

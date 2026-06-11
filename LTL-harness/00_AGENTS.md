@@ -206,20 +206,59 @@ app-LTL/
 
 - `docs/source-map.md` is the live implementation File Map and the single source-map body.
 - The harness source-map gate is `LTL-harness/tools/source-map-gate.ps1`.
+- Use `LTL-harness/tools/request-source-map.ps1 -MapPath docs/source-map.md -Keyword <term> [-PathPrefix <path>]` during request triage to turn the live file map into candidate source paths before broader manual search.
 - Run bootstrap only when the map is missing or intentionally regenerated from the current file tree.
 - Run normal verification before and after implementation work; missing files, stale entries, and placeholder responsibilities are blocking failures.
 - Do not split source-map content into a separate directory-only tree; path and responsibility must be read together in `File Map`.
 - Responsibility bullets must be written in English for AI readability, even when file paths or source documents use Korean names.
+- Do not relocate the live source map into a duplicate harness-only copy; the harness should consume the shared SoT at `docs/source-map.md`.
 - When implementation changes a file responsibility, keep one responsibility per bullet line under that file entry.
 - `tools/run-compile-check.ps1` includes this gate before Godot contract verification.
+
+## Test Size Gate Addendum
+
+- Test-size SoT for the current split surface is enforced by `LTL-harness/tools/test-size-gate.ps1`.
+- Formal test refactors should prefer small leaf suites over one broad catch-all file. When a test surface starts growing, split by behavior or ownership before adding more cases.
+- The current strict surface is:
+  - `app-LTL/tests/ui_read_models/*.gd`
+  - `app-LTL/tests/support/*.gd`
+  - `app-LTL/tests/test_ui_read_models.gd`
+  - `app-LTL/tests/run_test_ui_read_models.gd`
+- The gate blocks size regressions on the strict split surface and only warns on untouched legacy large test files.
+- Do not move new UI read-model cases back into the aggregator once the leaf suite structure exists; extend the relevant leaf file or create a new focused suite.
 
 ## Request Analysis Gate Addendum
 
 - Broad refactors, deletion reviews, visual QA tasks, and harness changes require a request constraint ledger under `docs/request-ledgers/`.
-- The ledger must include request summary, preserved invariants, mutable scope, refactor/delete disposition, verification checklist, and verification notes before completion.
+- The ledger must include request summary, preserved invariants, mutable scope, source map findings, refactor/delete disposition, verification checklist, and verification notes before completion.
+- Before mutable scope is finalized, run the source-map helper and record the mapped candidate files or explicit source-map observations in `Source Map Findings`.
 - Generated logs, screenshots, and reports must be written under ignored artifact paths and referenced from an artifact ledger.
 - Run `LTL-harness/tools/request-analysis-gate.ps1 -Ledger <ledger> -Mode pre-edit` before non-trivial edits when a ledger exists.
 - Run `LTL-harness/tools/request-analysis-gate.ps1 -Ledger <ledger> -Mode pre-complete -RequireArtifactLedger` before claiming broad refactor or harness work is complete.
+
+## Transition Safety Gate Addendum
+
+- Transition-safety SoT is `LTL-harness/docs/transition-safety-gate.md`.
+- Requests that change a runtime handoff must include `Transition Safety Review` in the request ledger before implementation is considered complete.
+- The section must either list touched transition ids plus entry owner, exit owner, shared handoff risks, runner paths, and expected markers, or explicitly declare `no transition impact`.
+- `LTL-harness/tools/transition-safety-gate.ps1` is the blocking verifier for transition coverage.
+- Registered transition proofs must emit their expected success markers; exit code-only success is not enough.
+- Crash-string output such as `CrashHandlerException`, `signal 11`, `SCRIPT ERROR`, `Parse Error`, and `Failed to load script` is always a blocking failure.
+- `tools/run-compile-check.ps1` and `tools/run-ltl-quality-gate.ps1` must keep the transition-safety gate in their blocking verification path.
+
+## Page Contract Gate Addendum
+
+- Page-contract build rules are defined by `LTL-harness/docs/page-contract-execution-gate.md`.
+- Every approved mockup-backed page must have exactly one runtime scene owner, one scene-mapping contract entry, and one runnable flow or page-audit contract.
+- Before implementing a mockup-backed page, declare whether it is `viewport_meta` or `phase_scoped`.
+- `viewport_meta` pages must live under a dedicated full-rect host that is owned outside gameplay-only shells such as `RootMargin/AppShell/ActivePhaseContainer`.
+- `phase_scoped` pages must live under the gameplay page host and prove they remain inside that host's bounds.
+- Meta pages must prove that legacy gameplay surfaces stay hidden while the page is active; a visible page shell alone is not enough.
+- When a runtime scene carries `pageId`, layout visibility must treat that page token as authoritative over the underlying gameplay `phase`.
+- Mockup parity is not enough: verification must prove `page -> owning host -> viewport` containment for every active page shell.
+- If a page uses stacked vertical lanes, oversized art stages, or fixed CTA cards, it must budget against the 1440x900 harness baseline and provide a scroll region or adaptive compaction before sign-off.
+- Page-shell work is not complete until `LTL-harness/tools/page-contract-gate.ps1` passes on the current workspace.
+- `tools/run-compile-check.ps1` and `tools/run-ltl-quality-gate.ps1` must keep the page-contract gate in their blocking verification path.
 
 ## Singleton Screen Layout Gate Addendum
 

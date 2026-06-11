@@ -1,0 +1,443 @@
+[gd_scene load_steps=2 format=3 uid="uid://cgafnc8icnx1b"]
+
+[ext_resource type="Script" path="res://src/scenes/pages/CharacterSelectPage.gd" id="1"]
+
+[node name="CharacterSelectPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0470588, 0.0666667, 0.0941176, 0.98)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VStack" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="HeroSection" type="VBoxContainer" parent="Margin/VStack"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Eyebrow" type="Label" parent="Margin/VStack/HeroSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="PageTitle" type="Label" parent="Margin/VStack/HeroSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+
+[node name="PageSubtitle" type="Label" parent="Margin/VStack/HeroSection"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="BoardShell" type="PanelContainer" parent="Margin/VStack"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ShellMargin" type="MarginContainer" parent="Margin/VStack/BoardShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="ShellVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="BoardHead" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BoardTitle" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BoardTitleLabel" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardTitle"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+
+[node name="BoardTitleHint" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardTitle"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="ModePill" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead"]
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoardBody" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="SelectorZone" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.52
+
+[node name="ZoneMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ZoneTitle" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/ZoneHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+
+[node name="ZoneHint" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/ZoneHead"]
+layout_mode = 2
+
+[node name="RosterScroll" type="ScrollContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox"]
+custom_minimum_size = Vector2(0, 420)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RosterList" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/RosterScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="FeatureZone" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.4
+
+[node name="ZoneMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ZoneTitle" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/ZoneHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+
+[node name="ZoneHint" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/ZoneHead"]
+layout_mode = 2
+
+[node name="HeroColumn" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="HeroStage" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="StageMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="HeroLayer" type="Control" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage/StageMargin"]
+custom_minimum_size = Vector2(0, 272)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="StageBackdrop" type="TextureRect" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage/StageMargin/HeroLayer"]
+self_modulate = Color(1, 1, 1, 0.28)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="HeroArt" type="TextureRect" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage/StageMargin/HeroLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = 20.0
+offset_right = -40.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CopyCard" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CopyMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="CopyVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeroName" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+
+[node name="HeroRole" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+
+[node name="HeroDescription" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="TagRow" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TagOneShell" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TagOne" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagOneShell"]
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TagTwoShell" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TagTwo" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagTwoShell"]
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TagThreeShell" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TagThree" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagThreeShell"]
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HeroSummary" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="PrepZone" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.02
+
+[node name="ZoneMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="ZoneVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ZoneHead" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ZoneTitle" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/ZoneHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+
+[node name="ZoneHint" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/ZoneHead"]
+layout_mode = 2
+
+[node name="PrepColumn" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="PaletteCard" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PaletteMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="PaletteVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard/PaletteMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PaletteTitle" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard/PaletteMargin/PaletteVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+
+[node name="PaletteScroll" type="ScrollContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard/PaletteMargin/PaletteVBox"]
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PaletteList" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard/PaletteMargin/PaletteVBox/PaletteScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BagCard" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BagMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="BagVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BagHead" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BagTitle" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/BagHead"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+
+[node name="BagHint" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/BagHead"]
+layout_mode = 2
+
+[node name="MiniBag" type="HBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Slot1" type="Panel" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+
+[node name="Slot2" type="Panel" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+
+[node name="Slot3" type="Panel" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+
+[node name="Slot4" type="Panel" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+
+[node name="Slot5" type="Panel" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag"]
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+
+[node name="CtaCard" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CtaMargin" type="MarginContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="CtaVBox" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="CtaLabel" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+
+[node name="CtaCopy" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="ContinueButton" type="Button" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+
+[node name="CtaFootnote" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox"]
+layout_mode = 2
+autowrap_mode = 3

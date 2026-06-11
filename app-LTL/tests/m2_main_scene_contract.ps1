@@ -30,7 +30,7 @@ foreach ($requiredMethod in @(
 foreach ($requiredNode in @(
     'node name="PhaseLabel"',
     'node name="StageLabel"',
-    'node name="NodeSelectPanel"',
+    'node name="ActivePhaseContainer"',
     'node name="BattlefieldGrid"',
     'node name="RewardPanel"',
     'node name="ActionBar"'
