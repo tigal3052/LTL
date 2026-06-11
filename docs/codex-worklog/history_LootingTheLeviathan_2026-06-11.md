@@ -160,3 +160,58 @@ docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 15:56:49
+
+<!-- codex-worklog-signature: 83f76d91ed48232eb78f903db361ba86066ce7baaac9c9defe9ada94985e2d79 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  LTL-harness/00_AGENTS.md
+M  LTL-harness/tools/i18n-text-gate.ps1
+A  app-LTL/resources/Leviathan/Leviathan_drake.png
+A  app-LTL/resources/Leviathan/Leviathan_drake.png.import
+A  app-LTL/resources/Leviathan/Leviathan_golem.png
+A  app-LTL/resources/Leviathan/Leviathan_golem.png.import
+A  app-LTL/resources/Leviathan/Leviathan_lizard.png
+A  app-LTL/resources/Leviathan/Leviathan_lizard.png.import
+A  app-LTL/resources/Leviathan/Leviathan_turtle.png
+A  app-LTL/resources/Leviathan/Leviathan_turtle.png.import
+R  app-LTL/resources/UI/charactor/background.png -> app-LTL/resources/charactor/background.png
+R  app-LTL/resources/UI/charactor/background.png.import -> app-LTL/resources/charactor/background.png.import
+R  app-LTL/resources/UI/charactor/charactor1.png -> app-LTL/resources/charactor/charactor1.png
+R  app-LTL/resources/UI/charactor/charactor1.png.import -> app-LTL/resources/charactor/charactor1.png.import
+R  app-LTL/resources/UI/charactor/charactor1_ss.png -> app-LTL/resources/charactor/charactor1_ss.png
+R  app-LTL/resources/UI/charactor/charactor1_ss.png.import -> app-LTL/resources/charactor/charactor1_ss.png.import
+R  app-LTL/resources/UI/charactor/charactor_backpack.png -> app-LTL/resources/charactor/charactor_backpack.png
+R  app-LTL/resources/UI/charactor/charactor_backpack.png.import -> app-LTL/resources/charactor/charactor_backpack.png.import
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_01.png
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_01.png.import
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_02.png
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_02.png.import
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_03.png
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_03.png.import
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_04.png
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_04.png.import
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_05.png
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_05.png.import
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_06.png
+A  app-LTL/resources/charactor/defeat/charactor1/defeat_06.png.import
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 15:57:15
+
+<!-- codex-worklog-signature: f76d4a007b2ac2af010a9afc2e66e40bc371d194d06eec5271a528368ea2c2aa -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
