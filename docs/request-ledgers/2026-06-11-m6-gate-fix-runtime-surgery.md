@@ -24,8 +24,16 @@
 - `docs/architectural-gates/warning-refactor-gate.md`
 - `docs/architectural-gates/release-blocking-gate.md`
 - `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
+- `docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md`
 - `tools/run-compile-check.ps1`
 - `tools/run-ltl-quality-gate.ps1`
+- `app-LTL/src/ui/RewardCardCloudHost.gd`
+- `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+- `LTL-harness/tools/request-analysis-gate.ps1`
+- `LTL-harness/tools/request-analysis-gate.tests.ps1`
+- `LTL-harness/docs/request-analysis-execution-gate.md`
+- `LTL-harness/docs/templates/request-constraint-ledger-template.md`
+- `LTL-harness/00_AGENTS.md`
 - `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
 - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md`
 - `docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md`
@@ -42,13 +50,34 @@
   - The live scene still enters through the thin facade scripts, so runtime ownership analysis must distinguish scene-entry wrappers from the large runtime implementation files they extend.
 - `app-LTL/src/ui/MainViewRuntime.gd`
   - The active runtime currently owns page registration, popup creation, theme projection, shared backpack sizing, reward-board layout, and overlay coordination, making it the main runtime-separation pressure point.
+- `app-LTL/src/ui/MainViewRuntime.gd`
+  - The reward-card cloud path still bundles button construction, floating placement, manual anchor persistence, and drag state inside the owner file, making it the next concrete execution-responsibility split target.
 - `app-LTL/src/MainControllerRuntime.gd`
   - The active runtime controller remains the orchestration owner for page flow and combat/reward transitions, so any size-gate hardening must point at this file rather than only the thin facade.
+- `LTL-harness/tools/request-analysis-gate.ps1`
+  - The current pre-edit gate requires source-map and transition coverage, but it does not yet force a responsibility-unit decomposition plan when an oversized runtime owner is in mutable scope.
 
 ## Transition Safety Review
 
 - no transition impact for the initial source-map plus gate-fix checkpoint
 - transition review will be updated if the later runtime-separation pass changes page routing, ownership boundaries, or reward/combat handoff behavior
+- no transition impact for the reward-card-cloud split and pre-edit harness tightening
+- entry owner: `MainViewRuntime.gd` reward-tray runtime shell
+- exit owner: unchanged reward-tray runtime shell
+- shared risks: reward drag/drop semantics, reward-board containment, and harness false-green planning gaps
+- proofs: `tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`; `LTL-harness/tools/request-analysis-gate.tests.ps1` -> `REQUEST_ANALYSIS_GATE_TESTS_OK`
+
+## Execution Responsibility Units
+
+- Owner: `app-LTL/src/ui/MainViewRuntime.gd`
+  - Unit: reward-card cloud render and drag runtime
+  - Extract to: `app-LTL/src/ui/RewardCardCloudHost.gd`
+  - Keep in owner: top-level input dispatch, signal emission, reward-tray composition, and reward/backpack handoff decisions
+  - Focused proof: `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+- Owner: `LTL-harness/tools/request-analysis-gate.ps1`
+  - Unit: runtime-owner pre-edit responsibility validation
+  - Keep in gate: section presence and owner-path coverage checks
+  - Focused proof: `LTL-harness/tools/request-analysis-gate.tests.ps1`
 
 ## Refactor/Delete Disposition
 
@@ -59,6 +88,8 @@
 ## Verification Checklist
 
 - Run `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/request-analysis-gate.ps1 -Ledger docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md -Mode pre-edit`
+- Run `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/request-analysis-gate.tests.ps1`
+- Run `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd`
 - Run `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/source-map-gate.ps1 -Root .`
 - Run `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_main_layout_audit_contract.gd`
 - Run `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/page-contract-gate.ps1 -Root . -GodotPath D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe`
@@ -101,6 +132,15 @@
   - `MainViewRuntime.gd` delegates safe shell, active-phase, top-content, and reward backpack height-budget math to `AppShellLayoutPolicy.gd`.
   - `tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK` after the new extractions.
   - `MainViewRuntime.gd` measured 2375 lines after the page-model and app-shell policy extraction wave, down from the previous committed 2480-line state.
+- Reward-card cloud extraction and implementation-stage harness wave now also confirms:
+  - `MainViewRuntime.gd` delegates reward-card cloud button construction, floating layout, drag clamping, and manual-anchor persistence to `RewardCardCloudHost.gd`.
+  - `request-analysis-gate.ps1` now blocks `pre-edit` when `Mutable Scope` touches a strict runtime owner from `docs/architectural-gates/runtime-size-gate.md` without an `Execution Responsibility Units` owner block that names the unit, extraction target, and focused proof.
+  - `tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
+  - `LTL-harness/tools/request-analysis-gate.ps1 -Ledger docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md -Mode pre-edit` -> `REQUEST_ANALYSIS_GATE_OK`
+  - `LTL-harness/tools/request-analysis-gate.tests.ps1` -> `REQUEST_ANALYSIS_GATE_TESTS_OK`
+  - `tools/run-compile-check.ps1` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `tools/run-ltl-quality-gate.ps1` -> `LTL_QUALITY_GATE_OK`
+  - `MainViewRuntime.gd` measured 2191 lines at the last committed baseline and 2178 lines after the reward-card cloud extraction wave.
 
 ## Artifact Ledger
 

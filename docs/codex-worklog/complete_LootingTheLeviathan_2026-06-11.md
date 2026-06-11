@@ -5,7 +5,7 @@ Date: 2026-06-11
 
 ## Completion Summary
 
-The requested two-phase pass is now complete. Phase 1 restored an honest M6 checkpoint by fixing the false-green page-contract path, repairing source-map drift, and compacting the live runtime layout until the canonical viewport contracts passed again. Phase 2 then added a dedicated runtime-size gate that watches the real active runtime owners instead of only the thin scene-entry facades, integrated that gate into both compile and quality entrypoints, and wrote the follow-up runtime-owner versus legacy-residue separation plan.
+The requested runtime-owner reduction and recurrence-prevention wave is now complete for the current target slice. After the earlier M6 checkpoint recovery and runtime-size gate rollout, this pass extracted the live reward-card cloud execution path out of `MainViewRuntime.gd`, added focused tests for the new helper, and tightened the pre-edit harness so touching a monitored runtime owner now requires a concrete execution-responsibility split plan before implementation starts.
 
 ## Actual Outputs
 
@@ -37,10 +37,24 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
   - Focused TDD coverage for the extracted page-scene model helper.
 - `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
   - Focused TDD coverage for the extracted app-shell layout policy.
+- `app-LTL/src/ui/RewardCardCloudHost.gd`
+  - Extracted reward-card cloud helper that now owns reward-card button construction, floating placement, drag-clamp math, and manual-anchor persistence.
+- `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+  - Focused TDD coverage for the extracted reward-card cloud helper.
+- `LTL-harness/tools/request-analysis-gate.ps1`
+  - Hardened pre-edit gate that now requires `Execution Responsibility Units` for monitored runtime-owner edits.
+- `LTL-harness/tools/request-analysis-gate.tests.ps1`
+  - Self-test coverage for missing runtime-owner unit plans and missing extraction-target coverage.
+- `LTL-harness/docs/request-analysis-execution-gate.md`
+  - Updated source-of-truth docs for the new runtime-owner pre-edit planning requirement.
+- `LTL-harness/docs/templates/request-constraint-ledger-template.md`
+  - Updated ledger template with the `Execution Responsibility Units` section structure.
 
 ## Verification Results
 
 - `SOURCE_MAP_GATE_OK`
+- `REQUEST_ANALYSIS_GATE_OK`
+- `REQUEST_ANALYSIS_GATE_TESTS_OK`
 - `RUNTIME_SIZE_GATE_TESTS_OK`
 - `RUNTIME_SIZE_GATE_OK`
 - `MAIN_LAYOUT_AUDIT_CONTRACT_OK`
@@ -54,6 +68,6 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
 ## Remaining Gaps
 
 - The large active owners are now frozen by cap, but they are not yet physically split; that next extraction order is documented in `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`.
-- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2375 lines even after moving reward-board layout math, popup-overlay host logic, page-scene registry logic, page-scene model projection, and app-shell layout budget logic into dedicated helpers.
+- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2178 lines even after moving reward-board layout math, popup-overlay host logic, page-scene registry logic, page-scene model projection, app-shell layout budget logic, and reward-card cloud runtime into dedicated helpers.
 - The existing test-size gate still warns on several untouched legacy top-level test files such as `test_reward_contract.gd`, `run_main_layout_audit_contract.gd`, and `godot_contract_runner.gd`.
 - Godot contract runs still print RID/resource leak warnings even though the formal success markers are green.

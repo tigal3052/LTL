@@ -848,6 +848,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Centralizes page-scene copy and wireframe model projection for gameplay, node-select, clear, and defeat page shells.
 - `app-LTL/src/ui/PopupOverlayHost.gd`
   - Centralizes popup and fullscreen overlay front-order plus pause-overlay visibility projection for MainViewRuntime.
+- `app-LTL/src/ui/RewardCardCloudHost.gd`
+  - Centralizes reward-card cloud button construction, floating layout, drag clamping, and manual-anchor persistence helpers for MainViewRuntime.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
   - Renders and controls the full-screen reward reveal ceremony overlay.
 - `app-LTL/src/ui/legacy/LegacyRewardRevealOverlay.gd`
@@ -1075,6 +1077,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Covers the extracted page-scene model builder for node-select copy and defeat wireframe projection contracts.
 - `app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd`
   - Covers the extracted page-scene registry helper for host building, meta-versus-gameplay mounting, and active-page visibility toggling.
+- `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+  - Covers the extracted reward-card cloud helper for drag-bound clamping and live-card manual-anchor retention.
 - `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`
   - Covers phase-layout visibility, node-select shell policy, and top-content/backpack sizing contracts.
 - `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`
@@ -1247,6 +1251,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the implementation plan for the transition-safety gate, its ledger wiring, and the expected verification sequence.
 - `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
   - Records the active-runtime versus legacy-residue separation plan, extraction waves, and harness guardrails for future refactors.
+- `docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md`
+  - Records the reward-card cloud extraction wave and the pre-edit runtime-owner responsibility gate hardening plan.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`

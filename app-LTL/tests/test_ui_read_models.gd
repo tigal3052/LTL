@@ -11,6 +11,7 @@ const UIAppShellLayoutPolicySuiteScript = preload("res://tests/ui_read_models/ui
 const UIOverlayContractSuiteScript = preload("res://tests/ui_read_models/ui_overlay_contract_suite.gd")
 const UIPageSceneModelBuilderSuiteScript = preload("res://tests/ui_read_models/ui_page_scene_model_builder_suite.gd")
 const UIPageSceneRegistrySuiteScript = preload("res://tests/ui_read_models/ui_page_scene_registry_suite.gd")
+const UIRewardCardCloudHostSuiteScript = preload("res://tests/ui_read_models/ui_reward_card_cloud_host_suite.gd")
 const UIRewardBoardLayoutPolicySuiteScript = preload("res://tests/ui_read_models/ui_reward_board_layout_policy_suite.gd")
 const UIRewardRevealCeremonySuiteScript = preload("res://tests/ui_read_models/ui_reward_reveal_ceremony_suite.gd")
 const UIRewardRevealLayoutSuiteScript = preload("res://tests/ui_read_models/ui_reward_reveal_layout_suite.gd")
@@ -31,6 +32,7 @@ func run_all_tests() -> Dictionary:
 		UIOverlayContractSuiteScript,
 		UIPageSceneModelBuilderSuiteScript,
 		UIPageSceneRegistrySuiteScript,
+		UIRewardCardCloudHostSuiteScript,
 		UIRewardBoardLayoutPolicySuiteScript,
 		UIRewardRevealCeremonySuiteScript,
 		UIRewardRevealLayoutSuiteScript

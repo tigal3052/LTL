@@ -232,6 +232,7 @@ app-LTL/
 - Broad refactors, deletion reviews, visual QA tasks, and harness changes require a request constraint ledger under `docs/request-ledgers/`.
 - The ledger must include request summary, preserved invariants, mutable scope, source map findings, refactor/delete disposition, verification checklist, and verification notes before completion.
 - Before mutable scope is finalized, run the source-map helper and record the mapped candidate files or explicit source-map observations in `Source Map Findings`.
+- If `Mutable Scope` touches a monitored runtime owner from `docs/architectural-gates/runtime-size-gate.md`, add `Execution Responsibility Units` before editing and map that owner to a concrete unit, extraction target, and focused proof.
 - Generated logs, screenshots, and reports must be written under ignored artifact paths and referenced from an artifact ledger.
 - Run `LTL-harness/tools/request-analysis-gate.ps1 -Ledger <ledger> -Mode pre-edit` before non-trivial edits when a ledger exists.
 - Run `LTL-harness/tools/request-analysis-gate.ps1 -Ledger <ledger> -Mode pre-complete -RequireArtifactLedger` before claiming broad refactor or harness work is complete.

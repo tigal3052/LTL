@@ -933,3 +933,278 @@ M  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:44:26
+
+<!-- codex-worklog-signature: 90ed0f99d672a272be7688cfd3b3c955eec53e642a889f29d6949b78b0bbdabd -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:44:50
+
+<!-- codex-worklog-signature: 6ea7bb7738b5e3e138a154d33c5f916492c57f92e5481a5f9ca07d65acdf5d99 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:45:49
+
+<!-- codex-worklog-signature: 615c242cb68a7503d4e5f2cb78426ca7621ae883e46a6cc1f6be259e85a823cb -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:46:38
+
+<!-- codex-worklog-signature: 40658424da40dc5c2ef0bfdfa2dd3be2eafd19f6c64582a07dbed66ff1e6e7a8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 Reward Cloud Runtime + Pre-Edit Gate Wave
+
+- Intent: Finish the next live `MainViewRuntime.gd` split by removing the reward-card cloud runtime from the owner and harden the harness so monitored runtime-owner edits must declare execution-responsibility units before implementation starts.
+- Files or areas touched:
+  - `app-LTL/src/ui/MainViewRuntime.gd`
+  - `app-LTL/src/ui/RewardCardCloudHost.gd`
+  - `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+  - `app-LTL/tests/test_ui_read_models.gd`
+  - `LTL-harness/tools/request-analysis-gate.ps1`
+  - `LTL-harness/tools/request-analysis-gate.tests.ps1`
+  - `LTL-harness/docs/request-analysis-execution-gate.md`
+  - `LTL-harness/docs/templates/request-constraint-ledger-template.md`
+  - `LTL-harness/00_AGENTS.md`
+  - `docs/source-map.md`
+  - `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
+- Summary:
+  - Added `RewardCardCloudHost.gd` as the dedicated reward-card cloud helper and delegated card construction, floating layout, drag-clamp math, and manual-anchor persistence out of `MainViewRuntime.gd`.
+  - Preserved the owner-facing wrapper surface in `MainViewRuntime.gd` so existing interaction contracts still call the same methods while the extracted helper owns the implementation body.
+  - Added focused UI read-model coverage for the new helper and expanded the request-analysis gate self-test to fail when a monitored runtime owner is touched without a concrete extraction target.
+  - Hardened the pre-edit request-analysis gate so strict runtime-owner paths from `docs/architectural-gates/runtime-size-gate.md` now require an `Execution Responsibility Units` section with owner, unit, extraction target, and focused proof coverage.
+  - Updated source-map and harness docs so the new helper, focused test, and execution-stage planning rule are all discoverable by the blocking gates.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'LTL-harness/tools/request-analysis-gate.ps1' -Ledger 'docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md' -Mode pre-edit` -> `REQUEST_ANALYSIS_GATE_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'LTL-harness/tools/request-analysis-gate.tests.ps1'` -> `REQUEST_ANALYSIS_GATE_TESTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/invoke-godot.ps1' -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/run-compile-check.ps1'` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/run-ltl-quality-gate.ps1' -GodotPath 'D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe'` -> `LTL_QUALITY_GATE_OK`
+
+## 2026-06-11 17:55:05
+
+<!-- codex-worklog-signature: 445858cc73c65bd1b15bc9e9094a5bf5e52a60042654d17af4e17a9531cf3c8e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/src/ui/RewardCardCloudHost.gd
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:55:15
+
+<!-- codex-worklog-signature: f7268c1833920590f2df5bd5748ab235c5945428ef0b6f39161fb3102442b1eb -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/src/ui/RewardCardCloudHost.gd
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:56:41
+
+<!-- codex-worklog-signature: df5dd80f4a5b6bd89fed1461a81b8f1e40d2d1775d5dc8cb95343e3c862b0aad -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+?? app-LTL/src/ui/RewardCardCloudHost.gd
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:58:28
+
+<!-- codex-worklog-signature: da8a694f0c9c3b9ea801e989c3262ef3960a05fd1ff99f84b96c6794f4b122af -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M LTL-harness/00_AGENTS.md
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+?? app-LTL/src/ui/RewardCardCloudHost.gd
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:02:06
+
+<!-- codex-worklog-signature: 94a57fba19a6ebcb2ca5ba09fe0750c97b060f076719d52570a54edde5c6d9ea -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M LTL-harness/00_AGENTS.md
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+?? app-LTL/src/ui/RewardCardCloudHost.gd
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:05:06
+
+<!-- codex-worklog-signature: 6281e938c778e99fb999e488d6826652a97fff473602f2ac8f5f9059182d1233 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M LTL-harness/00_AGENTS.md
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+?? app-LTL/src/ui/RewardCardCloudHost.gd
+?? app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+?? docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:06:51
+
+<!-- codex-worklog-signature: a7f41bb64e1d0d34308b260cc97efcca2f347fd7049df1f69315c7deb77fe756 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  LTL-harness/00_AGENTS.md
+A  LTL-harness/docs/request-analysis-execution-gate.md
+A  LTL-harness/docs/templates/request-constraint-ledger-template.md
+A  LTL-harness/tools/request-analysis-gate.ps1
+A  LTL-harness/tools/request-analysis-gate.tests.ps1
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/RewardCardCloudHost.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+A  docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:07:12
+
+<!-- codex-worklog-signature: 4aef7351e2408941c97619e7818600526e27ef3cb476e1cb95a3a95d2a7eadfd -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  LTL-harness/00_AGENTS.md
+A  LTL-harness/docs/request-analysis-execution-gate.md
+A  LTL-harness/docs/templates/request-constraint-ledger-template.md
+A  LTL-harness/tools/request-analysis-gate.ps1
+A  LTL-harness/tools/request-analysis-gate.tests.ps1
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/RewardCardCloudHost.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+A  docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
