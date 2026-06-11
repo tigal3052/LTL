@@ -215,3 +215,218 @@ A  app-LTL/resources/charactor/defeat/charactor1/defeat_06.png.import
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 15:58:21
+
+<!-- codex-worklog-signature: c94fe8793d6ad212da8f78a29741ad4cb460a9d4d2f90fde2c17ddad2adc299a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:04:26
+
+<!-- codex-worklog-signature: b11839618e864cd4fcf290516713fcf6874d0353f336d8ce5d7a0cc78a268c09 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: unknown
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:06:23
+
+<!-- codex-worklog-signature: 42382f0f87cd71247687b9e973bb6d117ef58cc9877ae3f08deb5fadb0474e5e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:09:28
+
+- Intent: Finish the post-checkpoint surgery by turning active runtime file-size expectations into a real blocking harness rule and by writing the next separation plan.
+- Files or areas touched:
+```text
+LTL-harness/tools/runtime-size-gate.ps1
+LTL-harness/tools/runtime-size-gate.tests.ps1
+docs/architectural-gates/runtime-size-gate.md
+docs/architectural-gates/warning-refactor-gate.md
+docs/architectural-gates/release-blocking-gate.md
+docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+docs/source-map.md
+tools/run-compile-check.ps1
+tools/run-ltl-quality-gate.ps1
+docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+```
+- Summary: Added a dedicated runtime-size gate that freezes the real active runtime owners close to their current baseline while keeping runtime page, presenter, and read-model leaves under small hard caps. Clarified that the older warning and release architectural manifests are no longer the source of truth for runtime-size enforcement, allowed the legitimately dynamic `StatusPanelUI.gd` creation path inside the warning gate, and wrote a focused runtime-owner versus legacy-residue separation plan for the next refactor wave.
+- Plan impact: The harness-hardening part of the user request is now complete without pretending the large owner files are already refactored; the next extraction order and target boundaries are documented explicitly.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/runtime-size-gate.tests.ps1` -> `RUNTIME_SIZE_GATE_TESTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-ltl-quality-gate.ps1 -RequestLedger docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md -ArtifactLedger docs/artifact-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md` -> `LTL_QUALITY_GATE_OK`
+
+<!-- codex-worklog-signature: 5312d0595710be1f9cead0103f4d34ad970ae0dd0aec0b520fc9b20407815c20 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? docs/architectural-gates/runtime-size-gate.md
+?? docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:09:52
+
+<!-- codex-worklog-signature: 1dacf66dc7d49ab0a5a06c65d0bb00e48acf92e1a4dfa8548aa1ca52d62a0790 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/architectural-gates/release-blocking-gate.md
+ M docs/architectural-gates/warning-refactor-gate.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M tools/run-compile-check.ps1
+ M tools/run-ltl-quality-gate.ps1
+?? docs/architectural-gates/runtime-size-gate.md
+?? docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:10:23
+
+<!-- codex-worklog-signature: 680332b849cf00829d63d700481a76075fd54ed2fe94bd4208f7b5046343c94b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/architectural-gates/release-blocking-gate.md
+ M docs/architectural-gates/warning-refactor-gate.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M tools/run-compile-check.ps1
+ M tools/run-ltl-quality-gate.ps1
+?? docs/architectural-gates/runtime-size-gate.md
+?? docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:13:04
+
+<!-- codex-worklog-signature: 485e25b9429d660404ac8a582f3e6b283fdc4e3cf1a6ba18de3726e4bfaf7665 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/architectural-gates/release-blocking-gate.md
+ M docs/architectural-gates/warning-refactor-gate.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M tools/run-compile-check.ps1
+ M tools/run-ltl-quality-gate.ps1
+?? docs/architectural-gates/runtime-size-gate.md
+?? docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:16:27
+
+<!-- codex-worklog-signature: 00417bd38cfaccfa3717dc657b198a925773c770fdc23d225d551b237a25820d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/architectural-gates/release-blocking-gate.md
+ M docs/architectural-gates/warning-refactor-gate.md
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M tools/run-compile-check.ps1
+ M tools/run-ltl-quality-gate.ps1
+?? docs/architectural-gates/runtime-size-gate.md
+?? docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:18:07
+
+<!-- codex-worklog-signature: 5af77099fee14ec0b08454b8c04b7e5df833a918b722be5a316a15720b07b576 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  docs/architectural-gates/release-blocking-gate.md
+A  docs/architectural-gates/runtime-size-gate.md
+M  docs/architectural-gates/warning-refactor-gate.md
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+A  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+M  tools/run-compile-check.ps1
+M  tools/run-ltl-quality-gate.ps1
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:24:34
+
+<!-- codex-worklog-signature: dd1626a2a3b62be5a4609a6d812797c92a33a782826ad30a3d2dfa3bbadd6d1a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+A  LTL-harness/tools/runtime-size-gate.ps1
+A  LTL-harness/tools/runtime-size-gate.tests.ps1
+M  docs/architectural-gates/release-blocking-gate.md
+A  docs/architectural-gates/runtime-size-gate.md
+M  docs/architectural-gates/warning-refactor-gate.md
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+A  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+M  tools/run-compile-check.ps1
+M  tools/run-ltl-quality-gate.ps1
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.

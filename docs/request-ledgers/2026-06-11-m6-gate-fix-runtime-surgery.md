@@ -18,6 +18,14 @@
 
 - `docs/source-map.md`
 - `LTL-harness/tools/page-contract-gate.ps1`
+- `LTL-harness/tools/runtime-size-gate.ps1`
+- `LTL-harness/tools/runtime-size-gate.tests.ps1`
+- `docs/architectural-gates/runtime-size-gate.md`
+- `docs/architectural-gates/warning-refactor-gate.md`
+- `docs/architectural-gates/release-blocking-gate.md`
+- `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
+- `tools/run-compile-check.ps1`
+- `tools/run-ltl-quality-gate.ps1`
 - `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
 - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md`
 - `docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md`
@@ -69,6 +77,16 @@
   - `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
 - The checkpoint is now honest again: the page-contract gate no longer false-passes the layout audit, and the live runtime has been adjusted so the revealed layout regressions pass formal containment.
 - Phase-2 work is still pending for oversized active-runtime separation and blocking harness coverage.
+- Phase-2 implementation will freeze the current oversized runtime owners with dedicated caps, enforce sub-600 line page leaves, and document which legacy/archive surfaces are intentionally excluded from active-runtime ownership.
+- Phase-2 root cause is now confirmed:
+  - the older size manifests primarily watched thin scene-entry facades or single-directory view globs
+  - the real active owners such as `MainControllerRuntime.gd`, `MainViewRuntime.gd`, `NodeMapScene.gd`, and `NodeSelectRuntimePage.gd` were not under a dedicated blocking cap
+- Phase-2 verification now also confirms:
+  - `RUNTIME_SIZE_GATE_TESTS_OK`
+  - `RUNTIME_SIZE_GATE_OK`
+  - `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `LTL_QUALITY_GATE_OK`
+- The recurrence-prevention fix is now active in both `tools/run-compile-check.ps1` and `tools/run-ltl-quality-gate.ps1`, so future growth on the monitored active owners fails before completion.
 
 ## Artifact Ledger
 

@@ -1091,12 +1091,14 @@ This file is the live implementation map for AI agents. It records each current 
   - design review.md is a project component with a tracked responsibility.
 - `docs/architectural-gates/m2-refactoring-gate.md`
   - m2 refactoring gate documents project decisions, verification, or work history.
+- `docs/architectural-gates/runtime-size-gate.md`
+  - runtime size gate declares the hard caps that freeze active runtime owners near baseline and keep extracted runtime leaves within a few hundred lines.
 - `docs/architectural-gates/release-blocking-gate.md`
-  - release blocking gate defines release-risk checks for removed assets, UI/runtime size, and singleton node-map layout ownership.
+  - release blocking gate defines release-risk checks for removed assets, singleton node-map layout ownership, and other release-blocking regressions outside the dedicated runtime-size gate.
 - `docs/architectural-gates/strict-refactor-gate.md`
   - strict refactor gate blocks regression in newly extracted pure presenter policies.
 - `docs/architectural-gates/warning-refactor-gate.md`
-  - warning refactor gate keeps legacy size and dynamic-control debt visible without blocking incremental work.
+  - warning refactor gate keeps facade-entry drift and dynamic-control debt visible without claiming ownership of the large active runtime caps.
 - `docs/m6-manual-signoff-checklist.ko.md`
   - Current Korean manual QA checklist and honest completion gate reminder for M6 sign-off.
 - `docs/request-ledgers/2026-06-02-refactor-harness-quality-gate.md`
@@ -1225,6 +1227,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the approved Monument Condensed leviathan CTA implementation sequence and verification notes.
 - `docs/superpowers/plans/2026-06-09-transition-safety-gate-implementation.md`
   - Records the implementation plan for the transition-safety gate, its ledger wiring, and the expected verification sequence.
+- `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
+  - Records the active-runtime versus legacy-residue separation plan, extraction waves, and harness guardrails for future refactors.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
@@ -1413,6 +1417,10 @@ This file is the live implementation map for AI agents. It records each current 
   - source map gate is a harness validation gate or automation tool.
 - `LTL-harness/tools/source-map-gate.tests.ps1`
   - source map gate.tests is a harness validation gate or automation tool.
+- `LTL-harness/tools/runtime-size-gate.ps1`
+  - Enforces hard caps on the real active runtime owner files and on small extracted runtime leaf surfaces.
+- `LTL-harness/tools/runtime-size-gate.tests.ps1`
+  - Covers exact-owner caps, glob-based leaf caps, override behavior, and missing-owner failures for the runtime-size gate.
 - `LTL-harness/tools/test-size-gate.ps1`
   - Enforces strict size caps on the split UI read-model suite surface and warns on untouched legacy oversized test files.
 - `LTL-harness/tools/test-size-gate.tests.ps1`
@@ -1426,11 +1434,11 @@ This file is the live implementation map for AI agents. It records each current 
 - `tools/godot-runner.ps1`
   - Normalizes Godot log paths, prepares the local Godot temp environment, and exposes shared PowerShell runner helpers.
 - `tools/run-compile-check.ps1`
-  - Runs the fast local verification path, including source-map, test-size, page-contract, and Godot smoke checks.
+  - Runs the fast local verification path, including source-map, test-size, runtime-size, page-contract, and Godot smoke checks.
 - `tools/invoke-godot.ps1`
   - Provides the canonical local Godot CLI entry point that routes ad hoc logs into app-LTL/.tmp-godot-logs.
 - `tools/run-ltl-quality-gate.ps1`
-  - Runs the consolidated LTL source, harness, request-analysis, test-size, architecture, and Godot contract quality gate.
+  - Runs the consolidated LTL source, harness, request-analysis, test-size, runtime-size, architecture, and Godot contract quality gate.
 - `tools/godot-runner.tests.ps1`
   - Verifies the local Godot runner helper path normalization and temporary environment setup behavior.
 - `tools/watch-compile.ps1`

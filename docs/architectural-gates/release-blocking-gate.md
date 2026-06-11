@@ -3,7 +3,7 @@ task: release-blocking-gate
 approval: approved
 
 profile: release-blocking
-purpose: Block references to removed orphan assets and obvious release-risk UI/runtime sprawl.
+purpose: Block removed-asset references, singleton node-map ownership drift, and other release-risk regressions while runtime-size caps are enforced by runtime-size-gate.md.
 
 orchestrator_path: app-LTL/src/MainControllerRuntime.gd
 orchestrator_threshold: 760

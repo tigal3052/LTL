@@ -158,6 +158,17 @@ try {
     "-File", "LTL-harness/tools/test-size-gate.tests.ps1"
   ) "TEST_SIZE_GATE_TESTS_OK"
 
+  Invoke-NativeStep "runtime size gate" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/runtime-size-gate.ps1",
+    "-Root", $resolvedRoot
+  ) "RUNTIME_SIZE_GATE_OK"
+
+  Invoke-NativeStep "runtime size gate self-test" "powershell" @(
+    "-NoProfile", "-ExecutionPolicy", "Bypass",
+    "-File", "LTL-harness/tools/runtime-size-gate.tests.ps1"
+  ) "RUNTIME_SIZE_GATE_TESTS_OK"
+
   Invoke-NativeStep "formal stack gate" "powershell" @(
     "-NoProfile", "-ExecutionPolicy", "Bypass",
     "-File", "LTL-harness/tools/ltl-tech-stack-gate.ps1",

@@ -31,6 +31,16 @@ if ($testSizeExitCode -ne 0) {
     exit $testSizeExitCode
 }
 
+Write-Host "Running runtime size gate..." -ForegroundColor Cyan
+$runtimeSizeGate = Join-Path $workspace "LTL-harness\tools\runtime-size-gate.ps1"
+$runtimeSizeOutput = & powershell -NoProfile -ExecutionPolicy Bypass -File $runtimeSizeGate -Root $workspace 2>&1
+$runtimeSizeExitCode = $LASTEXITCODE
+$runtimeSizeOutput | ForEach-Object { Write-Host $_ }
+if ($runtimeSizeExitCode -ne 0) {
+    Write-Host "Runtime Size Gate: FAILED" -ForegroundColor Red
+    exit $runtimeSizeExitCode
+}
+
 Write-Host "Running page contract gate..." -ForegroundColor Cyan
 $pageContractGate = Join-Path $workspace "LTL-harness\tools\page-contract-gate.ps1"
 $pageContractOutput = & powershell -NoProfile -ExecutionPolicy Bypass -File $pageContractGate -Root $workspace -GodotPath $godotPath 2>&1

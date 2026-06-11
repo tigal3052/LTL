@@ -3,7 +3,7 @@ task: warning-refactor-gate
 approval: approved
 
 profile: warning
-purpose: Track legacy size and dynamic-control debt without blocking incremental refactors.
+purpose: Track facade-entry drift and dynamic-control debt without pretending to cover the large active runtime owners; dedicated runtime-size caps live in runtime-size-gate.md.
 
 orchestrator_path: app-LTL/src/MainController.gd
 orchestrator_threshold: 180
@@ -12,5 +12,5 @@ orchestrator_forbidden_patterns: _draw_resonance_beam, _spawn_hit_particles, _se
 view_path_pattern: app-LTL/src/ui/*UI.gd
 view_threshold: 150
 view_forbidden_patterns: CombatScenePreviewController, HeadlessMiniRun, CombatSimulator, Button.new, PanelContainer.new, AudioStreamWAV.new
-view_dynamic_creation_paths: app-LTL/src/ui/ShopPanelUI.gd, app-LTL/src/ui/ArtifactTooltipUI.gd, app-LTL/src/ui/ArtifactCodexPanelUI.gd, app-LTL/src/ui/GiantTimerUI.gd, app-LTL/src/ui/SettingsPanelUI.gd
-strict_size_paths: app-LTL/src/MainController.gd, app-LTL/src/ui/MainUI.gd
+view_dynamic_creation_paths: app-LTL/src/ui/ShopPanelUI.gd, app-LTL/src/ui/ArtifactTooltipUI.gd, app-LTL/src/ui/ArtifactCodexPanelUI.gd, app-LTL/src/ui/GiantTimerUI.gd, app-LTL/src/ui/SettingsPanelUI.gd, app-LTL/src/ui/StatusPanelUI.gd
+strict_size_paths:

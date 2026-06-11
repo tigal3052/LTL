@@ -18,6 +18,14 @@ Date: 2026-06-11
 
 - `docs/source-map.md`
 - `LTL-harness/tools/page-contract-gate.ps1`
+- `LTL-harness/tools/runtime-size-gate.ps1`
+- `LTL-harness/tools/runtime-size-gate.tests.ps1`
+- `docs/architectural-gates/runtime-size-gate.md`
+- `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
+- `docs/architectural-gates/warning-refactor-gate.md`
+- `docs/architectural-gates/release-blocking-gate.md`
+- `tools/run-compile-check.ps1`
+- `tools/run-ltl-quality-gate.ps1`
 - request ledger and worklog updates for this task
 - active-runtime refactor files that are touched after the checkpoint commit
 - harness manifests and/or gates needed to prevent runtime-size regressions after the refactor pass
@@ -36,15 +44,18 @@ Date: 2026-06-11
 4. Repair `LTL-harness/tools/page-contract-gate.ps1` so layout audit success requires the contract marker and does not false-pass via `-Quit`.
 5. Fix the exposed runtime layout issue if the stricter gate reveals a real failure.
 6. Verify the minimal fix set, commit it as the checkpoint requested by the user, then continue.
-7. Separate active-runtime owners from legacy/runtime residue, reduce large runtime-file pressure, and harden harness enforcement against future growth.
-8. Re-run verification, summarize manual QA checkpoints, and prepare the final push.
+7. Add a dedicated runtime-size gate that freezes current oversized active owners near their baseline while enforcing smaller caps on extracted leaf surfaces.
+8. Rewire the compile/quality entrypoints so the new gate and its self-test run with the existing harness.
+9. Record a concrete runtime-owner versus legacy-residue refactor plan that identifies active owners, preserved archive surfaces, and the next extraction order.
+10. Re-run verification, summarize manual QA checkpoints, and prepare the final push.
 
 ## Expected Outputs
 
 - Honest M6 completion status with supporting verification evidence.
 - A current manual QA checklist for M6 sign-off.
 - A checkpoint commit covering the minimal gate/source-map repair.
-- A follow-up refactor and harness-hardening change set that separates active runtime from lingering legacy pressure.
+- A follow-up harness-hardening change set that blocks further growth on the real active runtime owner files.
+- A written runtime-owner versus legacy-residue separation plan for the next refactor wave.
 
 ## Verification Method
 
