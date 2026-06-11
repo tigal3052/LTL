@@ -13,6 +13,7 @@ const TooltipReadModelScript = preload("res://src/ui/read_models/TooltipReadMode
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const HudReadModelScript = preload("res://src/ui/read_models/HudReadModel.gd")
 const FailureReadModelScript = preload("res://src/ui/read_models/FailureReadModel.gd")
+const AppShellLayoutPolicyScript = preload("res://src/ui/presenters/AppShellLayoutPolicy.gd")
 const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutPresenter.gd")
 const RewardBoardLayoutPolicyScript = preload("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
 const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
@@ -23,6 +24,7 @@ const NodeMapSceneScript = preload("res://src/scenes/node_map/NodeMapScene.gd")
 const ShopPanelUIScript = preload("res://src/ui/ShopPanelUI.gd")
 const PopupOverlayHostScript = preload("res://src/ui/PopupOverlayHost.gd")
 const PageSceneRegistryScript = preload("res://src/ui/PageSceneRegistry.gd")
+const PageSceneModelBuilderScript = preload("res://src/ui/PageSceneModelBuilder.gd")
 const ArtifactCodexPanelUIScript = preload("res://src/ui/ArtifactCodexPanelUI.gd")
 const ArtifactCodexReadModelScript = preload("res://src/ui/read_models/ArtifactCodexReadModel.gd")
 const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
@@ -1408,105 +1410,7 @@ func _is_meta_page(page_id: String) -> bool:
 	return PageSceneRegistryScript.is_meta_page(page_id, META_PAGE_IDS)
 
 func _page_scene_model(page_id: String, scene: Dictionary) -> Dictionary:
-	var selected_leviathan: Dictionary = scene.get("selectedLeviathan", {})
-	var node_context: Dictionary = scene.get("selectedNodeContext", {})
-	var stage_index := int(scene.get("stageIndex", 0)) + 1
-	var max_stages := maxi(1, int(scene.get("maxStages", 1)))
-	var stage_label_text := TextCatalogScript.t("stage.label", [stage_index, max_stages])
-	if page_id == "defeat":
-		return _defeat_page_model(scene, selected_leviathan)
-	match page_id:
-		"character_select":
-			return scene
-		"leviathan_select":
-			return scene
-		"node_select":
-			var node_select_scene := scene.duplicate(true)
-			node_select_scene["pageTitle"] = str(selected_leviathan.get("name", TextCatalogScript.t("leviathan.roster.title")))
-			node_select_scene["pageSubtitle"] = _node_select_page_subtitle(scene, stage_label_text)
-			node_select_scene["pageHeroPath"] = str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_turtle.png"))
-			return node_select_scene
-		"battle":
-			return {
-				"pageBadge": TextCatalogScript.t("main.page.badge.combat"),
-				"pageKicker": TextCatalogScript.t("main.page.kicker.extraction"),
-				"pageTitle": str(node_context.get("label", scene.get("lastNodeLabel", TextCatalogScript.display_name("Safe Scar")))),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.battle"),
-				"pageHeroPath": "res://resources/charactor/background.png"
-			}
-		"boss_battle":
-			return {
-				"pageBadge": TextCatalogScript.t("main.page.badge.boss"),
-				"pageKicker": TextCatalogScript.t("main.page.kicker.final_engagement"),
-				"pageTitle": str(node_context.get("label", TextCatalogScript.display_name("Spine Anchor"))),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.boss"),
-				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png"))
-			}
-		"reward":
-			return {
-				"pageBadge": TextCatalogScript.t("main.page.badge.reward"),
-				"pageKicker": TextCatalogScript.t("main.page.kicker.recovery"),
-				"pageTitle": TextCatalogScript.t("main.page.title.reward"),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.reward"),
-				"pageHeroPath": "res://resources/Leviathan/Leviathan_lizard.png"
-			}
-		"boss_reward":
-			return {
-				"pageBadge": TextCatalogScript.t("main.page.badge.boss_reward"),
-				"pageKicker": TextCatalogScript.t("main.page.kicker.contract_payout"),
-				"pageTitle": TextCatalogScript.t("main.page.title.boss_reward"),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.boss_reward"),
-				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png"))
-			}
-		"event_node":
-			return {
-				"pageBadge": TextCatalogScript.t("main.page.badge.event"),
-				"pageKicker": TextCatalogScript.t("main.page.kicker.special_node"),
-				"pageTitle": str(node_context.get("label", TextCatalogScript.display_name("Mysterious Crevice"))),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.event"),
-				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_turtle.png"))
-			}
-		"defeat":
-			return {
-				"pageTitle": TextCatalogScript.t("main.page.title.defeat"),
-				"pageSubtitle": str(scene.get("failureReason", TextCatalogScript.t("main.page.subtitle.defeat"))),
-				"pageButtonText": TextCatalogScript.t("main.page.button.return_character"),
-				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png"))
-			}
-		"clear":
-			return {
-				"pageTitle": TextCatalogScript.t("main.page.title.clear"),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.clear"),
-				"pageButtonText": TextCatalogScript.t("main.page.button.return_character"),
-				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_lizard.png"))
-			}
-	return scene
-
-func _defeat_page_model(scene: Dictionary, selected_leviathan: Dictionary) -> Dictionary:
-	var failure_model: Dictionary = FailureReadModelScript.project(scene)
-	var selected_character: Dictionary = scene.get("selectedCharacter", {})
-	var fallback_target := str(selected_leviathan.get("name", TextCatalogScript.t("failure.run_failed.target_default")))
-	var fallback_node := str(scene.get("lastNodeLabel", TextCatalogScript.t("failure.run_failed.node_default")))
-	return {
-		"pageEyebrow": TextCatalogScript.t("main.page.badge.defeat"),
-		"pageTitle": str(failure_model.get("title", TextCatalogScript.t("main.page.title.defeat"))),
-		"pageSubtitle": "",
-		"pageBoardTitle": "",
-		"pageBoardHint": "",
-		"pageCause": str(failure_model.get("cause", TextCatalogScript.t("failure.run_failed.cause", [
-			fallback_target,
-			maxi(1, int(scene.get("runIndex", 0)) + 1),
-			fallback_node
-		]))),
-		"pageTip": str(failure_model.get("tip", TextCatalogScript.t("failure.run_failed.tip"))),
-		"pageButtonText": TextCatalogScript.t("action.retry"),
-		"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png")),
-		"pageCharacterArtPath": str(selected_character.get("portraitPath", CHARACTER_PORTRAIT_PATH)),
-		"pageStageBackdropPath": "res://resources/charactor/background.png"
-	}
-
-func _node_select_page_subtitle(scene: Dictionary, stage_label_text: String) -> String:
-	return TextCatalogScript.t("main.node_select.subtitle", [stage_label_text])
+	return PageSceneModelBuilderScript.project(page_id, scene, CHARACTER_PORTRAIT_PATH)
 
 # ??쎈뻬: dynamically construct the full-page node-map selector inside the node-select panel.
 func _create_node_map_scene() -> void:
@@ -2032,26 +1936,29 @@ func _reward_backpack_panel_visible_height_cap() -> float:
 	var reward_board_gap := float(reward_board.get_theme_constant("separation"))
 	var head_height := reward_board_head.get_combined_minimum_size().y
 	var bottom_row_height := maxf(reward_bottom_row.get_combined_minimum_size().y, reward_bottom_row.custom_minimum_size.y)
-	return maxf(220.0, panel_height - outer_margin - reward_box_gap - reward_board_gap - head_height - bottom_row_height - 18.0)
+	return AppShellLayoutPolicyScript.reward_backpack_panel_visible_height_cap(
+		panel_height,
+		outer_margin,
+		reward_box_gap,
+		reward_board_gap,
+		head_height,
+		bottom_row_height
+	)
 
 func _max_safe_active_phase_height() -> float:
 	var shell_size := _viewport_safe_app_shell_size()
 	var section_gap := float(app_shell.get_theme_constant("separation")) if app_shell != null else 0.0
-	var reserved_height := 0.0
-	var visible_sections := 0
-	if header_panel != null and header_panel.visible:
-		reserved_height += float(header_panel.get_combined_minimum_size().y)
-		visible_sections += 1
-	if top_content != null and top_content.visible:
-		reserved_height += float(top_content.get_combined_minimum_size().y)
-		visible_sections += 1
-	if _active_phase_surface_visible():
-		visible_sections += 1
-	if action_bar != null and action_bar.visible:
-		reserved_height += float(action_bar.get_combined_minimum_size().y)
-		visible_sections += 1
-	var gap_budget := section_gap * maxf(0.0, float(visible_sections - 1))
-	return maxf(0.0, shell_size.y - reserved_height - gap_budget)
+	var header_height := float(header_panel.get_combined_minimum_size().y) if header_panel != null and header_panel.visible else 0.0
+	var top_content_height := float(top_content.get_combined_minimum_size().y) if top_content != null and top_content.visible else 0.0
+	var action_bar_height := float(action_bar.get_combined_minimum_size().y) if action_bar != null and action_bar.visible else 0.0
+	return AppShellLayoutPolicyScript.max_safe_active_phase_height(
+		shell_size,
+		section_gap,
+		header_height,
+		top_content_height,
+		_active_phase_surface_visible(),
+		action_bar_height
+	)
 
 func _top_content_backpack_height() -> float:
 	var min_row_height := maxf(float(top_content.get_combined_minimum_size().y), BackpackPinLayoutPolicyScript.MIN_TOP_CONTENT_GRID_EXTENT)
@@ -2071,38 +1978,27 @@ func _apply_top_content_backpack_bounds() -> void:
 	backpack_container.ratio = top_content_backpack_ratio_for_height(target_height)
 
 func _viewport_safe_app_shell_size() -> Vector2:
-	if root_margin == null:
-		return get_viewport_rect().size
-	var viewport_size := get_viewport_rect().size
-	var horizontal_margin := float(root_margin.get_theme_constant("margin_left") + root_margin.get_theme_constant("margin_right"))
-	var vertical_margin := float(root_margin.get_theme_constant("margin_top") + root_margin.get_theme_constant("margin_bottom"))
-	return Vector2(
-		maxf(0.0, viewport_size.x - horizontal_margin),
-		maxf(0.0, viewport_size.y - vertical_margin)
-	)
+	var horizontal_margin := 0.0
+	var vertical_margin := 0.0
+	if root_margin != null:
+		horizontal_margin = float(root_margin.get_theme_constant("margin_left") + root_margin.get_theme_constant("margin_right"))
+		vertical_margin = float(root_margin.get_theme_constant("margin_top") + root_margin.get_theme_constant("margin_bottom"))
+	return AppShellLayoutPolicyScript.viewport_safe_size(get_viewport_rect().size, horizontal_margin, vertical_margin)
 
 func _app_shell_visible_section_count() -> int:
-	var count := 0
-	if header_panel != null and header_panel.visible:
-		count += 1
-	if top_content != null and top_content.visible:
-		count += 1
-	if _active_phase_surface_visible():
-		count += 1
-	if action_bar != null and action_bar.visible:
-		count += 1
-	return count
+	return AppShellLayoutPolicyScript.visible_section_count(
+		header_panel != null and header_panel.visible,
+		top_content != null and top_content.visible,
+		_active_phase_surface_visible(),
+		action_bar != null and action_bar.visible
+	)
 
 func _active_phase_surface_visible() -> bool:
-	if active_phase_container == null:
-		return false
-	if battlefield_ui != null and battlefield_ui.visible:
-		return true
-	if reward_panel != null and reward_panel.visible:
-		return true
-	if page_shell_host != null and page_shell_host.visible:
-		return true
-	return false
+	return active_phase_container != null and AppShellLayoutPolicyScript.active_phase_visible(
+		battlefield_ui != null and battlefield_ui.visible,
+		reward_panel != null and reward_panel.visible,
+		page_shell_host != null and page_shell_host.visible
+	)
 
 func _active_phase_min_height() -> float:
 	var min_height := 0.0
@@ -2113,29 +2009,28 @@ func _active_phase_min_height() -> float:
 	return min_height
 
 func _max_safe_top_content_height() -> float:
-	if not top_content.visible:
-		return 0.0
 	var shell_size := _viewport_safe_app_shell_size()
 	var section_gap := float(app_shell.get_theme_constant("separation")) if app_shell != null else 0.0
-	var visible_sections := _app_shell_visible_section_count()
-	var reserved_height := 0.0
-	if header_panel != null and header_panel.visible:
-		reserved_height += float(header_panel.get_combined_minimum_size().y)
-	if action_bar != null and action_bar.visible:
-		reserved_height += float(action_bar.get_combined_minimum_size().y)
-	if _active_phase_surface_visible():
-		reserved_height += _active_phase_min_height()
-	var separation_budget := section_gap * maxf(0.0, float(visible_sections - 1))
-	return maxf(0.0, shell_size.y - reserved_height - separation_budget)
+	return AppShellLayoutPolicyScript.max_safe_top_content_height(
+		shell_size,
+		section_gap,
+		header_panel != null and header_panel.visible,
+		float(header_panel.get_combined_minimum_size().y) if header_panel != null else 0.0,
+		_active_phase_surface_visible(),
+		_active_phase_min_height(),
+		action_bar != null and action_bar.visible,
+		float(action_bar.get_combined_minimum_size().y) if action_bar != null else 0.0,
+		top_content != null and top_content.visible
+	)
 
 func _max_safe_top_content_backpack_width() -> float:
-	if not top_content.visible:
+	if top_content == null or not top_content.visible:
 		return 0.0
 	var shell_size := _viewport_safe_app_shell_size()
 	var row_gap := float(top_content.get_theme_constant("separation"))
 	var left_min := float(left_column.get_combined_minimum_size().x) if left_column != null and left_column.visible else 0.0
 	var right_min := float(right_sidebar.get_combined_minimum_size().x) if right_sidebar != null and right_sidebar.visible else 0.0
-	return maxf(0.0, shell_size.x - left_min - right_min - row_gap * 2.0)
+	return AppShellLayoutPolicyScript.max_safe_backpack_width(shell_size.x, row_gap, left_min, right_min)
 
 func _viewport_safe_width_for_control(control: Control, fallback_width: float) -> float:
 	var width := maxf(0.0, fallback_width)

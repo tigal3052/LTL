@@ -844,6 +844,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Propagates locale changes and volume settings to child UI components.
 - `app-LTL/src/ui/PageSceneRegistry.gd`
   - Builds page-shell hosts, mounts meta versus gameplay page scenes, and toggles host visibility for the active page route.
+- `app-LTL/src/ui/PageSceneModelBuilder.gd`
+  - Centralizes page-scene copy and wireframe model projection for gameplay, node-select, clear, and defeat page shells.
 - `app-LTL/src/ui/PopupOverlayHost.gd`
   - Centralizes popup and fullscreen overlay front-order plus pause-overlay visibility projection for MainViewRuntime.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
@@ -866,6 +868,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd`
   - Determines visibility of primary UI regions for the current phase.
   - Projects victory overlay visibility plus map/backpack stretch ratios and timer/action layout state.
+- `app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd`
+  - Centralizes safe-shell sizing, active-phase height budgets, top-content budget projection, and shared backpack width caps for MainViewRuntime.
 - `app-LTL/src/ui/presenters/RewardBoardLayoutPolicy.gd`
   - Centralizes reward-board width, height, zone-body, and docked-backpack sizing math for the extracted MainViewRuntime reward layout path.
 - `app-LTL/src/ui/presenters/RewardCeremonyPolicy.gd`
@@ -1063,8 +1067,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Covers defeat-page model and scene-shell contracts plus nearby failure-overlay expectations.
 - `app-LTL/tests/ui_read_models/ui_interaction_controller_suite.gd`
   - Covers interaction cue, drag/drop, cooldown, targeting, and controller-side combat feedback contracts.
+- `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
+  - Covers the extracted app-shell layout policy for safe shell sizing, active-phase height budgets, top-content budget math, and reward backpack caps.
 - `app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd`
   - Covers fullscreen overlay API plus popup overlay helper front-order and pause-visibility contracts that sit outside the reward-reveal ceremony subset.
+- `app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd`
+  - Covers the extracted page-scene model builder for node-select copy and defeat wireframe projection contracts.
 - `app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd`
   - Covers the extracted page-scene registry helper for host building, meta-versus-gameplay mounting, and active-page visibility toggling.
 - `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`

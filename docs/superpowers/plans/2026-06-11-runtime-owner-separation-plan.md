@@ -53,9 +53,17 @@
 
 ### Wave 2: Split `MainViewRuntime.gd` by responsibility
 
-- Extract page registration and page-host mounting into a dedicated page-registry helper.
-- Extract reward-board measurement and containment math into a reward-board layout coordinator.
-- Extract popup/overlay creation and teardown into a focused overlay host helper.
+- Completed in the current branch:
+  - Extracted page registration and page-host mounting into `PageSceneRegistry.gd`.
+  - Extracted reward-board measurement and containment math into `RewardBoardLayoutPolicy.gd`.
+  - Extracted popup/overlay front-order plus pause-state projection into `PopupOverlayHost.gd`.
+  - Extracted page copy and defeat wireframe projection into `PageSceneModelBuilder.gd`.
+  - Extracted safe-shell and shared-backpack layout budget math into `AppShellLayoutPolicy.gd`.
+- Remaining splits required to push `MainViewRuntime.gd` from 2375 lines toward the low hundreds:
+  - Move reward card cloud rendering, drag anchors, and inspector projection into a dedicated reward-board coordinator plus small policy helpers.
+  - Move reward reveal overlay lifecycle and source-rect math into a focused ceremony host helper.
+  - Move page bootstrap and signal bridge wiring into a page-scene bootstrap helper.
+  - Move shared backpack docking and top-content/node-select reparent orchestration into a dedicated backpack host coordinator.
 - Keep `MainViewRuntime.gd` as the top-level composition root that delegates to those helpers.
 
 ### Wave 3: Split `MainControllerRuntime.gd` by flow

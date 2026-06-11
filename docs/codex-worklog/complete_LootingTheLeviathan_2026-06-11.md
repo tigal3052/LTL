@@ -29,6 +29,14 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
   - Extracted page-scene registry helper that now owns page-shell host creation, host selection, and active-page visibility toggling.
 - `app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd`
   - Focused TDD coverage for the extracted page-scene registry helper.
+- `app-LTL/src/ui/PageSceneModelBuilder.gd`
+  - Extracted page-scene model helper that now owns node-select page copy and defeat wireframe projection.
+- `app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd`
+  - Extracted app-shell layout policy that now owns safe-shell, active-phase, top-content, and reward backpack budget math.
+- `app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd`
+  - Focused TDD coverage for the extracted page-scene model helper.
+- `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
+  - Focused TDD coverage for the extracted app-shell layout policy.
 
 ## Verification Results
 
@@ -46,6 +54,6 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
 ## Remaining Gaps
 
 - The large active owners are now frozen by cap, but they are not yet physically split; that next extraction order is documented in `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`.
-- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2480 lines even after moving reward-board layout math, popup-overlay host logic, and page-scene registry logic into dedicated helpers.
+- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2375 lines even after moving reward-board layout math, popup-overlay host logic, page-scene registry logic, page-scene model projection, and app-shell layout budget logic into dedicated helpers.
 - The existing test-size gate still warns on several untouched legacy top-level test files such as `test_reward_contract.gd`, `run_main_layout_audit_contract.gd`, and `godot_contract_runner.gd`.
 - Godot contract runs still print RID/resource leak warnings even though the formal success markers are green.

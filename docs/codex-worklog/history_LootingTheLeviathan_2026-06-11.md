@@ -4,6 +4,27 @@ Workspace: LootingTheLeviathan
 Date: 2026-06-11
 
 No implementation history has been recorded yet.
+## 2026-06-11 20:05:00
+
+- Intent: Continue shrinking `MainViewRuntime.gd` after the earlier helper splits and leave a concrete path toward a low-hundreds composition root.
+- Files or areas touched:
+```text
+app-LTL/src/ui/MainViewRuntime.gd
+app-LTL/src/ui/PageSceneModelBuilder.gd
+app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+app-LTL/tests/test_ui_read_models.gd
+docs/source-map.md
+docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+```
+- Summary: Added failing focused UI suites first, extracted page-scene model projection and safe-shell layout budget math into dedicated helpers, and reduced `MainViewRuntime.gd` from 2480 lines to 2375 lines while documenting the next extraction groups needed to reach a low-hundreds composition root.
+- Plan impact: The runtime-owner separation plan now has a concrete next-step decomposition sequence instead of only naming the problem surface.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
 ## 2026-06-11 18:20:00
 
 - Intent: Close the phase-1 checkpoint honestly by fixing the real runtime containment regressions that the stricter page-contract gate exposed.
@@ -736,6 +757,179 @@ docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
 ?? app-LTL/src/ui/PageSceneRegistry.gd
 ?? app-LTL/src/ui/PopupOverlayHost.gd
 ?? app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:15:51
+
+<!-- codex-worklog-signature: 55d02c043180f0bc20da24cef8e283a283243d5f2683e24978c4121dec19139b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/PageSceneRegistry.gd
+A  app-LTL/src/ui/PopupOverlayHost.gd
+M  app-LTL/tests/test_ui_read_models.gd
+M  app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+A  app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:24:27
+
+<!-- codex-worklog-signature: a9f54660bce7c3b0395330cb8bebd174ceb3c933a31e38357af11734eb8e4af6 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+?? app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:27:06
+
+<!-- codex-worklog-signature: 96213759f632511830d0b702146c8a791726dd5bb8ef98690e2792bb073e457e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+?? app-LTL/src/ui/PageSceneModelBuilder.gd
+?? app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+?? app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:27:26
+
+<!-- codex-worklog-signature: 1692473635f361aecca99c714aa38e28bb5427808118da026dc3483df43ef058 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+?? app-LTL/src/ui/PageSceneModelBuilder.gd
+?? app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+?? app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:29:38
+
+<!-- codex-worklog-signature: 9393fd6741f6a69338c7492da7b85b68a179c56b789bb6af3505ab457c3956d3 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+?? app-LTL/src/ui/PageSceneModelBuilder.gd
+?? app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+?? app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:31:32
+
+<!-- codex-worklog-signature: 3ac5fa1d8312a9a4219fd36887519e019ced520d332e60f09cad66e86949d39e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+?? app-LTL/src/ui/PageSceneModelBuilder.gd
+?? app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+?? app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:33:28
+
+<!-- codex-worklog-signature: a881d806aeadeaa53dae34f02502be63d1d4d0d9c6afefbda64b9f0d87ddb5b3 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/PageSceneModelBuilder.gd
+A  app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+A  app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+M  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:33:45
+
+<!-- codex-worklog-signature: f0c4f61d38af90eefd72b04c7eeaa8581d4409839032bbb1d577386291efef1f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/PageSceneModelBuilder.gd
+A  app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd
+A  app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+M  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.

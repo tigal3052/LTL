@@ -96,6 +96,11 @@
   - `MainViewRuntime.gd` delegates popup overlay front-order and pause-visibility projection to `PopupOverlayHost.gd`.
   - `MainViewRuntime.gd` delegates page-shell host creation, meta-versus-gameplay mounting, and active-page visibility toggling to `PageSceneRegistry.gd`.
   - `MainViewRuntime.gd` measured 2524 lines at the start of the runtime-owner refactor pass, 2497 lines after reward-board layout extraction, and 2480 lines after the final page/overlay extraction.
+- Follow-up helper-extraction wave now also confirms:
+  - `MainViewRuntime.gd` delegates page-scene copy and defeat wireframe projection to `PageSceneModelBuilder.gd`.
+  - `MainViewRuntime.gd` delegates safe shell, active-phase, top-content, and reward backpack height-budget math to `AppShellLayoutPolicy.gd`.
+  - `tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK` after the new extractions.
+  - `MainViewRuntime.gd` measured 2375 lines after the page-model and app-shell policy extraction wave, down from the previous committed 2480-line state.
 
 ## Artifact Ledger
 
