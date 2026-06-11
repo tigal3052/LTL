@@ -581,3 +581,161 @@ docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 16:56:32
+
+<!-- codex-worklog-signature: 886b38cc80ce6048963a4a988494034570874bc7862d03fa024a8305be3823f9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/presenters/RewardBoardLayoutPolicy.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:08:48
+
+<!-- codex-worklog-signature: 62e3b9246a7beaaad71f133e730a3ef81e77d719ff082b6a6cc5746070034efc -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:09:48
+
+<!-- codex-worklog-signature: 6737a9d1c45c9f6f02b98ed73052e945ac8287c7b7b34c0e611e2f2b172e7f9a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+?? app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:11:14
+
+<!-- codex-worklog-signature: 1037eac1f7abc63b50b7c84cb279ee08e39584888ae6e14cff7defa81446cd72 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+?? app-LTL/src/ui/PageSceneRegistry.gd
+?? app-LTL/src/ui/PopupOverlayHost.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:11:39
+
+<!-- codex-worklog-signature: c9cf8ea73ac97a3b489df88857aca2155ddc04f2cbd29257783b13056c7260b7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/source-map.md
+?? app-LTL/src/ui/PageSceneRegistry.gd
+?? app-LTL/src/ui/PopupOverlayHost.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:14:00
+
+<!-- codex-worklog-signature: 9cdea8b8cee09d8a0e30ebf201e9655884a62ca851d9b105d7cd94034f3a9158 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/source-map.md
+?? app-LTL/src/ui/PageSceneRegistry.gd
+?? app-LTL/src/ui/PopupOverlayHost.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 17:18:00
+
+- Intent: Finish the current `MainViewRuntime.gd` helper-extraction wave instead of leaving page routing and popup front-order logic inline.
+- Files or areas touched:
+```text
+app-LTL/src/ui/MainViewRuntime.gd
+app-LTL/src/ui/PageSceneRegistry.gd
+app-LTL/src/ui/PopupOverlayHost.gd
+app-LTL/tests/test_ui_read_models.gd
+app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+docs/source-map.md
+docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+```
+- Summary: Added `PopupOverlayHost.gd` and `PageSceneRegistry.gd`, then delegated popup front-order, pause-overlay visibility projection, page-shell host construction, meta-versus-gameplay page mounting, and active-page visibility toggling away from `MainViewRuntime.gd`. Extended the focused UI runner with overlay-helper and page-registry tests, and kept the full compile plus quality gates green after the extraction.
+- Plan impact: The planned `MainViewRuntime.gd` helper-extraction wave is now closed. Further refactor work should move to the next large owners such as `MainControllerRuntime.gd`, `RewardRevealOverlay.gd`, `ArtifactCodexPanelUI.gd`, and `BackpackUI.gd` rather than continuing to churn the same view file blindly.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-ltl-quality-gate.ps1 -RequestLedger docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md -ArtifactLedger docs/artifact-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md` -> `LTL_QUALITY_GATE_OK`
+
+## 2026-06-11 17:15:10
+
+<!-- codex-worklog-signature: 6d70d0ab805df4bec34517d36c863e03c04d3c39719ceaf5e8ca1cedc05f46d1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+?? app-LTL/src/ui/PageSceneRegistry.gd
+?? app-LTL/src/ui/PopupOverlayHost.gd
+?? app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.

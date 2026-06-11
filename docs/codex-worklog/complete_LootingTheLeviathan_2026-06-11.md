@@ -23,6 +23,12 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
   - Extracted reward-board layout helper that now owns pure width, height, zone-body, and docked-backpack sizing math.
 - `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`
   - Focused TDD coverage for the extracted reward-board layout helper.
+- `app-LTL/src/ui/PopupOverlayHost.gd`
+  - Extracted popup overlay helper that now owns front-order and pause-overlay visibility projection.
+- `app-LTL/src/ui/PageSceneRegistry.gd`
+  - Extracted page-scene registry helper that now owns page-shell host creation, host selection, and active-page visibility toggling.
+- `app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd`
+  - Focused TDD coverage for the extracted page-scene registry helper.
 
 ## Verification Results
 
@@ -40,6 +46,6 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
 ## Remaining Gaps
 
 - The large active owners are now frozen by cap, but they are not yet physically split; that next extraction order is documented in `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`.
-- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2497 lines even after moving reward-board layout math into a dedicated presenter helper.
+- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2480 lines even after moving reward-board layout math, popup-overlay host logic, and page-scene registry logic into dedicated helpers.
 - The existing test-size gate still warns on several untouched legacy top-level test files such as `test_reward_contract.gd`, `run_main_layout_audit_contract.gd`, and `godot_contract_runner.gd`.
 - Godot contract runs still print RID/resource leak warnings even though the formal success markers are green.

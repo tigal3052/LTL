@@ -842,6 +842,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Mounts the shared node-map scene into the dedicated node-select runtime page and re-docks the shared backpack between gameplay and node-select hosts.
   - Mediates combat VFX, screenshake, tooltip, discard zone, and log console behavior.
   - Propagates locale changes and volume settings to child UI components.
+- `app-LTL/src/ui/PageSceneRegistry.gd`
+  - Builds page-shell hosts, mounts meta versus gameplay page scenes, and toggles host visibility for the active page route.
+- `app-LTL/src/ui/PopupOverlayHost.gd`
+  - Centralizes popup and fullscreen overlay front-order plus pause-overlay visibility projection for MainViewRuntime.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
   - Renders and controls the full-screen reward reveal ceremony overlay.
 - `app-LTL/src/ui/legacy/LegacyRewardRevealOverlay.gd`
@@ -1060,7 +1064,9 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/tests/ui_read_models/ui_interaction_controller_suite.gd`
   - Covers interaction cue, drag/drop, cooldown, targeting, and controller-side combat feedback contracts.
 - `app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd`
-  - Covers fullscreen overlay API and popup front-order contracts that sit outside the reward-reveal ceremony subset.
+  - Covers fullscreen overlay API plus popup overlay helper front-order and pause-visibility contracts that sit outside the reward-reveal ceremony subset.
+- `app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd`
+  - Covers the extracted page-scene registry helper for host building, meta-versus-gameplay mounting, and active-page visibility toggling.
 - `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`
   - Covers phase-layout visibility, node-select shell policy, and top-content/backpack sizing contracts.
 - `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`

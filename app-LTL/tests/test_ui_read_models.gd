@@ -8,6 +8,7 @@ const UIBattlefieldHudSuiteScript = preload("res://tests/ui_read_models/ui_battl
 const UIDefeatVisualSuiteScript = preload("res://tests/ui_read_models/ui_defeat_visual_suite.gd")
 const UIInteractionControllerSuiteScript = preload("res://tests/ui_read_models/ui_interaction_controller_suite.gd")
 const UIOverlayContractSuiteScript = preload("res://tests/ui_read_models/ui_overlay_contract_suite.gd")
+const UIPageSceneRegistrySuiteScript = preload("res://tests/ui_read_models/ui_page_scene_registry_suite.gd")
 const UIRewardBoardLayoutPolicySuiteScript = preload("res://tests/ui_read_models/ui_reward_board_layout_policy_suite.gd")
 const UIRewardRevealCeremonySuiteScript = preload("res://tests/ui_read_models/ui_reward_reveal_ceremony_suite.gd")
 const UIRewardRevealLayoutSuiteScript = preload("res://tests/ui_read_models/ui_reward_reveal_layout_suite.gd")
@@ -25,6 +26,7 @@ func run_all_tests() -> Dictionary:
 		UIDefeatVisualSuiteScript,
 		UIInteractionControllerSuiteScript,
 		UIOverlayContractSuiteScript,
+		UIPageSceneRegistrySuiteScript,
 		UIRewardBoardLayoutPolicySuiteScript,
 		UIRewardRevealCeremonySuiteScript,
 		UIRewardRevealLayoutSuiteScript

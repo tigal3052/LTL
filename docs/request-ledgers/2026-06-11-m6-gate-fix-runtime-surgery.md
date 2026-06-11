@@ -92,6 +92,10 @@
   - `tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
   - `tools/run-compile-check.ps1` still passes after the extraction.
   - `tools/run-ltl-quality-gate.ps1` still passes after the extraction.
+- Final helper-extraction wave now also confirms:
+  - `MainViewRuntime.gd` delegates popup overlay front-order and pause-visibility projection to `PopupOverlayHost.gd`.
+  - `MainViewRuntime.gd` delegates page-shell host creation, meta-versus-gameplay mounting, and active-page visibility toggling to `PageSceneRegistry.gd`.
+  - `MainViewRuntime.gd` measured 2524 lines at the start of the runtime-owner refactor pass, 2497 lines after reward-board layout extraction, and 2480 lines after the final page/overlay extraction.
 
 ## Artifact Ledger
 

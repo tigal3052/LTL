@@ -21,6 +21,8 @@ const NodeMapReadModelScript = preload("res://src/ui/read_models/NodeMapReadMode
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const NodeMapSceneScript = preload("res://src/scenes/node_map/NodeMapScene.gd")
 const ShopPanelUIScript = preload("res://src/ui/ShopPanelUI.gd")
+const PopupOverlayHostScript = preload("res://src/ui/PopupOverlayHost.gd")
+const PageSceneRegistryScript = preload("res://src/ui/PageSceneRegistry.gd")
 const ArtifactCodexPanelUIScript = preload("res://src/ui/ArtifactCodexPanelUI.gd")
 const ArtifactCodexReadModelScript = preload("res://src/ui/read_models/ArtifactCodexReadModel.gd")
 const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
@@ -529,7 +531,11 @@ func is_artifact_codex_visible() -> bool:
 	return codex_panel != null and codex_panel.visible
 
 func is_combat_pause_overlay_visible() -> bool:
-	return is_settings_visible() or is_artifact_codex_visible() or (repair_overlay != null and repair_overlay.visible)
+	return PopupOverlayHostScript.pause_overlay_visible(
+		is_settings_visible(),
+		is_artifact_codex_visible(),
+		repair_overlay != null and repair_overlay.visible
+	)
 
 func is_battle_pause_active() -> bool:
 	return battle_pause_active
@@ -548,16 +554,10 @@ func set_battle_pause_active(active: bool) -> void:
 		vfx_manager.set_battle_pause_active(active)
 
 func _promote_popup_overlay_when_visible(overlay: Control) -> void:
-	if overlay == null or not overlay.visible:
-		return
-	_bring_popup_overlay_to_front(overlay)
+	PopupOverlayHostScript.promote_when_visible(overlay, POPUP_OVERLAY_Z_INDEX)
 
 func _bring_popup_overlay_to_front(overlay: Control) -> void:
-	if overlay == null:
-		return
-	overlay.z_index = POPUP_OVERLAY_Z_INDEX
-	if overlay.get_parent() != null:
-		overlay.move_to_front()
+	PopupOverlayHostScript.bring_to_front(overlay, POPUP_OVERLAY_Z_INDEX)
 
 func _emit_combat_overlay_pause_visibility_changed() -> void:
 	var active := is_combat_pause_overlay_visible()
@@ -693,11 +693,7 @@ func _flush_reward_reveal_finished_callback() -> void:
 	callback.call_deferred(next_step)
 
 func _bring_reward_reveal_overlay_to_front() -> void:
-	if reward_reveal_overlay == null:
-		return
-	reward_reveal_overlay.z_index = REWARD_REVEAL_OVERLAY_Z_INDEX
-	if reward_reveal_overlay.get_parent() != null:
-		reward_reveal_overlay.move_to_front()
+	PopupOverlayHostScript.bring_to_front(reward_reveal_overlay, REWARD_REVEAL_OVERLAY_Z_INDEX)
 
 func _reward_lid_source_global_rect() -> Rect2:
 	if battlefield_ui != null and battlefield_ui.has_method("reward_lid_source_global_rect"):
@@ -1327,16 +1323,10 @@ func _create_artifact_codex_panel() -> void:
 	add_child(codex_panel)
 
 func _create_page_scenes() -> void:
-	meta_page_shell_host = Control.new()
-	meta_page_shell_host.name = "MetaPageShellHost"
-	meta_page_shell_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	meta_page_shell_host.mouse_filter = Control.MOUSE_FILTER_PASS
+	meta_page_shell_host = PageSceneRegistryScript.build_shell_host("MetaPageShellHost")
 	add_child(meta_page_shell_host)
 	move_child(meta_page_shell_host, repair_overlay.get_index())
-	page_shell_host = Control.new()
-	page_shell_host.name = "PageShellHost"
-	page_shell_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	page_shell_host.mouse_filter = Control.MOUSE_FILTER_PASS
+	page_shell_host = PageSceneRegistryScript.build_shell_host("PageShellHost")
 	active_phase_container.add_child(page_shell_host)
 	active_phase_container.move_child(page_shell_host, 0)
 	_register_page_scene("character_select", CharacterSelectPageScene.instantiate())
@@ -1391,38 +1381,31 @@ func _cache_node_select_runtime_hosts() -> void:
 		node_select_backpack_host.resized.connect(_queue_node_map_layout_refresh)
 
 func _register_page_scene(page_id: String, page_scene: Node) -> void:
-	if page_scene == null:
-		return
-	page_scene.name = "%sPageShell" % page_id.capitalize()
-	if page_scene is Control:
-		page_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		page_scene.visible = false
-	var host = page_shell_host
-	if _is_meta_page(page_id):
-		host = meta_page_shell_host
-	host.add_child(page_scene)
-	page_scenes[page_id] = page_scene
+	PageSceneRegistryScript.register_page_scene(
+		page_scenes,
+		page_id,
+		page_scene,
+		page_shell_host,
+		meta_page_shell_host,
+		META_PAGE_IDS
+	)
 
 func _render_page_scene(scene: Dictionary) -> void:
 	var page_id := str(scene.get("pageId", ""))
 	active_page_id = page_id
-	for scene_id in page_scenes.keys():
-		var page_scene = page_scenes.get(scene_id)
-		if page_scene != null:
-			page_scene.visible = scene_id == page_id
-	if meta_page_shell_host != null:
-		meta_page_shell_host.visible = _is_meta_page(page_id)
-		if meta_page_shell_host.visible:
-			meta_page_shell_host.move_to_front()
-	if page_shell_host != null:
-		page_shell_host.visible = not _is_meta_page(page_id) and not page_id.is_empty()
-	var active_scene = page_scenes.get(page_id)
+	var active_scene = PageSceneRegistryScript.activate_page(
+		page_scenes,
+		page_id,
+		page_shell_host,
+		meta_page_shell_host,
+		META_PAGE_IDS
+	)
 	if active_scene == null or not active_scene.has_method("apply_state"):
 		return
 	active_scene.apply_state(_page_scene_model(page_id, scene))
 
 func _is_meta_page(page_id: String) -> bool:
-	return page_id in META_PAGE_IDS
+	return PageSceneRegistryScript.is_meta_page(page_id, META_PAGE_IDS)
 
 func _page_scene_model(page_id: String, scene: Dictionary) -> Dictionary:
 	var selected_leviathan: Dictionary = scene.get("selectedLeviathan", {})
