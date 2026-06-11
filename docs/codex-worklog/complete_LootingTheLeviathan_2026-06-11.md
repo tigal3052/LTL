@@ -19,6 +19,10 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
   - Source-of-truth caps for current oversized owners and extracted leaf surfaces.
 - `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
   - Next-wave refactor plan that separates live owners from archive/legacy residue.
+- `app-LTL/src/ui/presenters/RewardBoardLayoutPolicy.gd`
+  - Extracted reward-board layout helper that now owns pure width, height, zone-body, and docked-backpack sizing math.
+- `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`
+  - Focused TDD coverage for the extracted reward-board layout helper.
 
 ## Verification Results
 
@@ -31,9 +35,11 @@ The requested two-phase pass is now complete. Phase 1 restored an honest M6 chec
 - `TRANSITION_SAFETY_GATE_OK`
 - `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
 - `LTL_QUALITY_GATE_OK`
+- `UI_READ_MODEL_TESTS_OK`
 
 ## Remaining Gaps
 
 - The large active owners are now frozen by cap, but they are not yet physically split; that next extraction order is documented in `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`.
+- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2497 lines even after moving reward-board layout math into a dedicated presenter helper.
 - The existing test-size gate still warns on several untouched legacy top-level test files such as `test_reward_contract.gd`, `run_main_layout_audit_contract.gd`, and `godot_contract_runner.gd`.
 - Godot contract runs still print RID/resource leak warnings even though the formal success markers are green.

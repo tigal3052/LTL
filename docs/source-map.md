@@ -862,6 +862,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd`
   - Determines visibility of primary UI regions for the current phase.
   - Projects victory overlay visibility plus map/backpack stretch ratios and timer/action layout state.
+- `app-LTL/src/ui/presenters/RewardBoardLayoutPolicy.gd`
+  - Centralizes reward-board width, height, zone-body, and docked-backpack sizing math for the extracted MainViewRuntime reward layout path.
 - `app-LTL/src/ui/presenters/RewardCeremonyPolicy.gd`
   - Defines reward ceremony step sequencing and interaction gate policy.
 - `app-LTL/src/ui/read_models/HudReadModel.gd`
@@ -1061,6 +1063,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Covers fullscreen overlay API and popup front-order contracts that sit outside the reward-reveal ceremony subset.
 - `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`
   - Covers phase-layout visibility, node-select shell policy, and top-content/backpack sizing contracts.
+- `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`
+  - Covers the extracted reward-board layout policy math for board width, height targets, zone chrome subtraction, and docked backpack sizing caps.
 - `app-LTL/tests/ui_read_models/ui_reward_reveal_ceremony_suite.gd`
   - Covers reward-reveal ceremony sequencing, presentation gating, anticipation beats, and rarity reveal behavior.
 - `app-LTL/tests/ui_read_models/ui_reward_reveal_layout_suite.gd`

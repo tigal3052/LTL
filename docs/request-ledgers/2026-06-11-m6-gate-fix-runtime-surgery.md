@@ -87,6 +87,11 @@
   - `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
   - `LTL_QUALITY_GATE_OK`
 - The recurrence-prevention fix is now active in both `tools/run-compile-check.ps1` and `tools/run-ltl-quality-gate.ps1`, so future growth on the monitored active owners fails before completion.
+- Follow-up refactor wave now confirms:
+  - `MainViewRuntime.gd` delegates reward-board width, height-target, zone-chrome, and docked-backpack sizing math to a dedicated presenter helper instead of keeping that pure layout policy inline.
+  - `tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
+  - `tools/run-compile-check.ps1` still passes after the extraction.
+  - `tools/run-ltl-quality-gate.ps1` still passes after the extraction.
 
 ## Artifact Ledger
 

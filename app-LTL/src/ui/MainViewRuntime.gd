@@ -14,6 +14,7 @@ const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const HudReadModelScript = preload("res://src/ui/read_models/HudReadModel.gd")
 const FailureReadModelScript = preload("res://src/ui/read_models/FailureReadModel.gd")
 const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutPresenter.gd")
+const RewardBoardLayoutPolicyScript = preload("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
 const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
 const BackpackPinLayoutPolicyScript = preload("res://src/ui/presenters/BackpackPinLayoutPolicy.gd")
 const NodeMapReadModelScript = preload("res://src/ui/read_models/NodeMapReadModel.gd")
@@ -1908,35 +1909,20 @@ func _reward_board_available_width() -> float:
 			reward_panel_margin.get_theme_constant("margin_left") +
 			reward_panel_margin.get_theme_constant("margin_right")
 		)
-	# Reserve a small chrome cushion so the board shell stays inside the fixed gameplay viewport.
-	var width := maxf(320.0, shell_width - horizontal_margin - 10.0)
-	return width
+	return RewardBoardLayoutPolicyScript.board_available_width(shell_width, horizontal_margin)
 
 func _reward_board_layout_targets(scroll_height: float) -> Dictionary:
-	var board_gap := float(reward_board.get_theme_constant("separation")) if reward_board != null else 0.0
-	var available_height := maxf(0.0, scroll_height - board_gap)
-	if available_height <= 1.0:
-		return {
-			"topZoneHeight": REWARD_BOARD_TOP_ZONE_MIN_HEIGHT,
-			"bottomRowHeight": REWARD_BOARD_BOTTOM_ROW_MIN_HEIGHT
-		}
 	var bottom_min := REWARD_BOARD_BOTTOM_ROW_MIN_HEIGHT
 	if reward_bottom_row != null:
 		bottom_min = maxf(bottom_min, reward_bottom_row.get_combined_minimum_size().y)
-	var bottom_target := clampf(scroll_height * REWARD_BOARD_BOTTOM_ROW_RATIO, bottom_min, maxf(bottom_min, scroll_height * 0.28))
-	var top_target := available_height - bottom_target
-	if top_target < REWARD_BOARD_TOP_ZONE_MIN_HEIGHT:
-		top_target = maxf(REWARD_BOARD_TOP_ZONE_MIN_HEIGHT, available_height - bottom_min)
-		bottom_target = maxf(bottom_min, available_height - top_target)
-	if top_target + bottom_target > available_height:
-		bottom_target = maxf(bottom_min, available_height - top_target)
-	if bottom_target < bottom_min:
-		bottom_target = bottom_min
-		top_target = maxf(220.0, available_height - bottom_target)
-	return {
-		"topZoneHeight": maxf(220.0, top_target),
-		"bottomRowHeight": maxf(bottom_min, bottom_target)
-	}
+	var board_gap := float(reward_board.get_theme_constant("separation")) if reward_board != null else 0.0
+	return RewardBoardLayoutPolicyScript.board_layout_targets(
+		scroll_height,
+		board_gap,
+		bottom_min,
+		REWARD_BOARD_TOP_ZONE_MIN_HEIGHT,
+		REWARD_BOARD_BOTTOM_ROW_RATIO
+	)
 
 func _reward_board_visible_height() -> float:
 	if reward_panel == null or reward_panel_margin == null or reward_box == null or reward_board_head == null:
@@ -1964,8 +1950,12 @@ func _apply_reward_board_zone_height(zone: Control, target_height: float) -> voi
 func _reward_zone_body_target_height(zone: Control, body: Control, target_height: float, fallback_min: float) -> float:
 	if zone == null or body == null:
 		return maxf(fallback_min, target_height)
-	var chrome_height := maxf(0.0, zone.get_combined_minimum_size().y - body.get_combined_minimum_size().y)
-	return maxf(fallback_min, target_height - chrome_height)
+	return RewardBoardLayoutPolicyScript.zone_body_target_height(
+		zone.get_combined_minimum_size().y,
+		body.get_combined_minimum_size().y,
+		target_height,
+		fallback_min
+	)
 
 func _set_theme_constant_override_if_changed(control: Control, key: StringName, value: int) -> void:
 	if control == null:
@@ -1997,28 +1987,11 @@ func _set_custom_minimum_width_if_changed(control: Control, next_width: float, e
 
 func _reward_backpack_panel_dimensions_for_host(host_size: Vector2) -> Vector2:
 	var chrome := _reward_backpack_panel_chrome_dimensions()
-	var margin_width := chrome.x
-	var chrome_height := chrome.y
-	var low := 120.0
-	var high := maxf(120.0, minf(host_size.x, host_size.y))
-	for _step in range(20):
-		var mid := (low + high) * 0.5
-		var candidate := _reward_backpack_panel_dimensions_for_grid_extent(mid, margin_width, chrome_height)
-		if candidate.x <= host_size.x and candidate.y <= host_size.y:
-			low = mid
-		else:
-			high = mid
-	var panel_dims := _reward_backpack_panel_dimensions_for_grid_extent(low, margin_width, chrome_height)
-	var visible_height_cap := _reward_backpack_panel_visible_height_cap()
-	if visible_height_cap > 0.0 and panel_dims.y > visible_height_cap:
-		var scale := visible_height_cap / panel_dims.y
-		panel_dims *= scale
-	return panel_dims
-
-func _reward_backpack_panel_dimensions_for_grid_extent(grid_extent: float, margin_width: float, chrome_height: float) -> Vector2:
-	return Vector2(
-		grid_extent + BackpackPinLayoutPolicyScript.extra_width_for_grid_extent(grid_extent) + margin_width,
-		grid_extent + chrome_height
+	return RewardBoardLayoutPolicyScript.backpack_panel_dimensions_for_host(
+		host_size,
+		chrome.x,
+		chrome.y,
+		_reward_backpack_panel_visible_height_cap()
 	)
 
 func _reward_backpack_panel_chrome_dimensions() -> Vector2:
