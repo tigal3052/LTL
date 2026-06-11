@@ -29,6 +29,8 @@
 - `tools/run-ltl-quality-gate.ps1`
 - `app-LTL/src/ui/RewardCardCloudHost.gd`
 - `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+- `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
+- `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
 - `LTL-harness/tools/request-analysis-gate.ps1`
 - `LTL-harness/tools/request-analysis-gate.tests.ps1`
 - `LTL-harness/docs/request-analysis-execution-gate.md`
@@ -52,6 +54,8 @@
   - The active runtime currently owns page registration, popup creation, theme projection, shared backpack sizing, reward-board layout, and overlay coordination, making it the main runtime-separation pressure point.
 - `app-LTL/src/ui/MainViewRuntime.gd`
   - The reward-card cloud path still bundles button construction, floating placement, manual anchor persistence, and drag state inside the owner file, making it the next concrete execution-responsibility split target.
+- `app-LTL/src/ui/MainViewRuntime.gd`
+  - The shared backpack path still bundles node-select docking, reward-workspace docking, deferred reparent follow-up, and host-specific layout sync inside the owner file, making it the next concrete execution-responsibility split target.
 - `app-LTL/src/MainControllerRuntime.gd`
   - The active runtime controller remains the orchestration owner for page flow and combat/reward transitions, so any size-gate hardening must point at this file rather than only the thin facade.
 - `LTL-harness/tools/request-analysis-gate.ps1`
@@ -74,6 +78,11 @@
   - Extract to: `app-LTL/src/ui/RewardCardCloudHost.gd`
   - Keep in owner: top-level input dispatch, signal emission, reward-tray composition, and reward/backpack handoff decisions
   - Focused proof: `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+- Owner: `app-LTL/src/ui/MainViewRuntime.gd`
+  - Unit: shared backpack dock, reparent, and host-sync runtime
+  - Extract to: `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
+  - Keep in owner: top-level scene render decisions, host references, and page-specific composition signals
+  - Focused proof: `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
 - Owner: `LTL-harness/tools/request-analysis-gate.ps1`
   - Unit: runtime-owner pre-edit responsibility validation
   - Keep in gate: section presence and owner-path coverage checks
@@ -141,6 +150,12 @@
   - `tools/run-compile-check.ps1` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
   - `tools/run-ltl-quality-gate.ps1` -> `LTL_QUALITY_GATE_OK`
   - `MainViewRuntime.gd` measured 2191 lines at the last committed baseline and 2178 lines after the reward-card cloud extraction wave.
+- Shared-backpack host extraction wave now also confirms:
+  - `MainViewRuntime.gd` delegates shared backpack docking, host-specific layout sync, and deferred reparent follow-up behavior to `SharedBackpackHostCoordinator.gd`.
+  - `tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
+  - `tools/run-compile-check.ps1` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `tools/run-ltl-quality-gate.ps1` -> `LTL_QUALITY_GATE_OK`
+  - `MainViewRuntime.gd` measured 2178 lines at the previous committed baseline and 2152 lines after the shared-backpack host extraction wave.
 
 ## Artifact Ledger
 

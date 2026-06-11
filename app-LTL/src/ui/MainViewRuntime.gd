@@ -31,6 +31,7 @@ const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
 const GiantTimerUIScript = preload("res://src/ui/GiantTimerUI.gd")
 const RewardRevealOverlayScript = preload("res://src/ui/RewardRevealOverlay.gd")
 const RewardCardCloudHostScript = preload("res://src/ui/RewardCardCloudHost.gd")
+const SharedBackpackHostCoordinatorScript = preload("res://src/ui/SharedBackpackHostCoordinator.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 const CharacterSelectPageScene = preload("res://src/scenes/pages/CharacterSelectPage.tscn")
 const LeviathanSelectPageScene = preload("res://src/scenes/pages/LeviathanSelectPage.tscn")
@@ -255,13 +256,13 @@ var claim_card_scroll: ScrollContainer = null
 var reward_inspector_scroll: ScrollContainer = null
 
 static func node_select_backpack_width_for_row(row_size: Vector2, map_min_width: float) -> float:
-	return BackpackPinLayoutPolicyScript.node_select_width_for_row(row_size, map_min_width)
+	return SharedBackpackHostCoordinatorScript.node_select_backpack_width_for_row(row_size, map_min_width)
 
 static func top_content_backpack_horizontal_flags() -> int:
-	return Control.SIZE_SHRINK_CENTER
+	return SharedBackpackHostCoordinatorScript.top_content_backpack_horizontal_flags()
 
 static func top_content_side_horizontal_flags() -> int:
-	return Control.SIZE_EXPAND_FILL
+	return SharedBackpackHostCoordinatorScript.top_content_side_horizontal_flags()
 
 static func top_content_backpack_slot_extent_for_height(target_height: float) -> float:
 	return BackpackPinLayoutPolicyScript.top_content_slot_extent_for_height(target_height)
@@ -1348,34 +1349,20 @@ func _render_character_status(scene: Dictionary) -> void:
 
 # ?ㅽ뻾: place the backpack beside the node map only during node selection.
 func _apply_node_select_backpack_dock(dock: String, map_ratio: float, backpack_ratio: float) -> void:
-	if node_select_content_row == null or node_select_backpack_host == null or backpack_original_parent == null:
-		return
-	if dock == "right":
-		if backpack_container.get_parent() != node_select_backpack_host:
-			_schedule_backpack_reparent(node_select_backpack_host)
-		if node_map_scene != null:
-			node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			node_map_scene.size_flags_stretch_ratio = map_ratio
-			node_map_scene.custom_minimum_size.x = NODE_SELECT_MAP_MIN_WIDTH
-		if node_select_map_host != null:
-			node_select_map_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			node_select_map_host.size_flags_stretch_ratio = map_ratio
-		node_select_backpack_host.size_flags_horizontal = Control.SIZE_SHRINK_END
-		node_select_backpack_host.size_flags_stretch_ratio = backpack_ratio
-		node_select_backpack_host.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
-		backpack_container.size_flags_stretch_ratio = backpack_ratio
-		backpack_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0)
-	else:
-		if backpack_container.get_parent() != backpack_original_parent:
-			_schedule_backpack_reparent(backpack_original_parent, backpack_original_index)
-		if node_select_backpack_host != null:
-			node_select_backpack_host.custom_minimum_size = Vector2.ZERO
-		backpack_container.size_flags_stretch_ratio = 0.0
-		backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
-		backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		backpack_container.custom_minimum_size = Vector2.ZERO
+	SharedBackpackHostCoordinatorScript.apply_node_select_backpack_dock(
+		backpack_container,
+		node_select_content_row,
+		node_select_backpack_host,
+		node_map_scene,
+		node_select_map_host,
+		backpack_original_parent,
+		backpack_original_index,
+		dock,
+		map_ratio,
+		backpack_ratio,
+		_node_select_backpack_width(),
+		Callable(self, "_schedule_backpack_reparent")
+	)
 
 func _node_select_backpack_width() -> float:
 	var row_size := Vector2.ZERO
@@ -1389,41 +1376,31 @@ func _node_select_backpack_width() -> float:
 	return node_select_backpack_width_for_row(row_size, NODE_SELECT_MAP_MIN_WIDTH)
 
 func _sync_node_select_backpack_width() -> void:
-	if node_select_backpack_host == null or backpack_container.get_parent() != node_select_backpack_host:
-		return
-	node_select_backpack_host.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
-	backpack_container.custom_minimum_size = Vector2(_node_select_backpack_width(), 0.0)
-	backpack_container.ratio = 1.0
-	backpack_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	SharedBackpackHostCoordinatorScript.sync_node_select_backpack_width(
+		backpack_container,
+		node_select_backpack_host,
+		_node_select_backpack_width()
+	)
 
 func _apply_reward_backpack_dock(dock_to_board: bool) -> void:
-	if reward_backpack_host == null or backpack_original_parent == null:
-		return
-	_set_reward_workspace_title_state(dock_to_board)
-	if dock_to_board:
-		if backpack_container.get_parent() != reward_backpack_host:
-			_schedule_backpack_reparent(reward_backpack_host)
-		backpack_container.ratio = 1.0
-		backpack_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		backpack_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		return
-	if backpack_container.get_parent() == reward_backpack_host:
-		_schedule_backpack_reparent(backpack_original_parent, backpack_original_index)
+	SharedBackpackHostCoordinatorScript.apply_reward_backpack_dock(
+		backpack_container,
+		reward_backpack_host,
+		backpack_original_parent,
+		backpack_original_index,
+		dock_to_board,
+		Callable(self, "_set_reward_workspace_title_state"),
+		Callable(self, "_schedule_backpack_reparent")
+	)
 
 func _sync_reward_backpack_layout() -> void:
-	if reward_backpack_host == null or backpack_container.get_parent() != reward_backpack_host:
-		return
-	var host_size := reward_backpack_host.size
-	if host_size.x <= 1.0 or host_size.y <= 1.0:
-		host_size = Vector2(active_phase_container.size.x * 0.40, active_phase_container.size.y * 0.82)
-	var panel_dims := _reward_backpack_panel_dimensions_for_host(host_size)
-	if panel_dims.x <= 1.0 or panel_dims.y <= 1.0:
-		return
-	_set_custom_minimum_size_if_changed(backpack_container, panel_dims)
-	backpack_container.ratio = panel_dims.x / maxf(1.0, panel_dims.y)
-	backpack_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	backpack_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	SharedBackpackHostCoordinatorScript.sync_reward_backpack_layout(
+		backpack_container,
+		reward_backpack_host,
+		active_phase_container,
+		Callable(self, "_reward_backpack_panel_dimensions_for_host"),
+		Callable(self, "_set_custom_minimum_size_if_changed")
+	)
 
 func _queue_reward_board_layout_sync() -> void:
 	if _reward_board_layout_sync_pending:
@@ -1850,34 +1827,34 @@ func _viewport_safe_width_for_control(control: Control, fallback_width: float) -
 	return minf(width, viewport_width_from_control)
 
 func _sync_top_content_backpack_layout() -> void:
-	if backpack_container == null or backpack_container.get_parent() != backpack_original_parent:
-		return
-	if not top_content.visible:
-		return
-	_apply_top_content_backpack_bounds()
-	backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
-	backpack_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	SharedBackpackHostCoordinatorScript.sync_top_content_backpack_layout(
+		backpack_container,
+		backpack_original_parent,
+		top_content,
+		Callable(self, "_apply_top_content_backpack_bounds")
+	)
 
 func _queue_shared_backpack_layout_sync() -> void:
-	if backpack_container != null and backpack_container.get_parent() == reward_backpack_host:
-		_queue_reward_board_layout_sync()
-		return
-	if _shared_backpack_layout_sync_pending:
-		return
-	_shared_backpack_layout_sync_pending = true
-	call_deferred("_sync_shared_backpack_layout")
+	var queue_state: Dictionary = SharedBackpackHostCoordinatorScript.queue_shared_backpack_layout_sync(
+		backpack_container,
+		reward_backpack_host,
+		_shared_backpack_layout_sync_pending,
+		Callable(self, "_queue_reward_board_layout_sync")
+	)
+	_shared_backpack_layout_sync_pending = bool(queue_state.get("sharedLayoutSyncPending", false))
+	if bool(queue_state.get("shouldDeferSharedSync", false)):
+		call_deferred("_sync_shared_backpack_layout")
 
 func _sync_shared_backpack_layout() -> void:
 	_shared_backpack_layout_sync_pending = false
-	if backpack_container == null:
-		return
-	if backpack_container.get_parent() == node_select_backpack_host:
-		_sync_node_select_backpack_width()
-		return
-	if backpack_container.get_parent() == reward_backpack_host:
-		return
-	if backpack_container.get_parent() == backpack_original_parent:
-		_sync_top_content_backpack_layout()
+	SharedBackpackHostCoordinatorScript.sync_shared_backpack_layout(
+		backpack_container,
+		reward_backpack_host,
+		node_select_backpack_host,
+		backpack_original_parent,
+		Callable(self, "_sync_node_select_backpack_width"),
+		Callable(self, "_sync_top_content_backpack_layout")
+	)
 
 func _queue_node_map_layout_refresh() -> void:
 	if _node_map_layout_refresh_pending:
@@ -2011,13 +1988,15 @@ func _style_shell_button(button: Button) -> void:
 	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 32.0)
 
 func _apply_top_content_stretch(left_ratio: float, backpack_ratio: float, right_ratio: float) -> void:
-	left_column.size_flags_horizontal = top_content_side_horizontal_flags()
-	left_column.size_flags_stretch_ratio = left_ratio
-	if backpack_container.get_parent() == backpack_original_parent:
-		backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()
-	backpack_container.size_flags_stretch_ratio = backpack_ratio
-	right_sidebar.size_flags_horizontal = top_content_side_horizontal_flags()
-	right_sidebar.size_flags_stretch_ratio = right_ratio
+	SharedBackpackHostCoordinatorScript.apply_top_content_stretch(
+		left_column,
+		backpack_container,
+		backpack_original_parent,
+		right_sidebar,
+		left_ratio,
+		backpack_ratio,
+		right_ratio
+	)
 
 func _shell_button_min_width(button: Button) -> float:
 	if button == null:
@@ -2147,32 +2126,27 @@ func _schedule_backpack_reparent(target_parent: Node, target_index: int = -1) ->
 
 func _commit_backpack_reparent() -> void:
 	_backpack_reparent_pending = false
-	var target_parent := _pending_backpack_parent
-	if backpack_container == null or _pending_backpack_parent == null:
-		return
-	if backpack_container.get_parent() != _pending_backpack_parent:
-		var current_parent := backpack_container.get_parent()
-		if current_parent != null:
-			current_parent.remove_child(backpack_container)
-		_pending_backpack_parent.add_child(backpack_container)
-	if _pending_backpack_parent == backpack_original_parent and _pending_backpack_parent_index >= 0:
-		backpack_original_parent.move_child(backpack_container, _pending_backpack_parent_index)
-	_pending_backpack_parent = null
-	_pending_backpack_parent_index = -1
-	_queue_shared_backpack_layout_sync()
-	if target_parent == reward_backpack_host:
-		_queue_reward_board_layout_sync()
-	if target_parent == node_select_backpack_host:
+	var reparent_state: Dictionary = SharedBackpackHostCoordinatorScript.commit_backpack_reparent(
+		backpack_container,
+		_pending_backpack_parent,
+		_pending_backpack_parent_index,
+		backpack_original_parent,
+		reward_backpack_host,
+		node_select_backpack_host,
+		Callable(self, "_queue_shared_backpack_layout_sync"),
+		Callable(self, "_queue_reward_board_layout_sync"),
+		Callable(self, "_queue_node_map_layout_refresh"),
+		Callable(self, "_flush_pending_backpack_pin_scene")
+	)
+	_pending_backpack_parent = reparent_state.get("pendingBackpackParent", null)
+	_pending_backpack_parent_index = int(reparent_state.get("pendingBackpackParentIndex", -1))
+	if bool(reparent_state.get("nodeMapFollowupRequested", false)):
 		_node_map_followup_refresh_requested = true
-		_queue_node_map_layout_refresh()
-	_flush_pending_backpack_pin_scene()
 
 func _flush_pending_backpack_pin_scene() -> void:
 	if _backpack_reparent_pending:
 		return
-	if backpack_ui == null or not backpack_ui.has_method("update_pin_overlays"):
-		return
-	if _pending_backpack_pin_scene.is_empty():
-		return
-	backpack_ui.update_pin_overlays(_pending_backpack_pin_scene)
-	_pending_backpack_pin_scene = {}
+	_pending_backpack_pin_scene = SharedBackpackHostCoordinatorScript.flush_pending_backpack_pin_scene(
+		backpack_ui,
+		_pending_backpack_pin_scene
+	)

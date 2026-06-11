@@ -850,6 +850,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Centralizes popup and fullscreen overlay front-order plus pause-overlay visibility projection for MainViewRuntime.
 - `app-LTL/src/ui/RewardCardCloudHost.gd`
   - Centralizes reward-card cloud button construction, floating layout, drag clamping, and manual-anchor persistence helpers for MainViewRuntime.
+- `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
+  - Centralizes shared backpack docking, host-specific layout sync, and deferred reparent follow-up helpers for MainViewRuntime.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
   - Renders and controls the full-screen reward reveal ceremony overlay.
 - `app-LTL/src/ui/legacy/LegacyRewardRevealOverlay.gd`
@@ -1079,6 +1081,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Covers the extracted page-scene registry helper for host building, meta-versus-gameplay mounting, and active-page visibility toggling.
 - `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
   - Covers the extracted reward-card cloud helper for drag-bound clamping and live-card manual-anchor retention.
+- `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
+  - Covers the extracted shared backpack host helper for reward docking and deferred node-select reparent follow-up.
 - `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`
   - Covers phase-layout visibility, node-select shell policy, and top-content/backpack sizing contracts.
 - `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`

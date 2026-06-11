@@ -15,6 +15,7 @@ const UIRewardCardCloudHostSuiteScript = preload("res://tests/ui_read_models/ui_
 const UIRewardBoardLayoutPolicySuiteScript = preload("res://tests/ui_read_models/ui_reward_board_layout_policy_suite.gd")
 const UIRewardRevealCeremonySuiteScript = preload("res://tests/ui_read_models/ui_reward_reveal_ceremony_suite.gd")
 const UIRewardRevealLayoutSuiteScript = preload("res://tests/ui_read_models/ui_reward_reveal_layout_suite.gd")
+const UISharedBackpackHostCoordinatorSuiteScript = preload("res://tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd")
 
 var failures: Array[String] = []
 
@@ -35,7 +36,8 @@ func run_all_tests() -> Dictionary:
 		UIRewardCardCloudHostSuiteScript,
 		UIRewardBoardLayoutPolicySuiteScript,
 		UIRewardRevealCeremonySuiteScript,
-		UIRewardRevealLayoutSuiteScript
+		UIRewardRevealLayoutSuiteScript,
+		UISharedBackpackHostCoordinatorSuiteScript
 	]:
 		_run_suite(suite_script)
 	return {"ok": failures.is_empty(), "errors": failures}

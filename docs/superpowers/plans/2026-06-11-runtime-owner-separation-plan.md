@@ -59,11 +59,12 @@
   - Extracted popup/overlay front-order plus pause-state projection into `PopupOverlayHost.gd`.
   - Extracted page copy and defeat wireframe projection into `PageSceneModelBuilder.gd`.
   - Extracted safe-shell and shared-backpack layout budget math into `AppShellLayoutPolicy.gd`.
-- Remaining splits required to push `MainViewRuntime.gd` from 2375 lines toward the low hundreds:
-  - Move reward card cloud rendering, drag anchors, and inspector projection into a dedicated reward-board coordinator plus small policy helpers.
+- Extracted reward-card cloud rendering, drag anchors, and manual-anchor persistence into `RewardCardCloudHost.gd`.
+- Extracted shared backpack docking, host-sync, and deferred reparent follow-up into `SharedBackpackHostCoordinator.gd`.
+- Remaining splits required to push `MainViewRuntime.gd` from 2178 lines toward the low hundreds:
+  - Move reward inspector projection and footprint rendering into a dedicated reward-inspector helper.
   - Move reward reveal overlay lifecycle and source-rect math into a focused ceremony host helper.
   - Move page bootstrap and signal bridge wiring into a page-scene bootstrap helper.
-  - Move shared backpack docking and top-content/node-select reparent orchestration into a dedicated backpack host coordinator.
 - Keep `MainViewRuntime.gd` as the top-level composition root that delegates to those helpers.
 
 ### Wave 3: Split `MainControllerRuntime.gd` by flow

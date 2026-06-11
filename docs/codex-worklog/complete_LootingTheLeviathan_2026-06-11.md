@@ -41,6 +41,10 @@ The requested runtime-owner reduction and recurrence-prevention wave is now comp
   - Extracted reward-card cloud helper that now owns reward-card button construction, floating placement, drag-clamp math, and manual-anchor persistence.
 - `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
   - Focused TDD coverage for the extracted reward-card cloud helper.
+- `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
+  - Extracted shared-backpack host helper that now owns node-select docking, reward-workspace docking, host-specific layout sync, and deferred reparent follow-up.
+- `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
+  - Focused TDD coverage for the extracted shared-backpack host helper.
 - `LTL-harness/tools/request-analysis-gate.ps1`
   - Hardened pre-edit gate that now requires `Execution Responsibility Units` for monitored runtime-owner edits.
 - `LTL-harness/tools/request-analysis-gate.tests.ps1`
@@ -68,6 +72,6 @@ The requested runtime-owner reduction and recurrence-prevention wave is now comp
 ## Remaining Gaps
 
 - The large active owners are now frozen by cap, but they are not yet physically split; that next extraction order is documented in `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`.
-- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2178 lines even after moving reward-board layout math, popup-overlay host logic, page-scene registry logic, page-scene model projection, app-shell layout budget logic, and reward-card cloud runtime into dedicated helpers.
+- `MainViewRuntime.gd` has started splitting, but it is still a large owner at 2152 lines even after moving reward-board layout math, popup-overlay host logic, page-scene registry logic, page-scene model projection, app-shell layout budget logic, reward-card cloud runtime, and shared-backpack host coordination into dedicated helpers.
 - The existing test-size gate still warns on several untouched legacy top-level test files such as `test_reward_contract.gd`, `run_main_layout_audit_contract.gd`, and `godot_contract_runner.gd`.
 - Godot contract runs still print RID/resource leak warnings even though the formal success markers are green.

@@ -1028,6 +1028,28 @@ M  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
   - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/run-compile-check.ps1'` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
   - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/run-ltl-quality-gate.ps1' -GodotPath 'D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe'` -> `LTL_QUALITY_GATE_OK`
 
+## 2026-06-11 Shared Backpack Host Wave
+
+- Intent: Continue the next `MainViewRuntime.gd` owner split by moving shared backpack docking, deferred reparent, and host-specific layout sync out of the owner file.
+- Files or areas touched:
+  - `app-LTL/src/ui/MainViewRuntime.gd`
+  - `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
+  - `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
+  - `app-LTL/tests/test_ui_read_models.gd`
+  - `docs/source-map.md`
+  - `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
+  - `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
+  - `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md`
+- Summary:
+  - Added `SharedBackpackHostCoordinator.gd` so node-select docking, reward-workspace docking, shared top-content sync, and deferred reparent follow-up now live behind one focused helper instead of staying bundled in `MainViewRuntime.gd`.
+  - Kept the owner-facing wrapper surface in `MainViewRuntime.gd` so render decisions still live in the owner while host-transfer mechanics delegate outward.
+  - Added focused UI read-model coverage for reward docking and node-select reparent follow-up behavior, then updated the runtime-owner separation plan and source map to make the new helper discoverable to the harness.
+- Verification:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'LTL-harness/tools/request-analysis-gate.ps1' -Ledger 'docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md' -Mode pre-edit` -> `REQUEST_ANALYSIS_GATE_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/invoke-godot.ps1' -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/run-compile-check.ps1'` -> `Compilation Check: PASSED (GODOT_CONTRACTS_OK)`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File 'tools/run-ltl-quality-gate.ps1' -GodotPath 'D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe'` -> `LTL_QUALITY_GATE_OK`
+
 ## 2026-06-11 17:55:05
 
 <!-- codex-worklog-signature: 445858cc73c65bd1b15bc9e9094a5bf5e52a60042654d17af4e17a9531cf3c8e -->
@@ -1205,6 +1227,217 @@ M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
 M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
 M  docs/source-map.md
 A  docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:15:32
+
+<!-- codex-worklog-signature: 8ea55633080d848cd3edcab7fd0c15d5bdf689b7c6086b3e23a645ff509b71e8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:17:33
+
+<!-- codex-worklog-signature: ca2ae9e2e5066d33d2f37598e063181d22d7d40440ae23b26de4c1c3564c5c31 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:17:46
+
+<!-- codex-worklog-signature: 95415e65a6b846d5280e7351a52d006ad76cd7c14b6e1ca59d4b62f3511c571d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:19:18
+
+<!-- codex-worklog-signature: 1813185e34eb22f05f32a69ad009388a29b6511467e193cb83f05898f7846782 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:19:31
+
+<!-- codex-worklog-signature: 6df25d35e6ef77a0da7bd6ddd9f279c6f7d70ef89563dbd12204cfcb350d647f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+?? app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:22:32
+
+<!-- codex-worklog-signature: 2858ac57cf9b009991afb3df9f9bf23f04d8ca91e176500c89c3ea990a550757 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+?? app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:22:50
+
+<!-- codex-worklog-signature: 47475b54db102b06e619b5810a2ad241ce4051e2aace2403249e2f9fac8b18ea -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+?? app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:24:43
+
+<!-- codex-worklog-signature: 081a3d9d64ceba574e93f8905f9d61d666367af9725b0ce4ad4684c2765918d0 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+?? app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:25:51
+
+<!-- codex-worklog-signature: 6b8ee76bfd6578dc2e396fb2a58bc39e6f3094f28da8bbd0136964b1c1590613 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+ M docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+ M docs/source-map.md
+ M docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+?? app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+?? app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:26:49
+
+<!-- codex-worklog-signature: 304ec6eebd7829bbe70d1d1b97be37250a7789e8ccb2aecdc66a3bc71a7dbdb2 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+M  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-11 18:27:12
+
+<!-- codex-worklog-signature: 0e1b29372f6d24910325a4c098d0166636603ed18505322117eae2a618b5f432 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/ui/MainViewRuntime.gd
+A  app-LTL/src/ui/SharedBackpackHostCoordinator.gd
+M  app-LTL/tests/test_ui_read_models.gd
+A  app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-11.md
+MM docs/codex-worklog/history_LootingTheLeviathan_2026-06-11.md
+M  docs/codex-worklog/plan_LootingTheLeviathan_2026-06-11.md
+M  docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md
+M  docs/source-map.md
+M  docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md
 ``
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
