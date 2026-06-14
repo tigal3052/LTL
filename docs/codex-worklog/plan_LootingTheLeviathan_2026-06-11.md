@@ -5,61 +5,60 @@ Date: 2026-06-11
 
 ## Active Work
 
-- Continue the `MainViewRuntime.gd` owner split by extracting the shared-backpack dock and deferred reparent coordination into its own execution-responsibility helper.
+- Enforce small runtime implementation units after cleanup: review oversized `.gd`/`.tscn` files, split immediately tractable oversized files, and harden the harness so active runtime `.gd`/`.tscn` files default to a 500-line cap with explicit frozen debt for legacy oversized owners.
 
 ## Request Summary
 
-- Continue the current runtime-view refactor wave after the reward-board, page-registry, popup-overlay, page-model, app-shell policy, and reward-card-cloud extractions.
-- Reduce `MainViewRuntime.gd` further by moving shared backpack docking, node-select host sizing, reward host docking, and deferred reparent follow-up behavior into a dedicated runtime helper.
-- Keep the new pre-edit harness requirement active while applying it to the next monitored runtime-owner split.
-- Report which files shrank and which implementation-stage checks now prevent owner-growth regressions.
+- The user completed an unnecessary-code cleanup and requested a large-file review, feature-unit split, subagent review synthesis, and harness-level recurrence prevention.
+- Three subagent reviews were used: large `.gd` file analysis, large `.tscn` file analysis, and harness/gate root-cause analysis.
+- Immediate implementation will split `RewardVocab.gd` fallback data and `CharacterSelectPage.gd` loadout text helpers, then apply a strict active runtime 500-line gate with frozen legacy-debt exceptions for larger owners that need staged extraction.
 
 ## Scope
 
-- `app-LTL/src/ui/MainViewRuntime.gd`
-- `app-LTL/src/ui/*.gd`
-- `app-LTL/src/ui/presenters/*.gd`
-- `app-LTL/tests/ui_read_models/*.gd`
-- `app-LTL/tests/test_ui_read_models.gd`
-- `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
+- `LTL-harness/tools/runtime-size-gate.ps1`
+- `LTL-harness/tools/runtime-size-gate.tests.ps1`
+- `docs/architectural-gates/runtime-size-gate.md`
+- `docs/request-ledgers/2026-06-11-runtime-size-cap-enforcement.md`
+- `docs/superpowers/plans/2026-06-11-runtime-size-cap-enforcement-plan.md`
+- `app-LTL/src/vocabulary/RewardVocab.gd`
+- `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`
+- `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`
+- `docs/source-map.md`
 - `docs/codex-worklog/*.md`
-- `LTL-harness/tools/request-analysis-gate.ps1`
-- `LTL-harness/tools/request-analysis-gate.tests.ps1`
-- `LTL-harness/docs/request-analysis-execution-gate.md`
-- `LTL-harness/docs/templates/request-constraint-ledger-template.md`
-- `LTL-harness/00_AGENTS.md`
-- any source-map updates required by the extracted helper or new focused test file
 
 ## Out of Scope
 
-- Prototype archive rewrites under `app-LTL/prototype/**`
-- `MainControllerRuntime.gd` flow extraction in this pass
-- node-map/page-host rewiring outside the shared-backpack host coordination surface
-- unrelated gameplay design changes
+- Rewriting all legacy oversized runtime owners in one pass
+- Prototype deletion or archive policy changes
+- Gameplay redesign, page routing changes, or transition-handoff changes
+- Commit / PR work unless explicitly requested later
 
 ## Steps
 
-1. Re-read the current runtime-owner separation plan and identify the next live execution unit inside `MainViewRuntime.gd`.
-2. Update the request ledger for the shared-backpack host split and rerun the pre-edit request-analysis gate.
-3. Add failing focused tests for the new shared-backpack host coordinator helper.
-4. Extract node-select dock, reward dock, shared-layout sync, and deferred reparent follow-up behavior into a dedicated helper file and delegate `MainViewRuntime.gd` to it without changing behavior.
-5. Re-run focused UI tests plus compile/quality verification, then calculate before/after line counts and note the next remaining owner slices.
+1. Capture subagent findings and finalize the small-file enforcement plan.
+2. Add RED self-tests proving the current size gate lacks frozen debt semantics and `.gd`/`.tscn` 500-line global protection.
+3. Implement `legacy_debt_path_caps` in the runtime size gate and update the manifest to use strict active runtime 500-line globs.
+4. Split fallback reward data out of `RewardVocab.gd`.
+5. Split starter loadout text/detail projection out of `CharacterSelectPage.gd`.
+6. Update source-map and worklog documents.
+7. Verify runtime-size self-tests, real runtime-size gate, source-map gate, focused Godot contracts, and compile check.
 
 ## Expected Outputs
 
-- A smaller `MainViewRuntime.gd` with shared backpack docking and deferred reparent orchestration delegated out to a focused helper.
-- Focused test surfaces that prove the extracted helper behavior before integration.
-- Updated worklog notes that capture what part of the owner split is complete and what still remains.
-- A before/after line-count summary for each file that shrank during this refactor wave.
+- `RewardVocab.gd` and `CharacterSelectPage.gd` reduced below 500 lines through focused helper extraction.
+- New helper files that each stay below 500 lines and own one responsibility.
+- Runtime-size gate support for explicit frozen legacy debt plus strict active `.gd`/`.tscn` caps.
+- A documented root-cause and recurrence-prevention policy for oversized implementation files.
 
 ## Verification Method
 
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/request-analysis-gate.ps1 -Ledger docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md -Mode pre-edit`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/request-analysis-gate.tests.ps1`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-ltl-quality-gate.ps1 -GodotPath D:\Programming\godot_workspace\bin\Godot_v4.3-stable_win64_console.exe`
-- `git show <baseline-commit>:<path>` or equivalent line-count comparison commands for reporting shrinkage honestly
+- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/runtime-size-gate.tests.ps1`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/runtime-size-gate.ps1 -Root .`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/source-map-gate.ps1`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_reward_contract.gd`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_character_select_cleanup_contract.gd`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1 -RequestLedger docs/request-ledgers/2026-06-11-runtime-size-cap-enforcement.md`
 
 ## Plan Change Log
 
@@ -71,3 +70,10 @@ Date: 2026-06-11
 - 2026-06-11: Plan updated for the next pass: extract the reward-card cloud runtime and make pre-edit request analysis enforce responsibility-unit decomposition for monitored runtime owners.
 - 2026-06-11: Reward-card cloud extraction, source-map updates, and pre-edit runtime-owner responsibility gating were implemented and verified on the current workspace.
 - 2026-06-11: Plan updated again for the next pass: extract shared backpack docking and deferred reparent coordination from `MainViewRuntime.gd`.
+- 2026-06-11: Plan redirected to a debug-runtime cleanup audit so deletion can be staged from a live-runtime keep list instead of from editor-open or archival scenes.
+- 2026-06-11: Cleanup plan corrected to preserve prototypes, define Class A as generated local residue only, and add `.gd`/`.tscn` internal deletion waves for legacy runtime code.
+- 2026-06-11: First cleanup execution slice completed: file-level dead residue, stale shop declarations, source-map/test references, and generated cache/log residue were removed after verification.
+- 2026-06-11: Full `.gd`/`.tscn` runtime inventory audit completed for all `app-LTL` scenes and scripts, with screenshot mismatch diagnosed as static AppShell ownership in `Main.tscn`.
+- 2026-06-11: Plan switched from audit mode to execution mode for the user-requested sequence: node-map legacy removal first, AppShell page-ownership migration second, `ParticleTemplate` validation third.
+- 2026-06-11: Requested execution wave completed: node-map runtime wiring removed, gameplay AppShell ownership migrated into page-shell scenes, and `ParticleTemplate` was kept with an explicit `VFXManager` wiring contract plus runtime fallback.
+- 2026-06-11: Plan updated for the user's small-unit enforcement request: synthesize subagent review, split immediately tractable oversized files, and harden runtime-size gating with strict `.gd`/`.tscn` caps plus frozen legacy debt.

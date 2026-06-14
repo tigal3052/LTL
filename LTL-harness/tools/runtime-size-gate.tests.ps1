@@ -37,21 +37,29 @@ function Write-TestFile($Root, $RelativePath, $LineCount, $Prefix = "# line") {
   Set-Content -LiteralPath $path -Value $lines -Encoding UTF8
 }
 
-function Write-Manifest($Root, $PathCaps, $GlobCaps) {
+function Write-Manifest($Root, $PathCaps, $GlobCaps, $LegacyDebtCaps = "") {
   $manifestPath = Join-Path $Root "docs/architectural-gates/runtime-size-gate.md"
   $manifestDir = Split-Path -Parent $manifestPath
   New-Item -ItemType Directory -Force -Path $manifestDir | Out-Null
-  Set-Content -LiteralPath $manifestPath -Encoding UTF8 -Value @(
+  $lines = @(
     "date: 2026-06-11",
     "task: runtime-size-gate",
     "approval: approved",
     "",
     "profile: runtime-size",
     "purpose: Test manifest for the runtime-size gate.",
-    "",
-    "strict_path_caps: $PathCaps",
-    "strict_glob_caps: $GlobCaps"
+    ""
   )
+  if (-not [string]::IsNullOrWhiteSpace($PathCaps)) {
+    $lines += "strict_path_caps: $PathCaps"
+  }
+  if (-not [string]::IsNullOrWhiteSpace($GlobCaps)) {
+    $lines += "strict_glob_caps: $GlobCaps"
+  }
+  if (-not [string]::IsNullOrWhiteSpace($LegacyDebtCaps)) {
+    $lines += "legacy_debt_path_caps: $LegacyDebtCaps"
+  }
+  Set-Content -LiteralPath $manifestPath -Encoding UTF8 -Value $lines
 }
 
 function Invoke-RuntimeSizeGate($Root) {
@@ -113,6 +121,45 @@ Write-TestFile $missingOwnerRoot "app-LTL/src/ui/StatusPanelUI.gd" 80
 $missingOwner = Invoke-RuntimeSizeGate $missingOwnerRoot
 Assert-True ($missingOwner.Code -ne 0) "missing strict owner path should fail"
 Assert-True ($missingOwner.Output -match "MainControllerRuntime") "missing strict owner failure should name the missing file: $($missingOwner.Output)"
+
+$legacyDebtPassRoot = Join-Path $testRoot "legacy-debt-pass"
+Write-Manifest $legacyDebtPassRoot `
+  "" `
+  "app-LTL/src/**/*.gd=500; app-LTL/src/**/*.tscn=500" `
+  "app-LTL/src/ui/BigLegacyOwner.gd=600"
+Write-TestFile $legacyDebtPassRoot "app-LTL/src/ui/BigLegacyOwner.gd" 580
+Write-TestFile $legacyDebtPassRoot "app-LTL/src/ui/NewLeaf.gd" 120
+Write-TestFile $legacyDebtPassRoot "app-LTL/src/scenes/pages/CompactPage.tscn" 300
+$legacyDebtPass = Invoke-RuntimeSizeGate $legacyDebtPassRoot
+Assert-True ($legacyDebtPass.Code -eq 0) "legacy debt exact cap should pass while strict source/scene globs protect non-debt files: $($legacyDebtPass.Output)"
+
+$legacyDebtGrowthRoot = Join-Path $testRoot "legacy-debt-growth"
+Write-Manifest $legacyDebtGrowthRoot `
+  "" `
+  "app-LTL/src/**/*.gd=500" `
+  "app-LTL/src/ui/BigLegacyOwner.gd=600"
+Write-TestFile $legacyDebtGrowthRoot "app-LTL/src/ui/BigLegacyOwner.gd" 601
+$legacyDebtGrowth = Invoke-RuntimeSizeGate $legacyDebtGrowthRoot
+Assert-True ($legacyDebtGrowth.Code -ne 0) "legacy debt exact cap should fail when the owner grows beyond its frozen cap"
+Assert-True ($legacyDebtGrowth.Output -match "BigLegacyOwner" -and $legacyDebtGrowth.Output -match "600") "legacy debt growth failure should name the owner and frozen cap: $($legacyDebtGrowth.Output)"
+
+$sourceGlobFailRoot = Join-Path $testRoot "source-glob-fail"
+Write-Manifest $sourceGlobFailRoot `
+  "" `
+  "app-LTL/src/**/*.gd=500; app-LTL/src/**/*.tscn=500"
+Write-TestFile $sourceGlobFailRoot "app-LTL/src/ui/NewOversizedLeaf.gd" 501
+$sourceGlobFail = Invoke-RuntimeSizeGate $sourceGlobFailRoot
+Assert-True ($sourceGlobFail.Code -ne 0) "strict source glob should fail for a non-debt .gd file above 500 lines"
+Assert-True ($sourceGlobFail.Output -match "NewOversizedLeaf") "strict source glob failure should name the oversized source file: $($sourceGlobFail.Output)"
+
+$sceneGlobFailRoot = Join-Path $testRoot "scene-glob-fail"
+Write-Manifest $sceneGlobFailRoot `
+  "" `
+  "app-LTL/src/**/*.tscn=500"
+Write-TestFile $sceneGlobFailRoot "app-LTL/src/scenes/pages/OversizedPage.tscn" 501
+$sceneGlobFail = Invoke-RuntimeSizeGate $sceneGlobFailRoot
+Assert-True ($sceneGlobFail.Code -ne 0) "strict scene glob should fail for a non-debt .tscn file above 500 lines"
+Assert-True ($sceneGlobFail.Output -match "OversizedPage") "strict scene glob failure should name the oversized scene file: $($sceneGlobFail.Output)"
 
 Remove-TestRoot
 Write-Output "RUNTIME_SIZE_GATE_TESTS_OK"

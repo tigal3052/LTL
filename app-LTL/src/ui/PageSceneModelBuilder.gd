@@ -20,7 +20,7 @@ static func project(page_id: String, scene: Dictionary, character_portrait_path:
 		"node_select":
 			var node_select_scene := scene.duplicate(true)
 			node_select_scene["pageTitle"] = str(selected_leviathan.get("name", TextCatalogScript.t("leviathan.roster.title")))
-			node_select_scene["pageSubtitle"] = _node_select_page_subtitle(stage_label_text)
+			node_select_scene["pageSubtitle"] = ""
 			node_select_scene["pageHeroPath"] = str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_turtle.png"))
 			return node_select_scene
 		"battle":

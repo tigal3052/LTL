@@ -1,35 +1,116 @@
 # M6 Manual Sign-Off Checklist
 
-## Current Status
+## 2026-06-15 Closure Status
 
-- 자동 검증 기준 핵심 formal gate는 현재 그린이다.
-- 하지만 M6를 최종 완료라고 부르기에는 아직 이르다.
-- 남은 이유:
-  - 수동 페이지별 QA와 스크린샷 매트릭스가 아직 정식 증거로 남지 않았다.
-  - 활성 런타임과 과거 잔류 소스 분리 수술이 아직 진행 전이다.
-  - 하네스가 실제 대형 런타임 파일을 막지 못한 원인 분석과 재발 방지 적용이 아직 남아 있다.
+- M6 completion was processed by explicit user request on 2026-06-15.
+- Unchecked manual QA items below remain evidence gaps; they are not silently converted into passed checks.
+- The completion report carrying this status is `LTL-harness/docs/11_exec-plans/02_completed/12_M6_ui_ux_finalization_completed.md`.
 
-## Manual Checklist
+기준일: 2026-06-12
 
-- [ ] `character_select`: 1280x720, 1440x900, 1920x1080에서 보드/로스터/계속 버튼이 모두 viewport 안에 남는다.
-- [ ] `leviathan_select`: 대상 리본, CTA, 설명 카피가 겹치지 않고 `Looting Start` 버튼이 즉시 보인다.
-- [ ] `node_select` stage 1/2/boss: 경로 버튼, 노드 설명, 배경 장면, 공유 백팩 도킹 위치가 화면별로 깨지지 않는다.
-- [ ] 전투 HUD: 좌측 상태 컬럼, 중앙 백팩, 우측 로그가 1280x720 이상에서 잘리지 않고 1초 안에 상태 파악이 된다.
-- [ ] 전투 하단 액션 버튼: `Reset`, `Start`, `Hold Fire`, `Claim Rewards` 상태가 phase/page에 맞게만 노출된다.
-- [ ] 보상 세레모니: reveal 연출이 안전영역 안에서 동작하고 confirm prompt와 카드가 겹치지 않는다.
-- [ ] 보상 트레이: reward cloud, workspace, inspector, discard, confirm 5개 영역이 모두 viewport 안에 남는다.
-- [ ] 보상 트레이 inspect 전환: reward meta 클릭, backpack slot 클릭을 번갈아 해도 보드 폭과 높이가 흔들리지 않는다.
-- [ ] 보상 하단 카드: discard/confirm helper copy가 비어 있을 때 빈 제목줄이나 세로 스크롤바가 다시 생기지 않는다.
-- [ ] defeat/clear/boss reward: 이전 손실 이유와 다음 행동이 명확하게 읽히고 restart 흐름이 끊기지 않는다.
-- [ ] 접근성 토글: shake / flash / particle / assist 관련 토글이 실제 연출에 반영되고 재진입 후에도 유지된다.
-- [ ] i18n: 새로 추가된 M6 페이지 텍스트와 버튼 라벨이 한국어/영문 카탈로그에서 빠지지 않는다.
-- [ ] 스크린샷 매트릭스: 지원 해상도별 대표 화면 캡처를 남기고 남은 이슈를 명시한다.
+## 자동 확인 결과
 
-## Completion Gate Reminder
+- [x] `source-map-gate.ps1`
+- [x] `run_main_layout_audit_contract.gd`
+- [ ] 스크린샷 매트릭스
+- [ ] 전투 화면 1초 가독성 수동 점검
+- [ ] failure/retry에서 "왜 졌는지 / 다음에 뭘 해야 하는지" 수동 점검
+- [ ] 접근성 토글의 실제 체감 영향 수동 점검
+- [x] 접근성 토글의 저장/재실행 유지 계약
+- [x] 남는 known issue 문서화
 
-- 전투 상호작용 상태가 색상만 보지 않아도 빠르게 판독되어야 한다.
-- reward ceremony, tray review, node map, backpack가 하나의 시각 언어로 읽혀야 한다.
-- 실패/재시도 페이지가 이전 손실과 다음 시도를 명확히 설명해야 한다.
-- 접근성 토글은 실제 동작과 영속성까지 검증되어야 한다.
-- 테마/아트킷은 스크립트별 임시 오버라이드가 아니라 재사용 가능한 체계여야 한다.
-- 스크린샷 매트릭스와 잔여 이슈 목록이 함께 있어야 최종 완료 판정을 내릴 수 있다.
+## 자동 확인에 사용한 명령
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/source-map-gate.ps1 -Root .
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_main_layout_audit_contract.gd
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_test_ui_read_models.gd
+```
+
+## 수동 점검 방법
+
+### 1. 스크린샷 매트릭스
+
+확인 해상도:
+
+- `1280x720`
+- `1440x900`
+- `1920x1080`
+- 별도 16:10 샘플 1장
+  권장: `1680x1050`
+
+확인 대상 화면:
+
+- `character_select`
+- `leviathan_select`
+- `node_select`
+- `battle`
+- `reward`
+- `defeat`
+
+합격 기준:
+
+- 제목, 본문, CTA 버튼, 주요 카드가 잘리지 않는다.
+- 버튼이 화면 밖으로 밀리지 않는다.
+- 스크롤이 있어도 의도된 영역에만 생기고, 핵심 CTA는 스크롤 없이 바로 보인다.
+- 배경 아트나 파티클이 텍스트를 읽기 어렵게 덮지 않는다.
+
+### 2. 전투 화면 1초 가독성
+
+실행 방법:
+
+- 전투 진입 직후 1초 동안 화면을 본다.
+- 아래 네 가지를 바로 말할 수 있는지 확인한다.
+  - 지금 맞춰야 할 색
+  - 현재 위험 상태
+  - 누를 수 있는 핵심 버튼
+  - 보상이나 다음 단계로 넘어갈 수 있는지
+
+합격 기준:
+
+- 1초 안에 위 네 가지를 헷갈리지 않고 말할 수 있다.
+- 좌측 상태, 중앙 전장/백팩, 우측 로그가 서로 시선을 뺏어 정보 우선순위를 흐리지 않는다.
+- 중요한 경고가 색만으로 전달되지 않고 텍스트나 형태로도 읽힌다.
+
+### 3. failure / retry 설명력
+
+실행 방법:
+
+- 일부러 패배 화면으로 진입한다.
+- 패배 직후 아래 두 질문에 화면만 보고 답할 수 있는지 본다.
+  - 왜 졌는가?
+  - 다음 판에서 무엇을 바꿔야 하는가?
+
+합격 기준:
+
+- 패배 원인이 문장으로 읽힌다.
+- 다음 시도 팁이 추상적이지 않고 실제 행동으로 이어진다.
+- `Retry` 또는 복귀 동선이 한 번에 보이고, 눌렀을 때 흐름이 끊기지 않는다.
+
+### 4. 접근성 토글 체감 확인
+
+토글 대상:
+
+- `screenshake`
+- `reduced flash`
+- `reduced particles`
+- `hold-fire assist`
+
+실행 방법:
+
+- 설정을 열고 토글을 하나씩 켠다/끈다.
+- 전투 또는 보상 연출로 돌아가 실제 변화가 보이는지 확인한다.
+- 게임을 완전히 다시 실행한 뒤 마지막 설정이 유지되는지 본다.
+
+합격 기준:
+
+- `screenshake`: 충격 때 화면 흔들림이 줄거나 꺼진다.
+- `reduced flash`: 강한 번쩍임과 밝은 플래시가 눈에 띄게 약해진다.
+- `reduced particles`: 입자 수나 입자 존재가 분명히 줄어든다.
+- `hold-fire assist`: 길게 누를 때 기본 연사보다 더 넓은 보조가 실제 전투 입력에 반영된다.
+- 재실행 후에도 마지막 설정값이 그대로 남아 있다.
+
+## 완료 판정 메모
+
+- 자동 게이트가 모두 초록이어도, 스크린샷 매트릭스와 사람이 직접 보는 가독성 체크가 비어 있으면 M6를 완전 완료로 부르면 안 된다.
+- 남은 이슈와 증거 공백은 `docs/m6-known-issues.ko.md`에 정리한다.

@@ -1,9 +1,13 @@
 extends RefCounted
 
+const PageShellHostScript = preload("res://src/ui/PageShellHost.gd")
+
 static func build_shell_host(host_name: String) -> Control:
-	var host := Control.new()
+	var host := PageShellHostScript.new()
 	host.name = host_name
 	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	host.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	host.mouse_filter = Control.MOUSE_FILTER_PASS
 	return host
 
@@ -15,7 +19,16 @@ static func register_page_scene(page_scenes: Dictionary, page_id: String, page_s
 		return
 	page_scene.name = "%sPageShell" % page_id.capitalize()
 	if page_scene is Control:
-		page_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		page_scene.anchor_left = 0.0
+		page_scene.anchor_top = 0.0
+		page_scene.anchor_right = 0.0
+		page_scene.anchor_bottom = 0.0
+		page_scene.offset_left = 0.0
+		page_scene.offset_top = 0.0
+		page_scene.offset_right = 0.0
+		page_scene.offset_bottom = 0.0
+		page_scene.grow_horizontal = Control.GROW_DIRECTION_END
+		page_scene.grow_vertical = Control.GROW_DIRECTION_END
 		page_scene.visible = false
 	var host := page_shell_host
 	if is_meta_page(page_id, meta_page_ids):

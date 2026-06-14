@@ -7,7 +7,6 @@
 # - ?곗뮆?? ???????る????????볥젃??獄쎻뫗??reset_pressed, start_combat_pressed, hold_fire_pressed, shop_open_pressed, buy_passive, etc.)
 # - 疫뀀뜆?: ??쑴已??됰뮞 ?????됱뵠??筌욊낯??筌〓챷?? ?袁⑥컭???怨밴묶 癰궰野?
 
-# ?ㅽ뻾: define the main-scene UI view as a PanelContainer script and declare signals.
 extends PanelContainer
 const TooltipReadModelScript = preload("res://src/ui/read_models/TooltipReadModel.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
@@ -18,9 +17,8 @@ const PhaseLayoutPresenterScript = preload("res://src/ui/presenters/PhaseLayoutP
 const RewardBoardLayoutPolicyScript = preload("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
 const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
 const BackpackPinLayoutPolicyScript = preload("res://src/ui/presenters/BackpackPinLayoutPolicy.gd")
-const NodeMapReadModelScript = preload("res://src/ui/read_models/NodeMapReadModel.gd")
+const ShellButtonStylerScript = preload("res://src/ui/presenters/ShellButtonStyler.gd")
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
-const NodeMapSceneScript = preload("res://src/scenes/node_map/NodeMapScene.gd")
 const ShopPanelUIScript = preload("res://src/ui/ShopPanelUI.gd")
 const PopupOverlayHostScript = preload("res://src/ui/PopupOverlayHost.gd")
 const PageSceneRegistryScript = preload("res://src/ui/PageSceneRegistry.gd")
@@ -44,6 +42,8 @@ const EventNodePageScene = preload("res://src/scenes/pages/EventNodePage.tscn")
 const DefeatPageScene = preload("res://src/scenes/pages/DefeatPage.tscn")
 const ClearPageScene = preload("res://src/scenes/pages/ClearPage.tscn")
 const META_PAGE_IDS := ["character_select", "leviathan_select", "clear", "defeat"]
+const SURFACE_PAGE_IDS := ["battle", "boss_battle", "reward", "boss_reward"]
+const ACTION_BAR_PAGE_IDS := ["node_select", "battle", "boss_battle", "reward", "boss_reward"]
 const NODE_SELECT_MAP_MIN_WIDTH := 460.0
 const VIEWPORT_SAFE_GUTTER := 16.0
 const POPUP_OVERLAY_Z_INDEX := 500
@@ -113,78 +113,73 @@ signal buy_base_item(item_id: String)
 @onready var phase_label: Label = $RootMargin/AppShell/Header/Margin/PhaseRow/PhaseLabel
 @onready var stage_label: Label = $RootMargin/AppShell/Header/Margin/PhaseRow/StageLabel
 @onready var header_actions: HBoxContainer = $RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions
-@onready var top_content: HBoxContainer = $RootMargin/AppShell/TopContent
 @onready var active_phase_container: Control = $RootMargin/AppShell/ActivePhaseContainer
-@onready var left_column: VBoxContainer = $RootMargin/AppShell/TopContent/LeftColumn
-@onready var portrait_placeholder: Panel = $RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/PortraitPlaceholder
-@onready var portrait_label: Label = $RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/PortraitPlaceholder/PortraitLabel
-@onready var backpack_container: AspectRatioContainer = $RootMargin/AppShell/TopContent/BackpackContainer
-@onready var right_sidebar: PanelContainer = $RootMargin/AppShell/TopContent/RightSidebar
-@onready var reward_panel: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel
-@onready var reward_panel_margin: MarginContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin
-@onready var reward_box: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox
-@onready var reward_board_head: HBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead
-@onready var reward_board_scroll: ScrollContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll
-@onready var reward_board: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard
-@onready var reward_grid: HBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid
-@onready var reward_rewards_zone: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone
-@onready var reward_workspace_zone: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone
-@onready var reward_workspace_margin: MarginContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin
-@onready var reward_workspace_box: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox
-@onready var reward_workspace_head: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead
-@onready var reward_workspace_title: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle
-@onready var reward_inspector_zone: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone
-@onready var reward_bottom_row: HBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow
-@onready var reward_title: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle
-@onready var reward_subtitle: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardSubtitle
-@onready var reward_mode_pill: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/ModePill
-@onready var reward_card_grid: Control = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox/RewardCardGrid
-@onready var reward_cloud_content: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox
-@onready var reward_cloud_box: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox
-@onready var reward_cloud_note: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox/CloudNote
-@onready var reward_workspace_note: RichTextLabel = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/WorkspaceNote
-@onready var reward_backpack_host: Control = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost
-@onready var reward_inspector_kicker: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorKicker
-@onready var reward_inspector_name: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorName
-@onready var reward_inspector_summary: RichTextLabel = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorSummary
-@onready var reward_inspector_facts: GridContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorFacts
-@onready var reward_inspector_stage: VBoxContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage
-@onready var reward_footprint_title: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox/FootprintTitle
-@onready var reward_footprint_info: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox/FootprintInfo
-@onready var reward_footprint_grid: GridContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox/FootprintGrid
-@onready var reset_button: Button = $RootMargin/AppShell/ActionBar/ResetButton
-@onready var start_button: Button = $RootMargin/AppShell/ActionBar/StartButton
-@onready var hold_fire_button: Button = $RootMargin/AppShell/ActionBar/HoldFireButton
-@onready var repair_button: Button = $RootMargin/AppShell/ActionBar/RepairButton
-@onready var claim_rewards_button: Button = $RootMargin/AppShell/ActionBar/ClaimRewardsButton
 @onready var settings_open_button: Button = $RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions/SettingsOpenButton
-@onready var action_bar: HBoxContainer = $RootMargin/AppShell/ActionBar
 @onready var repair_overlay: PanelContainer = $RepairOverlay
 @onready var confirm_overlay: PanelContainer = $ConfirmOverlay
 @onready var confirm_proceed_button: Button = $ConfirmOverlay/Center/ConfirmBox/ButtonsRow/ConfirmButton
 @onready var confirm_cancel_button: Button = $ConfirmOverlay/Center/ConfirmBox/ButtonsRow/CancelButton
 @onready var settings_panel = $SettingsPanel
-@onready var backpack_ui = $RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel
-@onready var battlefield_ui = $RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel
-@onready var status_panel = $RootMargin/AppShell/TopContent/LeftColumn/StatusPanel
-@onready var log_console = $RootMargin/AppShell/TopContent/RightSidebar/Margin/InspectorBox/InspectorText
 @onready var vfx_manager = $VFXManager
-@onready var discard_zone: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone
-@onready var confirm_zone: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone
-@onready var discard_card: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard
-@onready var claim_card: PanelContainer = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard
-@onready var discard_label: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/DiscardCardBox/DiscardLabel
-@onready var claim_card_body: Label = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox/ClaimCardBody
-@onready var claim_inline_button: Button = $RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox/ClaimInlineButton
+var top_content: HBoxContainer
+var left_column: VBoxContainer
+var portrait_placeholder: Panel
+var portrait_label: Label
+var backpack_container: AspectRatioContainer
+var right_sidebar: PanelContainer
+var reward_panel: PanelContainer
+var reward_panel_margin: MarginContainer
+var reward_box: VBoxContainer
+var reward_board_head: HBoxContainer
+var reward_board_scroll: ScrollContainer
+var reward_board: VBoxContainer
+var reward_grid: HBoxContainer
+var reward_rewards_zone: PanelContainer
+var reward_workspace_zone: PanelContainer
+var reward_workspace_margin: MarginContainer
+var reward_workspace_box: VBoxContainer
+var reward_workspace_head: VBoxContainer
+var reward_workspace_title: Label
+var reward_inspector_zone: PanelContainer
+var reward_bottom_row: HBoxContainer
+var reward_title: Label
+var reward_subtitle: Label
+var reward_mode_pill: Label
+var reward_card_grid: Control
+var reward_cloud_content: VBoxContainer
+var reward_cloud_box: PanelContainer
+var reward_cloud_note: Label
+var reward_workspace_note: RichTextLabel
+var reward_backpack_host: Control
+var reward_inspector_kicker: Label
+var reward_inspector_name: Label
+var reward_inspector_summary: RichTextLabel
+var reward_inspector_facts: GridContainer
+var reward_inspector_stage: VBoxContainer
+var reward_footprint_title: Label
+var reward_footprint_info: Label
+var reward_footprint_grid: GridContainer
+var reset_button: Button
+var start_button: Button
+var hold_fire_button: Button
+var repair_button: Button
+var claim_rewards_button: Button
+var action_bar: HBoxContainer
+var backpack_ui
+var battlefield_ui
+var status_panel
+var log_console
+var discard_zone: PanelContainer
+var confirm_zone: PanelContainer
+var discard_card: PanelContainer
+var claim_card: PanelContainer
+var discard_label: Label
+var claim_card_body: Label
+var claim_inline_button: Button
 
 # Shop UI Dynamic nodes
 var shop_open_button: Button
 var shop_panel: PanelContainer
-var shop_gold_label: Label
-var shop_xp_label: Label
-var shop_buttons: Dictionary = {}
-var shop_labels: Dictionary = {}
-var current_shop_state: Dictionary = {}
 var codex_open_button: Button
 var codex_panel: ArtifactCodexPanelUI
 var current_codex_reward_table: Dictionary = {}
@@ -210,10 +205,8 @@ var reward_reveal_pending_step := ""
 # Tooltip UI Dynamic nodes
 var tooltip_panel: PanelContainer
 var tooltip_label: RichTextLabel
-var node_map_scene: NodeMapScene = null
 var node_select_content_row: HBoxContainer = null
 var node_select_runtime_page: Control = null
-var node_select_map_host: Control = null
 var node_select_backpack_host: Control = null
 var portrait_art: TextureRect
 var portrait_idle: TextureRect
@@ -236,8 +229,6 @@ var _backpack_reparent_pending := false
 var _pending_backpack_pin_scene: Dictionary = {}
 var _shared_backpack_layout_sync_pending := false
 var _reward_board_layout_sync_pending := false
-var _node_map_layout_refresh_pending := false
-var _node_map_followup_refresh_requested := false
 var _view_layout_ready := false
 var _viewport_shell_sync_pending := false
 var _last_viewport_shell_size := Vector2.ZERO
@@ -247,6 +238,9 @@ var _last_rendered_scene: Dictionary = {}
 var page_shell_host: Control
 var meta_page_shell_host: Control
 var page_scenes: Dictionary = {}
+var page_shell_bundles: Dictionary = {}
+var _active_surface_bundle_id := "battle"
+var _active_action_bar_bundle_id := "node_select"
 var active_page_id := ""
 var character_select_page: Control
 var leviathan_select_page: Control
@@ -289,21 +283,14 @@ static func reward_reveal_overlay_z_index() -> int:
 func _ready() -> void:
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	theme = LTLThemeScript.shared_theme()
-	_install_reward_zone_scroll_shells()
-	_install_reward_inspector_scroll_shell()
-	_apply_shared_split_layout_text_policies()
-	reset_button.pressed.connect(func(): reset_pressed.emit())
-	start_button.pressed.connect(func(): call_deferred("_emit_start_combat_pressed"))
-	hold_fire_button.pressed.connect(func(): hold_fire_pressed.emit())
-	repair_button.pressed.connect(func(): repair_pressed.emit())
-	repair_button.visible = false # R button disabled/hidden since repair is automatic now
-	claim_rewards_button.pressed.connect(func(): claim_rewards_pressed.emit())
-	claim_inline_button.pressed.connect(func(): claim_rewards_pressed.emit())
+	_create_page_scenes()
+	_cache_page_shell_bundles()
+	_activate_surface_bundle("battle")
+	_activate_action_bar_bundle("node_select")
+
 	settings_open_button.pressed.connect(func(): settings_open_pressed.emit())
 	confirm_proceed_button.pressed.connect(func(): confirm_proceed_pressed.emit())
 	confirm_cancel_button.pressed.connect(func(): confirm_cancel_pressed.emit())
-	discard_zone.gui_input.connect(func(ev): discard_zone_input.emit(ev))
-	_set_descendant_mouse_filter_ignore(discard_zone)
 	repair_overlay.gui_input.connect(func(ev):
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 			repair_overlay_input.emit(ev)
@@ -314,28 +301,13 @@ func _ready() -> void:
 	)
 	confirm_overlay.visibility_changed.connect(func(): _promote_popup_overlay_when_visible(confirm_overlay))
 	repair_overlay.visibility_changed.connect(func(): _promote_popup_overlay_when_visible(repair_overlay))
-	backpack_ui.slot_clicked.connect(func(coord): backpack_slot_clicked.emit(coord))
-	backpack_ui.slot_hovered.connect(func(coord): backpack_slot_hovered.emit(coord))
-	backpack_ui.slot_unhovered.connect(func(coord): backpack_slot_unhovered.emit(coord))
-	backpack_ui.slot_drag_started.connect(func(coord):
-		_begin_backpack_drag_tracking(coord)
-		backpack_slot_drag_started.emit(coord)
-	)
-	battlefield_ui.cell_hovered.connect(func(cid, col): cell_hovered.emit(cid, col))
-	battlefield_ui.cell_clicked.connect(func(cid, col): cell_clicked.emit(cid, col))
-	battlefield_ui.cell_pressed.connect(func(cid, col): cell_pressed.emit(cid, col))
-	battlefield_ui.cell_released.connect(func(): cell_released.emit())
+	_connect_page_shell_bundle_signals()
 	resized.connect(_queue_shared_backpack_layout_sync)
-	top_content.resized.connect(_queue_shared_backpack_layout_sync)
 	active_phase_container.resized.connect(_queue_shared_backpack_layout_sync)
-	reward_grid.resized.connect(_queue_reward_board_layout_sync)
-	reward_backpack_host.resized.connect(_queue_reward_board_layout_sync)
-	reward_bottom_row.resized.connect(_queue_reward_board_layout_sync)
-	discard_zone.resized.connect(_queue_reward_board_layout_sync)
-	confirm_zone.resized.connect(_queue_reward_board_layout_sync)
-	reward_card_grid.resized.connect(_queue_reward_card_float_layout)
-	resized.connect(_queue_node_map_layout_refresh)
-	active_phase_container.resized.connect(_queue_node_map_layout_refresh)
+	if page_shell_host != null:
+		page_shell_host.resized.connect(_sync_page_scene_bounds)
+	if meta_page_shell_host != null:
+		meta_page_shell_host.resized.connect(_sync_page_scene_bounds)
 
 	# Instantiate Dynamic Shop Button
 	shop_open_button = Button.new()
@@ -349,12 +321,11 @@ func _ready() -> void:
 
 	_create_shop_panel()
 	_create_artifact_codex_panel()
-	_create_page_scenes()
 	_install_character_presentation()
 	_install_reward_backdrop()
 	_install_failure_backdrop()
-	backpack_original_parent = backpack_container.get_parent()
-	backpack_original_index = backpack_container.get_index()
+	backpack_original_parent = _active_surface_bundle().get("backpackOriginalParent", null)
+	backpack_original_index = int(_active_surface_bundle().get("backpackOriginalIndex", -1))
 
 	# Instantiate Giant Timer & Vignette Overlay
 	_create_giant_timer()
@@ -370,6 +341,7 @@ func _ready() -> void:
 	_defer_interaction_fx_install()
 	_view_layout_ready = true
 	_emit_combat_overlay_pause_visibility_changed()
+	_sync_page_scene_bounds()
 	_queue_viewport_shell_sync()
 	_queue_shared_backpack_layout_sync()
 	_queue_reward_board_layout_sync()
@@ -421,7 +393,6 @@ func _sync_viewport_shell_bounds() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	clip_contents = true
 	_queue_shared_backpack_layout_sync()
-	_queue_node_map_layout_refresh()
 	if reward_panel != null and reward_panel.visible:
 		_queue_reward_board_layout_sync()
 
@@ -464,15 +435,24 @@ func setup_settings(shake_enabled: bool, is_fullscreen: bool, accessibility_stat
 
 # ??쎈뻬: setup backpack slots.
 func setup_backpack_slots() -> void:
-	backpack_ui.setup_grid_slots()
+	for bundle in page_shell_bundles.values():
+		var backpack_panel = bundle.get("backpackUI", null)
+		if backpack_panel != null and backpack_panel.has_method("setup_grid_slots"):
+			backpack_panel.setup_grid_slots()
 
 # ??쎈뻬: render backpack items using model data.
 func render_backpack(inventory) -> void:
-	backpack_ui.render_backpack_items(inventory)
+	for bundle in page_shell_bundles.values():
+		var backpack_panel = bundle.get("backpackUI", null)
+		if backpack_panel != null and backpack_panel.has_method("render_backpack_items"):
+			backpack_panel.render_backpack_items(inventory)
 
 # ??쎈뻬: update ghost item display.
 func update_backpack_ghost(artifact) -> void:
-	backpack_ui.update_ghost_display(artifact)
+	for bundle in page_shell_bundles.values():
+		var backpack_panel = bundle.get("backpackUI", null)
+		if backpack_panel != null and backpack_panel.has_method("update_ghost_display"):
+			backpack_panel.update_ghost_display(artifact)
 
 # ??쎈뻬: toggle settings visibility.
 func toggle_settings() -> void:
@@ -547,10 +527,13 @@ func set_battle_pause_active(active: bool) -> void:
 	if battle_pause_active == active:
 		return
 	battle_pause_active = active
-	if battlefield_ui != null and battlefield_ui.has_method("set_battle_pause_active"):
-		battlefield_ui.set_battle_pause_active(active)
-	if backpack_ui != null and backpack_ui.has_method("set_battle_pause_active"):
-		backpack_ui.set_battle_pause_active(active)
+	for bundle in page_shell_bundles.values():
+		var battlefield_panel = bundle.get("battlefieldUI", null)
+		if battlefield_panel != null and battlefield_panel.has_method("set_battle_pause_active"):
+			battlefield_panel.set_battle_pause_active(active)
+		var backpack_panel = bundle.get("backpackUI", null)
+		if backpack_panel != null and backpack_panel.has_method("set_battle_pause_active"):
+			backpack_panel.set_battle_pause_active(active)
 	if giant_timer_ui != null and giant_timer_ui.has_method("set_battle_pause_active"):
 		giant_timer_ui.set_battle_pause_active(active)
 	if vfx_manager != null and vfx_manager.has_method("set_battle_pause_active"):
@@ -576,6 +559,10 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	var hud_model: Dictionary = HudReadModelScript.project(scene)
 	var overlay_model: Dictionary = FailureReadModelScript.project(scene)
 	var page_id := str(scene.get("pageId", str(scene.get("phase", "unknown"))))
+	if page_id in ACTION_BAR_PAGE_IDS:
+		_activate_action_bar_bundle(page_id)
+	if page_id in SURFACE_PAGE_IDS:
+		_activate_surface_bundle(page_id)
 	if page_id in ["character_select", "leviathan_select", "clear", "defeat"]:
 		overlay_model["visible"] = false
 	header_panel.visible = bool(layout.get("headerVisible", true))
@@ -600,15 +587,17 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 	elif top_content.visible:
 		_apply_top_content_backpack_bounds()
 	else:
+		top_content.custom_minimum_size.y = 0.0
 		backpack_container.custom_minimum_size = Vector2.ZERO
 		backpack_container.ratio = 1.0
 	active_phase_container.size_flags_stretch_ratio = float(layout.get("activePhaseStretchRatio", 1.0))
-	if node_map_scene != null:
-		node_map_scene.visible = bool(layout.get("nodeSelectVisible", false))
-	battlefield_ui.visible = bool(layout.get("battlefieldVisible", false))
-	$RootMargin/AppShell/ActivePhaseContainer/RewardPanel.visible = bool(layout.get("rewardVisible", false))
+	if battlefield_ui != null:
+		battlefield_ui.visible = bool(layout.get("battlefieldVisible", false))
+	if reward_panel != null:
+		reward_panel.visible = bool(layout.get("rewardVisible", false))
 	_apply_reward_backpack_dock(reward_backpack_dock)
-	status_panel.visible = bool(layout.get("statusVisible", false))
+	if status_panel != null:
+		status_panel.visible = bool(layout.get("statusVisible", false))
 	shop_open_button.visible = bool(layout.get("shopButtonVisible", false))
 	if backpack_ui != null and backpack_ui.has_method("set_cooldown_visuals_enabled"):
 		backpack_ui.set_cooldown_visuals_enabled(bool(layout.get("backpackCooldownVisible", false)))
@@ -632,24 +621,22 @@ func render_scene(scene: Dictionary, show_victory_overlay: bool) -> void:
 
 	if bool(layout.get("battlefieldVisible", false)) and not RewardCeremonyPolicyScript.is_active_scene(scene):
 		battlefield_ui.render_battlefield(scene, [])
-	if bool(layout.get("nodeSelectVisible", false)) and node_map_scene != null:
-		var node_map_model: Dictionary = NodeMapReadModelScript.project(scene, int(scene.get("selectedNodeIndex", 0)))
-		node_map_model["allowStartColorSelection"] = bool(layout.get("allowStartColorSelection", node_map_model.get("allowStartColorSelection", true)))
-		node_map_scene.render(node_map_model)
-		_queue_shared_backpack_layout_sync()
-		_node_map_followup_refresh_requested = true
-		_queue_node_map_layout_refresh()
 	status_panel.render_target_bars(scene)
 	status_panel.render_extractor_label(scene)
+	if status_panel.has_method("render_node_info"):
+		status_panel.render_node_info(scene)
 	status_panel.render_hud_projection(hud_model)
 	status_panel.render_combat_timer(str(layout.get("timerText", "00:00")), bool(layout.get("combatTimeActive", false)))
 	status_panel.render_repair_overlay(scene, repair_overlay, overlay_model)
+	if right_sidebar != null and right_sidebar.has_method("render_scene"):
+		right_sidebar.render_scene(scene)
 	_render_failure_backdrop(scene)
 	_render_character_status(scene)
 	_render_reward_backdrop(show_victory_overlay or str(scene.get("phase", "")) == "reward_loot")
 	_render_page_scene(scene)
 	_defer_interaction_fx_install()
 	_queue_shared_backpack_layout_sync()
+	call_deferred("_sync_page_scene_bounds")
 
 # ??쎈뻬: set battlefield disabled tiles.
 func update_battlefield_disabled(scene: Dictionary, disabled_tiles: Array) -> void:
@@ -727,7 +714,10 @@ func set_confirm_overlay_visible(val: bool) -> void:
 
 # ??쎈뻬: append a message to the system log console.
 func add_log(message: String) -> void:
-	log_console.add_log(message)
+	for bundle in page_shell_bundles.values():
+		var console = bundle.get("logConsole", null)
+		if console != null and console.has_method("add_log"):
+			console.add_log(message)
 
 # ??쎈뻬: update discard zone label and modulate color.
 func update_discard_zone(label_text: String, is_active: bool) -> void:
@@ -1035,46 +1025,73 @@ func apply_locale() -> void:
 		"RootMargin/AppShell/Header/Margin/PhaseRow/TitleLabel",
 		_resolved_header_title(_last_rendered_scene) if not _last_rendered_scene.is_empty() else TextCatalogScript.t("app.title")
 	)
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/CharacterTitle", TextCatalogScript.t("panel.character_status"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/PortraitPlaceholder/PortraitLabel", TextCatalogScript.t("panel.profile"))
-	_set_rich_text("RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/InventorySummaryLabel", TextCatalogScript.t("panel.loadout"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusTitle", TextCatalogScript.t("panel.drill_node_status"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/HPBox/HealthLabel", TextCatalogScript.t("panel.health"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/ShieldBox/ShieldLabel", TextCatalogScript.t("panel.shield"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow/QueueLabel", TextCatalogScript.t("panel.queue"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/TimerRow/PinLabel", TextCatalogScript.t("panel.stage_timer"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/DrillStatusRow/DrillStatusLabel", TextCatalogScript.t("panel.drill_status"))
-	_set_label_text("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow/PurpleStatusLabel", TextCatalogScript.t("panel.purple_status"))
-	_set_label_text("RootMargin/AppShell/TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox/EngineTitle", TextCatalogScript.t("panel.backpack"))
-	_set_label_text("RootMargin/AppShell/TopContent/RightSidebar/Margin/InspectorBox/InspectorTitle", TextCatalogScript.t("panel.log"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", "")
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle", TextCatalogScript.t("panel.rewards"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardSubtitle", TextCatalogScript.t("reward.board.subtitle"))
-	_set_optional_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/ModePill", TextCatalogScript.t("reward.board.mode_pill"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.rewards_zone.title"))
-	_set_optional_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.rewards_zone.hint"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("panel.backpack"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.workspace_zone.hint"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.inspector_zone.title"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.inspector_zone.hint"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.discard_zone.title"))
-	_set_optional_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.discard_zone.hint"))
-	_set_optional_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/DiscardCardBox/DiscardCardTitle", TextCatalogScript.t("reward.board.discard_card_title"))
-	_set_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.confirm_zone.title"))
-	_set_optional_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.confirm_zone.hint"))
-	_set_optional_label_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/Margin/ClaimCardBox/ClaimCardTitle", TextCatalogScript.t("reward.board.claim_card_title"))
-	_set_rich_text("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/WorkspaceNote", TextCatalogScript.t("reward.board.workspace_note"))
+	for page_id in SURFACE_PAGE_IDS:
+		var bundle: Dictionary = _page_bundle(page_id)
+		if bundle.is_empty():
+			continue
+		var bundle_status_panel = bundle.get("statusPanel", null)
+		if bundle_status_panel != null and bundle_status_panel.has_method("apply_locale"):
+			bundle_status_panel.apply_locale()
+		_set_bundle_label_text(bundle, "TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox/EngineTitle", TextCatalogScript.t("panel.backpack"))
+		if bundle.get("rightSidebar", null) != null and bundle.get("rightSidebar").has_method("apply_locale"):
+			bundle.get("rightSidebar").apply_locale()
+		if bundle.get("battlefieldUI", null) != null:
+			_set_bundle_label_text(bundle, "BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", "")
+		if bundle.get("rewardPanel", null) != null:
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle", TextCatalogScript.t("panel.rewards"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardSubtitle", TextCatalogScript.t("reward.board.subtitle"))
+			_set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/BoardHead/ModePill", TextCatalogScript.t("reward.board.mode_pill"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.rewards_zone.title"))
+			_set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.rewards_zone.hint"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("panel.backpack"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.workspace_zone.hint"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.inspector_zone.title"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.inspector_zone.hint"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.discard_zone.title"))
+			_set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.discard_zone.hint"))
+			_set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/DiscardCardBox/DiscardCardTitle", TextCatalogScript.t("reward.board.discard_card_title"))
+			_set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.confirm_zone.title"))
+			_set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.confirm_zone.hint"))
+			_set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/Margin/ClaimCardBox/ClaimCardTitle", TextCatalogScript.t("reward.board.claim_card_title"))
+			_set_bundle_rich_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/WorkspaceNote", TextCatalogScript.t("reward.board.workspace_note"))
 	_set_label_text("ConfirmOverlay/Center/ConfirmBox/WarningLabel", TextCatalogScript.t("confirm.unclaimed.title"))
 	_set_label_text("ConfirmOverlay/Center/ConfirmBox/DescriptionLabel", TextCatalogScript.t("confirm.unclaimed.desc"))
 	confirm_proceed_button.text = TextCatalogScript.t("action.proceed")
 	confirm_cancel_button.text = TextCatalogScript.t("action.cancel")
 	settings_open_button.text = TextCatalogScript.t("action.settings")
-	reset_button.text = TextCatalogScript.t("action.reset")
-	start_button.text = TextCatalogScript.t("action.start")
-	hold_fire_button.text = TextCatalogScript.t("action.hold_fire")
-	repair_button.text = TextCatalogScript.t("action.repair")
-	claim_rewards_button.text = TextCatalogScript.t("action.claim_rewards")
-	claim_inline_button.text = TextCatalogScript.t("action.claim_rewards")
+	for page_id in ACTION_BAR_PAGE_IDS:
+		var bundle: Dictionary = _page_bundle(page_id)
+		if bundle.is_empty():
+			continue
+		var reset_btn := bundle.get("resetButton", null) as Button
+		var start_btn := bundle.get("startButton", null) as Button
+		var hold_btn := bundle.get("holdFireButton", null) as Button
+		var repair_btn := bundle.get("repairButton", null) as Button
+		var claim_btn := bundle.get("claimRewardsButton", null) as Button
+		if reset_btn != null:
+			reset_btn.text = TextCatalogScript.t("action.reset")
+		if start_btn != null:
+			start_btn.text = TextCatalogScript.t("action.start")
+		if hold_btn != null:
+			hold_btn.text = TextCatalogScript.t("action.hold_fire")
+		if repair_btn != null:
+			repair_btn.text = TextCatalogScript.t("action.repair")
+		if claim_btn != null:
+			claim_btn.text = TextCatalogScript.t("action.claim_rewards")
+		var shop_btn := bundle.get("shopButton", null) as Button
+		var codex_btn := bundle.get("codexButton", null) as Button
+		var settings_btn := bundle.get("settingsButton", null) as Button
+		if shop_btn != null:
+			shop_btn.text = TextCatalogScript.t("action.shop")
+		if codex_btn != null:
+			codex_btn.text = TextCatalogScript.t("action.codex")
+		if settings_btn != null:
+			settings_btn.text = TextCatalogScript.t("action.settings")
+	for page_id in SURFACE_PAGE_IDS:
+		var bundle: Dictionary = _page_bundle(page_id)
+		var inline_btn := bundle.get("claimInlineButton", null) as Button
+		if inline_btn != null:
+			inline_btn.text = TextCatalogScript.t("action.claim_rewards")
 	if shop_open_button != null:
 		shop_open_button.text = TextCatalogScript.t("action.shop")
 	if codex_open_button != null:
@@ -1093,20 +1110,34 @@ func apply_locale() -> void:
 # ?ㅽ뻾: set a Label text by relative path when present.
 func _set_label_text(path: String, text: String) -> void:
 	var node := get_node_or_null(path) as Label
-	if node != null:
-		node.text = text
-
-func _set_optional_label_text(path: String, text: String) -> void:
-	var node := get_node_or_null(path) as Label
-	if node != null:
-		node.text = text
-		node.visible = not text.strip_edges().is_empty()
+	if node != null: node.text = text
 
 # ?ㅽ뻾: set a RichTextLabel text by relative path when present.
 func _set_rich_text(path: String, text: String) -> void:
 	var node := get_node_or_null(path) as RichTextLabel
-	if node != null:
-		node.text = text
+	if node != null: node.text = text
+
+func _set_bundle_label_text(bundle: Dictionary, path: String, text: String) -> void:
+	var page_root: Node = bundle.get("pageRoot", null) as Node
+	if page_root == null:
+		return
+	var node := page_root.get_node_or_null(path) as Label
+	if node != null: node.text = text
+
+func _set_bundle_optional_label_text(bundle: Dictionary, path: String, text: String) -> void:
+	_set_bundle_label_text(bundle, path, text)
+	var page_root: Node = bundle.get("pageRoot", null) as Node
+	if page_root == null:
+		return
+	var node := page_root.get_node_or_null(path) as Label
+	if node != null: node.visible = not text.strip_edges().is_empty()
+
+func _set_bundle_rich_text(bundle: Dictionary, path: String, text: String) -> void:
+	var page_root: Node = bundle.get("pageRoot", null) as Node
+	if page_root == null:
+		return
+	var node := page_root.get_node_or_null(path) as RichTextLabel
+	if node != null: node.text = text
 
 # ??쎈뻬: dynamically construct the calibration shop panel.
 func _create_shop_panel() -> void:
@@ -1163,28 +1194,295 @@ func _create_page_scenes() -> void:
 		leviathan_select_page.connect("start_requested", func(): looting_start_pressed.emit())
 	if node_select_runtime_page != null and node_select_runtime_page.has_signal("node_selected"):
 		node_select_runtime_page.connect("node_selected", func(index): node_meta_clicked.emit(index))
+	if node_select_runtime_page != null and node_select_runtime_page.has_signal("settings_requested"):
+		node_select_runtime_page.connect("settings_requested", func(): settings_open_pressed.emit())
+	if node_select_runtime_page != null and node_select_runtime_page.has_signal("shop_requested"):
+		node_select_runtime_page.connect("shop_requested", func(): shop_open_pressed.emit())
+	if node_select_runtime_page != null and node_select_runtime_page.has_signal("codex_requested"):
+		node_select_runtime_page.connect("codex_requested", func(): codex_open_pressed.emit())
 	if node_select_runtime_page != null and node_select_runtime_page.has_signal("start_color_selected"):
 		node_select_runtime_page.connect("start_color_selected", func(color): loadout_color_selected.emit(color))
 	for outcome_id in ["defeat", "clear"]:
 		var outcome_page = page_scenes.get(outcome_id)
 		if outcome_page != null and outcome_page.has_signal("return_requested"):
 			outcome_page.return_requested.connect(func(): return_to_character_select_pressed.emit())
+	_sync_page_scene_bounds()
 
 func _cache_node_select_runtime_hosts() -> void:
 	if node_select_runtime_page == null:
 		node_select_content_row = null
-		node_select_map_host = null
 		node_select_backpack_host = null
 		return
 	node_select_content_row = node_select_runtime_page.get_node_or_null("Margin/BoardShell/ShellMargin/ShellVBox/RouteSplit") as HBoxContainer
-	node_select_map_host = node_select_runtime_page.get_node_or_null("Margin/BoardShell/ShellMargin/ShellVBox/RouteSplit/MapHost") as Control
 	node_select_backpack_host = node_select_runtime_page.get_node_or_null("Margin/BoardShell/ShellMargin/ShellVBox/RouteSplit/BackpackHost") as Control
 	if node_select_content_row != null:
 		node_select_content_row.resized.connect(_queue_shared_backpack_layout_sync)
-		node_select_content_row.resized.connect(_queue_node_map_layout_refresh)
 	if node_select_backpack_host != null:
 		node_select_backpack_host.resized.connect(_queue_shared_backpack_layout_sync)
-		node_select_backpack_host.resized.connect(_queue_node_map_layout_refresh)
+
+func _page_bundle(page_id: String) -> Dictionary:
+	return page_shell_bundles.get(page_id, {})
+
+func _active_surface_bundle() -> Dictionary:
+	return _page_bundle(_active_surface_bundle_id)
+
+func bundle_node(page_id: String, path: String = "") -> Node:
+	return _bundle_node(page_id, path)
+
+func current_surface_node(path: String = "") -> Node:
+	return _bundle_node(_active_surface_bundle_id, path)
+
+func current_action_bar_node(path: String = "") -> Node:
+	return _bundle_node(_active_action_bar_bundle_id, path)
+
+func _bundle_node(page_id: String, path: String = "") -> Node:
+	var bundle: Dictionary = _page_bundle(page_id)
+	var page_root: Node = bundle.get("pageRoot", null) as Node
+	if page_root == null:
+		page_root = page_scenes.get(page_id, null) as Node
+	if page_root == null:
+		return null
+	if path.is_empty():
+		return page_root
+	return page_root.get_node_or_null(path)
+
+func _cache_page_shell_bundles() -> void:
+	page_shell_bundles.clear()
+	for page_id in ACTION_BAR_PAGE_IDS:
+		var page_root: Control = page_scenes.get(page_id, null) as Control
+		if page_root == null:
+			continue
+		var bundle: Dictionary = _capture_page_shell_bundle(page_id, page_root)
+		page_shell_bundles[page_id] = bundle
+	if page_shell_bundles.has("reward"):
+		_assign_reward_bundle_refs(_page_bundle("reward"))
+	if page_shell_bundles.has("battle"):
+		_assign_battle_bundle_refs(_page_bundle("battle"))
+
+func _capture_page_shell_bundle(page_id: String, page_root: Control) -> Dictionary:
+	var bundle := {
+		"pageId": page_id,
+		"pageRoot": page_root
+	}
+	var action_bar_path := "ActionBar"
+	if page_id == "node_select":
+		action_bar_path = "Margin/VStack/ActionBar"
+	bundle["actionBar"] = page_root.get_node_or_null(action_bar_path) as HBoxContainer
+	bundle["resetButton"] = page_root.get_node_or_null("%s/ResetButton" % action_bar_path) as Button
+	bundle["startButton"] = page_root.get_node_or_null("%s/StartButton" % action_bar_path) as Button
+	bundle["holdFireButton"] = page_root.get_node_or_null("%s/HoldFireButton" % action_bar_path) as Button
+	bundle["repairButton"] = page_root.get_node_or_null("%s/RepairButton" % action_bar_path) as Button
+	bundle["claimRewardsButton"] = page_root.get_node_or_null("%s/ClaimRewardsButton" % action_bar_path) as Button
+	if page_id == "node_select":
+		bundle["shopButton"] = page_root.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/ShopButton") as Button
+		bundle["codexButton"] = page_root.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/CodexButton") as Button
+		bundle["settingsButton"] = page_root.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/SettingsButton") as Button
+	if page_id in SURFACE_PAGE_IDS:
+		bundle["topContent"] = page_root.get_node_or_null("TopContent") as HBoxContainer
+		bundle["leftColumn"] = page_root.get_node_or_null("TopContent/LeftColumn") as VBoxContainer
+		bundle["portraitPlaceholder"] = page_root.get_node_or_null("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/PortraitPlaceholder") as Panel
+		bundle["portraitLabel"] = page_root.get_node_or_null("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/PortraitPlaceholder/PortraitLabel") as Label
+		bundle["backpackContainer"] = page_root.get_node_or_null("TopContent/BackpackContainer") as AspectRatioContainer
+		bundle["rightSidebar"] = page_root.get_node_or_null("TopContent/RightSidebar") as PanelContainer
+		bundle["backpackUI"] = page_root.get_node_or_null("TopContent/BackpackContainer/BackpackEnginePanel")
+		bundle["statusPanel"] = page_root.get_node_or_null("TopContent/LeftColumn/StatusPanel")
+		bundle["logConsole"] = page_root.get_node_or_null("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/LogContent/Margin/LogBox/InspectorText")
+		bundle["battlefieldUI"] = page_root.get_node_or_null("BattlefieldPanel")
+		bundle["rewardPanel"] = page_root.get_node_or_null("RewardPanel") as PanelContainer
+		var bundle_backpack_container: AspectRatioContainer = bundle.get("backpackContainer", null) as AspectRatioContainer
+		bundle["backpackOriginalParent"] = bundle_backpack_container.get_parent() if bundle_backpack_container != null else null
+		bundle["backpackOriginalIndex"] = bundle_backpack_container.get_index() if bundle_backpack_container != null else -1
+		if bundle.get("rewardPanel", null) != null:
+			bundle["rewardPanelMargin"] = page_root.get_node_or_null("RewardPanel/Margin") as MarginContainer
+			bundle["rewardBox"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox") as VBoxContainer
+			bundle["rewardBoardHead"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/BoardHead") as HBoxContainer
+			bundle["rewardBoardScroll"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll") as ScrollContainer
+			bundle["rewardBoard"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard") as VBoxContainer
+			bundle["rewardGrid"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid") as HBoxContainer
+			bundle["rewardRewardsZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone") as PanelContainer
+			bundle["rewardWorkspaceZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone") as PanelContainer
+			bundle["rewardWorkspaceMargin"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin") as MarginContainer
+			bundle["rewardWorkspaceBox"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox") as VBoxContainer
+			bundle["rewardWorkspaceHead"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead") as VBoxContainer
+			bundle["rewardWorkspaceTitle"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle") as Label
+			bundle["rewardInspectorZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as PanelContainer
+			bundle["rewardBottomRow"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow") as HBoxContainer
+			bundle["rewardTitle"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle") as Label
+			bundle["rewardSubtitle"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardSubtitle") as Label
+			bundle["rewardModePill"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/BoardHead/ModePill") as Label
+			bundle["rewardCardGrid"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox/RewardCardGrid") as Control
+			bundle["rewardCloudContent"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox") as VBoxContainer
+			bundle["rewardCloudBox"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox") as PanelContainer
+			bundle["rewardCloudNote"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox/CloudNote") as Label
+			bundle["rewardWorkspaceNote"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/WorkspaceNote") as RichTextLabel
+			bundle["rewardBackpackHost"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+			bundle["rewardInspectorKicker"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorKicker") as Label
+			bundle["rewardInspectorName"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorName") as Label
+			bundle["rewardInspectorSummary"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorSummary") as RichTextLabel
+			bundle["rewardInspectorFacts"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/InspectorFacts") as GridContainer
+			bundle["rewardInspectorStage"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage") as VBoxContainer
+			bundle["rewardFootprintTitle"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox/FootprintTitle") as Label
+			bundle["rewardFootprintInfo"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox/FootprintInfo") as Label
+			bundle["rewardFootprintGrid"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox/FootprintGrid") as GridContainer
+			bundle["discardZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as PanelContainer
+			bundle["confirmZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone") as PanelContainer
+			bundle["discardCard"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard") as PanelContainer
+			bundle["claimCard"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard") as PanelContainer
+			bundle["discardLabel"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/DiscardCardBox/DiscardLabel") as Label
+			bundle["claimCardBody"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox/ClaimCardBody") as Label
+			bundle["claimInlineButton"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox/ClaimInlineButton") as Button
+	return bundle
+
+func _connect_page_shell_bundle_signals() -> void:
+	for bundle in page_shell_bundles.values():
+		var reset_btn := bundle.get("resetButton", null) as Button
+		if reset_btn != null:
+			reset_btn.pressed.connect(func(): reset_pressed.emit())
+		var start_btn := bundle.get("startButton", null) as Button
+		if start_btn != null:
+			start_btn.pressed.connect(func(): call_deferred("_emit_start_combat_pressed"))
+		var hold_btn := bundle.get("holdFireButton", null) as Button
+		if hold_btn != null:
+			hold_btn.pressed.connect(func(): hold_fire_pressed.emit())
+		var repair_btn := bundle.get("repairButton", null) as Button
+		if repair_btn != null:
+			repair_btn.pressed.connect(func(): repair_pressed.emit())
+			repair_btn.visible = false
+		var claim_btn := bundle.get("claimRewardsButton", null) as Button
+		if claim_btn != null:
+			claim_btn.pressed.connect(func(): claim_rewards_pressed.emit())
+		var inline_btn := bundle.get("claimInlineButton", null) as Button
+		if inline_btn != null:
+			inline_btn.pressed.connect(func(): claim_rewards_pressed.emit())
+		var discard_shell := bundle.get("discardZone", null) as PanelContainer
+		if discard_shell != null:
+			discard_shell.gui_input.connect(func(ev): discard_zone_input.emit(ev))
+			_set_descendant_mouse_filter_ignore(discard_shell)
+			discard_shell.resized.connect(_queue_reward_board_layout_sync)
+		var confirm_shell := bundle.get("confirmZone", null) as PanelContainer
+		if confirm_shell != null:
+			confirm_shell.resized.connect(_queue_reward_board_layout_sync)
+		var backpack_panel = bundle.get("backpackUI", null)
+		if backpack_panel != null:
+			backpack_panel.slot_clicked.connect(func(coord): backpack_slot_clicked.emit(coord))
+			backpack_panel.slot_hovered.connect(func(coord): backpack_slot_hovered.emit(coord))
+			backpack_panel.slot_unhovered.connect(func(coord): backpack_slot_unhovered.emit(coord))
+			backpack_panel.slot_drag_started.connect(func(coord):
+				_begin_backpack_drag_tracking(coord)
+				backpack_slot_drag_started.emit(coord)
+			)
+		var battlefield_panel = bundle.get("battlefieldUI", null)
+		if battlefield_panel != null:
+			battlefield_panel.cell_hovered.connect(func(cid, col): cell_hovered.emit(cid, col))
+			battlefield_panel.cell_clicked.connect(func(cid, col): cell_clicked.emit(cid, col))
+			battlefield_panel.cell_pressed.connect(func(cid, col): cell_pressed.emit(cid, col))
+			battlefield_panel.cell_released.connect(func(): cell_released.emit())
+		var top_row := bundle.get("topContent", null) as HBoxContainer
+		if top_row != null:
+			top_row.resized.connect(_queue_shared_backpack_layout_sync)
+		var reward_grid_node := bundle.get("rewardGrid", null) as HBoxContainer
+		if reward_grid_node != null:
+			reward_grid_node.resized.connect(_queue_reward_board_layout_sync)
+		var reward_host := bundle.get("rewardBackpackHost", null) as Control
+		if reward_host != null:
+			reward_host.resized.connect(_queue_reward_board_layout_sync)
+		var reward_bottom := bundle.get("rewardBottomRow", null) as HBoxContainer
+		if reward_bottom != null:
+			reward_bottom.resized.connect(_queue_reward_board_layout_sync)
+		var reward_cards := bundle.get("rewardCardGrid", null) as Control
+		if reward_cards != null:
+			reward_cards.resized.connect(_queue_reward_card_float_layout)
+
+func _activate_action_bar_bundle(page_id: String) -> void:
+	var bundle: Dictionary = _page_bundle(page_id)
+	if bundle.is_empty():
+		return
+	_active_action_bar_bundle_id = page_id
+	action_bar = bundle.get("actionBar", null) as HBoxContainer
+	reset_button = bundle.get("resetButton", null) as Button
+	start_button = bundle.get("startButton", null) as Button
+	hold_fire_button = bundle.get("holdFireButton", null) as Button
+	repair_button = bundle.get("repairButton", null) as Button
+	claim_rewards_button = bundle.get("claimRewardsButton", null) as Button
+
+func _activate_surface_bundle(page_id: String) -> void:
+	var bundle: Dictionary = _page_bundle(page_id)
+	if bundle.is_empty():
+		return
+	_active_surface_bundle_id = page_id
+	top_content = bundle.get("topContent", top_content) as HBoxContainer
+	left_column = bundle.get("leftColumn", left_column) as VBoxContainer
+	portrait_placeholder = bundle.get("portraitPlaceholder", portrait_placeholder) as Panel
+	portrait_label = bundle.get("portraitLabel", portrait_label) as Label
+	backpack_container = bundle.get("backpackContainer", backpack_container) as AspectRatioContainer
+	right_sidebar = bundle.get("rightSidebar", right_sidebar) as PanelContainer
+	backpack_ui = bundle.get("backpackUI", backpack_ui)
+	status_panel = bundle.get("statusPanel", status_panel)
+	log_console = bundle.get("logConsole", log_console)
+	backpack_original_parent = bundle.get("backpackOriginalParent", backpack_original_parent)
+	backpack_original_index = int(bundle.get("backpackOriginalIndex", backpack_original_index))
+	if bundle.get("battlefieldUI", null) != null:
+		_assign_battle_bundle_refs(bundle)
+	if bundle.get("rewardPanel", null) != null:
+		_assign_reward_bundle_refs(bundle)
+	_install_character_presentation()
+	if reward_panel != null:
+		_install_reward_backdrop()
+
+func _assign_battle_bundle_refs(bundle: Dictionary) -> void:
+	battlefield_ui = bundle.get("battlefieldUI", battlefield_ui)
+
+func _assign_reward_bundle_refs(bundle: Dictionary) -> void:
+	reward_panel = bundle.get("rewardPanel", reward_panel) as PanelContainer
+	reward_panel_margin = bundle.get("rewardPanelMargin", reward_panel_margin) as MarginContainer
+	reward_box = bundle.get("rewardBox", reward_box) as VBoxContainer
+	reward_board_head = bundle.get("rewardBoardHead", reward_board_head) as HBoxContainer
+	reward_board_scroll = bundle.get("rewardBoardScroll", reward_board_scroll) as ScrollContainer
+	reward_board = bundle.get("rewardBoard", reward_board) as VBoxContainer
+	reward_grid = bundle.get("rewardGrid", reward_grid) as HBoxContainer
+	reward_rewards_zone = bundle.get("rewardRewardsZone", reward_rewards_zone) as PanelContainer
+	reward_workspace_zone = bundle.get("rewardWorkspaceZone", reward_workspace_zone) as PanelContainer
+	reward_workspace_margin = bundle.get("rewardWorkspaceMargin", reward_workspace_margin) as MarginContainer
+	reward_workspace_box = bundle.get("rewardWorkspaceBox", reward_workspace_box) as VBoxContainer
+	reward_workspace_head = bundle.get("rewardWorkspaceHead", reward_workspace_head) as VBoxContainer
+	reward_workspace_title = bundle.get("rewardWorkspaceTitle", reward_workspace_title) as Label
+	reward_inspector_zone = bundle.get("rewardInspectorZone", reward_inspector_zone) as PanelContainer
+	reward_bottom_row = bundle.get("rewardBottomRow", reward_bottom_row) as HBoxContainer
+	reward_title = bundle.get("rewardTitle", reward_title) as Label
+	reward_subtitle = bundle.get("rewardSubtitle", reward_subtitle) as Label
+	reward_mode_pill = bundle.get("rewardModePill", reward_mode_pill) as Label
+	reward_card_grid = bundle.get("rewardCardGrid", reward_card_grid) as Control
+	reward_cloud_content = bundle.get("rewardCloudContent", reward_cloud_content) as VBoxContainer
+	reward_cloud_box = bundle.get("rewardCloudBox", reward_cloud_box) as PanelContainer
+	reward_cloud_note = bundle.get("rewardCloudNote", reward_cloud_note) as Label
+	reward_workspace_note = bundle.get("rewardWorkspaceNote", reward_workspace_note) as RichTextLabel
+	reward_backpack_host = bundle.get("rewardBackpackHost", reward_backpack_host) as Control
+	reward_inspector_kicker = bundle.get("rewardInspectorKicker", reward_inspector_kicker) as Label
+	reward_inspector_name = bundle.get("rewardInspectorName", reward_inspector_name) as Label
+	reward_inspector_summary = bundle.get("rewardInspectorSummary", reward_inspector_summary) as RichTextLabel
+	reward_inspector_facts = bundle.get("rewardInspectorFacts", reward_inspector_facts) as GridContainer
+	reward_inspector_stage = bundle.get("rewardInspectorStage", reward_inspector_stage) as VBoxContainer
+	reward_footprint_title = bundle.get("rewardFootprintTitle", reward_footprint_title) as Label
+	reward_footprint_info = bundle.get("rewardFootprintInfo", reward_footprint_info) as Label
+	reward_footprint_grid = bundle.get("rewardFootprintGrid", reward_footprint_grid) as GridContainer
+	discard_zone = bundle.get("discardZone", discard_zone) as PanelContainer
+	confirm_zone = bundle.get("confirmZone", confirm_zone) as PanelContainer
+	discard_card = bundle.get("discardCard", discard_card) as PanelContainer
+	claim_card = bundle.get("claimCard", claim_card) as PanelContainer
+	discard_label = bundle.get("discardLabel", discard_label) as Label
+	claim_card_body = bundle.get("claimCardBody", claim_card_body) as Label
+	claim_inline_button = bundle.get("claimInlineButton", claim_inline_button) as Button
+	reward_cloud_scroll = bundle.get("rewardCloudScroll", reward_cloud_scroll) as ScrollContainer
+	discard_card_scroll = bundle.get("discardCardScroll", discard_card_scroll) as ScrollContainer
+	claim_card_scroll = bundle.get("claimCardScroll", claim_card_scroll) as ScrollContainer
+	reward_inspector_scroll = bundle.get("rewardInspectorScroll", reward_inspector_scroll) as ScrollContainer
+	_install_reward_zone_scroll_shells()
+	_install_reward_inspector_scroll_shell()
+	bundle["rewardCloudScroll"] = reward_cloud_scroll
+	bundle["discardCardScroll"] = discard_card_scroll
+	bundle["claimCardScroll"] = claim_card_scroll
+	bundle["rewardInspectorScroll"] = reward_inspector_scroll
+	_apply_shared_split_layout_text_policies()
 
 func _register_page_scene(page_id: String, page_scene: Node) -> void:
 	PageSceneRegistryScript.register_page_scene(
@@ -1195,6 +1493,17 @@ func _register_page_scene(page_id: String, page_scene: Node) -> void:
 		meta_page_shell_host,
 		META_PAGE_IDS
 	)
+	_sync_page_scene_bounds()
+
+func _sync_page_scene_bounds() -> void:
+	for page_id in page_scenes.keys():
+		var page_scene := page_scenes.get(page_id) as Control
+		if page_scene == null:
+			continue
+		var host: Control = meta_page_shell_host if PageSceneRegistryScript.is_meta_page(page_id, META_PAGE_IDS) else page_shell_host
+		if host == null:
+			continue
+		page_scene.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _render_page_scene(scene: Dictionary) -> void:
 	var page_id := str(scene.get("pageId", ""))
@@ -1206,6 +1515,7 @@ func _render_page_scene(scene: Dictionary) -> void:
 		meta_page_shell_host,
 		META_PAGE_IDS
 	)
+	_sync_page_scene_bounds()
 	if active_scene == null or not active_scene.has_method("apply_state"):
 		return
 	active_scene.apply_state(_page_scene_model(page_id, scene))
@@ -1217,45 +1527,37 @@ func _page_scene_model(page_id: String, scene: Dictionary) -> Dictionary:
 	return PageSceneModelBuilderScript.project(page_id, scene, CHARACTER_PORTRAIT_PATH)
 
 # ??쎈뻬: dynamically construct the full-page node-map selector inside the node-select panel.
-func _create_node_map_scene() -> void:
-	node_map_scene = NodeMapSceneScript.new()
-	node_map_scene.name = "NodeMapPage"
-	node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	node_map_scene.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	node_map_scene.custom_minimum_size = Vector2(NODE_SELECT_MAP_MIN_WIDTH, 360)
-	node_map_scene.node_selected.connect(func(index): node_meta_clicked.emit(index))
-	node_map_scene.color_selected.connect(func(color): loadout_color_selected.emit(color))
-	node_map_scene.set("characterSpriteSheetPath", CHARACTER_SPRITE_SHEET_PATH)
-	if node_select_map_host != null:
-		node_select_map_host.add_child(node_map_scene)
-	else:
-		page_shell_host.add_child(node_map_scene)
-
 func _install_character_presentation() -> void:
-	if portrait_placeholder == null or portrait_art != null:
+	if portrait_placeholder == null:
 		return
-	portrait_art = TextureRect.new()
-	portrait_art.name = "PortraitArt"
-	portrait_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	portrait_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	portrait_art.texture = LTLThemeScript.art_texture(CHARACTER_PORTRAIT_PATH)
-	portrait_art.self_modulate = Color(0.92, 0.92, 0.92, 0.95)
-	portrait_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_placeholder.add_child(portrait_art)
-	portrait_placeholder.move_child(portrait_art, 0)
-	portrait_idle = TextureRect.new()
-	portrait_idle.name = "PortraitIdle"
-	portrait_idle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait_idle.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
-	portrait_idle.texture = _character_sprite_frame(0)
-	portrait_idle.size = Vector2(56.0, 82.0)
-	portrait_idle.position = Vector2(portrait_placeholder.size.x - 58.0, 3.0)
-	portrait_idle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	portrait_idle.self_modulate = Color(1.0, 1.0, 1.0, 0.88)
-	portrait_placeholder.add_child(portrait_idle)
-	portrait_label.visible = false
-	portrait_placeholder.resized.connect(_layout_character_presentation)
+	portrait_art = portrait_placeholder.get_node_or_null("PortraitArt") as TextureRect
+	if portrait_art == null:
+		portrait_art = TextureRect.new()
+		portrait_art.name = "PortraitArt"
+		portrait_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		portrait_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait_art.texture = LTLThemeScript.art_texture(CHARACTER_PORTRAIT_PATH)
+		portrait_art.self_modulate = Color(0.92, 0.92, 0.92, 0.95)
+		portrait_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait_placeholder.add_child(portrait_art)
+		portrait_placeholder.move_child(portrait_art, 0)
+	portrait_idle = portrait_placeholder.get_node_or_null("PortraitIdle") as TextureRect
+	if portrait_idle == null:
+		portrait_idle = TextureRect.new()
+		portrait_idle.name = "PortraitIdle"
+		portrait_idle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait_idle.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
+		portrait_idle.texture = _character_sprite_frame(0)
+		portrait_idle.size = Vector2(56.0, 82.0)
+		portrait_idle.position = Vector2(portrait_placeholder.size.x - 58.0, 3.0)
+		portrait_idle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait_idle.self_modulate = Color(1.0, 1.0, 1.0, 0.88)
+		portrait_placeholder.add_child(portrait_idle)
+	if portrait_label != null:
+		portrait_label.visible = false
+	if not portrait_placeholder.resized.is_connected(_layout_character_presentation):
+		portrait_placeholder.resized.connect(_layout_character_presentation)
 	call_deferred("_layout_character_presentation")
 
 func _layout_character_presentation() -> void:
@@ -1277,18 +1579,20 @@ func _character_sprite_frame(index: int) -> Texture2D:
 	return LTLThemeScript.atlas_frame(sheet, Rect2(column * frame_width, row * frame_height, frame_width, frame_height))
 
 func _install_reward_backdrop() -> void:
-	if reward_panel == null or reward_backdrop != null:
+	if reward_panel == null:
 		return
-	reward_backdrop = TextureRect.new()
-	reward_backdrop.name = "RewardBackdrop"
-	reward_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	reward_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	reward_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	reward_backdrop.texture = LTLThemeScript.art_texture(REWARD_BACKDROP_PATH)
-	reward_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	reward_backdrop.self_modulate = Color(0.58, 0.58, 0.58, 0.26)
-	reward_panel.add_child(reward_backdrop)
-	reward_panel.move_child(reward_backdrop, 0)
+	reward_backdrop = reward_panel.get_node_or_null("RewardBackdrop") as TextureRect
+	if reward_backdrop == null:
+		reward_backdrop = TextureRect.new()
+		reward_backdrop.name = "RewardBackdrop"
+		reward_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		reward_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		reward_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		reward_backdrop.texture = LTLThemeScript.art_texture(REWARD_BACKDROP_PATH)
+		reward_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		reward_backdrop.self_modulate = Color(0.58, 0.58, 0.58, 0.26)
+		reward_panel.add_child(reward_backdrop)
+		reward_panel.move_child(reward_backdrop, 0)
 
 func _render_reward_backdrop(active: bool) -> void:
 	if reward_backdrop == null:
@@ -1339,7 +1643,7 @@ func _render_character_status(scene: Dictionary) -> void:
 	var portrait_path := str(selected_character.get("portraitPath", CHARACTER_PORTRAIT_PATH))
 	portrait_art.texture = LTLThemeScript.art_texture(portrait_path)
 	_set_rich_text(
-		"RootMargin/AppShell/TopContent/LeftColumn/LeftSidebar/Margin/CharacterBox/InventorySummaryLabel",
+		"RootMargin/AppShell/TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/InventorySummaryLabel",
 		("[b]%s[/b]\n%s\n%s" % [
 			TextCatalogScript.display_name(character_name),
 			stage_label_text,
@@ -1353,8 +1657,6 @@ func _apply_node_select_backpack_dock(dock: String, map_ratio: float, backpack_r
 		backpack_container,
 		node_select_content_row,
 		node_select_backpack_host,
-		node_map_scene,
-		node_select_map_host,
 		backpack_original_parent,
 		backpack_original_index,
 		dock,
@@ -1491,10 +1793,8 @@ func _sync_reward_board_layout() -> void:
 	var workspace_body_height := _reward_zone_body_target_height(reward_workspace_zone, reward_backpack_host, top_zone_height, 220.0)
 	var inspector_body: Control = reward_inspector_scroll if reward_inspector_scroll != null else reward_inspector_stage
 	var inspector_body_height := _reward_zone_body_target_height(reward_inspector_zone, inspector_body, top_zone_height, 220.0)
-	var discard_body: Control = discard_card_scroll if discard_card_scroll != null else discard_card
-	var discard_body_height := _reward_zone_body_target_height(discard_zone, discard_body, bottom_row_height, 72.0)
-	var claim_body: Control = claim_card_scroll if claim_card_scroll != null else claim_card
-	var claim_body_height := _reward_zone_body_target_height(confirm_zone, claim_body, bottom_row_height, 72.0)
+	var discard_body_height := _reward_zone_body_target_height(discard_zone, discard_card, bottom_row_height, 72.0)
+	var claim_body_height := _reward_zone_body_target_height(confirm_zone, claim_card, bottom_row_height, 72.0)
 	top_zone_height = maxf(
 		top_zone_height,
 		maxf(
@@ -1506,11 +1806,12 @@ func _sync_reward_board_layout() -> void:
 		)
 	)
 	bottom_row_height = maxf(bottom_row_height, reward_bottom_row.get_combined_minimum_size().y)
+	top_zone_height = maxf(REWARD_BOARD_TOP_ZONE_MIN_HEIGHT, visible_board_height - bottom_row_height - float(reward_board.get_theme_constant("separation")))
 	rewards_body_height = _reward_zone_body_target_height(reward_rewards_zone, rewards_body, top_zone_height, 220.0)
 	workspace_body_height = _reward_zone_body_target_height(reward_workspace_zone, reward_backpack_host, top_zone_height, 220.0)
 	inspector_body_height = _reward_zone_body_target_height(reward_inspector_zone, inspector_body, top_zone_height, 220.0)
-	discard_body_height = _reward_zone_body_target_height(discard_zone, discard_body, bottom_row_height, 72.0)
-	claim_body_height = _reward_zone_body_target_height(confirm_zone, claim_body, bottom_row_height, 72.0)
+	discard_body_height = _reward_zone_body_target_height(discard_zone, discard_card, bottom_row_height, 72.0)
+	claim_body_height = _reward_zone_body_target_height(confirm_zone, claim_card, bottom_row_height, 72.0)
 	_set_custom_minimum_width_if_changed(reward_board, grid_width)
 	_set_custom_minimum_width_if_changed(reward_grid, grid_width)
 	_set_custom_minimum_height_if_changed(reward_board, top_zone_height + bottom_row_height + float(reward_board.get_theme_constant("separation")))
@@ -1742,7 +2043,11 @@ func _max_safe_active_phase_height() -> float:
 
 func _top_content_backpack_height() -> float:
 	var min_row_height := maxf(float(top_content.get_combined_minimum_size().y), BackpackPinLayoutPolicyScript.MIN_TOP_CONTENT_GRID_EXTENT)
-	return resolved_top_content_backpack_height(top_content.size.y, min_row_height, backpack_container.size.y)
+	var resolved_height := resolved_top_content_backpack_height(top_content.size.y, min_row_height, backpack_container.size.y)
+	var safe_height := _max_safe_top_content_height()
+	if safe_height > 0.0:
+		resolved_height = safe_height
+	return resolved_height
 
 func _top_content_backpack_width() -> float:
 	var target_height := _top_content_backpack_height()
@@ -1752,8 +2057,12 @@ func _apply_top_content_backpack_bounds() -> void:
 	var target_height := _top_content_backpack_height()
 	var resolved_width := top_content_backpack_width_for_height(target_height)
 	var safe_width_cap := _max_safe_top_content_backpack_width()
-	if safe_width_cap > 0.0:
-		resolved_width = minf(resolved_width, safe_width_cap)
+	if safe_width_cap > 0.0 and resolved_width > safe_width_cap:
+		target_height = minf(target_height, BackpackPinLayoutPolicyScript.top_content_height_for_width(safe_width_cap))
+		resolved_width = top_content_backpack_width_for_height(target_height)
+		if resolved_width > safe_width_cap:
+			resolved_width = safe_width_cap
+	top_content.custom_minimum_size.y = target_height
 	backpack_container.custom_minimum_size = Vector2(resolved_width, 0.0)
 	backpack_container.ratio = top_content_backpack_ratio_for_height(target_height)
 
@@ -1856,23 +2165,6 @@ func _sync_shared_backpack_layout() -> void:
 		Callable(self, "_sync_top_content_backpack_layout")
 	)
 
-func _queue_node_map_layout_refresh() -> void:
-	if _node_map_layout_refresh_pending:
-		return
-	_node_map_layout_refresh_pending = true
-	call_deferred("_refresh_node_map_layout_after_frame")
-
-func _refresh_node_map_layout_after_frame() -> void:
-	await get_tree().process_frame
-	_node_map_layout_refresh_pending = false
-	if node_map_scene == null or not node_map_scene.visible:
-		return
-	_sync_shared_backpack_layout()
-	node_map_scene.rerender_current_model()
-	if _node_map_followup_refresh_requested:
-		_node_map_followup_refresh_requested = false
-		_queue_node_map_layout_refresh()
-
 # ?ㅽ뻾: update shop label and buttons.
 func render_shop(growth_state: Dictionary) -> void:
 	if shop_panel != null and shop_panel.has_method("render_shop"):
@@ -1934,80 +2226,66 @@ func _install_interaction_fx() -> void:
 # ?ㅽ뻾: give major panels and buttons a coherent in-world UI language.
 func _apply_shell_theme() -> void:
 	var surface := LTLThemeScript.surface_style(LTLThemeScript.SURFACE_MID)
-	status_panel.add_theme_stylebox_override("panel", surface)
-	backpack_ui.add_theme_stylebox_override("panel", surface)
-	right_sidebar.add_theme_stylebox_override("panel", surface)
-	battlefield_ui.add_theme_stylebox_override("panel", surface)
-	reward_panel.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.10, 0.11, 0.13, 0.98), LTLThemeScript.BORDER_WARM, 12))
-	for zone_path in [
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone"
-	]:
-		var zone = get_node_or_null(zone_path) as PanelContainer
-		if zone != null:
-			zone.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.11, 0.14, 0.18, 0.98), LTLThemeScript.BORDER_COLD, 18, 1, 0.18))
-	var discard_shell = get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as PanelContainer
-	if discard_shell != null:
-		discard_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.14, 0.08, 0.09, 0.98), Color(0.68, 0.28, 0.28, 1.0), 18, 1, 0.20))
-	var discard_card = get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard") as PanelContainer
-	if discard_card != null:
-		discard_card.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.18, 0.09, 0.10, 0.98), Color(0.78, 0.34, 0.34, 1.0), 16, 1, 0.16))
-	var claim_card = get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard") as PanelContainer
-	if claim_card != null:
-		claim_card.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.18, 0.15, 0.09, 0.98), LTLThemeScript.BORDER_WARM, 16, 1, 0.16))
+	for page_id in SURFACE_PAGE_IDS:
+		var bundle: Dictionary = _page_bundle(page_id)
+		if bundle.is_empty():
+			continue
+		var status = bundle.get("statusPanel", null)
+		if status != null:
+			status.add_theme_stylebox_override("panel", surface)
+		var backpack_panel = bundle.get("backpackUI", null)
+		if backpack_panel != null:
+			backpack_panel.add_theme_stylebox_override("panel", surface)
+		var sidebar = bundle.get("rightSidebar", null)
+		if sidebar != null:
+			sidebar.add_theme_stylebox_override("panel", surface)
+		var battlefield_panel = bundle.get("battlefieldUI", null)
+		if battlefield_panel != null:
+			battlefield_panel.add_theme_stylebox_override("panel", surface)
+		var reward_surface = bundle.get("rewardPanel", null) as PanelContainer
+		if reward_surface != null:
+			reward_surface.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.10, 0.11, 0.13, 0.98), LTLThemeScript.BORDER_WARM, 12))
+			for zone_path in [
+				"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone",
+				"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone",
+				"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone",
+				"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox",
+				"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard",
+				"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone"
+			]:
+				var zone = _bundle_node(page_id, zone_path) as PanelContainer
+				if zone != null:
+					zone.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.11, 0.14, 0.18, 0.98), LTLThemeScript.BORDER_COLD, 18, 1, 0.18))
+			var discard_shell = _bundle_node(page_id, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as PanelContainer
+			if discard_shell != null:
+				discard_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.14, 0.08, 0.09, 0.98), Color(0.68, 0.28, 0.28, 1.0), 18, 1, 0.20))
+			var discard_card_panel = _bundle_node(page_id, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard") as PanelContainer
+			if discard_card_panel != null:
+				discard_card_panel.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.18, 0.09, 0.10, 0.98), Color(0.78, 0.34, 0.34, 1.0), 16, 1, 0.16))
+			var claim_card_panel = _bundle_node(page_id, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard") as PanelContainer
+			if claim_card_panel != null:
+				claim_card_panel.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.18, 0.15, 0.09, 0.98), LTLThemeScript.BORDER_WARM, 16, 1, 0.16))
 	repair_overlay.add_theme_stylebox_override("panel", LTLThemeScript.overlay_style("warning"))
 	for button in [settings_open_button, reset_button, start_button, hold_fire_button, repair_button, claim_rewards_button, claim_inline_button, shop_open_button, codex_open_button]:
 		if button != null:
 			_style_shell_button(button)
+	for page_id in ACTION_BAR_PAGE_IDS:
+		var bundle: Dictionary = _page_bundle(page_id)
+		for key in ["resetButton", "startButton", "holdFireButton", "repairButton", "claimRewardsButton", "claimInlineButton"]:
+			var button = bundle.get(key, null) as Button
+			if button != null:
+				_style_shell_button(button)
+	for key in ["shopButton", "codexButton", "settingsButton"]:
+		var node_select_button := _page_bundle("node_select").get(key, null) as Button
+		if node_select_button != null:
+			_style_shell_button(node_select_button)
 
 func _style_shell_button(button: Button) -> void:
-	var normal := LTLThemeScript.surface_style(Color(0.13, 0.16, 0.20, 0.98), LTLThemeScript.BORDER_COLD, 10)
-	var hover := normal.duplicate()
-	hover.bg_color = Color(0.16, 0.20, 0.25, 1.0)
-	hover.border_color = Color(0.50, 0.67, 0.76, 1.0)
-	var pressed := normal.duplicate()
-	pressed.bg_color = Color(0.11, 0.14, 0.18, 1.0)
-	pressed.border_color = LTLThemeScript.BORDER_WARM
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
-	button.add_theme_font_size_override("font_size", 14)
-	button.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-	normal.content_margin_left = 16
-	normal.content_margin_right = 16
-	hover.content_margin_left = 16
-	hover.content_margin_right = 16
-	pressed.content_margin_left = 16
-	pressed.content_margin_right = 16
-	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, _shell_button_min_width(button))
-	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 32.0)
+	ShellButtonStylerScript.apply_button(button, header_actions, action_bar)
 
 func _apply_top_content_stretch(left_ratio: float, backpack_ratio: float, right_ratio: float) -> void:
-	SharedBackpackHostCoordinatorScript.apply_top_content_stretch(
-		left_column,
-		backpack_container,
-		backpack_original_parent,
-		right_sidebar,
-		left_ratio,
-		backpack_ratio,
-		right_ratio
-	)
+	SharedBackpackHostCoordinatorScript.apply_top_content_stretch(left_column, backpack_container, backpack_original_parent, right_sidebar, left_ratio, backpack_ratio, right_ratio)
 
-func _shell_button_min_width(button: Button) -> float:
-	if button == null:
-		return 96.0
-	if button.get_parent() == header_actions:
-		return 108.0
-	if button.get_parent() == action_bar:
-		return 136.0
-	return 112.0
-
-# ?ㅽ뻾: dynamically construct the central giant timer panel.
 func _create_giant_timer() -> void:
 	giant_timer_ui = GiantTimerUIScript.new()
 	add_child(giant_timer_ui)
@@ -2135,13 +2413,11 @@ func _commit_backpack_reparent() -> void:
 		node_select_backpack_host,
 		Callable(self, "_queue_shared_backpack_layout_sync"),
 		Callable(self, "_queue_reward_board_layout_sync"),
-		Callable(self, "_queue_node_map_layout_refresh"),
+		Callable(),
 		Callable(self, "_flush_pending_backpack_pin_scene")
 	)
 	_pending_backpack_parent = reparent_state.get("pendingBackpackParent", null)
 	_pending_backpack_parent_index = int(reparent_state.get("pendingBackpackParentIndex", -1))
-	if bool(reparent_state.get("nodeMapFollowupRequested", false)):
-		_node_map_followup_refresh_requested = true
 
 func _flush_pending_backpack_pin_scene() -> void:
 	if _backpack_reparent_pending:

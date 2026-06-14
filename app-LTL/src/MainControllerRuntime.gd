@@ -11,6 +11,7 @@ const ArtifactScript = preload("res://src/models/Artifact.gd")
 const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
 const CreateArtifactFromRewardScript = preload("res://src/vocabulary/reward/CreateArtifactFromReward.gd")
 const BuildRewardTelemetryScript = preload("res://src/vocabulary/reward/BuildRewardTelemetry.gd")
+const CodexDiscoveryStateScript = preload("res://src/vocabulary/reward/CodexDiscoveryState.gd")
 const ApplyGrowthModifiersScript = preload("res://src/vocabulary/progression/ApplyGrowthModifiers.gd")
 const RecalculateQueueColorsScript = preload("res://src/vocabulary/combat/RecalculateQueueColors.gd")
 const ShiftWeaknessMarkersScript = preload("res://src/vocabulary/combat/ShiftWeaknessMarkers.gd")
@@ -28,6 +29,8 @@ const COMBAT_TICKS_PER_SECOND := 20
 const TERRAIN_SHIFT_TICKS := int(round(TERRAIN_SHIFT_SECONDS * COMBAT_TICKS_PER_SECOND))
 const STARTER_LOADOUT_POSITIONS := [Vector2(2, 2), Vector2(3, 2)]
 const CODEX_FORCE_DISCOVERED_KEY := KEY_F8
+const ACCESSIBILITY_SETTINGS_PATH := "user://accessibility-settings.cfg"
+const ACCESSIBILITY_SETTINGS_SECTION := "accessibility"
 
 var view
 var preview_controller
@@ -61,7 +64,6 @@ var weakness_shift_step: int = 0
 var reward_presentation_step: String = ""
 var _start_transition_pending := false
 var battle_pause_active := false
-var _paused_shift_time_left := -1.0
 var _disabled_tile_release_queue: Array[Dictionary] = []
 var accessibility_state := {
 	"screenshake": true,
@@ -79,71 +81,13 @@ static func reward_presentation_step_sequence() -> Array:
 	return RewardCeremonyPolicyScript.step_sequence()
 
 static func codex_growth_state_for_debug(base_growth_state: Dictionary, reward_table: Dictionary, force_all_discovered: bool) -> Dictionary:
-	var codex_growth := base_growth_state.duplicate(true)
-	if not force_all_discovered:
-		return codex_growth
-	var discovered_ids: Array = codex_growth.get("artifactDiscovery", []).duplicate(true)
-	var discovered_lookup := {}
-	for entry_id in discovered_ids:
-		discovered_lookup[str(entry_id)] = true
-	for reward in reward_table.get("rewards", []):
-		if not (reward is Dictionary):
-			continue
-		var reward_id := str(reward.get("id", reward.get("catalogId", "")))
-		if reward_id.is_empty() or discovered_lookup.has(reward_id):
-			continue
-		discovered_lookup[reward_id] = true
-		discovered_ids.append(reward_id)
-	codex_growth["artifactDiscovery"] = discovered_ids
-	return codex_growth
+	return CodexDiscoveryStateScript.for_debug(base_growth_state, reward_table, force_all_discovered)
 
 static func starter_codex_discovery_ids_for_color(reward_table: Dictionary, _start_color: String) -> Array:
-	var discovery_ids: Array = []
-	var claimed_types := {}
-	for color in EnergyTempoBalanceScript.VALID_COLORS:
-		claimed_types[color] = {}
-	for reward in reward_table.get("rewards", []):
-		if not (reward is Dictionary):
-			continue
-		var tags = reward.get("tags", [])
-		if not (tags is Array) or not tags.has("starter_safe"):
-			continue
-		var payload: Dictionary = reward.get("payload", {})
-		var energy_type := str(payload.get("energy_type", "")).to_lower()
-		if not (energy_type in EnergyTempoBalanceScript.VALID_COLORS):
-			continue
-		var item_type := str(payload.get("item_type", "")).to_lower()
-		if not claimed_types.has(energy_type):
-			claimed_types[energy_type] = {}
-		if not (item_type in ["drill", "beacon"]) or claimed_types[energy_type].has(item_type):
-			continue
-		var reward_id := str(reward.get("id", reward.get("catalogId", "")))
-		if reward_id.is_empty():
-			continue
-		claimed_types[energy_type][item_type] = true
-		discovery_ids.append(reward_id)
-	return discovery_ids
+	return CodexDiscoveryStateScript.starter_discovery_ids_for_color(reward_table, _start_color)
 
 static func codex_growth_state_with_starter_discoveries(base_growth_state: Dictionary, reward_table: Dictionary, start_color: String) -> Dictionary:
-	var codex_growth := base_growth_state.duplicate(true)
-	var discovered_ids: Array = codex_growth.get("artifactDiscovery", []).duplicate(true)
-	var discovered_lookup := {}
-	for entry_id in discovered_ids:
-		discovered_lookup[str(entry_id)] = true
-	for starter_id in starter_codex_discovery_ids_for_color(reward_table, start_color):
-		var normalized_id := str(starter_id)
-		if normalized_id.is_empty() or discovered_lookup.has(normalized_id):
-			continue
-		discovered_lookup[normalized_id] = true
-		discovered_ids.append(normalized_id)
-	codex_growth["artifactDiscovery"] = discovered_ids
-	return codex_growth
-
-static func _normalized_codex_start_color(start_color: String) -> String:
-	var color := start_color.to_lower()
-	if color in ["red", "blue", "purple", "green"]:
-		return color
-	return "red"
+	return CodexDiscoveryStateScript.with_starter_discoveries(base_growth_state, reward_table, start_color)
 
 func node_map_loadout_colors_for_scene(_scene: Dictionary = {}) -> Array:
 	return EnergyTempoBalanceScript.terrain_color_palette()
@@ -328,6 +272,7 @@ func _ready() -> void:
 	view = get_parent()
 	if not view.is_node_ready():
 		await view.ready
+	accessibility_state = load_accessibility_state_from_path()
 	inventory = InventoryModel.new(8, 8)
 	character_roster = _load_character_roster()
 	var selected_character := _selected_character_data()
@@ -372,20 +317,24 @@ func _ready() -> void:
 	view.settings_panel.screenshake_toggled.connect(func(enabled):
 		accessibility_state["screenshake"] = enabled
 		_apply_accessibility_state()
+		save_accessibility_state_to_path()
 	)
 	if view.settings_panel.has_signal("reduced_flash_toggled"):
 		view.settings_panel.reduced_flash_toggled.connect(func(enabled):
 			accessibility_state["reducedFlash"] = enabled
 			_apply_accessibility_state()
+			save_accessibility_state_to_path()
 		)
 	if view.settings_panel.has_signal("reduced_particles_toggled"):
 		view.settings_panel.reduced_particles_toggled.connect(func(enabled):
 			accessibility_state["reducedParticles"] = enabled
 			_apply_accessibility_state()
+			save_accessibility_state_to_path()
 		)
 	if view.settings_panel.has_signal("hold_fire_assist_toggled"):
 		view.settings_panel.hold_fire_assist_toggled.connect(func(enabled):
 			accessibility_state["holdFireAssist"] = enabled
+			save_accessibility_state_to_path()
 		)
 	view.settings_panel.fullscreen_toggled.connect(func(toggled): DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if toggled else DisplayServer.WINDOW_MODE_WINDOWED))
 	view.node_meta_clicked.connect(_on_node_meta_clicked)
@@ -428,7 +377,6 @@ func _ready() -> void:
 	view.key_pressed.connect(_on_key_pressed)
 	view.setup_backpack_slots()
 	view.render_backpack(inventory)
-	accessibility_state["screenshake"] = bool(view.vfx_manager.shake_enabled)
 	_apply_accessibility_state()
 	view.setup_settings(
 		bool(accessibility_state.get("screenshake", true)),
@@ -1310,14 +1258,11 @@ func _set_shift_timer_paused(paused: bool) -> void:
 	if shift_timer == null:
 		return
 	if paused:
-		_paused_shift_time_left = shift_timer.time_left if not shift_timer.is_stopped() else shift_timer.wait_time
-		shift_timer.stop()
+		shift_timer.paused = true
 		return
-	var resume_time := _paused_shift_time_left
-	_paused_shift_time_left = -1.0
-	if resume_time > 0.0:
-		shift_timer.start(resume_time)
-	elif shift_timer.is_stopped():
+	shift_timer.paused = false
+	if shift_timer.is_stopped():
+		shift_timer.wait_time = TERRAIN_SHIFT_SECONDS
 		shift_timer.start(TERRAIN_SHIFT_SECONDS)
 
 # ?ㅽ뻾: setup conveyor-belt shift timer.
@@ -1594,6 +1539,33 @@ func _apply_accessibility_state() -> void:
 		return
 	view.vfx_manager.shake_enabled = bool(accessibility_state.get("screenshake", true))
 
+func _normalized_accessibility_state(state: Dictionary = {}) -> Dictionary:
+	return {
+		"screenshake": bool(state.get("screenshake", true)),
+		"reducedFlash": bool(state.get("reducedFlash", false)),
+		"reducedParticles": bool(state.get("reducedParticles", false)),
+		"holdFireAssist": bool(state.get("holdFireAssist", false))
+	}
+
+func save_accessibility_state_to_path(path: String = ACCESSIBILITY_SETTINGS_PATH) -> int:
+	var config := ConfigFile.new()
+	var normalized := _normalized_accessibility_state(accessibility_state)
+	for key in normalized.keys():
+		config.set_value(ACCESSIBILITY_SETTINGS_SECTION, key, normalized[key])
+	return config.save(path)
+
+func load_accessibility_state_from_path(path: String = ACCESSIBILITY_SETTINGS_PATH) -> Dictionary:
+	var config := ConfigFile.new()
+	var result := config.load(path)
+	if result != OK:
+		return _normalized_accessibility_state({})
+	return _normalized_accessibility_state({
+		"screenshake": config.get_value(ACCESSIBILITY_SETTINGS_SECTION, "screenshake", true),
+		"reducedFlash": config.get_value(ACCESSIBILITY_SETTINGS_SECTION, "reducedFlash", false),
+		"reducedParticles": config.get_value(ACCESSIBILITY_SETTINGS_SECTION, "reducedParticles", false),
+		"holdFireAssist": config.get_value(ACCESSIBILITY_SETTINGS_SECTION, "holdFireAssist", false)
+	})
+
 func _decorate_scene(scene: Dictionary) -> Dictionary:
 	var decorated := scene.duplicate(true)
 	decorated["show_victory_overlay"] = show_victory_overlay
@@ -1636,27 +1608,47 @@ func _selected_node_context(scene: Dictionary = {}) -> Dictionary:
 		var candidates: Array = scene.get("nodeSelect", {}).get("candidates", [])
 		var index := clampi(int(scene.get("selectedNodeIndex", selected_node_index)), 0, maxi(0, candidates.size() - 1))
 		if not candidates.is_empty() and index < candidates.size():
-			var candidate: Dictionary = candidates[index]
-			return {
-				"node_id": str(candidate.get("id", "")),
-				"node_type": str(candidate.get("nodeType", "")),
-				"label": str(candidate.get("label", "")),
-				"risk_tier": str(candidate.get("riskTier", "")),
-				"is_boss": str(candidate.get("nodeType", "")) == "boss" or str(candidate.get("riskTier", "")) == "boss",
-				"is_event": bool(candidate.get("isEvent", false)) or str(candidate.get("riskTier", "")) == "event"
-			}
+			return _node_context_from_dict(candidates[index])
+	var combat_payload: Variant = scene.get("combat", {})
+	var combat_node: Dictionary = {}
+	if combat_payload is Dictionary:
+		combat_node = combat_payload.get("node", {})
+	if combat_node is Dictionary and not combat_node.is_empty():
+		return _node_context_from_dict(combat_node, str(scene.get("lastNodeLabel", "")))
 	if preview_controller != null and preview_controller.run != null:
 		var selected_node = preview_controller.run.state.get("selectedNode", {})
 		if selected_node is Dictionary:
-			return {
-				"node_id": str(selected_node.get("id", "")),
-				"node_type": str(selected_node.get("nodeType", "")),
-				"label": str(selected_node.get("label", scene.get("lastNodeLabel", ""))),
-				"risk_tier": str(selected_node.get("riskTier", "")),
-				"is_boss": bool(selected_node.get("isBoss", false)) or str(selected_node.get("nodeType", "")) == "boss" or str(selected_node.get("riskTier", "")) == "boss",
-				"is_event": bool(selected_node.get("isEvent", false)) or str(selected_node.get("riskTier", "")) == "event"
-			}
-	return {"node_id": "", "node_type": "", "label": "", "risk_tier": "", "is_boss": false, "is_event": false}
+			return _node_context_from_dict(selected_node, str(scene.get("lastNodeLabel", "")))
+	return {
+		"node_id": "",
+		"node_type": "",
+		"label": "",
+		"risk_tier": "",
+		"weakness": [],
+		"shieldMul": 1.0,
+		"healthMul": 1.0,
+		"rewardBias": "baseline",
+		"recommendedBuildHint": "",
+		"is_boss": false,
+		"is_event": false
+	}
+
+func _node_context_from_dict(node: Dictionary, fallback_label: String = "") -> Dictionary:
+	return {
+		"node_id": str(node.get("id", "")),
+		"node_type": str(node.get("nodeType", "")),
+		"label": str(node.get("label", fallback_label)),
+		"risk_tier": str(node.get("riskTier", "")),
+		"weakness": node.get("weakness", []).duplicate(true) if node.get("weakness", []) is Array else [],
+		"shieldMul": float(node.get("shieldMul", 1.0)),
+		"healthMul": float(node.get("healthMul", 1.0)),
+		"shieldMulByColor": node.get("shieldMulByColor", node.get("shield_mul_by_color", {})).duplicate(true) if node.get("shieldMulByColor", node.get("shield_mul_by_color", {})) is Dictionary else {},
+		"healthMulByColor": node.get("healthMulByColor", node.get("health_mul_by_color", {})).duplicate(true) if node.get("healthMulByColor", node.get("health_mul_by_color", {})) is Dictionary else {},
+		"rewardBias": str(node.get("rewardBias", "baseline")),
+		"recommendedBuildHint": str(node.get("recommendedBuildHint", "")),
+		"is_boss": bool(node.get("isBoss", false)) or str(node.get("nodeType", "")) == "boss" or str(node.get("riskTier", "")) == "boss",
+		"is_event": bool(node.get("isEvent", false)) or str(node.get("riskTier", "")) == "event"
+	}
 
 func _emit_ui_telemetry(payload: Dictionary) -> void:
 	if payload.is_empty():

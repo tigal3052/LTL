@@ -12,12 +12,13 @@ static func top_content_backpack_horizontal_flags() -> int:
 static func top_content_side_horizontal_flags() -> int:
 	return Control.SIZE_EXPAND_FILL
 
+static func top_content_left_horizontal_flags(left_ratio: float) -> int:
+	return Control.SIZE_FILL if left_ratio <= 0.0 else top_content_side_horizontal_flags()
+
 static func apply_node_select_backpack_dock(
 	backpack_container: Control,
 	node_select_content_row: Control,
 	node_select_backpack_host: Control,
-	node_map_scene: Control,
-	node_select_map_host: Control,
 	backpack_original_parent: Node,
 	backpack_original_index: int,
 	dock: String,
@@ -31,13 +32,6 @@ static func apply_node_select_backpack_dock(
 	if dock == "right":
 		if backpack_container.get_parent() != node_select_backpack_host and not schedule_backpack_reparent.is_null():
 			schedule_backpack_reparent.call(node_select_backpack_host)
-		if node_map_scene != null:
-			node_map_scene.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			node_map_scene.size_flags_stretch_ratio = map_ratio
-			node_map_scene.custom_minimum_size.x = 460.0
-		if node_select_map_host != null:
-			node_select_map_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			node_select_map_host.size_flags_stretch_ratio = map_ratio
 		node_select_backpack_host.size_flags_horizontal = Control.SIZE_SHRINK_END
 		node_select_backpack_host.size_flags_stretch_ratio = backpack_ratio
 		node_select_backpack_host.custom_minimum_size = Vector2(backpack_width, 0.0)
@@ -176,8 +170,8 @@ static func apply_top_content_stretch(
 	right_ratio: float
 ) -> void:
 	if left_column != null:
-		left_column.size_flags_horizontal = top_content_side_horizontal_flags()
-		left_column.size_flags_stretch_ratio = left_ratio
+		left_column.size_flags_horizontal = top_content_left_horizontal_flags(left_ratio)
+		left_column.size_flags_stretch_ratio = maxf(0.0, left_ratio)
 	if backpack_container != null:
 		if backpack_container.get_parent() == backpack_original_parent:
 			backpack_container.size_flags_horizontal = top_content_backpack_horizontal_flags()

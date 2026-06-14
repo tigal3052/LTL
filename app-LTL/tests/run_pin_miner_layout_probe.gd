@@ -22,16 +22,25 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 
-	var node_map_scene = main_instance.node_map_scene
-	_assert(node_map_scene != null, "node map scene exists for runtime probe")
-	if node_map_scene != null:
-		node_map_scene.press_color_button(0)
-		if node_map_scene.map_node_count() > 0:
-			node_map_scene.press_node_button(0)
+	var character_page = main_instance.get("character_select_page")
+	var leviathan_page = main_instance.get("leviathan_select_page")
+	var start_button = main_instance.get("start_button") as Button
+	_assert(character_page != null, "character select page exists for runtime probe boot")
+	_assert(leviathan_page != null, "leviathan select page exists for runtime probe boot")
+	_assert(start_button != null, "start button exists for runtime probe boot")
+	if character_page != null:
+		character_page.color_selected.emit("red")
+		character_page.continue_requested.emit()
 	await process_frame
 	await process_frame
-
-	main_instance.start_button.pressed.emit()
+	if leviathan_page != null:
+		leviathan_page.leviathan_selected.emit("ossuary_tortoise")
+		leviathan_page.start_requested.emit()
+	await process_frame
+	await process_frame
+	await process_frame
+	if start_button != null:
+		start_button.pressed.emit()
 	await process_frame
 	await process_frame
 

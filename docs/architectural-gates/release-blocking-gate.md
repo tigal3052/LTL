@@ -18,6 +18,6 @@ layout_resource_forbidden_patterns: fit_content = true
 view_dynamic_creation_paths:
 strict_size_paths:
 
-singleton_layout_owner_paths: app-LTL/src/ui/MainViewRuntime.gd, app-LTL/src/scenes/node_map/NodeMapScene.gd
+singleton_layout_owner_paths: app-LTL/src/ui/MainViewRuntime.gd
 singleton_layout_scan_roots: app-LTL/src
 singleton_layout_forbidden_patterns: NodeMapSceneScript.new, NodeMapBackpackRow, NodeMapPage, StartColors

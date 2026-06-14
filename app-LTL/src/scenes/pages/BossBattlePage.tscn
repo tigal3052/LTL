@@ -1,10 +1,5 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://src/scenes/pages/StageBackdropPage.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://src/scenes/pages/BattlePage.tscn" id="1"]
 
 [node name="BossBattlePage" instance=ExtResource("1")]
-default_badge = ""
-default_kicker = ""
-default_title = ""
-default_subtitle = ""
-default_art_path = "res://resources/Leviathan/Leviathan_golem.png"

@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[node name="ActionBar" type="HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ResetButton" type="Button" parent="."]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 2
+
+[node name="HoldFireButton" type="Button" parent="."]
+layout_mode = 2
+
+[node name="RepairButton" type="Button" parent="."]
+layout_mode = 2
+
+[node name="ClaimRewardsButton" type="Button" parent="."]
+layout_mode = 2

@@ -17,6 +17,14 @@
 - Record the `docs/source-map.md` entries or source-map-derived observations that shaped this request's scope.
 - Prefer mapped file paths plus one short responsibility note per relevant entry.
 
+## Root Cause Review
+
+- `Observed symptom: <what is visibly wrong or incomplete>`
+- `Evidence: <what evidence ties the symptom to a specific source owner, contract, or state boundary>`
+- `Root cause target: <backticked source owner or formal target path>`
+- `Rejected workaround: <the tempting symptom-only patch that should not count as completion>`
+- `Chosen fix: <the source-level repair that the implementation will make>`
+
 ## Transition Safety Review
 
 - Record touched transition ids or state `no transition impact`.
@@ -46,6 +54,12 @@
 ## Verification Notes
 
 - Fill before completion. Map each invariant and completion claim to evidence.
+
+## Resolution Proof
+
+- `RED proof: <the failing proof that existed before the fix>`
+- `Root-cause proof: <the proof that the source-level repair now passes>`
+- `Workaround guard: <the proof that completion did not stop at cosmetic symptom masking>`
 
 ## Artifact Ledger
 

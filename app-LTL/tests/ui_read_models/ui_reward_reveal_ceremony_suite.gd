@@ -3,14 +3,14 @@
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	reward_reveal_cancel_done_calls = 0
-	test_reward_reveal_overlay_uses_cinematic_hero_contract_and_keeps_legacy_backup()
+	test_reward_reveal_overlay_uses_cinematic_hero_contract_and_removes_legacy_backup()
 	test_reward_reveal_presentation_requires_confirm_and_sorted_reveal_queue()
 	test_reward_reveal_quantity_tease_uses_three_bands()
 	test_reward_reveal_count_tease_hides_exact_count_and_uses_band_preview()
 	test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst()
 	return _result()
 
-func test_reward_reveal_overlay_uses_cinematic_hero_contract_and_keeps_legacy_backup() -> void:
+func test_reward_reveal_overlay_uses_cinematic_hero_contract_and_removes_legacy_backup() -> void:
 	TextCatalogScript.set_locale("en")
 	var RewardRevealOverlayScript = load("res://src/ui/RewardRevealOverlay.gd")
 	_assert(RewardRevealOverlayScript != null, "fullscreen reward reveal overlay script exists")
@@ -29,11 +29,7 @@ func test_reward_reveal_overlay_uses_cinematic_hero_contract_and_keeps_legacy_ba
 			])
 			_assert_eq(str(presentation.get("heroName", "")), "Apex Crown", "presentation model picks the highest-rarity reward as the cinematic hero")
 			_assert_eq(int(presentation.get("extraCount", -1)), 2, "presentation model keeps the remaining rewards available for the tray that returns after the cinematic")
-	var LegacyRewardRevealScript = load("res://src/ui/legacy/LegacyRewardRevealOverlay.gd")
-	_assert(LegacyRewardRevealScript != null, "legacy reward reveal backup script exists")
-	if LegacyRewardRevealScript != null and LegacyRewardRevealScript.has_method("reveal_timing_profile"):
-		var legacy_profile = LegacyRewardRevealScript.reveal_timing_profile()
-		_assert(float(legacy_profile.get("silhouetteHold", 0.0)) >= 1.2, "legacy reveal backup preserves the previous silhouette-hold contract for easy comparison or disposal later")
+	_assert(not ResourceLoader.exists("res://src/ui/legacy/LegacyRewardRevealOverlay.gd"), "legacy reward reveal backup has been removed after the cinematic overlay became the only runtime owner")
 	TextCatalogScript.set_locale("ko")
 
 func test_reward_reveal_presentation_requires_confirm_and_sorted_reveal_queue() -> void:

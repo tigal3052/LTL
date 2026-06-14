@@ -2,28 +2,30 @@ class_name HudReadModel
 extends RefCounted
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const ENERGY_QUEUE_ROW_SIZE := 8
+const ENERGY_QUEUE_MAX_SLOTS := 16
 
 static func project(scene: Dictionary) -> Dictionary:
 	var hud: Dictionary = scene.get("hud", {})
 	var queue: Dictionary = hud.get("queue", {})
 	var items: Array = queue.get("items", [])
-	var now_color := _queue_color(items, 0)
-	var next_color := _queue_color(items, 1)
-	var reserve_count := maxi(0, items.size() - 2)
+	var active_color := _queue_color(items, 0)
+	var slot_colors := _queue_colors(items)
 	var feedback_status := str(scene.get("feedback", {}).get("status", "active"))
 	var repair_stage := _repair_stage(hud, feedback_status)
 	var hazard: Dictionary = hud.get("hazard", {})
 	var hazard_family := str(hazard.get("label", "stable"))
 	var hazard_count := int(hazard.get("obstacleCount", 0))
 	var target_weakness: Array = scene.get("targetPanel", {}).get("weakness", []).duplicate(true) if scene.get("targetPanel", {}).get("weakness", []) is Array else []
-	var queue_match := not now_color.is_empty() and target_weakness.has(now_color)
+	var queue_match := not active_color.is_empty() and target_weakness.has(active_color)
 	return {
 		"queue": {
-			"nowColor": now_color,
-			"nextColor": next_color,
-			"reserveCount": reserve_count,
+			"activeColor": active_color,
+			"slotColors": slot_colors,
 			"loaded": int(queue.get("loaded", items.size())),
 			"capacity": int(queue.get("capacity", max(items.size(), 1))),
+			"maxCapacity": ENERGY_QUEUE_MAX_SLOTS,
+			"rowSize": ENERGY_QUEUE_ROW_SIZE,
 			"queueMatch": queue_match
 		},
 		"aim": {
@@ -31,6 +33,7 @@ static func project(scene: Dictionary) -> Dictionary:
 			"cellId": str(hud.get("aim", {}).get("cellId", "")),
 			"targetColor": str(hud.get("aim", {}).get("targetColor", ""))
 		},
+		"pin": hud.get("pin", {}).duplicate(true),
 		"repair": {
 			"stage": repair_stage,
 			"label": _repair_stage_label(repair_stage),
@@ -59,6 +62,14 @@ static func _queue_color(items: Array, index: int) -> String:
 		return ""
 	var item = items[index]
 	return str(item.get("color", "")) if item is Dictionary else str(item)
+
+static func _queue_colors(items: Array) -> Array:
+	var result: Array = []
+	for item in items:
+		if result.size() >= ENERGY_QUEUE_MAX_SLOTS:
+			break
+		result.append(str(item.get("color", "")) if item is Dictionary else str(item))
+	return result
 
 static func _repair_stage(hud: Dictionary, feedback_status: String) -> String:
 	if feedback_status == "repair_blocked":

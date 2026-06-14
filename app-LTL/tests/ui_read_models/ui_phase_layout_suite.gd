@@ -79,6 +79,7 @@ func test_node_select_layout_is_full_page() -> void:
 	var model = PhaseLayoutPresenterScript.project({"phase": "node_select", "stageIndex": 0, "maxStages": 5}, false)
 	_assert_eq(model["nodeSelectVisible"], true, "node select panel visible")
 	_assert_eq(model["nodeMapFullPage"], true, "node select page keeps the full-page layout shell")
+	_assert_eq(model["headerVisible"], false, "node select retires the legacy shell header because page-level chrome now owns the controls")
 	_assert_eq(model["topContentVisible"], false, "node select page replaces the combat top-content row with a dedicated roadmap page")
 	_assert_eq(model["backpackVisible"], false, "node select page does not reuse the combat backpack sidebar")
 	_assert_eq(model["sidebarsVisible"], false, "node select page hides nonessential combat sidebars")
@@ -90,6 +91,7 @@ func test_node_select_layout_uses_roadmap_page_shell() -> void:
 	_assert_eq(model["nodeSelectBackpackDock"], "hidden", "node select disables the old backpack docking path")
 	_assert_eq(float(model["nodeMapStretchRatio"]), 0.0, "node select no longer budgets width for the reused node-map split")
 	_assert_eq(float(model["backpackStretchRatio"]), 0.0, "node select no longer budgets width for the reused backpack split")
+	_assert_eq(model["shopButtonVisible"], false, "node select no longer uses the legacy shell shop button because the page frame owns utility actions")
 
 func test_node_select_layout_reuses_palette_when_start_panel_is_hidden() -> void:
 	var controller = MainControllerRuntimeScript.new()

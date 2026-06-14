@@ -1,15 +1,23 @@
-# 계약:
-# - 책임: 전투 클리어 시 획득할 보상 생성에 관한 순수 동사 함수들을 제공한다.
-# - 입력: 시드 값, 스테이지 인덱스, 격파된 속성 Array, 튜닝 설정 Dictionary.
-# - 출력: 생성된 보상 목록 Array.
-# - 금지: SceneTree 접근, 자체 상태 보존 (static func만 가짐).
+﻿# 계약:
+# - 책임: 전투 클리어 이후 stage reward offer 생성과 fallback reward loading을 제공한다.
+# - 입력: seed, stage index, weakness list, tuning dictionary.
+# - 출력: reward dictionaries with payload, rarity, presentation, and deterministic offer hashes.
+# - 금지: SceneTree 접근, mutable global state, UI node ownership.
 #
 # 실행: define the RewardVocab static entry.
+# 怨꾩빟:
+# - 梨낆엫: ?꾪닾 ?대━?????띾뱷??蹂댁긽 ?앹꽦??愿???쒖닔 ?숈궗 ?⑥닔?ㅼ쓣 ?쒓났?쒕떎.
+# - ?낅젰: ?쒕뱶 媛? ?ㅽ뀒?댁? ?몃뜳?? 寃⑺뙆???띿꽦 Array, ?쒕떇 ?ㅼ젙 Dictionary.
+# - 異쒕젰: ?앹꽦??蹂댁긽 紐⑸줉 Array.
+# - 湲덉?: SceneTree ?묎렐, ?먯껜 ?곹깭 蹂댁〈 (static func留?媛吏?.
+#
+# ?ㅽ뻾: define the RewardVocab static entry.
 class_name RewardVocab
 extends RefCounted
 const BuildRewardPreviewScript = preload("res://src/vocabulary/reward/BuildRewardPreview.gd")
+const DefaultMockRewardsScript = preload("res://src/vocabulary/reward/DefaultMockRewards.gd")
 
-# 실행: roll deterministic rewards based on seed and loaded JSON tables.
+# ?ㅽ뻾: roll deterministic rewards based on seed and loaded JSON tables.
 static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Array, tuning: Dictionary) -> Array:
 	var combined_seed := int(seed_val) + int(stage_index) * 0x85ebca6b
 	var rng = RandomNumberGenerator.new()
@@ -23,7 +31,7 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 	else:
 		reward_pool = _get_default_mock_rewards()
 
-	# 1~5개 아이템 획득 확률 테이블 (1개: 15%, 2개: 30%, 3개: 35%, 4개: 15%, 5개: 5%)
+	# 1~5媛??꾩씠???띾뱷 ?뺣쪧 ?뚯씠釉?(1媛? 15%, 2媛? 30%, 3媛? 35%, 4媛? 15%, 5媛? 5%)
 	var count_roll := rng.randf()
 	var count := 3
 	if count_roll < 0.15:
@@ -37,7 +45,7 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 	else:
 		count = 5
 
-	# 유물 등급 확률 테이블 (등급, 스테이지 단계에 따라 달라짐. 높은 스테이지에서 높은 등급 확률 증가. 신화등급 제외 총합 100%)
+	# ?좊Ъ ?깃툒 ?뺣쪧 ?뚯씠釉?(?깃툒, ?ㅽ뀒?댁? ?④퀎???곕씪 ?щ씪吏? ?믪? ?ㅽ뀒?댁??먯꽌 ?믪? ?깃툒 ?뺣쪧 利앷?. ?좏솕?깃툒 ?쒖쇅 珥앺빀 100%)
 	var rarity_probs := {
 		0: { "common": 0.70, "rare": 0.22, "epic": 0.07, "legendary": 0.01, "mythic": 0.00 },
 		1: { "common": 0.50, "rare": 0.33, "epic": 0.14, "legendary": 0.03, "mythic": 0.00 },
@@ -119,7 +127,7 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 
 	return rolled_rewards
 
-# 실행: keep reward type choices available even when a rarity tier lacks beacons.
+# ?ㅽ뻾: keep reward type choices available even when a rarity tier lacks beacons.
 static func _with_reward_type_mix(items: Array, reward_pool: Array) -> Array:
 	return items
 
@@ -130,7 +138,7 @@ static func _rarity_candidates(reward_pool: Array, rarity: String) -> Array:
 			matched_items.append(item)
 	return matched_items
 
-# 실행: rebalance reward item weights so drill-like items and beacons land near 40:60.
+# ?ㅽ뻾: rebalance reward item weights so drill-like items and beacons land near 40:60.
 static func _with_type_ratio_weights(items: Array) -> Array:
 	var type_totals := {}
 	for item in items:
@@ -163,7 +171,7 @@ static func _with_type_ratio_weights(items: Array) -> Array:
 		entries.append({"item": item, "weight": float(item.get("weight", 10.0)) * float(multipliers.get(reward_type, 1.0))})
 	return entries
 
-# 실행: infer reward type from payload, tags, and item name.
+# ?ㅽ뻾: infer reward type from payload, tags, and item name.
 static func _reward_item_type(item: Dictionary) -> String:
 	var payload: Dictionary = item.get("payload", {})
 	var payload_item_type := str(payload.get("item_type", payload.get("itemType", ""))).to_lower()
@@ -180,7 +188,7 @@ static func _reward_item_type(item: Dictionary) -> String:
 		return "relic"
 	return "drill"
 
-# 실행: check if a reward list contains a requested item type.
+# ?ㅽ뻾: check if a reward list contains a requested item type.
 static func _has_reward_type(items: Array, reward_type: String) -> bool:
 	for item in items:
 		if _reward_item_type(item) == reward_type:
@@ -203,14 +211,14 @@ static func _rolled_rewards_have_type(rewards: Array, reward_type: String) -> bo
 			return true
 	return false
 
-# 실행: sum weighted reward entries.
+# ?ㅽ뻾: sum weighted reward entries.
 static func _total_weight(entries: Array) -> float:
 	var total := 0.0
 	for entry in entries:
 		total += float(entry.get("weight", 0.0))
 	return total
 
-# 실행: create a deterministic compact hash from candidate ids and effective weights.
+# ?ㅽ뻾: create a deterministic compact hash from candidate ids and effective weights.
 static func _stable_offer_weights_hash(entries: Array) -> String:
 	var acc := 2166136261
 	for entry in entries:
@@ -220,7 +228,7 @@ static func _stable_offer_weights_hash(entries: Array) -> String:
 			acc = int((acc ^ token.unicode_at(i)) * 16777619) & 0x7fffffff
 	return "%08x" % acc
 
-# 실행: load helper for JSON files.
+# ?ㅽ뻾: load helper for JSON files.
 static func _load_json(path: String) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
@@ -234,13 +242,13 @@ static func _load_json(path: String) -> Dictionary:
 			return data
 	return {}
 
-# 실행: fallback reward roll in case files are missing.
+# ?ㅽ뻾: fallback reward roll in case files are missing.
 static func _roll_fallback_rewards(combined_seed: int, rng: RandomNumberGenerator) -> Array:
 	var count = rng.randi_range(2, 5)
 	var rewards = []
 	var colors = ["red", "blue", "purple", "green"]
 	var kinds = ["Drill", "Core", "Capacitor", "Lens", "Reactor", "Beacon"]
-	var badges = ["다음 전투 즉시 영향", "조합 대기", "안정", "위험 보상"]
+	var badges = ["immediate power", "combo setup", "stability", "risk reward"]
 
 	for i in range(count):
 		var color = colors[rng.randi() % colors.size()]
@@ -280,295 +288,7 @@ static func _roll_fallback_rewards(combined_seed: int, rng: RandomNumberGenerato
 		})
 	return rewards
 
-# 실행: provide default mock rewards in case JSON loading fails.
+# ?ㅽ뻾: provide default mock rewards in case JSON loading fails.
+# 실행: delegate default fallback catalog ownership to the reward data helper.
 static func _get_default_mock_rewards() -> Array:
-	return [
-		{
-			"id": "reward_crimson_core_red",
-			"kind": "Crimson Drill Core v2 (Red)",
-			"rarity": "epic",
-			"weight": 20,
-			"payload": {"cooldown_mod": -10, "energy_type": "red"},
-			"presentation": {"icon": "core_red", "description": "Reduces red drill cooldown by 10%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_crimson_core_blue",
-			"kind": "Azure Drill Core v2 (Blue)",
-			"rarity": "epic",
-			"weight": 20,
-			"payload": {"cooldown_mod": -10, "energy_type": "blue"},
-			"presentation": {"icon": "core_blue", "description": "Reduces blue drill cooldown by 10%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_crimson_core_purple",
-			"kind": "Violet Drill Core v2 (Purple)",
-			"rarity": "epic",
-			"weight": 20,
-			"payload": {"cooldown_mod": -10, "energy_type": "purple"},
-			"presentation": {"icon": "core_purple", "description": "Reduces purple drill cooldown by 10%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_crimson_core_green",
-			"kind": "Verdant Drill Core v2 (Green)",
-			"rarity": "epic",
-			"weight": 20,
-			"payload": {"cooldown_mod": -10, "energy_type": "green"},
-			"presentation": {"icon": "core_green", "description": "Reduces green drill cooldown by 10%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_rapid_condenser_red",
-			"kind": "Rapid Fuel Condenser (Red)",
-			"rarity": "rare",
-			"weight": 40,
-			"payload": {"cooldown_mod": -5, "energy_type": "red"},
-			"presentation": {"icon": "condenser_red", "description": "Reduces red drill cooldown by 5%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_rapid_condenser_blue",
-			"kind": "Rapid Fuel Condenser (Blue)",
-			"rarity": "rare",
-			"weight": 40,
-			"payload": {"cooldown_mod": -5, "energy_type": "blue"},
-			"presentation": {"icon": "condenser_blue", "description": "Reduces blue drill cooldown by 5%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_rapid_condenser_purple",
-			"kind": "Rapid Fuel Condenser (Purple)",
-			"rarity": "rare",
-			"weight": 40,
-			"payload": {"cooldown_mod": -5, "energy_type": "purple"},
-			"presentation": {"icon": "condenser_purple", "description": "Reduces purple drill cooldown by 5%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_rapid_condenser_green",
-			"kind": "Rapid Fuel Condenser (Green)",
-			"rarity": "rare",
-			"weight": 40,
-			"payload": {"cooldown_mod": -5, "energy_type": "green"},
-			"presentation": {"icon": "condenser_green", "description": "Reduces green drill cooldown by 5%.", "badge": "다음 전투 즉시 영향"},
-			"tags": ["immediate_power"]
-		},
-		{
-			"id": "reward_resonance_magnet_red",
-			"kind": "Resonance Magnet (Red)",
-			"rarity": "rare",
-			"weight": 30,
-			"payload": {"adjacent_synergy": true, "energy_type": "red"},
-			"presentation": {"icon": "magnet_red", "description": "Triggers synergy bonuses when placed next to drills. (Red)", "badge": "조합 대기"},
-			"tags": ["future_combo"]
-		},
-		{
-			"id": "reward_resonance_magnet_blue",
-			"kind": "Resonance Magnet (Blue)",
-			"rarity": "rare",
-			"weight": 30,
-			"payload": {"adjacent_synergy": true, "energy_type": "blue"},
-			"presentation": {"icon": "magnet_blue", "description": "Triggers synergy bonuses when placed next to drills. (Blue)", "badge": "조합 대기"},
-			"tags": ["future_combo"]
-		},
-		{
-			"id": "reward_resonance_magnet_purple",
-			"kind": "Resonance Magnet (Purple)",
-			"rarity": "rare",
-			"weight": 30,
-			"payload": {"adjacent_synergy": true, "energy_type": "purple"},
-			"presentation": {"icon": "magnet_purple", "description": "Triggers synergy bonuses when placed next to drills. (Purple)", "badge": "조합 대기"},
-			"tags": ["future_combo"]
-		},
-		{
-			"id": "reward_resonance_magnet_green",
-			"kind": "Resonance Magnet (Green)",
-			"rarity": "rare",
-			"weight": 30,
-			"payload": {"adjacent_synergy": true, "energy_type": "green"},
-			"presentation": {"icon": "magnet_green", "description": "Triggers synergy bonuses when placed next to drills. (Green)", "badge": "조합 대기"},
-			"tags": ["future_combo"]
-		},
-		{
-			"id": "reward_shield_bot_red",
-			"kind": "Shield Repair Bot (Red)",
-			"rarity": "common",
-			"weight": 80,
-			"payload": {"shield_repair": 15, "energy_type": "red"},
-			"presentation": {"icon": "bot_red", "description": "Increases shield repair efficiency by 15%. (Red)", "badge": "안정"},
-			"tags": ["survival_stability"]
-		},
-		{
-			"id": "reward_shield_bot_blue",
-			"kind": "Shield Repair Bot (Blue)",
-			"rarity": "common",
-			"weight": 80,
-			"payload": {"shield_repair": 15, "energy_type": "blue"},
-			"presentation": {"icon": "bot_blue", "description": "Increases shield repair efficiency by 15%. (Blue)", "badge": "안정"},
-			"tags": ["survival_stability"]
-		},
-		{
-			"id": "reward_shield_bot_purple",
-			"kind": "Shield Repair Bot (Purple)",
-			"rarity": "common",
-			"weight": 80,
-			"payload": {"shield_repair": 15, "energy_type": "purple"},
-			"presentation": {"icon": "bot_purple", "description": "Increases shield repair efficiency by 15%. (Purple)", "badge": "안정"},
-			"tags": ["survival_stability"]
-		},
-		{
-			"id": "reward_shield_bot_green",
-			"kind": "Shield Repair Bot (Green)",
-			"rarity": "common",
-			"weight": 80,
-			"payload": {"shield_repair": 15, "energy_type": "green"},
-			"presentation": {"icon": "bot_green", "description": "Increases shield repair efficiency by 15%. (Green)", "badge": "안정"},
-			"tags": ["survival_stability"]
-		},
-		{
-			"id": "reward_cursed_heart_red",
-			"kind": "Cursed Leviathan Heart (Red)",
-			"rarity": "legendary",
-			"weight": 10,
-			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "red"},
-			"presentation": {"icon": "heart_red", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Red)", "badge": "위험 보상"},
-			"tags": ["greed_risk"]
-		},
-		{
-			"id": "reward_cursed_heart_blue",
-			"kind": "Cursed Leviathan Heart (Blue)",
-			"rarity": "legendary",
-			"weight": 10,
-			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "blue"},
-			"presentation": {"icon": "heart_blue", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Blue)", "badge": "위험 보상"},
-			"tags": ["greed_risk"]
-		},
-		{
-			"id": "reward_cursed_heart_purple",
-			"kind": "Cursed Leviathan Heart (Purple)",
-			"rarity": "legendary",
-			"weight": 10,
-			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "purple"},
-			"presentation": {"icon": "heart_purple", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Purple)", "badge": "위험 보상"},
-			"tags": ["greed_risk"]
-		},
-		{
-			"id": "reward_cursed_heart_green",
-			"kind": "Cursed Leviathan Heart (Green)",
-			"rarity": "legendary",
-			"weight": 10,
-			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "green"},
-			"presentation": {"icon": "heart_green", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Green)", "badge": "위험 보상"},
-			"tags": ["greed_risk"]
-		},
-		{
-			"id": "reward_special_plasma_red",
-			"kind": "Special Plasma Injector (Red)",
-			"rarity": "mythic",
-			"weight": 5,
-			"payload": {"damage_multiplier": 2.0, "energy_type": "red"},
-			"presentation": {"icon": "plasma_red", "description": "Doubles extraction damage. (Red)", "badge": "위험 보상"},
-			"tags": ["greed_risk", "fusion"]
-		},
-		{
-			"id": "reward_special_plasma_blue",
-			"kind": "Special Plasma Injector (Blue)",
-			"rarity": "mythic",
-			"weight": 5,
-			"payload": {"damage_multiplier": 2.0, "energy_type": "blue"},
-			"presentation": {"icon": "plasma_blue", "description": "Doubles extraction damage. (Blue)", "badge": "위험 보상"},
-			"tags": ["greed_risk", "fusion"]
-		},
-		{
-			"id": "reward_special_plasma_purple",
-			"kind": "Special Plasma Injector (Purple)",
-			"rarity": "mythic",
-			"weight": 5,
-			"payload": {"damage_multiplier": 2.0, "energy_type": "purple"},
-			"presentation": {"icon": "plasma_purple", "description": "Doubles extraction damage. (Purple)", "badge": "위험 보상"},
-			"tags": ["greed_risk", "fusion"]
-		},
-		{
-			"id": "reward_special_plasma_green",
-			"kind": "Special Plasma Injector (Green)",
-			"rarity": "mythic",
-			"weight": 5,
-			"payload": {"damage_multiplier": 2.0, "energy_type": "green"},
-			"presentation": {"icon": "plasma_green", "description": "Doubles extraction damage. (Green)", "badge": "위험 보상"},
-			"tags": ["greed_risk", "fusion"]
-		},
-		{
-			"id": "reward_cooldown_beacon_red",
-			"kind": "Amplifying Cooldown Beacon (Red)",
-			"rarity": "rare",
-			"weight": 35,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "red"},
-			"presentation": {"icon": "beacon_red", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Red)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_cooldown_beacon_blue",
-			"kind": "Amplifying Cooldown Beacon (Blue)",
-			"rarity": "rare",
-			"weight": 35,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "blue"},
-			"presentation": {"icon": "beacon_blue", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Blue)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_cooldown_beacon_purple",
-			"kind": "Amplifying Cooldown Beacon (Purple)",
-			"rarity": "rare",
-			"weight": 35,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "purple"},
-			"presentation": {"icon": "beacon_purple", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Purple)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_cooldown_beacon_green",
-			"kind": "Amplifying Cooldown Beacon (Green)",
-			"rarity": "rare",
-			"weight": 35,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "green"},
-			"presentation": {"icon": "beacon_green", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Green)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_unstable_beacon_red",
-			"kind": "Unstable Overcharge Beacon (Red)",
-			"rarity": "epic",
-			"weight": 25,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "red"},
-			"presentation": {"icon": "beacon_red", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Red)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_unstable_beacon_blue",
-			"kind": "Unstable Overcharge Beacon (Blue)",
-			"rarity": "epic",
-			"weight": 25,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "blue"},
-			"presentation": {"icon": "beacon_blue", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Blue)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_unstable_beacon_purple",
-			"kind": "Unstable Overcharge Beacon (Purple)",
-			"rarity": "epic",
-			"weight": 25,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "purple"},
-			"presentation": {"icon": "beacon_purple", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Purple)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		},
-		{
-			"id": "reward_unstable_beacon_green",
-			"kind": "Unstable Overcharge Beacon (Green)",
-			"rarity": "epic",
-			"weight": 25,
-			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "green"},
-			"presentation": {"icon": "beacon_green", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Green)", "badge": "조합 대기"},
-			"tags": ["beacon"]
-		}
-	]
+	return DefaultMockRewardsScript.items()

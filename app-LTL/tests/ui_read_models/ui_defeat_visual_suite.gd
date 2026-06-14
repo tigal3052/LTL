@@ -78,20 +78,20 @@ func test_defeat_page_scene_uses_dedicated_wireframe_layout() -> void:
 	defeat_page.queue_free()
 
 func test_main_scene_exposes_purple_status_row() -> void:
-	var MainScene = load("res://src/Main.tscn")
-	_assert(MainScene != null, "main scene resource loads for purple status row contract")
-	if MainScene == null:
+	var GameplayTopContentScene = load("res://src/scenes/pages/shells/GameplayTopContent.tscn")
+	_assert(GameplayTopContentScene != null, "gameplay top-content shell scene loads for purple status row contract")
+	if GameplayTopContentScene == null:
 		return
-	var main_instance = MainScene.instantiate()
-	_assert(main_instance != null, "main scene instantiates for purple status row contract")
-	if main_instance == null:
+	var gameplay_top_content = GameplayTopContentScene.instantiate()
+	_assert(gameplay_top_content != null, "gameplay top-content shell scene instantiates for purple status row contract")
+	if gameplay_top_content == null:
 		return
-	var purple_row = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow") as HBoxContainer
+	var purple_row = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer/PurpleStatusRow") as HBoxContainer
 	_assert(purple_row != null, "status panel now exposes the purple status row inside the footer spacer lane")
-	_assert(main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/PurpleStatusRow") == null, "purple status row no longer sits in the main VBox flow where it could grow combat layout height")
-	var purple_value = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow/PurpleStatusValue") as Label
+	_assert(gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/PurpleStatusRow") == null, "purple status row no longer sits in the main VBox flow where it could grow combat layout height")
+	var purple_value = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer/PurpleStatusRow/PurpleStatusValue") as Label
 	_assert(purple_value != null, "purple status row exposes a value label for reduction and stack text")
-	main_instance.queue_free()
+	gameplay_top_content.free()
 
 func test_battlefield_lane_overlay_keeps_shell_visible_through_transparent_tiles() -> void:
 	var battlefield_ui = BattlefieldUIScript.new()

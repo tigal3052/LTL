@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Node Select Redesign Approval Mockup</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-void: #05070a;
+      --bg-night: #0b1118;
+      --panel-night: rgba(12, 17, 24, 0.96);
+      --shell-night: rgba(10, 14, 20, 0.98);
+      --bronze-0: #2f2117;
+      --bronze-1: #4a3427;
+      --bronze-2: #70503a;
+      --bronze-3: #caa06a;
+      --parchment: #f3e8d5;
+      --muted: #b4a28f;
+      --soft: #7f7263;
+      --line-soft: rgba(216, 188, 147, 0.10);
+      --line-bronze: rgba(202, 160, 106, 0.34);
+      --gray-node: #72665c;
+      --gray-border: #96897d;
+      --red-0: #65251f;
+      --red-1: #934032;
+      --red-2: #c55e47;
+      --brown-0: #4c331f;
+      --brown-1: #6a4930;
+      --brown-2: #8c6544;
+      --shadow-lg: 0 28px 90px rgba(0, 0, 0, 0.42);
+      --shadow-md: 0 18px 40px rgba(0, 0, 0, 0.30);
+      --ease-out: cubic-bezier(0.18, 0.88, 0.28, 1.16);
+      --ease-press: cubic-bezier(0.32, 0.06, 0.26, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 14% 8%, rgba(211, 162, 95, 0.18), transparent 22%),
+        radial-gradient(circle at 84% 14%, rgba(124, 63, 49, 0.14), transparent 20%),
+        linear-gradient(180deg, var(--bg-void) 0%, var(--bg-night) 100%);
+      color: var(--parchment);
+    }
+
+    body {
+      padding: 20px;
+    }
+
+    .page {
+      width: min(1620px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(7, 10, 14, 0.88);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .workspace {
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+        var(--shell-night);
+      padding: 16px;
+    }
+
+    .hero-panel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+      border: 1px solid var(--line-bronze);
+      background:
+        radial-gradient(circle at 22% 18%, rgba(255,255,255,0.08), transparent 22%),
+        radial-gradient(circle at 82% 24%, rgba(209, 156, 87, 0.12), transparent 18%),
+        linear-gradient(135deg, rgba(56, 39, 30, 0.96), rgba(27, 18, 14, 0.96));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      padding: 22px 24px 20px;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 96px;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.16));
+      pointer-events: none;
+    }
+
+    .hero-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+    }
+
+    .hero-copy h1 {
+      margin: 0;
+      font-size: clamp(44px, 5vw, 68px);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-copy p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.72;
+    }
+
+    .hero-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      max-width: 620px;
+    }
+
+    .hero-chip {
+      min-height: 56px;
+      padding: 0 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(213, 171, 114, 0.28);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)),
+        rgba(54, 38, 29, 0.82);
+      color: var(--parchment);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+      transition:
+        transform 180ms var(--ease-out),
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hero-chip.metric {
+      padding-inline: 30px;
+      color: #f2ce8f;
+    }
+
+    .hero-chip:hover {
+      transform: translateY(-2px) scale(1.02);
+      border-color: rgba(240, 200, 132, 0.50);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 12px 22px rgba(0, 0, 0, 0.20);
+    }
+
+    .hero-chip:active {
+      transform: translateY(2px) scale(0.985);
+      transition-duration: 90ms;
+    }
+
+    .board-shell {
+      margin-top: 14px;
+      border-radius: 28px;
+      border: 1px solid rgba(188, 140, 77, 0.22);
+      background:
+        linear-gradient(180deg, rgba(73, 50, 36, 0.16), rgba(32, 21, 16, 0.22)),
+        rgba(21, 15, 12, 0.94);
+      padding: 14px;
+    }
+
+    .canvas-shell {
+      position: relative;
+      min-height: 840px;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background:
+        radial-gradient(circle at 16% 14%, rgba(255,255,255,0.06), transparent 18%),
+        radial-gradient(circle at 84% 16%, rgba(197, 136, 86, 0.10), transparent 20%),
+        linear-gradient(180deg, rgba(71, 48, 35, 0.94), rgba(43, 28, 20, 0.98));
+    }
+
+    .canvas-shell::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+    }
+
+    .canvas-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.32;
+    }
+
+    .spine,
+    .rib {
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(240, 220, 190, 0.12);
+      transform-origin: left center;
+    }
+
+    .spine {
+      height: 16px;
+    }
+
+    .rib {
+      width: 18px;
+      background: rgba(240, 220, 190, 0.08);
+    }
+
+    .stage-ruler {
+      position: absolute;
+      left: 24px;
+      top: 64px;
+      bottom: 40px;
+      width: 96px;
+      display: grid;
+      grid-template-rows: repeat(4, 1fr);
+      align-items: center;
+      color: rgba(225, 208, 186, 0.50);
+      font-size: 12px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .stage-ruler div {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stage-ruler div::after {
+      content: "";
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: rgba(225, 208, 186, 0.22);
+    }
+
+    .info-card {
+      position: absolute;
+      left: 54px;
+      top: 42px;
+      width: 308px;
+      min-height: 260px;
+      z-index: 6;
+      border-radius: 28px;
+      border: 1px solid rgba(199, 150, 92, 0.28);
+      background: rgba(25, 16, 12, 0.92);
+      padding: 22px 22px 20px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .info-card .eyebrow {
+      color: var(--bronze-3);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .info-card h2 {
+      margin: 10px 0 16px;
+      font-size: 25px;
+      line-height: 1.15;
+    }
+
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .route-layer,
+    .node-layer,
+    .label-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .route-segment {
+      position: absolute;
+      height: 14px;
+      border-radius: 999px;
+      transform-origin: left center;
+      z-index: 1;
+    }
+
+    .route-segment.history {
+      background: rgba(229, 208, 182, 0.12);
+    }
+
+    .route-segment.current {
+      background: rgba(138, 124, 112, 0.16);
+    }
+
+    .route-segment.selected {
+      background: rgba(190, 131, 82, 0.34);
+      box-shadow: 0 0 0 1px rgba(232, 184, 120, 0.10);
+    }
+
+    .route-segment.future {
+      height: 0;
+      border-top: 3px dashed rgba(204, 166, 108, 0.42);
+      background: none;
+    }
+
+    .node-button {
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .node-button .node-core {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 30px;
+      border: 1px solid rgba(203, 155, 98, 0.28);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+        linear-gradient(180deg, rgba(123, 87, 59, 0.96), rgba(77, 53, 38, 0.98));
+      color: #faefd8;
+      font-size: 28px;
+      font-weight: 800;
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.22);
+      transition:
+        transform 180ms var(--ease-out),
+        filter 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .node-button.is-small {
+      width: 76px;
+      height: 76px;
+    }
+
+    .node-button.is-small .node-core {
+      border-radius: 26px;
+      font-size: 24px;
+    }
+
+    .node-button.is-cleared .node-core,
+    .node-button.is-muted .node-core {
+      border-color: rgba(164, 150, 138, 0.22);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        linear-gradient(180deg, rgba(92, 83, 76, 0.94), rgba(69, 62, 57, 0.96));
+      color: #e6dbcf;
+      filter: saturate(0.22);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .node-button.is-selected .node-core {
+      border-color: rgba(232, 184, 117, 0.68);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)),
+        linear-gradient(180deg, rgba(204, 155, 110, 0.98), rgba(151, 104, 70, 0.98));
+      box-shadow:
+        0 0 0 4px rgba(240, 195, 128, 0.14),
+        0 18px 34px rgba(0, 0, 0, 0.28);
+      filter: none;
+    }
+
+    .node-button.is-future {
+      width: 74px;
+      height: 74px;
+    }
+
+    .node-button.is-future .node-core {
+      border-radius: 999px;
+      border: 3px dashed rgba(224, 185, 116, 0.78);
+      background: rgba(38, 27, 21, 0.76);
+      color: #f1d28d;
+      font-size: 34px;
+      box-shadow: none;
+      filter: none;
+    }
+
+    .node-button:hover .node-core,
+    .node-button:focus-visible .node-core {
+      transform: translateY(-3px) scale(1.04);
+    }
+
+    .node-button:active .node-core {
+      transform: translateY(2px) scale(0.98);
+      transition-duration: 90ms;
+    }
+
+    .node-button.is-future:hover .node-core,
+    .node-button.is-future:focus-visible .node-core {
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .node-label {
+      position: absolute;
+      min-width: 132px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(191, 145, 90, 0.28);
+      background: rgba(35, 22, 16, 0.84);
+      color: var(--parchment);
+      text-align: center;
+      font-size: 15px;
+      z-index: 3;
+      transition:
+        transform 180ms var(--ease-out),
+        opacity 180ms ease,
+        border-color 180ms ease;
+      pointer-events: none;
+    }
+
+    .node-label.is-muted {
+      color: #d6cbc1;
+      border-color: rgba(162, 149, 138, 0.18);
+      background: rgba(54, 43, 38, 0.78);
+    }
+
+    .node-button:hover + .node-label,
+    .node-button:focus-visible + .node-label {
+      transform: translateY(-2px);
+      border-color: rgba(232, 184, 117, 0.42);
+    }
+
+    .button-bar {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .button-note {
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .button-row {
+      display: flex;
+      width: min(520px, 100%);
+      gap: 14px;
+      justify-content: flex-end;
+    }
+
+    .action-button {
+      position: relative;
+      min-width: 168px;
+      height: 58px;
+      border: 0;
+      padding: 0 24px;
+      border-radius: 18px;
+      color: #f7ead8;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      user-select: none;
+      transition:
+        transform 190ms var(--ease-out),
+        box-shadow 190ms ease,
+        filter 190ms ease;
+      box-shadow: 0 14px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    .action-button::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 17px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .action-button::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: -12px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.28);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .action-button:hover,
+    .action-button:focus-visible {
+      transform: translateY(-3px) scale(1.035);
+      box-shadow: 0 18px 28px rgba(0, 0, 0, 0.28);
+      filter: brightness(1.04);
+    }
+
+    .action-button:active,
+    .action-button.is-pressed {
+      transform: translateY(2px) scale(0.985);
+      box-shadow: 0 8px 14px rgba(0, 0, 0, 0.20);
+      transition-duration: 90ms;
+    }
+
+    .action-button.reset {
+      border: 1px solid rgba(171, 128, 79, 0.38);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
+        linear-gradient(180deg, var(--brown-2), var(--brown-1) 58%, var(--brown-0));
+    }
+
+    .action-button.start {
+      min-width: 196px;
+      margin-left: auto;
+      border: 1px solid rgba(208, 118, 86, 0.42);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)),
+        linear-gradient(180deg, var(--red-2), var(--red-1) 58%, var(--red-0));
+    }
+
+    .legend-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .legend-card {
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px 16px;
+    }
+
+    .legend-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .legend-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.62;
+    }
+
+    .control-rail {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .ghost-button {
+      min-height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 160ms var(--ease-out), border-color 160ms ease, color 160ms ease;
+    }
+
+    .ghost-button:hover,
+    .ghost-button:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(214, 172, 114, 0.22);
+      color: var(--parchment);
+    }
+
+    .ghost-button.is-active {
+      border-color: rgba(214, 172, 114, 0.38);
+      color: var(--parchment);
+      background: rgba(96, 65, 42, 0.34);
+    }
+
+    @media (max-width: 1180px) {
+      .hero-row,
+      .button-bar {
+        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .hero-toolbar,
+      .button-row {
+        justify-content: flex-start;
+      }
+
+      .legend-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 8px;
+      }
+
+      .page,
+      .workspace,
+      .hero-panel,
+      .board-shell,
+      .canvas-shell {
+        border-radius: 20px;
+      }
+
+      .canvas-shell {
+        min-height: 980px;
+      }
+
+      .info-card {
+        position: static;
+        width: auto;
+        margin: 18px;
+      }
+
+      .legend-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="workspace">
+      <section class="hero-panel">
+        <div class="hero-row">
+          <div class="hero-copy">
+            <h1>초야의 리자드</h1>
+            <p>승인용 프로토타입입니다. 지금 화면은 스테이지 2 기준이며, 출항 표식은 이미 클리어한 과거 노드, 현재 다섯 갈래 후보 중 하나만 선택, 이후 구간은 점선 물음표로 남기는 실제 런 흐름을 전제로 구성했습니다.</p>
+          </div>
+          <div class="hero-toolbar">
+            <button class="hero-chip metric" type="button">런 1 / 2</button>
+            <button class="hero-chip metric" type="button">스테이지 2 / 4</button>
+            <button class="hero-chip" type="button">상점</button>
+            <button class="hero-chip" type="button">유물 도감</button>
+            <button class="hero-chip" type="button">설정</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="board-shell">
+        <section class="canvas-shell">
+          <div class="canvas-bg" aria-hidden="true">
+            <div class="spine" style="left: 320px; top: 650px; width: 250px; transform: rotate(-28deg);"></div>
+            <div class="spine" style="left: 560px; top: 500px; width: 190px; transform: rotate(-10deg);"></div>
+            <div class="spine" style="left: 734px; top: 454px; width: 230px; transform: rotate(-24deg);"></div>
+            <div class="rib" style="left: 480px; top: 405px; height: 120px; transform: rotate(24deg);"></div>
+            <div class="rib" style="left: 652px; top: 344px; height: 160px; transform: rotate(18deg);"></div>
+            <div class="rib" style="left: 858px; top: 286px; height: 150px; transform: rotate(16deg);"></div>
+            <div class="rib" style="left: 1068px; top: 230px; height: 138px; transform: rotate(16deg);"></div>
+          </div>
+
+          <div class="stage-ruler" aria-hidden="true">
+            <div>안구</div>
+            <div>격실</div>
+            <div>척추</div>
+            <div>선체</div>
+          </div>
+
+          <aside class="info-card" aria-live="polite">
+            <div class="eyebrow" id="info-kicker">노드명</div>
+            <h2 id="info-title">보스 코어 연결로</h2>
+            <p id="info-body">현재 선택된 경로입니다.
+적색 약점 압박이 강하지만 보스 코어까지 이어지는 최단 중심축입니다.
+선택되지 않은 다른 현재 후보는 모두 회색으로 눌러서, 지금 활성 경로만 즉시 읽히게 유지합니다.</p>
+          </aside>
+
+          <div class="route-layer" aria-hidden="true">
+            <div class="route-segment history" style="left: 324px; top: 656px; width: 244px; transform: rotate(-28deg);"></div>
+            <div class="route-segment current" style="left: 544px; top: 526px; width: 200px; transform: rotate(-28deg);"></div>
+            <div class="route-segment current" style="left: 544px; top: 526px; width: 208px; transform: rotate(-8deg);"></div>
+            <div class="route-segment selected" id="selected-route" style="left: 544px; top: 526px; width: 258px; transform: rotate(-18deg);"></div>
+            <div class="route-segment current" style="left: 544px; top: 526px; width: 264px; transform: rotate(8deg);"></div>
+            <div class="route-segment current" style="left: 544px; top: 526px; width: 274px; transform: rotate(24deg);"></div>
+            <div class="route-segment future" id="future-route-1" style="left: 786px; top: 474px; width: 154px; transform: rotate(-22deg);"></div>
+            <div class="route-segment future" id="future-route-2" style="left: 930px; top: 412px; width: 170px; transform: rotate(-14deg);"></div>
+          </div>
+
+          <div class="node-layer" id="node-layer">
+            <button class="node-button is-cleared is-small" type="button" data-node-role="cleared" data-node-key="start" data-title="출항 표식" data-body="이미 클리어한 시작 노드입니다. 현재 단계에서는 진행 기록으로만 남고, 선택 강조를 다시 받지 않습니다." style="left: 286px; top: 610px;">
+              <span class="node-core">⚓</span>
+            </button>
+            <div class="node-label is-muted" style="left: 246px; top: 690px;">출항 표식</div>
+
+            <button class="node-button is-muted" type="button" data-node-role="candidate" data-node-key="repair" data-title="정비 격실" data-body="보수와 안정 회복에 치중한 갈래입니다.\n현재 후보이지만 선택되지 않았기 때문에 회색으로 유지됩니다." style="left: 520px; top: 470px;">
+              <span class="node-core">✚</span>
+            </button>
+            <div class="node-label is-muted" style="left: 486px; top: 564px;">정비 격실</div>
+
+            <button class="node-button is-muted" type="button" data-node-role="candidate" data-node-key="survey" data-title="수색 격실" data-body="자원 탐색용 갈래입니다.\n현재 선택 경로가 아니므로 색을 비활성화해 우선순위를 낮춥니다." style="left: 626px; top: 400px;">
+              <span class="node-core">◌</span>
+            </button>
+            <div class="node-label is-muted" style="left: 594px; top: 494px;">수색 격실</div>
+
+            <button class="node-button is-selected" type="button" data-node-role="candidate" data-node-key="bossline" data-title="보스 코어 연결로" data-body="현재 선택된 경로입니다.\n적색 약점 압박이 강하지만 보스 코어까지 이어지는 최단 중심축입니다.\n선택된 순간에만 원래의 따뜻한 색과 광택이 살아납니다." style="left: 756px; top: 426px;">
+              <span class="node-core">◉</span>
+            </button>
+            <div class="node-label" id="selected-label" style="left: 704px; top: 520px;">보스 코어 연결로</div>
+
+            <button class="node-button is-muted" type="button" data-node-role="candidate" data-node-key="event" data-title="이변 격실" data-body="이벤트 성격의 우회 갈래입니다.\n현재 후보이지만 선택되지 않았으므로 회색에 가까운 톤으로 후순위 처리됩니다." style="left: 900px; top: 504px;">
+              <span class="node-core">◇</span>
+            </button>
+            <div class="node-label is-muted" style="left: 866px; top: 598px;">이변 격실</div>
+
+            <button class="node-button is-muted" type="button" data-node-role="candidate" data-node-key="vault" data-title="깊은 격실" data-body="고위험 고보상 갈래입니다.\n현재 선택 전에는 다른 현재 후보와 동일하게 무채색에 가깝게 정리합니다." style="left: 1026px; top: 612px;">
+              <span class="node-core">▣</span>
+            </button>
+            <div class="node-label is-muted" style="left: 992px; top: 706px;">깊은 격실</div>
+
+            <button class="node-button is-future" type="button" data-node-role="future" data-node-key="future-1" data-title="미탐색 격실" data-body="아직 도달하지 않은 다음 스테이지 후보입니다.\n점선 물음표 언어를 유지해서 클리어 여부와 구분합니다." style="left: 920px; top: 340px;">
+              <span class="node-core">?</span>
+            </button>
+            <div class="node-label" style="left: 878px; top: 420px;">미탐색 격실</div>
+
+            <button class="node-button is-future" type="button" data-node-role="future" data-node-key="future-2" data-title="미탐색 격실" data-body="후속 스테이지 후보입니다.\n현재 후보군과 달리 선택 가능하지 않은 정보이므로 점선 질문 마커를 유지합니다." style="left: 1060px; top: 300px;">
+              <span class="node-core">?</span>
+            </button>
+            <div class="node-label" style="left: 1018px; top: 380px;">미탐색 격실</div>
+          </div>
+        </section>
+      </section>
+
+      <div class="control-rail" aria-label="목업 상호작용 안내">
+        <button class="ghost-button is-active" id="mode-current" type="button">현재 후보 강조 규칙</button>
+        <button class="ghost-button" id="mode-buttons" type="button">버튼 반응 확인</button>
+        <span style="color: var(--soft); font-size: 13px;">노드를 눌러 정보 카드와 선택 강조가 바뀌는지 직접 확인해보세요.</span>
+      </div>
+
+      <div class="button-bar">
+        <div class="button-note">하단 액션은 한 줄 안에서 좌우 정렬을 맞추고, `전투 시작`이 항상 우측 끝을 차지하도록 구성했습니다. 두 버튼 모두 실제 hover 확대와 press 눌림 연출을 넣었고, 승인되면 이 연출을 공용 버튼 패턴으로 끌어올릴 예정입니다.</div>
+        <div class="button-row">
+          <button class="action-button reset" id="reset-button" type="button">탐사 초기화</button>
+          <button class="action-button start" id="start-button" type="button">전투 시작</button>
+        </div>
+      </div>
+
+      <section class="legend-grid">
+        <article class="legend-card">
+          <strong>프레임 통합</strong>
+          <p>상단의 분리된 헤더 패널을 없애고, 레비아탄 이름과 `런 / 스테이지 / 상점 / 유물 도감 / 설정`을 가장 큰 프레임 안으로 모았습니다.</p>
+        </article>
+        <article class="legend-card">
+          <strong>런 진행 규칙</strong>
+          <p>과거에 클리어한 시작 노드는 회색 기록으로 남기고, 현재 스테이지의 다섯 후보 중 하나만 활성 선택색을 가집니다. 이후 후보는 점선 물음표로 이어집니다.</p>
+        </article>
+        <article class="legend-card">
+          <strong>노드 구분 원칙</strong>
+          <p>미선택 현재 후보와 클리어 이력은 모두 회색 계열로 눌러 시선을 줄이고, 선택된 현재 노드만 원래의 따뜻한 금속 색과 광택을 받도록 설계했습니다.</p>
+        </article>
+        <article class="legend-card">
+          <strong>버튼 패턴</strong>
+          <p>갈색 reset, 붉은 start, hover 시 확대, active 시 눌림, 동일한 높이와 정렬을 하나의 공용 패턴으로 보는 시안입니다.</p>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const nodeButtons = Array.from(document.querySelectorAll('.node-button[data-node-role="candidate"]'));
+      const infoTitle = document.getElementById('info-title');
+      const infoBody = document.getElementById('info-body');
+      const selectedRoute = document.getElementById('selected-route');
+      const selectedLabel = document.getElementById('selected-label');
+      const modeCurrent = document.getElementById('mode-current');
+      const modeButtons = document.getElementById('mode-buttons');
+      const resetButton = document.getElementById('reset-button');
+      const startButton = document.getElementById('start-button');
+
+      const routeMap = {
+        repair: { left: 544, top: 526, width: 200, rotate: -28 },
+        survey: { left: 544, top: 526, width: 208, rotate: -8 },
+        bossline: { left: 544, top: 526, width: 258, rotate: -18 },
+        event: { left: 544, top: 526, width: 264, rotate: 8 },
+        vault: { left: 544, top: 526, width: 274, rotate: 24 }
+      };
+
+      const labelMap = {
+        repair: { left: 486, top: 564, text: '정비 격실' },
+        survey: { left: 594, top: 494, text: '수색 격실' },
+        bossline: { left: 704, top: 520, text: '보스 코어 연결로' },
+        event: { left: 866, top: 598, text: '이변 격실' },
+        vault: { left: 992, top: 706, text: '깊은 격실' }
+      };
+
+      function selectCandidate(target) {
+        nodeButtons.forEach((button) => {
+          button.classList.remove('is-selected');
+          button.classList.add('is-muted');
+          const label = button.nextElementSibling;
+          if (label) {
+            label.classList.add('is-muted');
+          }
+        });
+
+        target.classList.remove('is-muted');
+        target.classList.add('is-selected');
+        const targetLabel = target.nextElementSibling;
+        if (targetLabel) {
+          targetLabel.classList.remove('is-muted');
+        }
+
+        infoTitle.textContent = target.dataset.title;
+        infoBody.textContent = target.dataset.body;
+
+        const route = routeMap[target.dataset.nodeKey];
+        if (route) {
+          selectedRoute.style.left = route.left + 'px';
+          selectedRoute.style.top = route.top + 'px';
+          selectedRoute.style.width = route.width + 'px';
+          selectedRoute.style.transform = 'rotate(' + route.rotate + 'deg)';
+        }
+
+        const label = labelMap[target.dataset.nodeKey];
+        if (label) {
+          selectedLabel.textContent = label.text;
+          selectedLabel.style.left = label.left + 'px';
+          selectedLabel.style.top = label.top + 'px';
+        }
+      }
+
+      nodeButtons.forEach((button) => {
+        button.addEventListener('click', () => selectCandidate(button));
+      });
+
+      function pulseButton(button) {
+        button.classList.add('is-pressed');
+        window.setTimeout(() => {
+          button.classList.remove('is-pressed');
+        }, 180);
+      }
+
+      [resetButton, startButton].forEach((button) => {
+        button.addEventListener('click', () => pulseButton(button));
+      });
+
+      modeCurrent.addEventListener('click', () => {
+        modeCurrent.classList.add('is-active');
+        modeButtons.classList.remove('is-active');
+      });
+
+      modeButtons.addEventListener('click', () => {
+        modeButtons.classList.add('is-active');
+        modeCurrent.classList.remove('is-active');
+        pulseButton(resetButton);
+        window.setTimeout(() => pulseButton(startButton), 120);
+      });
+    }());
+  </script>
+</body>
+</html>

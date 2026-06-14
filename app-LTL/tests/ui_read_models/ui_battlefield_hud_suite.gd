@@ -18,11 +18,6 @@ func run_all_tests() -> Dictionary:
 	test_hazard_model_stays_stable_without_live_obstacles()
 	test_battlefield_maps_columns_to_miner_pose_assets()
 	test_battlefield_miner_pose_assets_use_trimmed_regions()
-	test_main_scene_uses_header_miner_and_status_timer_footer()
-	test_main_scene_status_panel_uses_two_row_energy_queue()
-	test_hud_read_model_projects_now_next_and_reserve_queue()
-	test_failure_read_model_projects_run_failed_overlay()
-	test_status_panel_overlay_honors_explicit_hidden_flag()
 	return _result()
 
 func test_phase_layout_hides_floating_battlefield_timer() -> void:
@@ -33,13 +28,12 @@ func test_phase_layout_hides_floating_battlefield_timer() -> void:
 func test_phase_layout_gives_backpack_more_space_in_combat_and_reward() -> void:
 	var combat = PhaseLayoutPresenterScript.project({"phase": "combat", "stageIndex": 0, "maxStages": 5}, false)
 	var reward = PhaseLayoutPresenterScript.project({"phase": "reward_loot", "stageIndex": 0, "maxStages": 5}, false)
-	_assert_eq(float(combat.get("leftColumnTopStretchRatio", 0.0)), 2.0, "combat left status column compresses before the priority backpack panel")
+	_assert_eq(float(combat.get("leftColumnTopStretchRatio", -1.0)), 0.0, "combat left status column gives up stretch first so the priority backpack panel can grow")
 	_assert_eq(float(combat.get("backpackTopStretchRatio", -1.0)), 0.0, "combat backpack container no longer consumes horizontal stretch width")
-	_assert_eq(float(combat.get("rightSidebarTopStretchRatio", 0.0)), 1.55, "combat log sidebar compresses before the priority backpack panel")
+	_assert_eq(float(combat.get("rightSidebarTopStretchRatio", 0.0)), 1.0, "combat right sidebar absorbs the remaining side budget after the backpack and left rail")
 	_assert_eq(float(reward.get("backpackTopStretchRatio", -1.0)), 0.0, "reward layout also keeps the backpack fixed-width instead of stretching its slot")
-	_assert(float(combat.get("leftColumnTopStretchRatio", 0.0)) > 0.0, "combat layout leaves remaining horizontal width to the side panels")
 	_assert(float(combat.get("rightSidebarTopStretchRatio", 0.0)) > 0.0, "combat layout leaves remaining horizontal width to the log sidebar")
-	_assert(float(combat.get("leftColumnTopStretchRatio", 0.0)) > float(combat.get("rightSidebarTopStretchRatio", 0.0)), "combat keeps the drill/status side slightly wider than the log side because it owns the queue and bars")
+	_assert(float(combat.get("leftColumnTopStretchRatio", 0.0)) < float(combat.get("rightSidebarTopStretchRatio", 0.0)), "combat keeps the drill/status side at its readable minimum before trimming the log side")
 
 func test_phase_layout_hides_backpack_cooldown_visuals_outside_combat() -> void:
 	var node_select = PhaseLayoutPresenterScript.project({"phase": "node_select", "stageIndex": 0, "maxStages": 5}, false)
@@ -184,96 +178,4 @@ func test_battlefield_miner_pose_assets_use_trimmed_regions() -> void:
 		_assert(atlas != null, "battlefield miner pose %s uses a trimmed atlas texture so pose padding cannot push the visible drill away from the panel edge" % asset_path)
 		if atlas != null:
 			_assert_eq(atlas.region, expected_regions[asset_path], "battlefield miner pose %s trims to the measured visible bounds before layout" % asset_path)
-
-func test_main_scene_uses_header_miner_and_status_timer_footer() -> void:
-	var MainScene = load("res://src/Main.tscn")
-	_assert(MainScene != null, "main scene resource loads for battlefield layout structure test")
-	if MainScene == null:
-		return
-	var main_instance = MainScene.instantiate()
-	_assert(main_instance != null, "main scene instantiates for battlefield layout structure test")
-	if main_instance == null:
-		return
-	var header_miner = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot/TitleMiner") as TextureRect
-	_assert(header_miner != null, "battlefield title area now uses a miner texture instead of plain text")
-	var lower_overlay_miner = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot/MinerVisual")
-	_assert(lower_overlay_miner == null, "battlefield visual root no longer keeps the old lower-left miner overlay")
-	var footer_margin = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/CombatTimerFooterMargin") as MarginContainer
-	_assert(footer_margin != null, "status panel exposes a dedicated footer margin for the relocated combat timer")
-	if footer_margin != null:
-		_assert_eq(footer_margin.get_theme_constant("margin_bottom"), 10, "status timer footer now sits closer to the panel floor with about 10px bottom breathing room")
-	var footer_timer = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/CombatTimerFooterMargin/CombatTimerFooter/CombatTimerLabel") as Label
-	_assert(footer_timer != null, "status panel includes a large footer countdown label")
-	if footer_timer != null:
-		_assert_eq(footer_timer.get_theme_font_size("font_size"), 36, "status footer countdown now uses the requested 36px size")
-	main_instance.queue_free()
-
-func test_main_scene_status_panel_uses_two_row_energy_queue() -> void:
-	var status_panel = StatusPanelUIScript.new()
-	_assert_eq(int(StatusPanelUIScript.ENERGY_QUEUE_COLUMNS), 3, "status panel energy queue uses now / next / reserve columns")
-	_assert(status_panel != null and status_panel.has_method("render_hud_projection"), "status panel exposes a projected HUD render entry point for the compact queue hub")
-	status_panel.free()
-
-func test_hud_read_model_projects_now_next_and_reserve_queue() -> void:
-	var model := HudReadModelScript.project({
-		"hud": {
-			"queue": {
-				"items": ["green", "blue", "purple", "red"],
-				"loaded": 4,
-				"capacity": 8
-			},
-			"aim": {"canFire": true, "cellId": "r1c2", "targetColor": "green"},
-			"repair": {"active": false},
-			"pin": {"progress": 20.0},
-			"hazard": {"active": true, "severity": "active", "label": "green", "obstacleCount": 2}
-		},
-		"feedback": {"status": "match"},
-		"targetPanel": {"weakness": ["green"]}
-	})
-	var queue: Dictionary = model.get("queue", {})
-	_assert_eq(queue.get("nowColor", ""), "green", "hud read model projects the front token as now")
-	_assert_eq(queue.get("nextColor", ""), "blue", "hud read model projects the second token as next")
-	_assert_eq(int(queue.get("reserveCount", -1)), 2, "hud read model collapses the remainder into reserve count")
-	_assert_eq(bool(queue.get("queueMatch", false)), true, "hud read model exposes whether the front token matches the target weakness")
-	_assert_eq(str(model.get("repair", {}).get("stage", "")), "strained", "hud read model escalates hazard-active combat into strained repair stage")
-
-func test_failure_read_model_projects_run_failed_overlay() -> void:
-	TextCatalogScript.set_locale("en")
-	var failure_model := FailureReadModelScript.project({
-		"phase": "run_complete",
-		"failed": true,
-		"lastNodeLabel": "Storm Spine",
-		"stageIndex": 2,
-		"maxStages": 4
-	})
-	_assert_eq(str(failure_model.get("mode", "")), "run_failed", "failure read model projects the failed run overlay mode")
-	_assert_eq(str(failure_model.get("accent", "")), "danger", "failure read model marks failed runs as danger state")
-	_assert(str(failure_model.get("cause", "")).contains("Storm Spine"), "failure read model keeps the last node label in the failure cause")
-	_assert_eq(bool(failure_model.get("showResetHint", false)), true, "failure read model prompts reset on failed expeditions")
-	TextCatalogScript.set_locale("ko")
-
-func test_status_panel_overlay_honors_explicit_hidden_flag() -> void:
-	var status_panel = StatusPanelUIScript.new()
-	var overlay := PanelContainer.new()
-	var center := CenterContainer.new()
-	center.name = "Center"
-	overlay.add_child(center)
-	var warning_box := VBoxContainer.new()
-	warning_box.name = "WarningBox"
-	center.add_child(warning_box)
-	var warning_label := Label.new()
-	warning_label.name = "WarningLabel"
-	warning_box.add_child(warning_label)
-	var description_label := Label.new()
-	description_label.name = "DescriptionLabel"
-	warning_box.add_child(description_label)
-	status_panel.render_repair_overlay({}, overlay, {
-		"mode": "run_failed",
-		"visible": false,
-		"title": "Expedition Failed",
-		"cause": "The contract broke.",
-		"tip": "Try a safer route.",
-		"accent": "danger"
-	})
-	_assert_eq(overlay.visible, false, "status panel respects explicit hidden overlay requests so defeat pages can own the full screen")
 

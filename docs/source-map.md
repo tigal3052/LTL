@@ -184,10 +184,6 @@ This file is the live implementation map for AI agents. It records each current 
   - replay runner preserves prototype validation output.
 - `app-LTL/README.md`
   - README explains project design or implementation criteria.
-- `app-LTL/resources/UI/backpack.png`
-  - backpack is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack.png.import`
-  - backpack.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_1.png`
   - backpack 1 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_1.png.import`
@@ -240,6 +236,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Character support illustration used for warning and inventory-adjacent presentation.
 - `app-LTL/resources/charactor/charactor_backpack.png.import`
   - Godot import metadata for the backpack character illustration.
+- `app-LTL/resources/charactor/npc1.png`
+  - NPC portrait art used by the release page and narrative presentation surfaces.
+- `app-LTL/resources/charactor/npc1.png.import`
+  - Godot import metadata for the NPC portrait art resource.
 - `app-LTL/resources/charactor/charactor1.png`
   - Primary release character portrait art used across the explorer status panel.
 - `app-LTL/resources/charactor/charactor1.png.import`
@@ -648,8 +648,6 @@ This file is the live implementation map for AI agents. It records each current 
   - passive tree table stores engine, survival, and extraction progression upgrades.
 - `app-LTL/src/data/progression-default.json`
   - progression default stores balance or progression data.
-- `app-LTL/src/data/rarity-table.json`
-  - rarity table stores balance or progression data.
 - `app-LTL/src/data/release-resource-needs.json`
   - release resource needs table stores final-art paths and procedural fallback tags.
 - `app-LTL/src/data/reward-table.json`
@@ -742,11 +740,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Run Progression M0 Design Note coordinates headless process flow or input adaptation.
 - `app-LTL/src/README.md`
   - README explains project design or implementation criteria.
-- `app-LTL/src/scenes/node_map/NodeMapScene.gd`
-  - Renders the node-select tactical briefing, start-color row, candidate graph, and selected-route detail copy.
-  - Builds a resize-safe `START + candidate choices` node map and exposes smoke-test helpers for graph layout verification.
-- `app-LTL/src/scenes/node_map/NodeMapScene.tscn`
-  - Node Map Scene defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/StageBackdropPage.gd`
   - Provides the reusable full-bleed page-shell controller for page-specific backdrops and headings.
 - `app-LTL/src/scenes/pages/StageBackdropPage.tscn`
@@ -755,6 +748,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Renders the character selection page, starter-color buttons, and continue CTA.
 - `app-LTL/src/scenes/pages/CharacterSelectPage.tscn`
   - Character selection page scene matching the M6 run-start wireframe intent.
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`
+  - Projects starter loadout artifacts into localized character-select button and bag-detail copy.
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectPaletteView.gd`
+  - Builds and styles starter palette buttons, tag chips, and selected-color palette states.
+- `app-LTL/src/scenes/pages/node_select/FutureMarkerArt.gd`
+  - Draws the dotted future-route marker art used by the node-select roadmap canvas.
+- `app-LTL/src/scenes/pages/node_select/GlyphIcon.gd`
+  - Draws node-select route glyph icons for start, repair, unknown, danger, harpoon, reef, and boss markers.
 - `app-LTL/src/scenes/pages/LeviathanSelectPage.gd`
   - Renders the leviathan contract roster, hero board, target card, and looting-start CTA.
 - `app-LTL/src/scenes/pages/LeviathanSelectPage.tscn`
@@ -775,6 +776,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Normal reward page shell scene matching the reward-claim wireframe.
 - `app-LTL/src/scenes/pages/BossRewardPage.tscn`
   - Boss reward page shell scene matching the boss-reward wireframe.
+- `app-LTL/src/scenes/pages/shells/ActionBar.tscn`
+  - Shared gameplay action-bar shell instanced by node-select, battle, and reward page scenes.
+- `app-LTL/src/scenes/pages/shells/BattlefieldPanel.tscn`
+  - Shared battlefield shell that owns the combat board, timer, and VFX presentation nodes.
+- `app-LTL/src/scenes/pages/shells/GameplayTopContent.tscn`
+  - Shared gameplay top-row shell that owns the status panel, shared backpack slot, and log sidebar layout.
+- `app-LTL/src/scenes/pages/shells/RewardPanel.tscn`
+  - Shared reward-tray shell that owns the reward board, workspace host, inspector, and discard/claim zones.
 - `app-LTL/src/scenes/pages/EventNodePage.tscn`
   - Event-node page shell scene matching the event-node wireframe.
 - `app-LTL/src/scenes/pages/DefeatPage.gd`
@@ -854,8 +863,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Centralizes shared backpack docking, host-specific layout sync, and deferred reparent follow-up helpers for MainViewRuntime.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
   - Renders and controls the full-screen reward reveal ceremony overlay.
-- `app-LTL/src/ui/legacy/LegacyRewardRevealOverlay.gd`
-  - Preserves the prior reward reveal overlay contract for comparison during migration.
 - `app-LTL/src/ui/presenters/BackpackGridFactory.gd`
   - Creates backpack border cells and inner slot UI nodes.
   - Calculates artifact style, edge masks, energy colors, and border slices.
@@ -878,15 +885,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Centralizes reward-board width, height, zone-body, and docked-backpack sizing math for the extracted MainViewRuntime reward layout path.
 - `app-LTL/src/ui/presenters/RewardCeremonyPolicy.gd`
   - Defines reward ceremony step sequencing and interaction gate policy.
+- `app-LTL/src/ui/presenters/ShellButtonStyler.gd`
+  - Applies shared shell button theme states, disabled text color, and minimum sizing.
 - `app-LTL/src/ui/read_models/HudReadModel.gd`
   - Projects combat HUD snapshots into now, next, reserve, hazard, repair, and aim display state.
   - Builds queue-match and feedback flags for status-panel presentation without mutating runtime state.
 - `app-LTL/src/ui/read_models/FailureReadModel.gd`
   - Projects defeat, repair-lock, empty-queue, and victory overlay copy into UI-safe dictionaries.
   - Keeps failure overlays localized and decoupled from the controller and scene tree.
-- `app-LTL/src/ui/read_models/NodeMapReadModel.gd`
-  - Projects node-map scene snapshots into card lists and selected state.
-  - Aggregates route telemetry from node candidate lists.
 - `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`
   - Projects node-select candidates into UI cards with title, body, and weakness labels.
   - Converts candidate risk, reward, and weakness information into readable copy.
@@ -905,6 +911,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Converts headless run snapshots into full scene display models.
   - Separates node candidates, combat snapshots, reward tray, and held state into UI-only structures.
   - Normalizes raw label values into locale-aware display labels.
+- `app-LTL/src/ui/PageShellHost.gd`
+  - Owns phase-first page-shell mounting and visible-page switching for gameplay and meta page scenes.
+- `app-LTL/src/ui/BattleSidebarUI.gd`
+  - Builds the battle sidebar tab surface for explorer details and combat log presentation.
+- `app-LTL/src/ui/EnergyQueuePulseSlot.gd`
+  - Draws compact energy queue slot states with loaded, empty, disabled, and front-slot visuals.
 - `app-LTL/src/ui/SettingsPanelUI.gd`
   - Builds shake, fullscreen, locale, and volume controls for the settings panel.
   - Renders current settings state into UI controls.
@@ -989,6 +1001,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Builds reward-offer-generated telemetry payloads.
   - Builds reward-selected telemetry payloads.
   - Builds growth-state-changed telemetry payloads.
+- `app-LTL/src/vocabulary/reward/CodexDiscoveryState.gd`
+  - Builds artifact codex discovery snapshots for starter discoveries and debug all-discovered views.
+- `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`
+  - Provides fallback reward catalog rows when the reward-table JSON cannot be loaded.
 - `app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd`
   - Creates Artifact models from reward dictionaries.
   - Converts reward rarity, type, energy, shape, cooldown, and damage values into artifact fields.
@@ -1013,12 +1029,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Runs headless progression, adapter, read model, and replay path contracts.
   - Invokes reward, backpack, combat, node routing, and UI read model test groups.
   - Provides main scene instantiation smoke tests and fixture node table helpers.
-- `app-LTL/tests/inspect_img.gd`
-  - inspect img verifies Godot contracts and regression behavior.
 - `app-LTL/tests/m2_main_scene_contract.ps1`
   - m2 main scene contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_backpack_ui_compile_contract.gd`
   - run backpack ui compile contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_battle_hud_layout_read_model_contract.gd`
+  - Runs the focused battle HUD, phase layout, and shared backpack read-model contract suites.
+- `app-LTL/tests/run_codex_pause_timing_contract.gd`
+  - Verifies codex pause/resume preserves the steady battle terrain timer interval and saved remaining countdown.
 - `app-LTL/tests/run_combat_layout_containment_contract.gd`
   - Verifies combat HUD, gameplay shell, and phase surfaces stay inside the runtime viewport containment budget.
 - `app-LTL/tests/run_defeat_page_contract.gd`
@@ -1033,8 +1051,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies each active page mockup, including the June 8 node-select crossroads shell, is backed by an instantiable Godot scene file.
 - `app-LTL/tests/run_main_viewport_probe.gd`
   - run main viewport probe verifies Godot contracts and regression behavior.
-- `app-LTL/tests/run_node_map_scene_smoke.gd`
-  - run node map scene smoke verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_node_select_runtime_contract.gd`
   - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
@@ -1064,13 +1080,17 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd`
   - Covers shared backpack shell sizing, pin overlay geometry, and grid-layout contracts for the split UI read-model surface.
 - `app-LTL/tests/ui_read_models/ui_battlefield_hud_suite.gd`
-  - Covers battlefield layout, hazard presentation, HUD queue projection, and combat shell read-model contracts.
+  - Covers battlefield layout, hazard presentation, miner pose mapping, and combat terrain read-model contracts.
+- `app-LTL/tests/ui_read_models/ui_battlefield_hud_status_suite.gd`
+  - Covers battle HUD status panel scene structure, FIFO energy queue projection, node modifier metadata, and failure overlay contracts.
 - `app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd`
   - Covers codex panel projection plus reward-board and reward-inspector read-model contracts.
 - `app-LTL/tests/ui_read_models/ui_defeat_visual_suite.gd`
   - Covers defeat-page model and scene-shell contracts plus nearby failure-overlay expectations.
 - `app-LTL/tests/ui_read_models/ui_interaction_controller_suite.gd`
-  - Covers interaction cue, drag/drop, cooldown, targeting, and controller-side combat feedback contracts.
+  - Covers interaction cue, drag/drop placement, cooldown, targeting, and controller-side combat feedback contracts.
+- `app-LTL/tests/ui_read_models/ui_interaction_feedback_accessibility_suite.gd`
+  - Covers drag feedback restoration, layout-safe interaction polish, hold-fire accessibility, combat click blocking, and VFX accessibility contracts.
 - `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
   - Covers the extracted app-shell layout policy for safe shell sizing, active-phase height budgets, top-content budget math, and reward backpack caps.
 - `app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd`
@@ -1099,8 +1119,6 @@ This file is the live implementation map for AI agents. It records each current 
   - test combat vocab verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_formal_replay_runner.gd`
   - test formal replay runner verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_node_map_scene_smoke.gd`
-  - test node map scene smoke verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_node_routing_contract.gd`
   - test node routing contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_reward_claim_board_contract.gd`
@@ -1126,7 +1144,9 @@ This file is the live implementation map for AI agents. It records each current 
 - `docs/architectural-gates/warning-refactor-gate.md`
   - warning refactor gate keeps facade-entry drift and dynamic-control debt visible without claiming ownership of the large active runtime caps.
 - `docs/m6-manual-signoff-checklist.ko.md`
-  - Current Korean manual QA checklist and honest completion gate reminder for M6 sign-off.
+  - Current Korean M6 sign-off checklist with automated status, manual QA steps, and plain-language pass criteria.
+- `docs/m6-known-issues.ko.md`
+  - Records the remaining M6 sign-off gaps and known evidence debts carried forward after user-accepted M6 closure.
 - `docs/request-ledgers/2026-06-02-refactor-harness-quality-gate.md`
   - Records request constraints, mutable scope, refactor dispositions, verification notes, and artifact ledger expectations for this broad refactor.
 - `docs/request-ledgers/2026-06-07-page-contract-harness-hardening.md`
@@ -1143,6 +1163,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the transition-safety gate request scope, preserved page-contract invariants, and blocking verification obligations.
 - `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
   - Records the two-phase scope, preserved runtime invariants, and verification obligations for the M6 gate-fix checkpoint plus runtime-separation surgery pass.
+- `docs/request-ledgers/2026-06-11-runtime-size-cap-enforcement.md`
+  - Records the scope, invariants, split units, and verification checklist for the 500-line runtime size gate hardening pass.
+- `docs/request-ledgers/2026-06-13-root-cause-anti-workaround-gate.md`
+  - Records the harness-hardening scope and verification obligations for blocking symptom-only workaround planning through root-cause proofs.
 - `docs/release-resource-needs.md`
   - release resource needs documents exact final-art and audio paths that can be populated after implementation.
 - `docs/release-visual-quality-upgrade-plan.md`
@@ -1209,6 +1233,16 @@ This file is the live implementation map for AI agents. It records each current 
   - Release-wireframe mockup for the M6 defeat page and restart/escape presentation.
 - `docs/mockups/m6-leviathan-select-wireframe.html`
   - Release-wireframe mockup for the M6 leviathan selection and contract briefing page.
+- `docs/mockups/2026-06-12-battle-hud-queue-status-mockup.html`
+  - Combined battle HUD queue and status-panel comparison artifact kept as an active design reference.
+- `docs/mockups/2026-06-12-battle-hud-queue-status-mockup-v2.html`
+  - Revised combined battle HUD queue and status-panel comparison artifact kept as an active design reference.
+- `docs/mockups/2026-06-12-node-select-redesign-approval.html`
+  - Approval mockup artifact for the node-select redesign review and direct runtime follow-up.
+- `docs/mockups/2026-06-13-battle-hud-energy-queue-variants.html`
+  - Large-format review artifact for battle HUD energy queue directions and FIFO examples.
+- `docs/mockups/2026-06-13-battle-hud-info-panel-variants.html`
+  - Large-format review artifact for battle HUD information-panel directions.
 - `docs/source-map.md`
   - Live implementation map that records current directories, files, responsibilities, and harness request-triage lookup targets.
 - `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md`
@@ -1255,8 +1289,20 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the implementation plan for the transition-safety gate, its ledger wiring, and the expected verification sequence.
 - `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
   - Records the active-runtime versus legacy-residue separation plan, extraction waves, and harness guardrails for future refactors.
+- `docs/superpowers/plans/2026-06-11-runtime-size-cap-enforcement-plan.md`
+  - Records the frozen debt semantics, immediate split tasks, and verification sequence for small runtime files.
 - `docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md`
   - Records the reward-card cloud extraction wave and the pre-edit runtime-owner responsibility gate hardening plan.
+- `docs/superpowers/plans/2026-06-11-debug-runtime-cleanup-separation-plan.md`
+  - Records the debug-runtime cleanup boundary, prototype preservation policy, generated-residue deletion set, and internal scene/script cleanup waves.
+- `docs/superpowers/plans/2026-06-11-scene-script-runtime-inventory-audit.md`
+  - Records the exhaustive Godot scene and GDScript runtime inventory audit, including runtime, test-only, prototype, and migration-required cleanup classes.
+- `docs/superpowers/plans/2026-06-12-character-select-starter-card-redesign.md`
+  - Records the structured starter-card redesign plan for the character-select prep column and its focused verification steps.
+- `docs/superpowers/plans/2026-06-13-m7-narrative-integration-replan.ko.md`
+  - Records the M7 narrative integration replan, scope boundaries, and verification expectations.
+- `docs/superpowers/plans/2026-06-14-battle-hud-runtime-implementation.md`
+  - Records the battle HUD runtime implementation sequence, layout contracts, and focused verification steps.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
@@ -1283,6 +1329,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the June 8 node-select crossroads redesign direction, stage gating, and containment expectations.
 - `docs/superpowers/specs/2026-06-09-transition-safety-gate-design.ko.md`
   - Records the June 9 transition-safety gate design and the contract expectations for safer page and phase handoffs.
+- `docs/superpowers/specs/2026-06-14-battle-hud-runtime-design.md`
+  - Records the battle HUD runtime design direction, visual contract, and layout acceptance criteria.
 - `docs/superpowers/specs/2026-06-04-tmp-work-temp-consolidation-design.md`
   - Records the temporary work and temp-file consolidation design decisions and guardrails.
 - `LTL-harness/00_AGENTS.md`
@@ -1365,6 +1413,8 @@ This file is the live implementation map for AI agents. It records each current 
   - 10 M4 node routing completed records the verified outputs, plan deviations, and remaining gaps for the closed milestone.
 - `LTL-harness/docs/11_exec-plans/02_completed/11_M5_hazard_hierarchy_completed.md`
   - 11 M5 hazard hierarchy completed records the verified outputs, plan deviations, and remaining gaps for the closed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/12_M6_ui_ux_finalization_completed.md`
+  - 12 M6 ui ux finalization completed records the user-accepted closure state, verification evidence, and carried-forward manual QA gaps for the closed milestone.
 - `LTL-harness/docs/12_product-specs/01_CORE_COMBAT.md`
   - 01 CORE COMBAT defines product rules and domain specifications.
 - `LTL-harness/docs/12_product-specs/02_INVENTORY_SYNERGY.md`

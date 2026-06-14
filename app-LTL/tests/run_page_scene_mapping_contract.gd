@@ -49,7 +49,7 @@ func _run() -> void:
 				if start_button != null:
 					_assert(start_button.custom_minimum_size.y >= 68.0 and start_button.custom_minimum_size.y <= 74.0, "leviathan-select CTA keeps the slimmer ~70px baseline height")
 			elif mockup_name == "2026-06-08-node-select-crossroads-3up.html":
-				_assert(instance.get_node_or_null("Margin/VStack/HeroSection") != null, "node-select scene exposes the mockup hero section")
+				_assert(instance.get_node_or_null("Margin/VStack/HeroSection") == null, "node-select scene removes the retired mockup hero section")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell") != null, "node-select scene exposes the dedicated board shell")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead") != null, "node-select scene exposes the board header")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead") != null, "node-select scene exposes the leviathan lead block")

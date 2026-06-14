@@ -36,6 +36,10 @@ func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])
 
+func _assert_color_close(actual: Color, expected: Color, tolerance: float, label: String) -> void:
+	var delta := absf(actual.r - expected.r) + absf(actual.g - expected.g) + absf(actual.b - expected.b) + absf(actual.a - expected.a)
+	_assert(delta <= tolerance, "%s stays within color tolerance %.3f (actual=%s expected=%s delta=%.3f)" % [label, tolerance, str(actual), str(expected), delta])
+
 func _viewport_rect() -> Rect2:
 	return Rect2(Vector2.ZERO, Vector2(root.size))
 
@@ -109,7 +113,7 @@ func _instantiate_main(MainScene: PackedScene) -> Node:
 	await process_frame
 	return main_instance
 
-func _boot_to_node_select(main_instance: Node, color := "red", leviathan_id := "storm_wyvern") -> Node:
+func _boot_to_node_select(main_instance: Node, color := "red", leviathan_id := "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during layout-flow boot")
 	if controller == null:
@@ -243,7 +247,7 @@ func _assert_defeat_layout(MainScene: PackedScene) -> void:
 	await process_frame
 	var leviathan_page = main_instance.get("leviathan_select_page")
 	if leviathan_page != null:
-		leviathan_page.leviathan_selected.emit("storm_wyvern")
+		leviathan_page.leviathan_selected.emit("filed_lizard")
 		leviathan_page.start_requested.emit()
 	await process_frame
 	await process_frame
@@ -301,15 +305,37 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	var left_column = main_instance.get("left_column") as Control
 	var backpack_container = main_instance.get("backpack_container") as Control
 	var right_sidebar = main_instance.get("right_sidebar") as Control
-	var visual_queue_box = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/QueueRow/VisualQueueBox") as GridContainer
+	var active_phase_container = main_instance.get("active_phase_container") as Control
+	var action_bar = main_instance.get("action_bar") as Control
+	var battlefield_panel = main_instance.call("current_surface_node", "BattlefieldPanel") as Control
+	var visual_queue_box = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/QueueShell/QueueMargin/VisualQueueBox") as GridContainer
 	var queue_hint_label = main_instance.find_child("QueueHintLabel", true, false) as Label
+	var explorer_tab_button = main_instance.call("current_surface_node", "TopContent/RightSidebar/Margin/SidebarBox/TabRow/ExplorerTabButton") as Button
+	var log_tab_button = main_instance.call("current_surface_node", "TopContent/RightSidebar/Margin/SidebarBox/TabRow/LogInfoTabButton") as Button
+	var explorer_content = main_instance.call("current_surface_node", "TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent") as Control
+	var log_content = main_instance.call("current_surface_node", "TopContent/RightSidebar/Margin/SidebarBox/TabViewport/LogContent") as Control
+	var info_toggle_button = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/InfoTitle") as Button
+	var info_detail_shell = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/InfoDetailShell") as Control
+	var ops_shell = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell") as Control
+	var status_title = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusTitle") as Label
+	var terrain_copy = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/TerrainCopy") as Label
+	var weakness_card_grid = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/WeaknessCardGrid") as GridContainer
+	var node_card = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard") as Control
+	var old_ops_node_card = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/NodeCard") as Control
 	_assert(top_content != null, "top-content row exists for combat layout audit")
 	_assert(left_column != null, "left sidebar exists for combat layout audit")
 	_assert(backpack_container != null, "combat backpack exists for combat layout audit")
 	_assert(right_sidebar != null, "right sidebar exists for combat layout audit")
-	_assert(visual_queue_box != null, "combat status panel energy queue uses a compact now/next/reserve grid container")
+	_assert(active_phase_container != null, "combat active phase container exists for right-tab stability audit")
+	_assert(action_bar != null, "combat action bar exists for right-tab stability audit")
+	_assert(battlefield_panel != null, "combat battlefield tile strip exists for floor adjacency audit")
+	_assert(visual_queue_box != null, "combat status panel exposes the two-row FIFO energy queue grid")
 	if top_content != null and left_column != null and backpack_container != null and right_sidebar != null:
 		_assert(bool(top_content.visible), "combat keeps the top-content row visible")
+		_assert(float(top_content.size.y) >= 510.0, "combat top row consumes the remaining vertical budget so the lower HUD band can sit on the floor (height=%.2f)" % top_content.size.y)
+		_assert(absf(float(left_column.size.y) - float(top_content.size.y)) <= 0.5, "combat left status panel matches the top-row height (left=%.2f top=%.2f)" % [left_column.size.y, top_content.size.y])
+		_assert(absf(float(backpack_container.size.y) - float(top_content.size.y)) <= 0.5, "combat backpack panel matches the top-row height (backpack=%.2f top=%.2f)" % [backpack_container.size.y, top_content.size.y])
+		_assert(absf(float(right_sidebar.size.y) - float(top_content.size.y)) <= 0.5, "combat right panel matches the top-row height (right=%.2f top=%.2f)" % [right_sidebar.size.y, top_content.size.y])
 		_assert(float(left_column.position.x) >= -0.5, "combat left column stays inside the top-content row")
 		_assert(float(left_column.position.x + left_column.size.x) <= float(backpack_container.position.x) + 1.0, "combat left column stays left of the backpack slot")
 		_assert(float(backpack_container.position.x + backpack_container.size.x) <= float(right_sidebar.position.x) + 1.0, "combat backpack stays left of the log sidebar")
@@ -318,11 +344,71 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 		if MainViewRuntimeScript != null:
 			var expected_backpack_width := float(MainViewRuntimeScript.top_content_backpack_width_for_height(backpack_container.size.y))
 			_assert(absf(float(backpack_container.size.x) - expected_backpack_width) <= 8.0, "combat backpack keeps the priority height-derived width instead of being clamped first (actual=%.2f expected=%.2f)" % [backpack_container.size.x, expected_backpack_width])
-		_assert(float(left_column.size.x) <= 500.0, "combat left status column compresses around the priority backpack panel (width=%.2f)" % left_column.size.x)
-		_assert(float(right_sidebar.size.x) <= 430.0, "combat log sidebar compresses around the priority backpack panel (width=%.2f)" % right_sidebar.size.x)
+		_assert(float(backpack_container.size.x) >= 590.0, "combat backpack expands to the largest floor-aligned 8x8 ratio panel at the canonical viewport (width=%.2f)" % backpack_container.size.x)
+		_assert(float(left_column.size.x) >= 440.0 and float(left_column.size.x) <= 460.0, "combat left status column stays at the readable minimum before trimming the right rail (width=%.2f)" % left_column.size.x)
+		_assert(float(right_sidebar.size.x) >= 300.0 and float(right_sidebar.size.x) <= 330.0, "combat right sidebar absorbs the remaining side budget while keeping tab controls usable (width=%.2f)" % right_sidebar.size.x)
 	if visual_queue_box != null:
-		_assert_eq(int(visual_queue_box.columns), 3, "combat energy queue renders now / next / reserve columns")
+		_assert_eq(int(visual_queue_box.columns), 8, "combat energy queue keeps eight columns per row for the two-row FIFO layout")
 	_assert(queue_hint_label != null, "combat status panel exposes a queue hint label under the queue hub")
+	_assert(info_toggle_button != null, "combat info title is a button so the multiplier details can be toggled in place")
+	_assert(info_detail_shell != null, "combat info panel exposes a compact dropdown detail shell")
+	_assert(info_detail_shell != null and not info_detail_shell.visible, "combat info dropdown starts collapsed so the compact readout keeps its current density")
+	_assert(info_toggle_button != null and info_toggle_button.text.begins_with("노드 정보"), "combat info toggle is renamed to node info")
+	_assert(status_title != null and status_title.text == "드릴 정보", "drill operations shell title is renamed to drill info")
+	_assert(terrain_copy != null and terrain_copy.visible and not terrain_copy.text.is_empty(), "collapsed node info keeps only the weakness terrain text visible")
+	_assert(weakness_card_grid != null and not weakness_card_grid.visible, "collapsed node info hides multiplier cards")
+	_assert(node_card != null, "runtime node status card is mounted in the node info area")
+	_assert(node_card != null and not node_card.visible, "runtime node status card stays hidden while node info is collapsed")
+	_assert(old_ops_node_card == null, "runtime drill info area no longer owns node status")
+	_assert(explorer_tab_button != null, "combat right sidebar keeps the explorer tab button mounted")
+	_assert(log_tab_button != null, "combat right sidebar keeps the log tab button mounted")
+	_assert(explorer_content != null and explorer_content.visible, "combat defaults the right sidebar to explorer status")
+	_assert(log_content != null and not log_content.visible, "combat keeps the log body hidden until the tab is pressed")
+	if active_phase_container != null and action_bar != null:
+		_assert(absf(float(action_bar.get_global_rect().end.y) - float(active_phase_container.get_global_rect().end.y)) <= 1.0, "combat action bar sits on the active phase floor instead of leaving a large bottom gap (action=%.2f active=%.2f)" % [action_bar.get_global_rect().end.y, active_phase_container.get_global_rect().end.y])
+		_assert(float(action_bar.size.y) <= 64.0, "combat action bar remains button-height instead of becoming a spacer (height=%.2f)" % action_bar.size.y)
+	if battlefield_panel != null and action_bar != null:
+		var battle_page = action_bar.get_parent() as VBoxContainer
+		var page_gap := float(battle_page.get_theme_constant("separation")) if battle_page != null else 0.0
+		var expected_action_y := float(battlefield_panel.get_global_rect().end.y) + page_gap
+		_assert(absf(expected_action_y - float(action_bar.global_position.y)) <= 1.0, "combat battlefield tile strip stays directly above the action bar (expected_y=%.2f action_y=%.2f)" % [expected_action_y, action_bar.global_position.y])
+	if top_content != null and active_phase_container != null and action_bar != null and log_tab_button != null and explorer_content != null and log_content != null:
+		var base_top_height := float(top_content.size.y)
+		var base_active_phase_y := float(active_phase_container.global_position.y)
+		var base_action_bar_y := float(action_bar.global_position.y)
+		log_tab_button.pressed.emit()
+		await process_frame
+		await process_frame
+		_assert(log_content.visible, "log tab reveals the right-sidebar system log body in place")
+		_assert(not explorer_content.visible, "log tab hides the explorer-status body instead of stacking another layout row")
+		_assert(absf(float(top_content.size.y) - base_top_height) <= 0.5, "switching the right sidebar tab keeps the top-content row height stable")
+		_assert(absf(float(active_phase_container.global_position.y) - base_active_phase_y) <= 0.5, "switching the right sidebar tab keeps the battlefield row anchored")
+		_assert(absf(float(action_bar.global_position.y) - base_action_bar_y) <= 0.5, "switching the right sidebar tab keeps the action bar floor anchored")
+		explorer_tab_button.pressed.emit()
+		await process_frame
+		await process_frame
+		_assert(explorer_content.visible, "explorer tab restores the default right-sidebar body")
+		_assert(not log_content.visible, "explorer tab hides the log body again without changing layout ownership")
+	if top_content != null and active_phase_container != null and action_bar != null and info_toggle_button != null and info_detail_shell != null:
+		var base_toggle_top_height := float(top_content.size.y)
+		var base_toggle_action_bar_y := float(action_bar.global_position.y)
+		var base_toggle_action_bar_floor := float(action_bar.get_global_rect().end.y)
+		info_toggle_button.pressed.emit()
+		await process_frame
+		await process_frame
+		_assert(info_detail_shell.visible, "pressing the combat multiplier title opens the compact detail dropdown")
+		_assert(weakness_card_grid != null and weakness_card_grid.visible, "expanded node info reveals the multiplier cards")
+		_assert(node_card != null and node_card.visible, "expanded node info reveals the moved node status card")
+		_assert(ops_shell != null and not ops_shell.visible, "expanded node info covers the drill info area instead of stacking above it")
+		_assert(absf(float(top_content.size.y) - base_toggle_top_height) <= 0.5, "opening the combat info dropdown keeps the equal-height top row stable")
+		_assert(absf(float(action_bar.global_position.y) - base_toggle_action_bar_y) <= 0.5, "opening the combat info dropdown keeps the action bar anchored")
+		_assert(absf(float(action_bar.get_global_rect().end.y) - base_toggle_action_bar_floor) <= 0.5, "opening the combat info dropdown keeps the action bar floor fixed")
+		info_toggle_button.pressed.emit()
+		await process_frame
+		await process_frame
+		_assert(not info_detail_shell.visible, "pressing the combat multiplier title again collapses the detail dropdown")
+		_assert(weakness_card_grid != null and not weakness_card_grid.visible, "collapsing node info hides multiplier cards again")
+		_assert(ops_shell != null and ops_shell.visible, "collapsing node info restores the drill info area")
 	_assert_visible_controls_inside_viewport(main_instance, "combat")
 	main_instance.queue_free()
 	await process_frame
@@ -348,7 +434,7 @@ func _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene: PackedScen
 	var top_content = main_instance.get("top_content") as HBoxContainer
 	var active_phase_container = main_instance.get("active_phase_container") as Control
 	var action_bar = main_instance.get("action_bar") as Control
-	var purple_row = main_instance.get_node_or_null("RootMargin/AppShell/TopContent/LeftColumn/StatusPanel/Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow") as HBoxContainer
+	var purple_row = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer/PurpleStatusRow") as HBoxContainer
 	_assert(top_content != null, "combat top-content row exists for purple-status layout audit")
 	_assert(active_phase_container != null, "combat active phase container exists for purple-status layout audit")
 	_assert(action_bar != null, "combat action bar exists for purple-status layout audit")
@@ -428,8 +514,17 @@ func _assert_stage_one_node_select_layout(MainScene: PackedScene) -> void:
 		return
 	var gameplay_page_host = main_instance.get("page_shell_host") as Control
 	var meta_page_host = main_instance.get("meta_page_shell_host") as Control
+	var start_button = main_instance.get("start_button") as Button
+	_assert(start_button != null, "stage-one node-select exposes the shared start button")
 	_assert(gameplay_page_host != null and bool(gameplay_page_host.visible), "stage-one node select keeps the gameplay page host visible")
 	_assert(meta_page_host == null or not bool(meta_page_host.visible), "stage-one node select keeps the meta page host hidden")
+	if start_button != null:
+		var disabled_style := start_button.get_theme_stylebox("disabled") as StyleBoxFlat
+		_assert(disabled_style != null, "stage-one node-select start button defines a disabled style override to avoid default blur/fade")
+		var disabled_font: Color = start_button.get_theme_color("font_disabled_color")
+		var normal_font: Color = start_button.get_theme_color("font_color")
+		_assert(disabled_font.a >= 0.95, "stage-one node-select start button keeps disabled text opacity near full strength")
+		_assert_color_close(disabled_font, normal_font, 0.32, "stage-one node-select start button keeps disabled text tone close to the live CTA")
 	_assert_header_actions_inside_window(main_instance, "stage-one node-select")
 	_assert_node_select_layout_inside_window(main_instance, "stage-one node-select", false, 0, true, 0)
 	_assert_visible_controls_inside_viewport(main_instance, "stage-one node-select")
@@ -581,14 +676,14 @@ func _assert_reward_tray_layout(MainScene: PackedScene) -> void:
 	})
 	await process_frame
 	await process_frame
-	var reward_panel = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel") as Control
-	var reward_box = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox") as VBoxContainer
-	var reward_title = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle") as Label
-	var reward_grid = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid") as HBoxContainer
-	var backpack_host = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
-	var inspector_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as Control
-	var discard_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as Control
-	var confirm_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone") as Control
+	var reward_panel = main_instance.call("current_surface_node", "RewardPanel") as Control
+	var reward_box = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox") as VBoxContainer
+	var reward_title = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/BoardHead/BoardTitleBox/RewardTitle") as Label
+	var reward_grid = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid") as HBoxContainer
+	var backpack_host = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var inspector_zone = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as Control
+	var discard_zone = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as Control
+	var confirm_zone = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone") as Control
 	_assert(reward_panel != null, "reward panel exists for reward tray layout audit")
 	_assert(reward_box != null, "reward tray box exists for reward tray layout audit")
 	_assert(reward_title != null, "reward tray title exists for reward tray layout audit")
@@ -736,7 +831,6 @@ func _assert_node_select_layout_inside_window(main_instance: Node, label: String
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	var node_select_page: Control = null
 	var board_shell: Control = null
-	var hero_section: Control = null
 	var roadmap_frame: Control = null
 	var roadmap_canvas: Control = null
 	var info_card: Control = null
@@ -746,7 +840,6 @@ func _assert_node_select_layout_inside_window(main_instance: Node, label: String
 	if not page_scenes.is_empty():
 		node_select_page = page_scenes.get("node_select", null) as Control
 	if node_select_page != null:
-		hero_section = node_select_page.get_node_or_null("Margin/VStack/HeroSection") as Control
 		board_shell = node_select_page.get_node_or_null("Margin/VStack/BoardShell") as Control
 		roadmap_frame = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame") as Control
 		roadmap_canvas = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas") as Control
@@ -755,9 +848,8 @@ func _assert_node_select_layout_inside_window(main_instance: Node, label: String
 		boss_hotspot = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/NodeLayer/BossHotspot") as Control
 		retired_split_shell = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/RouteSplit") as Control
 	var shared_backpack = main_instance.get("backpack_container") as Control
-	var legacy_node_map = main_instance.get("node_map_scene") as Control
 	_assert(node_select_page != null, "node-select runtime page exists for %s" % label)
-	_assert(hero_section != null, "node-select runtime page exposes the hero section for %s" % label)
+	_assert(node_select_page == null or node_select_page.get_node_or_null("Margin/VStack/HeroSection") == null, "node-select runtime page removes the retired hero section for %s" % label)
 	_assert(board_shell != null, "node-select runtime page exposes the board shell for %s" % label)
 	_assert(roadmap_frame != null, "node-select runtime page exposes the roadmap frame for %s" % label)
 	_assert(roadmap_canvas != null, "node-select runtime page exposes the roadmap canvas for %s" % label)
@@ -768,11 +860,10 @@ func _assert_node_select_layout_inside_window(main_instance: Node, label: String
 	else:
 		_assert(future_preview == null, "node-select runtime page removes the future preview marker when no further non-boss stage remains for %s" % label)
 	_assert(retired_split_shell == null, "node-select runtime page removes the retired split map/backpack shell for %s" % label)
-	if node_select_page == null or hero_section == null or board_shell == null or roadmap_frame == null or roadmap_canvas == null or info_card == null or boss_hotspot == null:
+	if node_select_page == null or board_shell == null or roadmap_frame == null or roadmap_canvas == null or info_card == null or boss_hotspot == null:
 		return
 	var window_right: float = _viewport_rect().end.x
 	_assert(float(node_select_page.global_position.x + node_select_page.size.x) <= window_right + 0.5, "node-select runtime page stays inside the main window for %s" % label)
-	_assert_control_inside_parent(hero_section, node_select_page, "node-select hero section for %s" % label)
 	_assert(float(board_shell.global_position.x + board_shell.size.x) <= window_right + 0.5, "node-select board shell stays inside the main window for %s" % label)
 	_assert_control_inside_parent(roadmap_frame, board_shell, "node-select roadmap frame for %s" % label)
 	_assert_control_inside_parent(roadmap_canvas, roadmap_frame, "node-select roadmap canvas for %s" % label)
@@ -790,6 +881,5 @@ func _assert_node_select_layout_inside_window(main_instance: Node, label: String
 		var route_button := node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/NodeLayer/RouteButton%d" % route_index) as Control
 		_assert_control_inside_parent(route_button, roadmap_canvas, "node-select route button %d for %s" % [route_index, label])
 	_assert(shared_backpack == null or not bool(shared_backpack.visible), "node-select keeps the shared backpack hidden for %s" % label)
-	_assert(legacy_node_map == null or not bool(legacy_node_map.visible), "node-select keeps the retired node-map scene detached for %s" % label)
 	if node_select_page.has_method("start_color_chip_count"):
 		_assert_eq(int(node_select_page.call("start_color_chip_count")), 0 if not expect_color_picker else 4, "node-select start-color chip visibility matches the stage contract for %s" % label)

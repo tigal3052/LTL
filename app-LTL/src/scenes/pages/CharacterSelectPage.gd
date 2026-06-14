@@ -3,6 +3,8 @@ extends Control
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const ArtifactScript = preload("res://src/models/Artifact.gd")
+const CharacterSelectLoadoutTextScript = preload("res://src/scenes/pages/character_select/CharacterSelectLoadoutText.gd")
+const CharacterSelectPaletteViewScript = preload("res://src/scenes/pages/character_select/CharacterSelectPaletteView.gd")
 const BACKDROP_PATH := "res://resources/charactor/background.png"
 
 signal character_selected(character_id: String)
@@ -14,16 +16,19 @@ signal settings_requested
 @onready var root_margin: MarginContainer = $Margin
 @onready var page_stack: VBoxContainer = $Margin/VStack
 @onready var hero_section: VBoxContainer = $Margin/VStack/HeroSection
+@onready var hero_eyebrow: Label = $Margin/VStack/HeroSection/Eyebrow
 @onready var page_title: Label = $Margin/VStack/HeroSection/PageTitle
 @onready var page_subtitle: Label = $Margin/VStack/HeroSection/PageSubtitle
 @onready var board_shell: PanelContainer = $Margin/VStack/BoardShell
 @onready var board_head: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead
 @onready var mode_pill: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/ModePill
+@onready var selector_zone_head: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/ZoneHead
 @onready var selector_hint: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/ZoneHead/ZoneHint
 @onready var roster_zone: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone
 @onready var roster_scroll: ScrollContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/RosterScroll
 @onready var roster_list: VBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/RosterScroll/RosterList
 @onready var feature_zone: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone
+@onready var feature_zone_head: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/ZoneHead
 @onready var feature_hint: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/ZoneHead/ZoneHint
 @onready var hero_stage: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage
 @onready var hero_layer: Control = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage/StageMargin/HeroLayer
@@ -40,6 +45,7 @@ signal settings_requested
 ]
 @onready var hero_summary: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/HeroSummary
 @onready var prep_zone: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone
+@onready var prep_zone_head: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/ZoneHead
 @onready var prep_hint: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/ZoneHead/ZoneHint
 @onready var palette_card: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard
 @onready var palette_title: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/PaletteCard/PaletteMargin/PaletteVBox/PaletteTitle
@@ -73,6 +79,9 @@ var _layout_followup_passes := 0
 var _settings_button: Button
 var _bag_detail_title: Label
 var _bag_detail_body: Label
+var _bag_detail_scroll: ScrollContainer
+var _pinned_bag_slot_index := 0
+var _hovered_bag_slot_index := -1
 
 func _ready() -> void:
 	continue_button.pressed.connect(func() -> void:
@@ -145,10 +154,10 @@ func _apply_theme() -> void:
 		_settings_button.add_theme_font_size_override("font_size", 14)
 		_settings_button.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
 	if _bag_detail_title != null:
-		_bag_detail_title.add_theme_font_size_override("font_size", 15)
+		_bag_detail_title.add_theme_font_size_override("font_size", 14)
 		_bag_detail_title.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
 	if _bag_detail_body != null:
-		_bag_detail_body.add_theme_font_size_override("font_size", 13)
+		_bag_detail_body.add_theme_font_size_override("font_size", 12)
 		_bag_detail_body.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
 	var detail_card := bag_vbox.get_node_or_null("BagDetailCard") as PanelContainer
 	if detail_card != null:
@@ -156,17 +165,18 @@ func _apply_theme() -> void:
 
 func _apply_cleanup_layout() -> void:
 	page_title.text = TextCatalogScript.t("character.page.title")
+	hero_eyebrow.visible = false
 	page_subtitle.visible = false
 	board_head.visible = false
 	mode_pill.visible = false
-	for node in [selector_hint, feature_hint, prep_hint, palette_title, bag_head, cta_label, cta_copy, cta_footnote]:
+	for node in [selector_zone_head, feature_zone_head, prep_zone_head, selector_hint, feature_hint, prep_hint, palette_title, bag_head, cta_label, cta_copy, cta_footnote]:
 		if node != null:
 			node.visible = false
 	hero_section.add_theme_constant_override("separation", 4)
 	page_stack.add_theme_constant_override("separation", 14)
 	palette_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	bag_card.size_flags_vertical = 0
-	bag_card.custom_minimum_size.y = 220.0
+	bag_card.custom_minimum_size.y = 176.0
 	cta_card.size_flags_vertical = 0
 	cta_card.custom_minimum_size.y = 88.0
 	continue_button.custom_minimum_size.y = 62.0
@@ -174,7 +184,7 @@ func _apply_cleanup_layout() -> void:
 	for slot in mini_slots:
 		if slot != null:
 			slot.custom_minimum_size = Vector2(52.0, 52.0)
-	_refresh_bag_detail(0)
+	_refresh_active_bag_detail()
 
 func _ensure_settings_button() -> void:
 	if has_node("SettingsButton"):
@@ -199,27 +209,36 @@ func _ensure_settings_button() -> void:
 func _ensure_bag_detail_panel() -> void:
 	if bag_vbox.has_node("BagDetailCard"):
 		_bag_detail_title = bag_vbox.get_node("BagDetailCard/BagDetailMargin/BagDetailVBox/BagDetailTitle") as Label
-		_bag_detail_body = bag_vbox.get_node("BagDetailCard/BagDetailMargin/BagDetailVBox/BagDetailBody") as Label
+		_bag_detail_scroll = bag_vbox.get_node("BagDetailCard/BagDetailMargin/BagDetailVBox/BagDetailScroll") as ScrollContainer
+		_bag_detail_body = bag_vbox.get_node("BagDetailCard/BagDetailMargin/BagDetailVBox/BagDetailScroll/BagDetailBody") as Label
 		return
 	var detail_card := PanelContainer.new()
 	detail_card.name = "BagDetailCard"
-	detail_card.custom_minimum_size = Vector2(0.0, 104.0)
+	detail_card.custom_minimum_size = Vector2(0.0, 88.0)
 	var detail_margin := MarginContainer.new()
 	detail_margin.name = "BagDetailMargin"
-	detail_margin.add_theme_constant_override("margin_left", 14)
-	detail_margin.add_theme_constant_override("margin_top", 14)
-	detail_margin.add_theme_constant_override("margin_right", 14)
-	detail_margin.add_theme_constant_override("margin_bottom", 14)
+	detail_margin.add_theme_constant_override("margin_left", 12)
+	detail_margin.add_theme_constant_override("margin_top", 12)
+	detail_margin.add_theme_constant_override("margin_right", 12)
+	detail_margin.add_theme_constant_override("margin_bottom", 12)
 	var detail_vbox := VBoxContainer.new()
 	detail_vbox.name = "BagDetailVBox"
-	detail_vbox.add_theme_constant_override("separation", 8)
+	detail_vbox.add_theme_constant_override("separation", 6)
 	_bag_detail_title = Label.new()
 	_bag_detail_title.name = "BagDetailTitle"
+	_bag_detail_scroll = ScrollContainer.new()
+	_bag_detail_scroll.name = "BagDetailScroll"
+	_bag_detail_scroll.custom_minimum_size = Vector2(0.0, 36.0)
+	_bag_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_bag_detail_scroll.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_bag_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_bag_detail_body = Label.new()
 	_bag_detail_body.name = "BagDetailBody"
 	_bag_detail_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bag_detail_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_vbox.add_child(_bag_detail_title)
-	detail_vbox.add_child(_bag_detail_body)
+	_bag_detail_scroll.add_child(_bag_detail_body)
+	detail_vbox.add_child(_bag_detail_scroll)
 	detail_margin.add_child(detail_vbox)
 	detail_card.add_child(detail_margin)
 	bag_vbox.add_child(detail_card)
@@ -230,10 +249,22 @@ func _bind_bag_hover_signals() -> void:
 		if slot == null:
 			continue
 		slot.mouse_entered.connect(func(slot_index := index) -> void:
-			_refresh_bag_detail(slot_index)
+			_hovered_bag_slot_index = slot_index
+			_refresh_active_bag_detail()
 		)
 		slot.mouse_exited.connect(func() -> void:
-			_refresh_bag_detail(0)
+			_hovered_bag_slot_index = -1
+			_refresh_active_bag_detail()
+		)
+		slot.gui_input.connect(func(event: InputEvent, slot_index := index) -> void:
+			var mouse_event := event as InputEventMouseButton
+			if mouse_event == null:
+				return
+			if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+				return
+			_pinned_bag_slot_index = slot_index
+			_hovered_bag_slot_index = -1
+			_refresh_active_bag_detail()
 		)
 
 func _sync_roster() -> void:
@@ -269,12 +300,7 @@ func _sync_palette() -> void:
 		child.queue_free()
 	_color_buttons.clear()
 	for color_name in ["red", "blue", "purple", "green"]:
-		var button := Button.new()
-		button.name = "Palette_%s" % color_name
-		button.custom_minimum_size = Vector2(0.0, 72.0)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.focus_mode = Control.FOCUS_NONE
-		button.text = _starter_palette_button_text(color_name)
+		var button := _build_palette_button(color_name)
 		button.pressed.connect(func() -> void:
 			_selected_color = color_name
 			_refresh_palette_styles()
@@ -285,6 +311,9 @@ func _sync_palette() -> void:
 		palette_list.add_child(button)
 		_color_buttons[color_name] = button
 	_refresh_palette_styles()
+
+func _build_palette_button(color_name: String) -> Button:
+	return CharacterSelectPaletteViewScript.build_palette_button(color_name)
 
 func _render_selected(selected_character: Dictionary) -> void:
 	var selected := selected_character.duplicate(true)
@@ -337,23 +366,7 @@ func _refresh_roster_styles() -> void:
 		button.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY if selectable else LTLThemeScript.TEXT_MUTED)
 
 func _refresh_palette_styles() -> void:
-	for color_name in _color_buttons.keys():
-		var button: Button = _color_buttons[color_name]
-		var selected: bool = color_name == _selected_color
-		var accent: Color = LTLThemeScript.accent_color(color_name)
-		var normal := LTLThemeScript.surface_style(Color(0.10, 0.13, 0.17, 0.94), accent if selected else Color(0.18, 0.23, 0.30, 1.0), 18, 1, 0.10)
-		if selected:
-			normal.bg_color = accent.darkened(0.65)
-		var hover := normal.duplicate()
-		hover.bg_color = normal.bg_color.lightened(0.05)
-		var pressed := normal.duplicate()
-		pressed.bg_color = normal.bg_color.darkened(0.04)
-		button.add_theme_stylebox_override("normal", normal)
-		button.add_theme_stylebox_override("hover", hover)
-		button.add_theme_stylebox_override("pressed", pressed)
-		button.add_theme_stylebox_override("focus", hover)
-		button.add_theme_font_size_override("font_size", 11)
-		button.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	CharacterSelectPaletteViewScript.refresh_palette_styles(_color_buttons, _selected_color)
 
 func _refresh_bag_preview() -> void:
 	var accent := LTLThemeScript.accent_color(_selected_color)
@@ -370,7 +383,9 @@ func _refresh_bag_preview() -> void:
 			style.border_color = accent.lightened(0.12)
 		slot_panel.add_theme_stylebox_override("panel", style)
 	bag_hint.text = TextCatalogScript.t("character.bag_hint", [TextCatalogScript.color_label(_selected_color)])
-	_refresh_bag_detail(0)
+	_pinned_bag_slot_index = clampi(_pinned_bag_slot_index, 0, max(0, mini_slots.size() - 1))
+	_hovered_bag_slot_index = -1
+	_refresh_active_bag_detail()
 
 func _refresh_cta_copy() -> void:
 	var selected := _find_character(_selected_id)
@@ -388,109 +403,21 @@ func _refresh_cta_copy() -> void:
 	continue_button.add_theme_stylebox_override("pressed", pressed)
 	continue_button.add_theme_stylebox_override("focus", hover)
 	continue_button.add_theme_color_override("font_color", Color(0.98, 0.97, 0.94, 1.0))
-	_refresh_bag_detail(0)
+	_refresh_active_bag_detail()
 	_queue_settled_layout_sync()
 
 func _refresh_bag_detail(slot_index: int) -> void:
 	if _bag_detail_title == null or _bag_detail_body == null:
 		return
-	var detail := _detail_for_slot(slot_index)
+	var detail := CharacterSelectLoadoutTextScript.detail_for_slot(_selected_color, slot_index)
 	_bag_detail_title.text = str(detail.get("title", ""))
 	_bag_detail_body.text = str(detail.get("body", ""))
+	if _bag_detail_scroll != null and _bag_detail_scroll.get_v_scroll_bar() != null:
+		_bag_detail_scroll.scroll_vertical = 0
 
-func _detail_for_slot(slot_index: int) -> Dictionary:
-	var loadout := _starter_loadout_for_color(_selected_color)
-	if slot_index >= 0 and slot_index < loadout.size():
-		return _detail_for_artifact(loadout[slot_index])
-	return _empty_bag_detail()
-
-func _detail_for_artifact(artifact) -> Dictionary:
-	if artifact == null:
-		return _empty_bag_detail()
-	return {
-		"title": _starter_artifact_title(artifact),
-		"body": _starter_artifact_summary(artifact)
-	}
-
-func _starter_palette_text(color_name: String) -> String:
-	var loadout := _starter_loadout_for_color(color_name)
-	var drill = loadout[0] if loadout.size() > 0 else null
-	var beacon = loadout[1] if loadout.size() > 1 else null
-	return TextCatalogScript.t("character.starter_palette_text", [
-		TextCatalogScript.color_label(color_name),
-		_starter_artifact_title(drill),
-		_starter_artifact_summary(drill),
-		_starter_artifact_title(beacon),
-		_starter_artifact_summary(beacon)
-	])
-
-func _starter_loadout_for_color(color_name: String) -> Array:
-	var loadout = ArtifactScript.get_starter_loadout(color_name)
-	return loadout.duplicate(true) if loadout is Array else []
-
-func _starter_palette_button_text(color_name: String) -> String:
-	var loadout := _starter_loadout_for_color(color_name)
-	var drill = loadout[0] if loadout.size() > 0 else null
-	var beacon = loadout[1] if loadout.size() > 1 else null
-	return TextCatalogScript.t("character.starter_set_button", [
-		TextCatalogScript.color_label(color_name),
-		_starter_palette_metric_line(drill),
-		_starter_palette_metric_line(beacon)
-	])
-
-func _starter_artifact_title(artifact) -> String:
-	if artifact == null:
-		return TextCatalogScript.t("character.unknown_item")
-	var color_name := TextCatalogScript.color_label(str(artifact.energy_type))
-	var item_type := TextCatalogScript.item_label(str(artifact.item_type))
-	return TextCatalogScript.t("character.starter_title", [color_name, item_type])
-
-func _starter_artifact_summary(artifact) -> String:
-	if artifact == null:
-		return TextCatalogScript.t("character.no_data")
-	var item_type := str(artifact.item_type)
-	if item_type == "drill":
-		return TextCatalogScript.t("character.drill_summary", [float(artifact.base_damage), int(artifact.base_cooldown_ticks)])
-	if item_type == "beacon":
-		var cooldown_effect := _beacon_tick_phrase(int(artifact.beacon_cooldown_mod))
-		return TextCatalogScript.t("character.beacon_summary", [int(artifact.base_cooldown_ticks), cooldown_effect, float(artifact.beacon_damage_mod)])
-	return TextCatalogScript.t("character.pending_effect")
-
-func _beacon_tick_phrase(delta: int) -> String:
-	if delta < 0:
-		return TextCatalogScript.t("character.beacon_tick.down", [abs(delta)])
-	if delta > 0:
-		return TextCatalogScript.t("character.beacon_tick.up", [delta])
-	return TextCatalogScript.t("character.beacon_tick.flat")
-
-func _starter_palette_metric_line(artifact) -> String:
-	if artifact == null:
-		return TextCatalogScript.t("character.palette_metric.empty")
-	var item_type := str(artifact.item_type)
-	var item_label := TextCatalogScript.item_label(item_type)
-	if item_type == "drill":
-		return TextCatalogScript.t("character.palette_metric.drill", [item_label, float(artifact.base_damage), int(artifact.base_cooldown_ticks)])
-	if item_type == "beacon":
-		return TextCatalogScript.t("character.palette_metric.beacon", [
-			item_label,
-			int(artifact.base_cooldown_ticks),
-			_beacon_tick_compact(int(artifact.beacon_cooldown_mod)),
-			float(artifact.beacon_damage_mod)
-		])
-	return item_label
-
-func _beacon_tick_compact(delta: int) -> String:
-	if delta < 0:
-		return TextCatalogScript.t("character.beacon_tick_compact.down", [abs(delta)])
-	if delta > 0:
-		return TextCatalogScript.t("character.beacon_tick_compact.up", [delta])
-	return TextCatalogScript.t("character.beacon_tick_compact.flat")
-
-func _empty_bag_detail() -> Dictionary:
-	return {
-		"title": TextCatalogScript.t("character.empty_slot.title"),
-		"body": TextCatalogScript.t("character.empty_slot.body")
-	}
+func _refresh_active_bag_detail() -> void:
+	var slot_index := _hovered_bag_slot_index if _hovered_bag_slot_index >= 0 else _pinned_bag_slot_index
+	_refresh_bag_detail(slot_index)
 
 func _queue_settled_layout_sync() -> void:
 	_layout_followup_passes = max(_layout_followup_passes, 1)
@@ -537,7 +464,9 @@ func _zone_shell_vertical_overhead(panel: PanelContainer) -> float:
 	var zone_margin := panel.get_node("ZoneMargin") as MarginContainer
 	var zone_vbox := zone_margin.get_node("ZoneVBox") as VBoxContainer
 	var zone_head := zone_vbox.get_node("ZoneHead") as Control
-	return _vertical_margins(zone_margin) + zone_head.get_combined_minimum_size().y + float(zone_vbox.get_theme_constant("separation"))
+	var zone_head_height := zone_head.get_combined_minimum_size().y if zone_head.visible else 0.0
+	var zone_gap := float(zone_vbox.get_theme_constant("separation")) if zone_head.visible else 0.0
+	return _vertical_margins(zone_margin) + zone_head_height + zone_gap
 
 func _vertical_margins(margin_container: MarginContainer) -> float:
 	if margin_container == null:

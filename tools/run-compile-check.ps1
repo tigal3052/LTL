@@ -21,6 +21,16 @@ if ($sourceMapExitCode -ne 0) {
     exit $sourceMapExitCode
 }
 
+Write-Host "Running request analysis gate..." -ForegroundColor Cyan
+$requestAnalysisGate = Join-Path $workspace "LTL-harness\tools\request-analysis-gate.ps1"
+$requestAnalysisOutput = & powershell -NoProfile -ExecutionPolicy Bypass -File $requestAnalysisGate -Ledger $requestLedger -Mode pre-complete 2>&1
+$requestAnalysisExitCode = $LASTEXITCODE
+$requestAnalysisOutput | ForEach-Object { Write-Host $_ }
+if ($requestAnalysisExitCode -ne 0) {
+    Write-Host "Request Analysis Gate: FAILED" -ForegroundColor Red
+    exit $requestAnalysisExitCode
+}
+
 Write-Host "Running test size gate..." -ForegroundColor Cyan
 $testSizeGate = Join-Path $workspace "LTL-harness\tools\test-size-gate.ps1"
 $testSizeOutput = & powershell -NoProfile -ExecutionPolicy Bypass -File $testSizeGate -Root $workspace 2>&1

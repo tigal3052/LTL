@@ -27,7 +27,6 @@ const FailureReadModelScript = preload("res://src/ui/read_models/FailureReadMode
 const VFXManagerScript = preload("res://src/ui/VFXManager.gd")
 const MainControllerRuntimeScript = preload("res://src/MainControllerRuntime.gd")
 const MainViewRuntimeScript = preload("res://src/ui/MainViewRuntime.gd")
-const NodeMapSceneScript = preload("res://src/scenes/node_map/NodeMapScene.gd")
 
 var failures: Array[String] = []
 var reward_reveal_cancel_done_calls := 0
@@ -52,3 +51,18 @@ func _assert_eq(actual: Variant, expected: Variant, msg: String) -> void:
 func _assert_close(actual: float, expected: float, tolerance: float, msg: String) -> void:
 	if absf(actual - expected) > tolerance:
 		failures.append("%s: expected %.4f, got %.4f" % [msg, expected, actual])
+
+func _runtime_bundle_node(main_instance: Node, page_id: String, path: String = "") -> Node:
+	if main_instance == null or not main_instance.has_method("bundle_node"):
+		return null
+	return main_instance.call("bundle_node", page_id, path)
+
+func _runtime_current_surface_node(main_instance: Node, path: String = "") -> Node:
+	if main_instance == null or not main_instance.has_method("current_surface_node"):
+		return null
+	return main_instance.call("current_surface_node", path)
+
+func _runtime_current_action_bar_node(main_instance: Node, path: String = "") -> Node:
+	if main_instance == null or not main_instance.has_method("current_action_bar_node"):
+		return null
+	return main_instance.call("current_action_bar_node", path)

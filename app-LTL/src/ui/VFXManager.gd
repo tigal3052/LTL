@@ -15,6 +15,10 @@ var target_control: Control = null
 var battle_pause_active: bool = false
 
 # 실행: update screenshake offset of the target control on frame tick.
+func _ready() -> void:
+	if particle_template == null:
+		particle_template = get_node_or_null("../ParticleTemplate") as CPUParticles2D
+
 func _process(delta: float) -> void:
 	if target_control == null:
 		return

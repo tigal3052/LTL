@@ -87,7 +87,7 @@ func test_reward_workspace_reuses_live_backpack_panel() -> void:
 	)
 	if main_instance == null:
 		return
-	var reward_backpack_host = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var reward_backpack_host = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
 	var backpack_container = main_instance.get("backpack_container") as Control
 	_assert(reward_backpack_host != null, "reward workspace exposes the backpack host")
 	_assert(backpack_container != null, "main scene exposes the shared backpack container")
@@ -107,8 +107,8 @@ func test_reward_workspace_uses_the_visible_workspace_shell_title() -> void:
 	)
 	if main_instance == null:
 		return
-	var workspace_head = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead") as Control
-	var workspace_title = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle") as Label
+	var workspace_head = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead") as Control
+	var workspace_title = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle") as Label
 	var backpack_container = main_instance.get("backpack_container") as Control
 	var engine_title = backpack_container.get_node_or_null("BackpackEnginePanel/Margin/EngineBox/EngineTitle") as Control if backpack_container != null else null
 	_assert(workspace_head != null, "reward workspace exposes the shell title row for visible panel alignment")
@@ -144,12 +144,12 @@ func test_reward_board_bottom_row_hides_empty_helper_rows_and_scrollbars() -> vo
 	if main_instance == null:
 		return
 	await _settle_frames(2)
-	var discard_hint = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
-	var confirm_hint = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
-	var discard_card_title = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/DiscardCardBox/DiscardCardTitle") as Label
-	var claim_card_title = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/Margin/ClaimCardBox/ClaimCardTitle") as Label
-	var discard_scroll = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll") as ScrollContainer
-	var claim_scroll = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll") as ScrollContainer
+	var discard_hint = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
+	var confirm_hint = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
+	var discard_card_title = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/DiscardCardBox/DiscardCardTitle") as Label
+	var claim_card_title = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/Margin/ClaimCardBox/ClaimCardTitle") as Label
+	var discard_scroll = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll") as ScrollContainer
+	var claim_scroll = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll") as ScrollContainer
 	_assert(discard_hint != null, "reward tray discard zone exposes the optional hint label")
 	_assert(confirm_hint != null, "reward tray confirm zone exposes the optional hint label")
 	_assert(discard_card_title != null, "reward tray discard card exposes the optional inner title label")
@@ -255,7 +255,7 @@ func _instantiate_reward_board_surface(rewards: Array, tray_model: Dictionary) -
 	await _settle_frames(2)
 	return main_instance
 
-func _boot_to_node_select(main_instance: Node, color: String = "purple", leviathan_id: String = "storm_wyvern") -> Node:
+func _boot_to_node_select(main_instance: Node, color: String = "purple", leviathan_id: String = "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during reward-board boot")
 	if controller == null:
@@ -345,14 +345,14 @@ func _verbose_reward_fixture() -> Array:
 
 func _reward_board_metrics(main_instance: Node) -> Dictionary:
 	var viewport_size: Vector2 = main_instance.get_viewport().get_visible_rect().size
-	var reward_panel = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel") as Control
-	var reward_box = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox") as Control
-	var reward_board_scroll = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll") as ScrollContainer
-	var reward_grid = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid") as Control
-	var rewards_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone") as Control
-	var workspace_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone") as Control
-	var inspector_zone = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as Control
-	var backpack_host = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var reward_panel = _reward_node(main_instance, "RewardPanel") as Control
+	var reward_box = _reward_node(main_instance, "RewardPanel/Margin/RewardBox") as Control
+	var reward_board_scroll = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll") as ScrollContainer
+	var reward_grid = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid") as Control
+	var rewards_zone = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone") as Control
+	var workspace_zone = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone") as Control
+	var inspector_zone = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as Control
+	var backpack_host = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
 	var backpack_container = main_instance.get("backpack_container") as Control
 	var backpack_grid = backpack_container.get_node_or_null("BackpackEnginePanel/Margin/EngineBox/GridMock") as Control if backpack_container != null else null
 	return {
@@ -421,14 +421,14 @@ func _assert_reward_board_backpack_panel_uses_workspace_height(metrics: Dictiona
 func _assert_reward_board_inside_viewport(main_instance: Node, label: String) -> void:
 	var viewport: Rect2 = Rect2(Vector2.ZERO, main_instance.get_viewport().get_visible_rect().size)
 	for path in [
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone",
-		"RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone"
+		"RewardPanel",
+		"RewardPanel/Margin/RewardBox",
+		"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid",
+		"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone",
+		"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone",
+		"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone"
 	]:
-		var control: Control = main_instance.get_node_or_null(path) as Control
+		var control: Control = _reward_node(main_instance, path) as Control
 		_assert(control != null, "%s exposes %s for viewport containment" % [label, path])
 		if control == null or not control.visible:
 			continue
@@ -462,6 +462,11 @@ func _first_inventory_coord(inventory) -> Vector2:
 func _settle_frames(count: int) -> void:
 	for _index in range(count):
 		await Engine.get_main_loop().process_frame
+
+func _reward_node(main_instance: Node, path: String = "") -> Node:
+	if main_instance == null or not main_instance.has_method("bundle_node"):
+		return null
+	return main_instance.call("bundle_node", "reward", path)
 
 func _assert(condition: bool, label: String) -> void:
 	if not condition:

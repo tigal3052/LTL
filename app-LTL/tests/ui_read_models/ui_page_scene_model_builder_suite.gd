@@ -26,7 +26,7 @@ func test_page_scene_model_builder_projects_node_select_copy() -> void:
 		}
 	}, "res://resources/charactor/charactor1.png")
 	_assert_eq(str(model.get("pageTitle", "")), "Basalt Ray", "node-select page model uses the selected leviathan name as the page title")
-	_assert_eq(str(model.get("pageSubtitle", "")), TextCatalogScript.t("main.node_select.subtitle", [TextCatalogScript.t("stage.label", [2, 5], "ko")], "ko"), "node-select page model formats the staged subtitle through the text catalog")
+	_assert_eq(str(model.get("pageSubtitle", "")), "", "node-select page model retires the extra subtitle copy so the page frame can own the chrome without empty hero text")
 	_assert_eq(str(model.get("pageHeroPath", "")), "res://resources/Leviathan/Leviathan_turtle.png", "node-select page model projects the selected leviathan art path")
 
 func test_page_scene_model_builder_projects_defeat_wireframe_fields() -> void:

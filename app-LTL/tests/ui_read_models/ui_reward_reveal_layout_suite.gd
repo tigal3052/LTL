@@ -159,7 +159,9 @@ func test_reward_reveal_quantity_slots_center_even_pairs() -> void:
 
 func test_reward_ceremony_step_contract_and_node_select_color_gate() -> void:
 	var MainControllerScript = load("res://src/MainControllerRuntime.gd")
+	var NodeSelectRuntimePageScene = load("res://src/scenes/pages/NodeSelectRuntimePage.tscn")
 	_assert(MainControllerScript != null, "main controller runtime loads for reward ceremony step contract")
+	_assert(NodeSelectRuntimePageScene != null, "node-select runtime page scene loads for starter-color gate contract")
 	if MainControllerScript != null:
 		_assert(MainControllerScript.has_method("reward_presentation_step_sequence"), "main controller runtime exposes reward ceremony step sequencing")
 		if MainControllerScript.has_method("reward_presentation_step_sequence"):
@@ -168,16 +170,14 @@ func test_reward_ceremony_step_contract_and_node_select_color_gate() -> void:
 	var stage_two_layout := PhaseLayoutPresenterScript.project({"phase": "node_select", "stageIndex": 1, "maxStages": 5}, false)
 	_assert_eq(bool(stage_one_layout.get("allowStartColorSelection", false)), true, "stage one node select keeps the starter color picker visible")
 	_assert_eq(bool(stage_two_layout.get("allowStartColorSelection", true)), false, "stage two node select hides the starter color picker contractually")
-	var node_map_scene = NodeMapSceneScript.new()
-	node_map_scene.render({
-		"stageText": "Stage 2",
-		"selectedColor": "red",
-		"loadoutColors": ["red", "blue", "purple", "green"],
-		"allowStartColorSelection": false,
-		"cards": []
-	})
-	_assert_eq(node_map_scene.loadout_color_count(), 0, "node map scene does not render starter color buttons when the contract disables them")
-	node_map_scene.free()
+	if NodeSelectRuntimePageScene != null:
+		var node_select_page = NodeSelectRuntimePageScene.instantiate()
+		_assert(node_select_page != null, "node-select runtime page instantiates for starter-color gate contract")
+		if node_select_page != null:
+			_assert(node_select_page.has_method("start_color_chip_count"), "node-select runtime page exposes starter-color chip counts for legacy-removal coverage")
+			if node_select_page.has_method("start_color_chip_count"):
+				_assert_eq(int(node_select_page.call("start_color_chip_count")), 0, "node-select runtime page keeps starter color chips absent while the stage-two gate is closed")
+			node_select_page.free()
 
 # ?ㅽ뻾: verify battlefield cells keep the compact pre-M4 terrain aspect ratio.
 # ?ㅽ뻾: append a failure when condition is false.

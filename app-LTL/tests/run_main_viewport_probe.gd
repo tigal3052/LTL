@@ -100,16 +100,37 @@ func _probe_reward_tray(MainScene: PackedScene) -> void:
 func _probe_stage_two_combat(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	var controller = main_instance.get_node_or_null("MainController")
-	var node_map_scene = main_instance.get("node_map_scene")
 	var start_button = main_instance.get("start_button") as Button
-	if controller == null or node_map_scene == null or start_button == null:
+	var character_page = main_instance.get("character_select_page")
+	var leviathan_page = main_instance.get("leviathan_select_page")
+	var node_select_page = main_instance.get("node_select_runtime_page") as Control
+	if controller == null or start_button == null or character_page == null or leviathan_page == null or node_select_page == null:
 		push_error("combat probe setup failed")
 		main_instance.queue_free()
 		await process_frame
 		return
-	node_map_scene.press_color_button(0)
-	if node_map_scene.map_node_count() > 0:
-		node_map_scene.press_node_button(0)
+	character_page.color_selected.emit("red")
+	character_page.continue_requested.emit()
+	await process_frame
+	await process_frame
+	leviathan_page.leviathan_selected.emit("ossuary_tortoise")
+	leviathan_page.start_requested.emit()
+	await process_frame
+	await process_frame
+	await process_frame
+	start_button.pressed.emit()
+	await process_frame
+	await process_frame
+	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "clear"})
+	controller.call("_render_scene", controller.preview_controller.get_scene())
+	await process_frame
+	await process_frame
+	controller.call("_proceed_to_node_select")
+	await process_frame
+	await process_frame
+	if node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
+		if int(node_select_page.call("route_button_count")) > 0:
+			node_select_page.call("press_route_button", 0)
 	await process_frame
 	await process_frame
 	start_button.pressed.emit()
@@ -136,11 +157,11 @@ func _dump_layout(main_instance: Node, label: String) -> void:
 		"NodeSelectRuntimePage": main_instance.get("node_select_runtime_page"),
 		"NodeMapRow": main_instance.get("node_select_content_row"),
 		"BattlefieldPanel": main_instance.get("battlefield_ui"),
-		"BattlefieldVisualRoot": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"),
-		"RewardPanel": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel"),
-		"RewardGrid": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid"),
-		"BackpackHost": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost"),
-		"DiscardZone": main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone"),
+		"BattlefieldVisualRoot": main_instance.call("bundle_node", "battle", "BattlefieldPanel/Margin/BattlefieldBox/BattlefieldVisualRoot"),
+		"RewardPanel": main_instance.call("bundle_node", "reward", "RewardPanel"),
+		"RewardGrid": main_instance.call("bundle_node", "reward", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid"),
+		"BackpackHost": main_instance.call("bundle_node", "reward", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost"),
+		"DiscardZone": main_instance.call("bundle_node", "reward", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone"),
 		"ActionBar": main_instance.get("action_bar")
 	}
 	for key in targets.keys():

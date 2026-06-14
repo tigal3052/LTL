@@ -1,0 +1,463 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/ui/StatusPanelUI.gd" id="1"]
+[ext_resource type="Script" path="res://src/ui/BackpackUI.gd" id="2"]
+[ext_resource type="Script" path="res://src/ui/LogConsoleUI.gd" id="3"]
+[ext_resource type="Script" path="res://src/ui/BattleSidebarUI.gd" id="4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.109804, 0.137255, 0.180392, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.184314, 0.223529, 0.290196, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.15)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_grid_slot"]
+bg_color = Color(0.0784314, 0.0941176, 0.12549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.137255, 0.168627, 0.219608, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_extractor"]
+bg_color = Color(0.137255, 0.537255, 0.854902, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.298039, 0.533333, 0.839216, 0.6)
+shadow_size = 8
+
+[node name="TopContent" type="HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+theme_override_constants/separation = 20
+
+[node name="LeftColumn" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(448, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_stretch_ratio = 0.0
+theme_override_constants/separation = 16
+
+[node name="StatusPanel" type="PanelContainer" parent="LeftColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("1")
+
+[node name="Margin" type="MarginContainer" parent="LeftColumn/StatusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="StatusBox" type="VBoxContainer" parent="LeftColumn/StatusPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="InfoShell" type="PanelContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="InfoMargin" type="MarginContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="InfoBox" type="VBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="InfoTitle" type="Button" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 13
+toggle_mode = true
+
+[node name="TerrainCopy" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65098, 0.713726, 0.788235, 1)
+theme_override_font_sizes/font_size = 11
+clip_text = true
+
+[node name="WeaknessCardGrid" type="GridContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 1
+
+[node name="InfoDetailShell" type="PanelContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="InfoDetailMargin" type="MarginContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/InfoDetailShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="InfoNoteRow" type="HFlowContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/InfoDetailShell/InfoDetailMargin"]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="OpsShell" type="PanelContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="OpsMargin" type="MarginContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="OpsBox" type="VBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="StatusTitle" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="NodeCard" type="PanelContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="NodeInfoBox" type="VBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NodeRow" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ExtractorVisual" type="Panel" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox/NodeRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_extractor")
+
+[node name="ExtractorLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox/NodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="NodeMetaLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65098, 0.713726, 0.788235, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="HPBox" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HealthLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="HealthBar" type="ProgressBar" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="ShieldBox" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ShieldLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="ShieldBar" type="ProgressBar" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="QueueRow" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="QueueLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="QueueStack" type="VBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QueueShell" type="PanelContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="QueueMargin" type="MarginContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/QueueShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VisualQueueBox" type="GridContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/QueueShell/QueueMargin"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 8
+
+[node name="TimerRow" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PinLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="PinProgressBar" type="ProgressBar" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="DrillStatusRow" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DrillStatusLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/DrillStatusRow"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="RepairStatusLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/DrillStatusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="StatusFooterSpacer" type="Control" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PurpleStatusRow" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer"]
+visible = false
+layout_mode = 0
+theme_override_constants/separation = 8
+
+[node name="PurpleStatusLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer/PurpleStatusRow"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="PurpleStatusValue" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer/PurpleStatusRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.42, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="CombatTimerFooterMargin" type="MarginContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox"]
+layout_mode = 2
+theme_override_constants/margin_bottom = 4
+
+[node name="CombatTimerFooter" type="HBoxContainer" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/CombatTimerFooterMargin"]
+layout_mode = 2
+alignment = 1
+
+[node name="CombatTimerLabel" type="Label" parent="LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/CombatTimerFooterMargin/CombatTimerFooter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.25, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+
+[node name="BackpackContainer" type="AspectRatioContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_stretch_ratio = 0.0
+
+[node name="BackpackEnginePanel" type="PanelContainer" parent="BackpackContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("2")
+
+[node name="Margin" type="MarginContainer" parent="BackpackContainer/BackpackEnginePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="EngineBox" type="VBoxContainer" parent="BackpackContainer/BackpackEnginePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EngineTitle" type="Label" parent="BackpackContainer/BackpackEnginePanel/Margin/EngineBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="GridMock" type="GridContainer" parent="BackpackContainer/BackpackEnginePanel/Margin/EngineBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+columns = 8
+
+[node name="RightSidebar" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("4")
+
+[node name="Margin" type="MarginContainer" parent="RightSidebar"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="SidebarBox" type="VBoxContainer" parent="RightSidebar/Margin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="TabRow" type="HBoxContainer" parent="RightSidebar/Margin/SidebarBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ExplorerTabButton" type="Button" parent="RightSidebar/Margin/SidebarBox/TabRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LogInfoTabButton" type="Button" parent="RightSidebar/Margin/SidebarBox/TabRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TabViewport" type="Control" parent="RightSidebar/Margin/SidebarBox"]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ExplorerContent" type="PanelContainer" parent="RightSidebar/Margin/SidebarBox/TabViewport"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="CharacterBox" type="VBoxContainer" parent="RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CharacterTitle" type="Label" parent="RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="PortraitPlaceholder" type="Panel" parent="RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox"]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_grid_slot")
+
+[node name="PortraitLabel" type="Label" parent="RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/PortraitPlaceholder"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InventorySummaryLabel" type="RichTextLabel" parent="RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="LogContent" type="PanelContainer" parent="RightSidebar/Margin/SidebarBox/TabViewport"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="RightSidebar/Margin/SidebarBox/TabViewport/LogContent"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="LogBox" type="VBoxContainer" parent="RightSidebar/Margin/SidebarBox/TabViewport/LogContent/Margin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="LogTitle" type="Label" parent="RightSidebar/Margin/SidebarBox/TabViewport/LogContent/Margin/LogBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="InspectorText" type="RichTextLabel" parent="RightSidebar/Margin/SidebarBox/TabViewport/LogContent/Margin/LogBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+script = ExtResource("3")

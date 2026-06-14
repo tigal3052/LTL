@@ -108,10 +108,10 @@ func test_tooltip_projects_artifact_object() -> void:
 # ?ㅽ뻾: verify UI strings come from a locale-aware text catalog.
 func test_text_catalog_switches_korean_and_english() -> void:
 	TextCatalogScript.set_locale("ko")
-	_assert_eq(TextCatalogScript.t("action.start"), "전투 시작", "korean text catalog start label")
+	_assert_eq(TextCatalogScript.t("action.start"), "채굴 시작", "korean text catalog start label")
 	_assert_eq(TextCatalogScript.t("item.relic"), "유물", "korean text catalog relic label")
 	TextCatalogScript.set_locale("en")
-	_assert_eq(TextCatalogScript.t("action.start"), "Start Combat", "english text catalog start label")
+	_assert_eq(TextCatalogScript.t("action.start"), "Start Mining", "english text catalog start label")
 	_assert_eq(TextCatalogScript.t("item.relic"), "Relic", "english text catalog relic label")
 	TextCatalogScript.set_locale("ko")
 
@@ -132,7 +132,7 @@ func test_text_catalog_loads_external_locale_json() -> void:
 	_assert(en_catalog.has("strings"), "english locale catalog exposes a strings block")
 	_assert(ko_catalog.has("characters"), "korean locale catalog exposes character text blocks")
 	_assert(en_catalog.has("leviathans"), "english locale catalog exposes leviathan text blocks")
-	_assert_eq(str(ko_catalog.get("strings", {}).get("action.start", "")), "전투 시작", "korean locale JSON contains the start action label")
+	_assert_eq(str(ko_catalog.get("strings", {}).get("action.start", "")), "채굴 시작", "korean locale JSON contains the start action label")
 	_assert_eq(str(en_catalog.get("strings", {}).get("settings.title", "")), "System Calibration", "english locale JSON contains the settings title")
 
 # ?ㅽ뻾: verify Korean display-name mappings are readable.

@@ -61,6 +61,12 @@ function Require-MeaningfulSection($Sections, $Name, $Expectation) {
   }
 }
 
+function Require-SectionLine($Body, $Pattern, $FailureMessage) {
+  if ([string]::IsNullOrWhiteSpace($Body) -or $Body -notmatch $Pattern) {
+    Fail $FailureMessage
+  }
+}
+
 function Get-BacktickedPaths($Text) {
   $paths = New-Object System.Collections.Generic.List[string]
   if ([string]::IsNullOrWhiteSpace($Text)) {
@@ -81,18 +87,20 @@ function Get-RuntimeSizeMonitoredPaths($RepoRoot) {
     return @()
   }
   $manifestText = Get-Content -LiteralPath $manifestPath -Raw
-  $match = [System.Text.RegularExpressions.Regex]::Match($manifestText, '(?m)^\s*strict_path_caps\s*:\s*(.+)\s*$')
-  if (-not $match.Success) {
-    return @()
-  }
   $paths = New-Object System.Collections.Generic.List[string]
-  foreach ($entry in ($match.Groups[1].Value -split ';')) {
-    $candidate = (($entry -split '=')[0]).Trim()
-    if (-not [string]::IsNullOrWhiteSpace($candidate)) {
-      $paths.Add($candidate)
+  foreach ($field in @('legacy_debt_path_caps', 'strict_path_caps')) {
+    $match = [System.Text.RegularExpressions.Regex]::Match($manifestText, ('(?m)^\s*{0}\s*:\s*(.+)\s*$' -f [regex]::Escape($field)))
+    if (-not $match.Success) {
+      continue
+    }
+    foreach ($entry in ($match.Groups[1].Value -split ';')) {
+      $candidate = (($entry -split '=')[0]).Trim()
+      if (-not [string]::IsNullOrWhiteSpace($candidate)) {
+        $paths.Add($candidate)
+      }
     }
   }
-  return $paths
+  return @($paths | Select-Object -Unique)
 }
 
 function Get-ExecutionResponsibilityUnitBlocks($Body) {
@@ -159,6 +167,27 @@ function Require-ExecutionResponsibilityCoverage($Sections, $RepoRoot) {
   }
 }
 
+function Require-RootCauseReview($Sections) {
+  Require-MeaningfulSection $Sections "Root Cause Review" "capture the symptom, evidence, source-level target, rejected workaround, and chosen fix before editing"
+  $body = [string]$Sections["root cause review"]
+  Require-SectionLine $body '(?m)^\s*-\s*Observed symptom:\s+.+$' "Root Cause Review must declare an Observed symptom"
+  Require-SectionLine $body '(?m)^\s*-\s*Evidence:\s+.+$' "Root Cause Review must declare concrete Evidence"
+  Require-SectionLine $body '(?m)^\s*-\s*Root cause target:\s*(?:`[^`]+`|[A-Za-z0-9_./\\:-]+)\s*$' "Root Cause Review must declare a Root cause target path or owner"
+  Require-SectionLine $body '(?m)^\s*-\s*Rejected workaround:\s+.+$' "Root Cause Review must declare the Rejected workaround that is being avoided"
+  Require-SectionLine $body '(?m)^\s*-\s*Chosen fix:\s+.+$' "Root Cause Review must declare the Chosen fix"
+}
+
+function Require-ResolutionProof($Sections) {
+  Require-MeaningfulSection $Sections "Resolution Proof" "map failing proof, root-cause proof, and workaround-guard evidence before completion"
+  $body = [string]$Sections["resolution proof"]
+  if ($body -match '(?i)\bpending\b') {
+    Fail "Resolution Proof cannot stay pending at pre-complete time"
+  }
+  Require-SectionLine $body '(?m)^\s*-\s*RED proof:\s+.+$' "Resolution Proof must declare a RED proof"
+  Require-SectionLine $body '(?m)^\s*-\s*Root-cause proof:\s+.+$' "Resolution Proof must declare a Root-cause proof"
+  Require-SectionLine $body '(?m)^\s*-\s*Workaround guard:\s+.+$' "Resolution Proof must declare a Workaround guard result"
+}
+
 if ([string]::IsNullOrWhiteSpace($Ledger)) {
   Fail "Ledger is required. Usage: request-analysis-gate.ps1 -Ledger <ledger.md> [-Mode pre-edit|pre-complete] [-RequireArtifactLedger]"
 }
@@ -176,6 +205,7 @@ Require-Section $sections "Request Summary"
 Require-Section $sections "Preserved Invariants"
 Require-Section $sections "Mutable Scope"
 Require-MeaningfulSection $sections "Source Map Findings" "record the source-map-derived files, paths, or observations that scoped this request"
+Require-RootCauseReview $sections
 Require-MeaningfulSection $sections "Transition Safety Review" "declare touched transitions or explicit no-transition-impact coverage"
 Require-Section $sections "Refactor/Delete Disposition"
 Require-Section $sections "Verification Checklist"
@@ -185,6 +215,7 @@ if (-not ([string]$sections["source map findings"] -match '`[^`]+`|source-map'))
 
 if ($Mode -eq "pre-complete") {
   Require-Section $sections "Verification Notes"
+  Require-ResolutionProof $sections
 }
 else {
   Require-ExecutionResponsibilityCoverage $sections $repoRoot

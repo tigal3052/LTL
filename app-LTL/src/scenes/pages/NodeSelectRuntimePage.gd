@@ -1,153 +1,14 @@
 extends Control
 
 signal node_selected(index: int)
+signal settings_requested
+signal shop_requested
+signal codex_requested
 
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
-
-class GlyphIcon:
-	extends Control
-
-	var icon_kind := "normal"
-	var stroke_color := Color(0.96, 0.90, 0.82, 1.0)
-	var stroke_width := 2.0
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var center := size * 0.5
-		var width := minf(size.x, size.y)
-		var radius := width * 0.33
-		match icon_kind:
-			"start":
-				_draw_start(center, radius)
-			"repair":
-				_draw_repair(center, radius)
-			"unknown":
-				_draw_unknown(center, radius)
-			"danger":
-				_draw_danger(center, radius)
-			"harpoon":
-				_draw_harpoon(center, radius)
-			"reef":
-				_draw_reef(center, radius)
-			"boss":
-				_draw_boss(center, radius)
-			_:
-				_draw_normal(center, radius)
-
-	func _draw_start(center: Vector2, radius: float) -> void:
-		draw_line(center + Vector2(-radius * 0.55, -radius * 0.36), center + Vector2(-radius * 0.55, radius * 0.70), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(radius * 0.55, -radius * 0.36), center + Vector2(radius * 0.55, radius * 0.70), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.88, radius * 0.70), center + Vector2(radius * 0.88, radius * 0.70), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.82, -radius * 0.12), center + Vector2(radius * 0.82, -radius * 0.12), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(0.0, -radius * 0.12), center + Vector2(0.0, radius * 0.40), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.20, radius * 0.10), center + Vector2(0.0, -radius * 0.12), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(radius * 0.20, radius * 0.10), center + Vector2(0.0, -radius * 0.12), stroke_color, stroke_width, true)
-
-	func _draw_normal(center: Vector2, radius: float) -> void:
-		var diamond := PackedVector2Array([
-			center + Vector2(0.0, -radius),
-			center + Vector2(radius * 0.90, 0.0),
-			center + Vector2(0.0, radius),
-			center + Vector2(-radius * 0.90, 0.0),
-			center + Vector2(0.0, -radius)
-		])
-		draw_polyline(diamond, stroke_color, stroke_width, true)
-		draw_circle(center, radius * 0.18, stroke_color)
-
-	func _draw_repair(center: Vector2, radius: float) -> void:
-		draw_arc(center + Vector2(0.0, -radius * 0.54), radius * 0.26, 0.0, TAU, 16, stroke_color, stroke_width, true)
-		draw_line(center + Vector2(0.0, -radius * 0.26), center + Vector2(0.0, radius * 0.80), stroke_color, stroke_width, true)
-		var left_arc := _ellipse_points(center + Vector2(0.0, radius * 0.12), Vector2(radius * 0.74, radius * 0.64), PI * 0.08, PI * 0.92, 18)
-		draw_polyline(left_arc, stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.54, radius * 0.54), center + Vector2(-radius * 0.78, radius * 0.84), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(radius * 0.54, radius * 0.54), center + Vector2(radius * 0.78, radius * 0.84), stroke_color, stroke_width, true)
-
-	func _draw_unknown(center: Vector2, radius: float) -> void:
-		var outer := _ellipse_points(center + Vector2(-radius * 0.06, -radius * 0.04), Vector2(radius * 0.86, radius * 0.74), PI * 0.20, PI * 1.84, 22)
-		draw_polyline(outer, stroke_color, stroke_width, true)
-		var inner := _ellipse_points(center + Vector2(0.0, radius * 0.06), Vector2(radius * 0.42, radius * 0.34), PI * 0.24, PI * 1.72, 16)
-		draw_polyline(inner, stroke_color, stroke_width, true)
-		draw_circle(center + Vector2(0.0, radius * 0.48), radius * 0.08, stroke_color)
-
-	func _draw_danger(center: Vector2, radius: float) -> void:
-		var skull := PackedVector2Array([
-			center + Vector2(-radius * 0.66, -radius * 0.14),
-			center + Vector2(-radius * 0.46, -radius * 0.74),
-			center + Vector2(0.0, -radius * 0.94),
-			center + Vector2(radius * 0.46, -radius * 0.74),
-			center + Vector2(radius * 0.66, -radius * 0.14),
-			center + Vector2(radius * 0.52, radius * 0.44),
-			center + Vector2(radius * 0.24, radius * 0.78),
-			center + Vector2(-radius * 0.24, radius * 0.78),
-			center + Vector2(-radius * 0.52, radius * 0.44),
-			center + Vector2(-radius * 0.66, -radius * 0.14)
-		])
-		draw_polyline(skull, stroke_color, stroke_width, true)
-		draw_circle(center + Vector2(-radius * 0.28, -radius * 0.10), radius * 0.12, stroke_color)
-		draw_circle(center + Vector2(radius * 0.28, -radius * 0.10), radius * 0.12, stroke_color)
-		draw_line(center + Vector2(-radius * 0.28, radius * 0.44), center + Vector2(radius * 0.28, radius * 0.44), stroke_color, stroke_width, true)
-
-	func _draw_harpoon(center: Vector2, radius: float) -> void:
-		draw_line(center + Vector2(-radius * 0.82, radius * 0.80), center + Vector2(radius * 0.74, -radius * 0.78), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(radius * 0.22, -radius * 0.78), center + Vector2(radius * 0.74, -radius * 0.78), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(radius * 0.74, -radius * 0.78), center + Vector2(radius * 0.74, -radius * 0.24), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.34, radius * 0.34), center + Vector2(-radius * 0.08, radius * 0.88), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.58, radius * 0.58), center + Vector2(-radius * 0.06, radius * 0.84), stroke_color, stroke_width, true)
-
-	func _draw_reef(center: Vector2, radius: float) -> void:
-		draw_line(center + Vector2(-radius * 0.42, radius * 0.86), center + Vector2(-radius * 0.24, -radius * 0.34), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(0.0, radius * 0.88), center + Vector2(0.0, -radius * 0.76), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(radius * 0.42, radius * 0.84), center + Vector2(radius * 0.58, -radius * 0.52), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(-radius * 0.24, -radius * 0.34), center + Vector2(-radius * 0.48, -radius * 0.76), stroke_color, stroke_width, true)
-		draw_line(center + Vector2(0.0, -radius * 0.44), center + Vector2(radius * 0.22, -radius * 0.92), stroke_color, stroke_width, true)
-
-	func _draw_boss(center: Vector2, radius: float) -> void:
-		var top_arc := _ellipse_points(center, Vector2(radius, radius * 0.60), PI, TAU, 22)
-		var bottom_arc := _ellipse_points(center, Vector2(radius, radius * 0.60), 0.0, PI, 22)
-		draw_polyline(top_arc, stroke_color, stroke_width, true)
-		draw_polyline(bottom_arc, stroke_color, stroke_width, true)
-		draw_circle(center, radius * 0.24, stroke_color)
-		draw_line(center + Vector2(0.0, -radius * 0.64), center + Vector2(0.0, radius * 0.64), stroke_color, stroke_width * 0.8, true)
-
-	func _ellipse_points(center: Vector2, radii: Vector2, start_angle: float, end_angle: float, segments: int) -> PackedVector2Array:
-		var points := PackedVector2Array()
-		for step in range(segments + 1):
-			var t := float(step) / float(maxi(1, segments))
-			var angle := lerpf(start_angle, end_angle, t)
-			points.append(center + Vector2(cos(angle) * radii.x, sin(angle) * radii.y))
-		return points
-
-class FutureMarkerArt:
-	extends Control
-
-	var ring_color := Color(0.88, 0.73, 0.45, 0.72)
-	var fill_color := Color(0.18, 0.12, 0.09, 0.82)
-	var shadow_color := Color(0.0, 0.0, 0.0, 0.24)
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		var center := size * 0.5
-		var radius := minf(size.x, size.y) * 0.38
-		_draw_shadow(center, radius)
-		draw_circle(center, radius, fill_color)
-		var dash_count := 18
-		for dash_index in range(dash_count):
-			if dash_index % 2 != 0:
-				continue
-			var start_angle := (TAU * float(dash_index) / float(dash_count)) - 0.10
-			var end_angle := (TAU * float(dash_index + 1) / float(dash_count)) - 0.22
-			draw_arc(center, radius - 1.4, start_angle, end_angle, 7, ring_color, 2.2, true)
-
-	func _draw_shadow(center: Vector2, radius: float) -> void:
-		for step in range(5):
-			var blur := radius + (2.0 * float(step))
-			var alpha := shadow_color.a * (1.0 - (float(step) / 5.0))
-			draw_circle(center + Vector2(0.0, radius * 0.18), blur, Color(shadow_color.r, shadow_color.g, shadow_color.b, alpha * 0.12))
+const GlyphIconScript = preload("res://src/scenes/pages/node_select/GlyphIcon.gd")
+const FutureMarkerArtScript = preload("res://src/scenes/pages/node_select/FutureMarkerArt.gd")
 
 const REFERENCE_CANVAS_SIZE := Vector2(920.0, 760.0)
 const BOARD_BG := Color(0.11, 0.08, 0.06, 0.98)
@@ -177,14 +38,17 @@ const CURRENT_ROUTE_OFFSETS := [
 ]
 
 @onready var page_backdrop: ColorRect = $PageBackdrop
-@onready var hero_eyebrow: Label = $Margin/VStack/HeroSection/Eyebrow
-@onready var hero_title: Label = $Margin/VStack/HeroSection/HeroTitle
 @onready var board_shell: PanelContainer = $Margin/VStack/BoardShell
 @onready var board_backdrop: TextureRect = $Margin/VStack/BoardShell/BoardBackdrop
 @onready var board_label: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/BoardLabel
 @onready var leviathan_title: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/LeviathanTitle
 @onready var run_chip_label: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/RunChip/ChipLabel
 @onready var stage_chip_label: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/StageChip/ChipLabel
+@onready var shop_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/ShopButton
+@onready var codex_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/CodexButton
+@onready var settings_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/SettingsButton
+@onready var reset_button: Button = $Margin/VStack/ActionBar/ResetButton
+@onready var start_button: Button = $Margin/VStack/ActionBar/StartButton
 @onready var roadmap_frame: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame
 @onready var roadmap_canvas: Control = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas
 @onready var canvas_backdrop: ColorRect = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/CanvasBackdrop
@@ -213,6 +77,8 @@ var _spot_texture_cache: Dictionary = {}
 
 func _ready() -> void:
 	_apply_theme()
+	_wire_toolbar_actions()
+	_apply_action_copy()
 	roadmap_canvas.resized.connect(_queue_canvas_layout)
 	apply_state({})
 
@@ -262,9 +128,6 @@ func _render_copy() -> void:
 	var run_index := mini(run_count, maxi(1, int(_state.get("runIndex", 0)) + 1))
 	var art_path := str(_state.get("pageHeroPath", leviathan.get("artPath", "")))
 
-	hero_eyebrow.text = _hero_eyebrow_text(stage_number)
-	hero_title.text = ""
-	hero_title.visible = false
 	board_label.text = ""
 	board_label.visible = false
 	leviathan_title.text = _leviathan_name(leviathan)
@@ -284,11 +147,6 @@ func _apply_theme() -> void:
 	board_backdrop.self_modulate = Color(1.0, 0.94, 0.88, 0.11)
 	canvas_backdrop.color = Color(0.15, 0.10, 0.08, 0.95)
 
-	hero_eyebrow.add_theme_font_size_override("font_size", 11)
-	hero_eyebrow.add_theme_color_override("font_color", ROUTE_GOLD)
-	hero_title.add_theme_font_size_override("font_size", 42)
-	hero_title.add_theme_color_override("font_color", TEXT_PRIMARY)
-
 	board_label.add_theme_font_size_override("font_size", 11)
 	board_label.add_theme_color_override("font_color", Color(0.92, 0.82, 0.62, 0.82))
 	leviathan_title.add_theme_font_size_override("font_size", 48)
@@ -307,16 +165,50 @@ func _apply_theme() -> void:
 		$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/RunChip,
 		$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/StageChip
 	]:
-		chip.add_theme_stylebox_override("panel", _panel_style(Color(0.25, 0.17, 0.11, 0.82), Color(0.77, 0.60, 0.32, 0.34), 16, 1))
+		var chip_style := _panel_style(Color(0.25, 0.17, 0.11, 0.82), Color(0.77, 0.60, 0.32, 0.34), 16, 1)
+		chip_style.content_margin_left = 18
+		chip_style.content_margin_right = 18
+		chip_style.content_margin_top = 8
+		chip_style.content_margin_bottom = 8
+		chip.add_theme_stylebox_override("panel", chip_style)
 		var chip_label := chip.get_node("ChipLabel") as Label
 		chip_label.add_theme_font_size_override("font_size", 11)
 		chip_label.add_theme_color_override("font_color", Color(0.97, 0.83, 0.60, 1.0))
+
+	for utility_button in [shop_button, codex_button, settings_button]:
+		utility_button.focus_mode = Control.FOCUS_CLICK
+		utility_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		utility_button.custom_minimum_size = Vector2(112.0, 42.0)
+		utility_button.add_theme_stylebox_override("normal", _panel_style(Color(0.22, 0.15, 0.10, 0.84), Color(0.75, 0.58, 0.31, 0.30), 16, 1, Color(0.0, 0.0, 0.0, 0.18), 10))
+		utility_button.add_theme_stylebox_override("hover", _panel_style(Color(0.29, 0.20, 0.13, 0.92), Color(0.88, 0.71, 0.41, 0.48), 16, 1, Color(0.0, 0.0, 0.0, 0.22), 12))
+		utility_button.add_theme_stylebox_override("pressed", _panel_style(Color(0.18, 0.12, 0.08, 0.94), Color(0.63, 0.48, 0.25, 0.40), 16, 1, Color(0.0, 0.0, 0.0, 0.14), 8))
+		utility_button.add_theme_stylebox_override("focus", _panel_style(Color(0.29, 0.20, 0.13, 0.92), Color(0.88, 0.71, 0.41, 0.48), 16, 1, Color(0.0, 0.0, 0.0, 0.22), 12))
+		utility_button.add_theme_font_size_override("font_size", 14)
+		utility_button.add_theme_color_override("font_color", TEXT_PRIMARY)
 
 func _queue_canvas_layout() -> void:
 	if _canvas_layout_pending:
 		return
 	_canvas_layout_pending = true
 	call_deferred("_rebuild_canvas")
+
+func _wire_toolbar_actions() -> void:
+	shop_button.pressed.connect(func() -> void:
+		shop_requested.emit()
+	)
+	codex_button.pressed.connect(func() -> void:
+		codex_requested.emit()
+	)
+	settings_button.pressed.connect(func() -> void:
+		settings_requested.emit()
+	)
+
+func _apply_action_copy() -> void:
+	shop_button.text = TextCatalogScript.t("action.shop")
+	codex_button.text = TextCatalogScript.t("action.codex")
+	settings_button.text = TextCatalogScript.t("action.settings")
+	reset_button.text = TextCatalogScript.t("action.reset")
+	start_button.text = TextCatalogScript.t("action.start")
 
 func _rebuild_canvas() -> void:
 	_canvas_layout_pending = false
@@ -397,7 +289,8 @@ func _rebuild_canvas() -> void:
 		_build_future_chain(selected_route_center)
 		_add_ghost_route("SelectedRouteToBoss", selected_route_center, boss_pos, ROUTE_MUTED, 2.8, 0.12)
 		_default_panel_key = "route_%d" % selected_index if not candidates.is_empty() else "start"
-	var boss_hotspot := _add_hover_hotspot("BossHotspot", boss_pos, 82.0, _tone_palette("boss"), "boss", "boss", boss_stage, false, TextCatalogScript.t("node_runtime.boss.name"), "Boss Core")
+	var boss_palette := _tone_palette("boss") if boss_stage else _muted_palette(_tone_palette("boss"))
+	var boss_hotspot := _add_hover_hotspot("BossHotspot", boss_pos, 82.0, boss_palette, "boss", "boss", boss_stage, false, TextCatalogScript.t("node_runtime.boss.name"), "Boss Core")
 	_boss_hotspots.append(boss_hotspot)
 	_show_panel(_default_panel_key)
 
@@ -461,14 +354,15 @@ func _build_history_chain(start_pos: Vector2, route_history: Array) -> Vector2:
 			_add_forecast_route("HistoryPathSelected%d" % history_index, previous_point, stage_slot, ROUTE_GOLD, 3.0, 0.06)
 		var panel_key := "history_%d" % history_index
 		_register_panel_model(panel_key, _history_entry_name(entry), _history_entry_body(entry))
+		var history_palette := _muted_palette(_tone_palette("start") if int(entry.get("stageIndex", -1)) == 0 else _candidate_palette(entry))
 		var hotspot := _add_hover_hotspot(
 			"HistoryHotspot%d" % history_index,
 			stage_slot,
 			70.0 if int(entry.get("stageIndex", -1)) == 0 else 64.0,
-			_tone_palette("start") if int(entry.get("stageIndex", -1)) == 0 else _candidate_palette(entry),
+			history_palette,
 			_history_entry_icon_kind(entry),
 			panel_key,
-			true,
+			false,
 			false,
 			_history_entry_name(entry),
 			"완료"
@@ -670,10 +564,12 @@ func _create_route_button(index: int, candidate: Dictionary, center: Vector2, se
 	button.add_theme_stylebox_override("focus", clear_style)
 	var icon_kind := _candidate_icon_kind(candidate)
 	var palette := _candidate_palette(candidate)
+	var visual_palette := palette if selected else _muted_palette(palette)
 	button.set_meta("icon_kind", icon_kind)
-	button.set_meta("palette", palette.duplicate(true))
+	button.set_meta("active_palette", palette.duplicate(true))
+	button.set_meta("palette", visual_palette.duplicate(true))
 	button.set_meta("selected_visual", selected)
-	_attach_hotspot_visual(button, palette, icon_kind, selected, false, false)
+	_attach_hotspot_visual(button, visual_palette, icon_kind, selected, false, false)
 	_bind_hover_panel(button, panel_key)
 	_attach_hotspot_tag(button, TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?")))))
 	button.mouse_entered.connect(func() -> void:
@@ -759,7 +655,7 @@ func _attach_hotspot_visual(host: Control, palette: Dictionary, icon_kind: Strin
 		existing_icon.queue_free()
 
 	if preview:
-		var preview_art := FutureMarkerArt.new()
+		var preview_art := FutureMarkerArtScript.new()
 		preview_art.name = "CoreVisual"
 		preview_art.size = host.size
 		preview_art.position = Vector2.ZERO
@@ -792,16 +688,19 @@ func _attach_hotspot_visual(host: Control, palette: Dictionary, icon_kind: Strin
 
 func _refresh_hotspot_visual(host: Control, hovered: bool) -> void:
 	var palette_value: Variant = host.get_meta("palette", {})
-	if not (palette_value is Dictionary):
+	var active_palette_value: Variant = host.get_meta("active_palette", palette_value)
+	if not (palette_value is Dictionary) or not (active_palette_value is Dictionary):
 		return
-	var palette: Dictionary = palette_value
+	var palette: Dictionary = active_palette_value
 	var icon_kind := str(host.get_meta("icon_kind", "normal"))
 	var selected := bool(host.get_meta("selected_visual", false))
 	var preview := icon_kind == "future"
-	_attach_hotspot_visual(host, palette, icon_kind, selected or hovered, preview, hovered)
+	var display_palette := palette if selected or preview else _muted_palette(palette)
+	host.set_meta("palette", display_palette.duplicate(true))
+	_attach_hotspot_visual(host, display_palette, icon_kind, selected, preview, hovered)
 
 func _attach_hotspot_icon(host: Control, icon_kind: String, color: Color) -> void:
-	var icon := GlyphIcon.new()
+	var icon := GlyphIconScript.new()
 	icon.name = "Icon"
 	icon.icon_kind = icon_kind
 	icon.stroke_color = color
@@ -1130,9 +1029,6 @@ func _selected_leviathan() -> Dictionary:
 func _leviathan_name(leviathan: Dictionary) -> String:
 	return TextCatalogScript.display_name(str(leviathan.get("name", TextCatalogScript.t("node_runtime.leviathan_default"))))
 
-func _hero_eyebrow_text(stage_number: int) -> String:
-	return TextCatalogScript.t("node_runtime.hero_eyebrow.entry") if stage_number == 1 else TextCatalogScript.t("node_runtime.hero_eyebrow.pocket")
-
 func _board_title(stage_number: int) -> String:
 	if _is_fixed_stage():
 		return TextCatalogScript.t("node_runtime.board_title.fixed")
@@ -1239,6 +1135,16 @@ func _tone_palette(tone: String) -> Dictionary:
 				"border": Color(0.86, 0.74, 0.57, 0.36),
 				"glyph": Color(0.96, 0.91, 0.82, 1.0)
 			}
+
+func _muted_palette(source: Dictionary) -> Dictionary:
+	return {
+		"key": "%s_muted" % str(source.get("key", "muted")),
+		"fill": Color(0.32, 0.29, 0.27, 0.92),
+		"top": Color(0.56, 0.52, 0.49, 0.90),
+		"bottom": Color(0.30, 0.27, 0.25, 0.94),
+		"border": Color(0.74, 0.70, 0.66, 0.26),
+		"glyph": Color(0.92, 0.89, 0.85, 0.94)
+	}
 
 func _radial_spot_texture(size: Vector2i, tint: Color) -> Texture2D:
 	var key := "radial_%d_%d_%0.3f_%0.3f_%0.3f_%0.3f" % [size.x, size.y, tint.r, tint.g, tint.b, tint.a]

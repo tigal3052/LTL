@@ -30,18 +30,48 @@ func _assert_stage_one_contract() -> void:
 	page.apply_state(_stage_one_state())
 	await process_frame
 	await process_frame
-	var hero_title := page.get_node_or_null("Margin/VStack/HeroSection/HeroTitle") as Label
+	var hero_section := page.get_node_or_null("Margin/VStack/HeroSection") as Control
 	var board_label := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/BoardLabel") as Label
 	var board_title := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/LeviathanTitle") as Label
-	_assert(hero_title != null, "stage one exposes the hero title label for copy cleanup")
+	var shop_button := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/ShopButton") as Button
+	var codex_button := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/CodexButton") as Button
+	var settings_button := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/SettingsButton") as Button
+	var run_chip := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/RunChip") as PanelContainer
+	var stage_chip := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/StageChip") as PanelContainer
+	var action_bar := page.get_node_or_null("Margin/VStack/ActionBar") as HBoxContainer
+	var action_bar_spacer := page.get_node_or_null("Margin/VStack/ActionBar/Spacer") as Control
+	_assert(hero_section == null, "stage one removes the retired hero section instead of leaving empty header space")
 	_assert(board_label != null, "stage one exposes the board label for copy cleanup")
 	_assert(board_title != null, "stage one exposes the board title for copy cleanup")
-	if hero_title != null:
-		_assert_eq(hero_title.text, "", "stage one retires the duplicate hero Leviathan title copy")
 	if board_label != null:
 		_assert_eq(board_label.text, "", "stage one retires the selected-leviathan board kicker copy")
 	if board_title != null:
 		_assert_eq(board_title.text, TextCatalogScript.display_name("Ossuary Tortoise"), "stage one keeps the board-head Leviathan title")
+	_assert(shop_button != null, "stage one exposes an in-frame shop button after retiring the outer header controls")
+	_assert(codex_button != null, "stage one exposes an in-frame codex button after retiring the outer header controls")
+	_assert(settings_button != null, "stage one exposes an in-frame settings button after retiring the outer header controls")
+	if shop_button != null:
+		_assert_eq(shop_button.text, TextCatalogScript.t("action.shop"), "stage one localizes the in-frame shop button")
+	if codex_button != null:
+		_assert_eq(codex_button.text, TextCatalogScript.t("action.codex"), "stage one localizes the in-frame codex button")
+	if settings_button != null:
+		_assert_eq(settings_button.text, TextCatalogScript.t("action.settings"), "stage one localizes the in-frame settings button")
+	_assert(run_chip != null, "stage one exposes the run chip for padding verification")
+	_assert(stage_chip != null, "stage one exposes the stage chip for padding verification")
+	if run_chip != null:
+		var run_style := run_chip.get_theme_stylebox("panel") as StyleBoxFlat
+		_assert(run_style != null, "stage one run chip resolves a panel style")
+		if run_style != null:
+			_assert(run_style.content_margin_left >= 18.0 and run_style.content_margin_right >= 18.0, "stage one run chip adds left/right content padding")
+	if stage_chip != null:
+		var stage_style := stage_chip.get_theme_stylebox("panel") as StyleBoxFlat
+		_assert(stage_style != null, "stage one stage chip resolves a panel style")
+		if stage_style != null:
+			_assert(stage_style.content_margin_left >= 18.0 and stage_style.content_margin_right >= 18.0, "stage one stage chip adds left/right content padding")
+	_assert(action_bar != null, "stage one exposes the node-select action bar")
+	_assert(action_bar_spacer != null, "stage one action bar inserts a spacer so reset and start separate to opposite ends")
+	if action_bar_spacer != null:
+		_assert_eq(bool(action_bar_spacer.size_flags_horizontal & Control.SIZE_EXPAND_FILL), true, "stage one action-bar spacer expands across the free width")
 	_assert_eq(int(page.call("route_button_count")), 0, "stage one keeps the opening node fixed instead of rendering branch buttons")
 	_assert_eq(int(page.call("start_marker_count")), 1, "stage one renders exactly one start marker")
 	_assert_eq(int(page.call("future_marker_count")), 1, "stage one renders exactly one future ? marker for a three-stage leviathan")
@@ -57,18 +87,19 @@ func _assert_stage_two_contract() -> void:
 	page.apply_state(_stage_two_state())
 	await process_frame
 	await process_frame
-	var hero_title := page.get_node_or_null("Margin/VStack/HeroSection/HeroTitle") as Label
+	var hero_section := page.get_node_or_null("Margin/VStack/HeroSection") as Control
 	var board_label := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/BoardLabel") as Label
 	var board_title := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/LeviathanTitle") as Label
-	_assert(hero_title != null, "stage two exposes the hero title label for copy cleanup")
+	var start_button := page.get_node_or_null("Margin/VStack/ActionBar/StartButton") as Button
+	_assert(hero_section == null, "stage two keeps the retired hero section removed")
 	_assert(board_label != null, "stage two exposes the board label for copy cleanup")
 	_assert(board_title != null, "stage two exposes the board title for copy cleanup")
-	if hero_title != null:
-		_assert_eq(hero_title.text, "", "stage two keeps the duplicate hero Leviathan title removed")
 	if board_label != null:
 		_assert_eq(board_label.text, "", "stage two keeps the selected-leviathan board kicker removed")
 	if board_title != null:
 		_assert_eq(board_title.text, TextCatalogScript.display_name("Ossuary Tortoise"), "stage two keeps the board-head Leviathan title")
+	if start_button != null:
+		_assert_eq(start_button.text, "채굴 시작", "stage two renames the node-select start CTA to mining start")
 	_assert_eq(int(page.call("route_button_count")), 5, "stage two renders five current branch buttons")
 	_assert_eq(int(page.call("history_marker_count")), 1, "stage two keeps the cleared opening node in history")
 	_assert_eq(int(page.call("start_marker_count")), 1, "stage two still renders the start marker")

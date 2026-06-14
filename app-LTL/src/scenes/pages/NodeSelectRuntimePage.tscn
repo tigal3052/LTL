@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://src/scenes/pages/NodeSelectRuntimePage.gd" id="1"]
+[ext_resource type="PackedScene" path="res://src/scenes/pages/shells/ActionBar.tscn" id="2"]
 
 [node name="NodeSelectRuntimePage" type="Control"]
 layout_mode = 3
@@ -38,23 +39,12 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="HeroSection" type="VBoxContainer" parent="Margin/VStack"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 2
-
-[node name="Eyebrow" type="Label" parent="Margin/VStack/HeroSection"]
-layout_mode = 2
-text = ""
-
-[node name="HeroTitle" type="Label" parent="Margin/VStack/HeroSection"]
-layout_mode = 2
-text = ""
-
 [node name="BoardShell" type="PanelContainer" parent="Margin/VStack"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="ActionBar" parent="Margin/VStack" instance=ExtResource("2")]
 
 [node name="BoardBackdrop" type="TextureRect" parent="Margin/VStack/BoardShell"]
 layout_mode = 1
@@ -115,6 +105,15 @@ layout_mode = 2
 [node name="ChipLabel" type="Label" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/StageChip"]
 layout_mode = 2
 text = ""
+
+[node name="ShopButton" type="Button" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips"]
+layout_mode = 2
+
+[node name="CodexButton" type="Button" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips"]
+layout_mode = 2
+
+[node name="SettingsButton" type="Button" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips"]
+layout_mode = 2
 
 [node name="BoardBody" type="VBoxContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox"]
 layout_mode = 2

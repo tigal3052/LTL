@@ -78,6 +78,23 @@ static func top_content_width_for_height(target_height: float) -> float:
 	var grid_extent := top_content_grid_extent_for_height(safe_height)
 	return grid_extent + extra_width_for_grid_extent(grid_extent)
 
+static func top_content_height_for_width(target_width: float) -> float:
+	var safe_width := maxf(0.0, target_width)
+	if safe_width <= 0.0:
+		return 0.0
+	var min_width := top_content_width_for_height(MIN_TOP_CONTENT_GRID_EXTENT)
+	if safe_width <= min_width:
+		return MIN_TOP_CONTENT_GRID_EXTENT
+	var low := MIN_TOP_CONTENT_GRID_EXTENT
+	var high := maxf(MIN_TOP_CONTENT_GRID_EXTENT, safe_width)
+	for _step in range(24):
+		var mid := (low + high) * 0.5
+		if top_content_width_for_height(mid) > safe_width:
+			high = mid
+		else:
+			low = mid
+	return low
+
 static func top_content_ratio_for_height(target_height: float) -> float:
 	var safe_height := maxf(0.0, target_height)
 	if safe_height <= 0.0:

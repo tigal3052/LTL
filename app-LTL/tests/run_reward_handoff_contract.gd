@@ -81,8 +81,8 @@ func _run() -> void:
 	var current_scene: Dictionary = controller.get("current_scene")
 	_assert_eq(str(current_scene.get("rewardPresentationStep", "")), "tray_review", "current reward scene records tray review after ceremony completion")
 
-	var reward_panel = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel") as Control
-	var reward_backpack_host = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var reward_panel = main_instance.call("current_surface_node", "RewardPanel") as Control
+	var reward_backpack_host = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
 	var backpack_container = main_instance.get("backpack_container") as Control
 	_assert(reward_panel != null, "reward page exposes the reward panel after ceremony completion")
 	_assert(reward_backpack_host != null, "reward page exposes the workspace backpack host after ceremony completion")
@@ -100,7 +100,7 @@ func _run() -> void:
 	await process_frame
 	_finish()
 
-func _boot_to_node_select(main_instance: Node, color := "purple", leviathan_id := "storm_wyvern") -> Node:
+func _boot_to_node_select(main_instance: Node, color := "purple", leviathan_id := "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during reward handoff boot")
 	if controller == null:
@@ -139,8 +139,8 @@ func _confirm_reward_reveal_handoff(controller: Node, reward_reveal_overlay: Nod
 	_assert_eq(bool(controller.get("is_reveal_vfx_running")), false, "final reward reveal confirm clears the reveal-running flag before tray review handoff")
 
 func _await_tray_review_stability(main_instance: Node, controller: Node) -> void:
-	var reward_panel = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel") as Control
-	var reward_backpack_host = main_instance.get_node_or_null("RootMargin/AppShell/ActivePhaseContainer/RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var reward_panel = main_instance.call("current_surface_node", "RewardPanel") as Control
+	var reward_backpack_host = main_instance.call("current_surface_node", "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
 	var backpack_container = main_instance.get("backpack_container") as Control
 	for _frame in range(TRAY_REVIEW_SETTLE_FRAMES):
 		await process_frame

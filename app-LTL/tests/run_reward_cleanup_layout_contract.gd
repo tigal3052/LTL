@@ -1,6 +1,6 @@
 extends SceneTree
 
-const StatusPanelUIScript = preload("res://src/ui/StatusPanelUI.gd")
+const GameplayTopContentScene = preload("res://src/scenes/pages/shells/GameplayTopContent.tscn")
 
 var failures: Array[String] = []
 
@@ -12,8 +12,9 @@ func _run() -> void:
 	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(host)
 
-	var status_panel = _build_status_panel()
-	host.add_child(status_panel)
+	var gameplay_top_content = GameplayTopContentScene.instantiate()
+	host.add_child(gameplay_top_content)
+	var status_panel = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel")
 	await process_frame
 	await process_frame
 
@@ -53,107 +54,21 @@ func _run() -> void:
 	await process_frame
 	_assert_eq(status_panel.visual_queue_box.get_child_count(), 16, "queue render still resolves to sixteen live gems after deferred cleanup")
 	_assert(status_panel.get_node_or_null("Margin/StatusBox/PurpleStatusRow") == null, "purple status row no longer sits directly in the status VBox flow")
-	var purple_row = status_panel.get_node_or_null("Margin/StatusBox/StatusFooterSpacer/PurpleStatusRow") as HBoxContainer
+	var purple_row = status_panel.get_node_or_null("Margin/StatusBox/OpsShell/OpsMargin/OpsBox/StatusFooterSpacer/PurpleStatusRow") as HBoxContainer
 	_assert(purple_row != null, "purple status row now lives inside the footer spacer overlay lane")
 	var collapsed_min_height: float = status_panel.get_combined_minimum_size().y
-	status_panel.call("_render_pin_and_repair_status", combat_scene.get("hud", {}))
 	await process_frame
 	_assert(not bool(purple_row.visible), "purple status row stays hidden when no purple pressure is active")
 	var no_purple_min_height: float = status_panel.get_combined_minimum_size().y
 	var purple_scene := combat_scene.duplicate(true)
 	purple_scene["hud"]["purplePressure"] = {"stackCount": 0, "buffCount": 2, "active": true}
-	status_panel.call("_render_pin_and_repair_status", purple_scene.get("hud", {}))
+	status_panel.render_visual_queue(purple_scene)
 	await process_frame
 	_assert(bool(purple_row.visible), "purple status row becomes visible when purple pressure buff text exists")
 	_assert_eq(status_panel.get_combined_minimum_size().y, no_purple_min_height, "purple status row overlay does not grow the status panel minimum height when it appears")
 	_assert_eq(status_panel.get_combined_minimum_size().y, collapsed_min_height, "purple status row overlay preserves the same minimum height before and after combat-state rerenders")
 
 	_finish()
-
-func _build_status_panel():
-	var status_panel = StatusPanelUIScript.new()
-	status_panel.name = "StatusPanel"
-
-	var margin := MarginContainer.new()
-	margin.name = "Margin"
-	status_panel.add_child(margin)
-
-	var status_box := VBoxContainer.new()
-	status_box.name = "StatusBox"
-	margin.add_child(status_box)
-
-	var node_row := HBoxContainer.new()
-	node_row.name = "NodeRow"
-	status_box.add_child(node_row)
-	var extractor_visual := Panel.new()
-	extractor_visual.name = "ExtractorVisual"
-	node_row.add_child(extractor_visual)
-	var extractor_label := Label.new()
-	extractor_label.name = "ExtractorLabel"
-	node_row.add_child(extractor_label)
-
-	var hp_box := HBoxContainer.new()
-	hp_box.name = "HPBox"
-	status_box.add_child(hp_box)
-	var health_bar := ProgressBar.new()
-	health_bar.name = "HealthBar"
-	hp_box.add_child(health_bar)
-
-	var shield_box := HBoxContainer.new()
-	shield_box.name = "ShieldBox"
-	status_box.add_child(shield_box)
-	var shield_bar := ProgressBar.new()
-	shield_bar.name = "ShieldBar"
-	shield_box.add_child(shield_bar)
-
-	var queue_row := HBoxContainer.new()
-	queue_row.name = "QueueRow"
-	status_box.add_child(queue_row)
-	var visual_queue_box := GridContainer.new()
-	visual_queue_box.name = "VisualQueueBox"
-	queue_row.add_child(visual_queue_box)
-
-	var timer_row := HBoxContainer.new()
-	timer_row.name = "TimerRow"
-	status_box.add_child(timer_row)
-	var pin_label := Label.new()
-	pin_label.name = "PinLabel"
-	timer_row.add_child(pin_label)
-	var pin_progress_bar := ProgressBar.new()
-	pin_progress_bar.name = "PinProgressBar"
-	timer_row.add_child(pin_progress_bar)
-
-	var drill_status_row := HBoxContainer.new()
-	drill_status_row.name = "DrillStatusRow"
-	status_box.add_child(drill_status_row)
-	var repair_status_label := Label.new()
-	repair_status_label.name = "RepairStatusLabel"
-	drill_status_row.add_child(repair_status_label)
-
-	var footer_spacer := Control.new()
-	footer_spacer.name = "StatusFooterSpacer"
-	status_box.add_child(footer_spacer)
-	var purple_status_row := HBoxContainer.new()
-	purple_status_row.name = "PurpleStatusRow"
-	footer_spacer.add_child(purple_status_row)
-	var purple_status_label := Label.new()
-	purple_status_label.name = "PurpleStatusLabel"
-	purple_status_row.add_child(purple_status_label)
-	var purple_status_value := Label.new()
-	purple_status_value.name = "PurpleStatusValue"
-	purple_status_row.add_child(purple_status_value)
-
-	var footer_margin := MarginContainer.new()
-	footer_margin.name = "CombatTimerFooterMargin"
-	status_box.add_child(footer_margin)
-	var footer := HBoxContainer.new()
-	footer.name = "CombatTimerFooter"
-	footer_margin.add_child(footer)
-	var combat_timer_label := Label.new()
-	combat_timer_label.name = "CombatTimerLabel"
-	footer.add_child(combat_timer_label)
-
-	return status_panel
 
 func _finish() -> void:
 	if failures.is_empty():

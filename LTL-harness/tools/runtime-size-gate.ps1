@@ -90,8 +90,9 @@ if ($approval -ne "approved") {
 
 $strictPathRules = Parse-CapRules (Get-Property $manifestText "strict_path_caps") "strict_path_caps"
 $strictGlobRules = Parse-CapRules (Get-Property $manifestText "strict_glob_caps") "strict_glob_caps"
-if ($strictPathRules.Count -eq 0 -and $strictGlobRules.Count -eq 0) {
-  Fail "Manifest does not declare any strict path or glob caps"
+$legacyDebtPathRules = Parse-CapRules (Get-Property $manifestText "legacy_debt_path_caps") "legacy_debt_path_caps"
+if ($strictPathRules.Count -eq 0 -and $strictGlobRules.Count -eq 0 -and $legacyDebtPathRules.Count -eq 0) {
+  Fail "Manifest does not declare any strict path, glob, or legacy debt caps"
 }
 
 $allFiles = @(Get-ChildItem -LiteralPath $resolvedRoot -Recurse -File | ForEach-Object {
@@ -120,6 +121,20 @@ foreach ($rule in $strictPathRules) {
   $lineCount = Get-CachedLineCount $relativePath $fullPath
   if ($lineCount -gt $rule.Limit) {
     Fail "Runtime owner '$relativePath' is $lineCount lines; max allowed is $($rule.Limit)"
+  }
+  $exactOverrides[$relativePath] = $true
+}
+
+foreach ($rule in $legacyDebtPathRules) {
+  $fullPath = Join-Path $resolvedRoot $rule.Pattern
+  $fullPath = [System.IO.Path]::GetFullPath($fullPath)
+  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+    Fail "Legacy debt runtime owner path is missing: $($rule.Pattern)"
+  }
+  $relativePath = Get-RelativeToRoot $resolvedRoot $fullPath
+  $lineCount = Get-CachedLineCount $relativePath $fullPath
+  if ($lineCount -gt $rule.Limit) {
+    Fail "Legacy debt runtime owner '$relativePath' is $lineCount lines; frozen max allowed is $($rule.Limit)"
   }
   $exactOverrides[$relativePath] = $true
 }

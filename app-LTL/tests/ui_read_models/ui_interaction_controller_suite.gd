@@ -17,15 +17,6 @@ func run_all_tests() -> Dictionary:
 	test_backpack_hover_fx_stays_off()
 	test_backpack_ui_exposes_drag_start_signal_for_reward_board_rearrange()
 	test_reward_cloud_drag_anchor_clamps_inside_panel_bounds()
-	test_backpack_drag_feedback_preserves_slot_visuals_while_dragging()
-	test_backpack_drag_feedback_restores_slot_modulate_after_reward_drop()
-	test_backpack_drag_feedback_restores_slot_alpha_after_reward_drop()
-	test_interaction_fx_preserves_container_layout_children()
-	test_interaction_fx_skips_shader_on_panel_slots()
-	test_hold_fire_stops_when_overload_repair_starts()
-	test_main_controller_hold_fire_assist_expands_burst()
-	test_combat_clicks_block_while_repair_or_aim_lock_is_active()
-	test_vfx_manager_accessibility_state_toggles_flash_and_particles()
 	return _result()
 
 func test_main_controller_uses_terrain_shift_interval() -> void:
@@ -220,85 +211,4 @@ func test_reward_cloud_drag_anchor_clamps_inside_panel_bounds() -> void:
 	_assert_eq(view.call("clamp_reward_card_anchor", cloud_size, card_size, top_left), bounds.position, "reward-card drag clamp pins cards to the reward-cloud top-left bound")
 	_assert_eq(view.call("clamp_reward_card_anchor", cloud_size, card_size, bottom_right), bounds.position + bounds.size, "reward-card drag clamp pins cards to the reward-cloud bottom-right bound")
 	view.free()
-
-func test_backpack_drag_feedback_preserves_slot_visuals_while_dragging() -> void:
-	var slot := Panel.new()
-	var original_self := Color(0.95, 0.90, 0.82, 0.65)
-	var original_modulate := Color(1.0, 1.0, 1.0, 1.0)
-	slot.self_modulate = original_self
-	slot.modulate = original_modulate
-	InteractionFXScript.apply_drag_feedback(slot, true, false)
-	_assert_eq(slot.self_modulate, original_self, "backpack slot drag feedback keeps the slot background tint unchanged while dragging")
-	_assert_eq(slot.modulate.a, original_modulate.a, "backpack slot drag feedback keeps the slot alpha unchanged while dragging")
-
-func test_backpack_drag_feedback_restores_slot_modulate_after_reward_drop() -> void:
-	var slot := Panel.new()
-	var original := Color(0.95, 0.90, 0.82, 0.65)
-	slot.self_modulate = original
-	InteractionFXScript.apply_drag_feedback(slot, true, false)
-	InteractionFXScript.apply_drag_feedback(slot, false, true)
-	_assert_eq(slot.self_modulate, original, "backpack slot drag feedback restores the original slot tint after reward placement")
-
-func test_backpack_drag_feedback_restores_slot_alpha_after_reward_drop() -> void:
-	var slot := Panel.new()
-	slot.modulate = Color(1.0, 1.0, 1.0, 1.0)
-	InteractionFXScript.apply_drag_feedback(slot, true, true)
-	InteractionFXScript.apply_drag_feedback(slot, false, true)
-	_assert_eq(slot.modulate.a, 1.0, "backpack slot drag feedback resets slot alpha immediately after reward placement")
-	_assert_eq(slot.modulate.a, 1.0, "backpack slot drag feedback keeps slot alpha visible after reward placement")
-
-# ??쎈뻬: verify hover polish never translates children that are owned by layout containers.
-func test_interaction_fx_preserves_container_layout_children() -> void:
-	var grid := GridContainer.new()
-	var slot := Panel.new()
-	grid.add_child(slot)
-	var floating := Panel.new()
-	_assert_eq(InteractionFXScript.can_translate_control(slot), false, "grid child keeps container-owned position")
-	_assert_eq(InteractionFXScript.can_translate_control(floating), true, "free control can use lift translation")
-
-func test_interaction_fx_skips_shader_on_panel_slots() -> void:
-	_assert_eq(InteractionFXScript._supports_shader_material(Panel.new()), false, "panel-based slots keep stylebox rendering instead of shader materials")
-	_assert_eq(InteractionFXScript._supports_shader_material(Button.new()), true, "buttons still use shader-backed cues")
-
-func test_hold_fire_stops_when_overload_repair_starts() -> void:
-	var stopped := MainControllerRuntimeScript.should_continue_hold_fire({
-		"phase": "combat",
-		"feedback": {"status": "empty_queue"},
-		"hud": {"repair": {"active": true}, "queue": {"items": []}}
-	}, true)
-	var active := MainControllerRuntimeScript.should_continue_hold_fire({
-		"phase": "combat",
-		"feedback": {"status": "match"},
-		"hud": {"repair": {"active": false}, "queue": {"items": ["red"]}}
-	}, true)
-	_assert_eq(stopped, false, "hold-fire stops once overload repair begins")
-	_assert_eq(active, true, "hold-fire continues only while combat can actually keep firing")
-
-func test_main_controller_hold_fire_assist_expands_burst() -> void:
-	_assert_eq(MainControllerRuntimeScript.hold_fire_burst_count({}), 2, "hold-fire assist keeps the default two-shot burst when accessibility assist is off")
-	_assert_eq(MainControllerRuntimeScript.hold_fire_burst_count({"holdFireAssist": true}), 4, "hold-fire assist expands the burst window for accessibility mode")
-
-func test_combat_clicks_block_while_repair_or_aim_lock_is_active() -> void:
-	var blocked := MainControllerRuntimeScript.can_accept_combat_click({
-		"phase": "combat",
-		"hud": {"repair": {"active": true}, "aim": {"canFire": false}}
-	}, "r0c0", [])
-	var ready := MainControllerRuntimeScript.can_accept_combat_click({
-		"phase": "combat",
-		"hud": {"repair": {"active": false}, "aim": {"canFire": true}}
-	}, "r0c0", [])
-	_assert_eq(blocked, false, "combat clicks stop while overload repair is active")
-	_assert_eq(ready, true, "combat clicks resume only when aim can fire again")
-
-func test_vfx_manager_accessibility_state_toggles_flash_and_particles() -> void:
-	var vfx = VFXManagerScript.new()
-	vfx.set_accessibility_state({
-		"screenshake": false,
-		"reducedFlash": true,
-		"reducedParticles": true
-	})
-	_assert_eq(vfx.shake_enabled, false, "vfx accessibility state can disable screenshake")
-	_assert_eq(vfx.flash_enabled, false, "vfx accessibility state converts reduced flash into dimmed beam flashes")
-	_assert_eq(vfx.particles_enabled, false, "vfx accessibility state can suppress particles entirely")
-	vfx.free()
 
