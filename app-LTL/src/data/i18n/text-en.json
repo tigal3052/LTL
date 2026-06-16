@@ -366,6 +366,8 @@
     "node_runtime.leviathan_default": "Leviathan Contract",
     "common.on": "On",
     "common.off": "Off",
+    "story.continue": "Continue",
+    "story.skip": "Skip",
     "log.combat.item_activated": "Item activated: {0} ({1}) used!",
     "log.combat.hit_result": "Impact point: {0} | Energy: {1} | Ore type: {2} | Final damage: {3}",
     "log.combat.empty_queue": "Warning: the energy queue is empty, so the drill stopped.",

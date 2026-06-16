@@ -11,8 +11,18 @@ const CreateArtifactFromRewardScript = preload("res://src/vocabulary/reward/Crea
 const BuildRewardTelemetryScript = preload("res://src/vocabulary/reward/BuildRewardTelemetry.gd")
 const MainControllerDisplayTextScript = preload("res://src/controllers/MainControllerDisplayText.gd")
 
+# 실행: identify reward-board input that must wait for a blocking guide narrative.
+static func reward_narrative_blocked(controller) -> bool:
+	if str(controller.current_scene.get("phase", "")) != "reward_loot":
+		return false
+	if controller.has_method("_narrative_input_block_active"):
+		return bool(controller._narrative_input_block_active())
+	return bool(controller.current_scene.get("narrativeBlocksInput", false))
+
 # 실행: place the currently held artifact into the backpack and apply reward effects when needed.
 static func place_held_artifact_at(controller, coord: Vector2) -> bool:
+	if reward_narrative_blocked(controller):
+		return false
 	if controller.held_artifact == null:
 		return false
 	if controller.held_artifact.item_type == "drill":
@@ -117,7 +127,7 @@ static func discard_current_held_reward(controller) -> void:
 
 # 실행: decide whether backpack drag rearrange is active on the reward board.
 static func reward_board_drag_rearrange_active(controller) -> bool:
-	return str(controller.current_scene.get("phase", "")) == "reward_loot" and not controller._reward_ceremony_active()
+	return str(controller.current_scene.get("phase", "")) == "reward_loot" and not controller._reward_ceremony_active() and not reward_narrative_blocked(controller)
 
 # 실행: return the artifact occupying a backpack coordinate.
 static func artifact_at_coord(controller, coord: Vector2):
@@ -178,7 +188,7 @@ static func on_backpack_slot_clicked(controller, coord: Vector2) -> void:
 	if str(controller.current_scene.get("phase", "")) == "combat":
 		controller._append_localized_log("#ff6666", "log.inventory.combat_locked")
 		return
-	if controller._reward_ceremony_active():
+	if controller._reward_ceremony_active() or reward_narrative_blocked(controller):
 		return
 	if reward_board_drag_rearrange_active(controller):
 		if controller.held_artifact != null:
@@ -211,7 +221,7 @@ static func on_backpack_slot_clicked(controller, coord: Vector2) -> void:
 
 # 실행: start a backpack drag on the reward board.
 static func on_backpack_slot_drag_started(controller, coord: Vector2) -> void:
-	if not reward_board_drag_rearrange_active(controller) or controller.held_artifact != null:
+	if reward_narrative_blocked(controller) or not reward_board_drag_rearrange_active(controller) or controller.held_artifact != null:
 		return
 	var dragged_artifact = artifact_at_coord(controller, coord)
 	if dragged_artifact == null:
@@ -277,6 +287,9 @@ static func equipped_artifacts(controller) -> Array:
 static func on_reward_meta_hovered(controller, meta: Variant) -> void:
 	if controller.local_rewards_list.is_empty():
 		return
+	if reward_narrative_blocked(controller):
+		controller._clear_floating_tooltip()
+		return
 	var idx := int(meta)
 	if idx >= 0 and idx < controller.local_rewards_list.size():
 		controller.view.show_reward_tooltip(controller.local_rewards_list[idx], equipped_artifacts(controller))
@@ -298,7 +311,7 @@ static func on_reward_meta_drag_canceled(controller, meta: Variant) -> void:
 
 # 실행: select and package an artifact reward.
 static func on_reward_meta_clicked(controller, meta: Variant) -> void:
-	if controller._reward_ceremony_active():
+	if controller._reward_ceremony_active() or reward_narrative_blocked(controller):
 		return
 	var clicked_idx := int(meta)
 	if controller.held_from_rewards and controller.held_reward_index == clicked_idx and controller.held_artifact != null:
@@ -329,7 +342,7 @@ static func on_reward_meta_clicked(controller, meta: Variant) -> void:
 
 # 실행: inspect an artifact reward.
 static func on_reward_meta_inspect_clicked(controller, meta: Variant) -> void:
-	if controller._reward_ceremony_active():
+	if controller._reward_ceremony_active() or reward_narrative_blocked(controller):
 		return
 	var clicked_idx := int(meta)
 	if clicked_idx < 0 or clicked_idx >= controller.local_rewards_list.size():
@@ -340,7 +353,7 @@ static func on_reward_meta_inspect_clicked(controller, meta: Variant) -> void:
 
 # 실행: start a reward-card drag.
 static func on_reward_meta_drag_started_v2(controller, meta: Variant) -> void:
-	if controller._reward_ceremony_active() or controller.held_artifact != null:
+	if controller._reward_ceremony_active() or reward_narrative_blocked(controller) or controller.held_artifact != null:
 		return
 	var dragged_idx := int(meta)
 	if dragged_idx < 0 or dragged_idx >= controller.local_rewards_list.size():
@@ -361,7 +374,7 @@ static func on_reward_meta_drag_started_v2(controller, meta: Variant) -> void:
 
 # 실행: drop a reward-card artifact into the backpack.
 static func on_reward_meta_drop_requested_v2(controller, meta: Variant, coord: Vector2) -> void:
-	if controller._reward_ceremony_active():
+	if controller._reward_ceremony_active() or reward_narrative_blocked(controller):
 		return
 	if controller.held_artifact == null or not controller.held_from_rewards or controller.held_reward_index != int(meta):
 		return
@@ -372,7 +385,7 @@ static func on_reward_meta_drop_requested_v2(controller, meta: Variant, coord: V
 
 # 실행: discard a reward-card artifact.
 static func on_reward_meta_discard_requested_v2(controller, meta: Variant) -> void:
-	if controller._reward_ceremony_active():
+	if controller._reward_ceremony_active() or reward_narrative_blocked(controller):
 		return
 	if controller.held_artifact == null or not controller.held_from_rewards or controller.held_reward_index != int(meta):
 		return
@@ -380,6 +393,8 @@ static func on_reward_meta_discard_requested_v2(controller, meta: Variant) -> vo
 
 # 실행: cancel a reward-card drag.
 static func on_reward_meta_drag_canceled_v2(controller, meta: Variant) -> void:
+	if reward_narrative_blocked(controller):
+		return
 	if controller.held_artifact == null or not controller.held_from_rewards or controller.held_reward_index != int(meta):
 		return
 	clear_reward_drag_hold(controller)
@@ -388,7 +403,7 @@ static func on_reward_meta_drag_canceled_v2(controller, meta: Variant) -> void:
 # 실행: route discard-zone clicks to the active held artifact source.
 static func on_discard_zone_input(controller, event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if controller._reward_ceremony_active():
+		if controller._reward_ceremony_active() or reward_narrative_blocked(controller):
 			return
 		if controller.held_artifact != null:
 			if controller.held_from_rewards:

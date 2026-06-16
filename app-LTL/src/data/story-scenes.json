@@ -1,0 +1,31 @@
+{
+  "scenes": [
+    {
+      "id": "intro_contract_vn",
+      "trigger": "after_character_confirm",
+      "returnPageId": "leviathan_select",
+      "shownOnce": true,
+      "sideEffectFree": true,
+      "steps": [
+        {
+          "speaker": "Captain",
+          "textKo": "계약서에 적힌 이름은 레비아탄 채집선 LTL. 사냥꾼이 아니라 회수팀이다.",
+          "textEn": "The contract names us LTL, a leviathan collection crew. Not hunters, a recovery team.",
+          "portraitPath": "res://resources/charactor/npc1.png",
+          "side": "left",
+          "backgroundPath": "res://resources/charactor/background.png",
+          "expression": "briefing"
+        },
+        {
+          "speaker": "Anchor Miner",
+          "textKo": "살아 있는 외피에서 필요한 것만 떼어낸다. 깊이 들어가면 우리 쪽이 표본이 된다.",
+          "textEn": "We take only what the living shell yields. Go too deep and we become the specimen.",
+          "portraitPath": "res://resources/charactor/charactor1.png",
+          "side": "right",
+          "backgroundPath": "res://resources/charactor/background.png",
+          "expression": "ready"
+        }
+      ]
+    }
+  ]
+}

@@ -24,7 +24,7 @@ static func project(scene: Dictionary, _show_victory_overlay: bool) -> Dictionar
 	var minutes := seconds_left / 60
 	var seconds := seconds_left % 60
 	var phase_label := _page_label(page_id, phase, explicit_page_id)
-	var meta_page := page_id in ["character_select", "leviathan_select", "defeat", "clear"]
+	var meta_page := page_id in ["character_select", "leviathan_select", "story_scene", "defeat", "clear"]
 	var is_node_select := page_id == "node_select"
 	var combat_page := page_id in ["battle", "boss_battle"]
 	var reward_page := page_id in ["reward", "boss_reward"]
@@ -83,6 +83,8 @@ static func _page_label(page_id: String, phase: String, explicit_page_id: bool) 
 			return "Character Select"
 		"leviathan_select":
 			return "Leviathan Select"
+		"story_scene":
+			return "Story"
 		"node_select":
 			return TextCatalogScript.t("phase.node_select")
 		"battle":

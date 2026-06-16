@@ -104,6 +104,10 @@ static func input(view, event: InputEvent) -> void:
 		_commit_pointer_release(view)
 
 static func unhandled_input(view, event: InputEvent) -> void:
+	if view.narrative_toast != null and view.narrative_toast.has_method("consume_continue_input"):
+		if bool(view.narrative_toast.call("consume_continue_input", event)):
+			view.get_viewport().set_input_as_handled()
+			return
 	if event is InputEventKey and event.pressed:
 		view.key_pressed.emit(event.keycode)
 

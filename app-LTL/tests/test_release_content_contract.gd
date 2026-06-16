@@ -23,8 +23,10 @@ func run_all_tests() -> Dictionary:
 	test_base_shop_and_character_purchase_unlocks_choices()
 	test_growth_state_base_purchase_serializes()
 	test_passive_tree_has_three_branches_and_caps()
+	test_story_scenes_have_vn_contract()
 	test_narrative_beats_cover_m7_core_beats()
 	test_narrative_beats_have_screen_and_skip_contract()
+	test_narrative_beats_have_toast_presentation_metadata()
 	test_narrative_beats_are_side_effect_free()
 	test_resource_manifest_uses_ready_to_swap_paths()
 	return {"ok": failures.is_empty(), "errors": failures}
@@ -44,6 +46,7 @@ func test_content_counts_support_vertical_slice() -> void:
 	_assert(bundle.get("passives", []).size() >= 9, "passive tree has enough nodes for three branches")
 	_assert(bundle.get("hazards", []).size() >= 3, "hazard table has freeze wind debris")
 	_assert(bundle.get("narrativeBeats", []).size() >= 5, "narrative beats cover first run moments")
+	_assert(bundle.get("storyScenes", []).size() >= 1, "story scenes include the first VN scene")
 
 # 실행: verify the production normal route is a true neutral safe node.
 func test_neutral_normal_node_is_safe_route() -> void:
@@ -128,6 +131,38 @@ func test_narrative_beats_have_screen_and_skip_contract() -> void:
 		_assert(not str(beat.get("screenId", "")).is_empty(), "narrative beat has screenId: %s" % str(beat.get("id", "")))
 		_assert(not str(beat.get("displayMode", "")).is_empty(), "narrative beat has displayMode: %s" % str(beat.get("id", "")))
 		_assert(beat.has("skipInputAllowed"), "narrative beat declares skipInputAllowed: %s" % str(beat.get("id", "")))
+
+# 실행: verify full story scenes use a VN-style step contract separate from toast beats.
+func test_story_scenes_have_vn_contract() -> void:
+	var bundle: Dictionary = ReleaseContentVocabScript.load_content_bundle()
+	var scenes: Array = bundle.get("storyScenes", [])
+	_assert(scenes.size() >= 1, "story scene table has at least one scene")
+	for scene in scenes:
+		_assert(not str(scene.get("id", "")).is_empty(), "story scene has id")
+		_assert(not str(scene.get("trigger", "")).is_empty(), "story scene has trigger")
+		_assert(not str(scene.get("returnPageId", "")).is_empty(), "story scene has returnPageId")
+		_assert(scene.has("shownOnce"), "story scene declares shownOnce")
+		var steps: Array = scene.get("steps", []) if scene.get("steps", []) is Array else []
+		_assert(steps.size() >= 1, "story scene has at least one VN step: %s" % str(scene.get("id", "")))
+		for step in steps:
+			_assert(not str(step.get("speaker", "")).is_empty(), "story step has speaker: %s" % str(scene.get("id", "")))
+			_assert(not str(step.get("textKo", "")).is_empty(), "story step has Korean text: %s" % str(scene.get("id", "")))
+			_assert(not str(step.get("textEn", "")).is_empty(), "story step has English text: %s" % str(scene.get("id", "")))
+			_assert(not str(step.get("portraitPath", "")).is_empty(), "story step has portraitPath: %s" % str(scene.get("id", "")))
+			_assert(str(step.get("side", "")) in ["left", "right"], "story step side is left or right: %s" % str(scene.get("id", "")))
+			_assert(not str(step.get("backgroundPath", "")).is_empty(), "story step has backgroundPath: %s" % str(scene.get("id", "")))
+			_assert(step.has("expression"), "story step declares expression: %s" % str(scene.get("id", "")))
+
+# 실행: verify short narrative beats carry toast placement and visual metadata.
+func test_narrative_beats_have_toast_presentation_metadata() -> void:
+	var bundle: Dictionary = ReleaseContentVocabScript.load_content_bundle()
+	for beat in bundle.get("narrativeBeats", []):
+		var beat_id := str(beat.get("id", ""))
+		_assert(str(beat.get("anchorPreset", "")) in ["bottom_center", "top_left", "combat_right", "boss_bottom"], "narrative beat has supported anchorPreset: %s" % beat_id)
+		_assert(str(beat.get("toastVariant", "")) in ["operation_log", "hud_subtitle", "radio_log", "summary_log", "run_log", "post_run_log", "boss_cutin"], "narrative beat has supported toastVariant: %s" % beat_id)
+		_assert(str(beat.get("portraitSide", "")) in ["left", "right", "none"], "narrative beat has supported portraitSide: %s" % beat_id)
+		_assert(beat.has("portraitPath"), "narrative beat declares portraitPath: %s" % beat_id)
+		_assert(beat.has("visualPath"), "narrative beat declares visualPath: %s" % beat_id)
 
 # 실행: verify resource manifest gives exact future drop-in paths.
 func test_resource_manifest_uses_ready_to_swap_paths() -> void:

@@ -8,20 +8,24 @@
 
 **Tech Stack:** Godot 4 GDScript, JSON data tables, existing `HeadlessMiniRun`/`SceneReadModel`/`MainControllerRuntime` flow, current Godot contract runners.
 
+**Implementation Status:** Completed on 2026-06-16. The checklist below is marked
+complete based on the recorded M7 implementation, follow-up fixes, story-surface
+work, and verification evidence in the request ledger and dated worklog.
+
 ---
 
 ## 기존 M7 구현계획 요약 체크리스트
 
-- [ ] **시스템 안정 이후 서사 연결:** 핵심 combat/reward/node 흐름이 굳어진 뒤에 narrative를 얹는다.
-- [ ] **전환점 삽입 시점 결정:** 첫 런 시작, node select 진입, reward reveal 직후, 첫 artifact 획득, failure summary, mini-run clear, Leviathan clear 중 허용 지점을 확정한다.
-- [ ] **짧은 의미 부여 계층:** 긴 컷신이 아니라 node/reward/failure/clear 화면에 1줄 작전 로그, 무전, subtitle, run log를 붙인다.
-- [ ] **core reducer 오염 금지:** narrative trigger와 read-model은 domain replay 결과, combat damage, reward roll, node generation을 바꾸지 않는다.
-- [ ] **핵심 beat 제공:** `intro_contract`, `first_valid_hit`, `first_artifact`, `first_failure`, `first_clear`, `hunt_tension`을 구현한다.
-- [ ] **용어/톤 정리:** 기본 UI는 "채집/외피/파동/마력장/균열/침습도/회수/고정핀" 중심으로 잡고, "사냥"은 금기/갈등어로 의도적으로만 사용한다.
-- [ ] **분리된 파일군:** `models/NarrativeBeat.gd`, `models/NarrativeHistory.gd`, `vocabulary/narrative/*`, `ui/read_models/NarrativeReadModel.gd`, `scenes/narrative/*`, `tests/test_narrative_contract.gd`를 둔다.
-- [ ] **자동 테스트:** trigger 위치, shown-once persist, replay invariance, reward 선택 비차단, failure summary 동시 표시, terminology, text overflow를 검증한다.
-- [ ] **Telemetry:** `narrative_beat_selected`, `narrative_beat_shown`, `narrative_beat_skipped`, `narrative_history_updated`를 기록한다.
-- [ ] **사용자 결정 사항:** 내러티브 톤, 캐릭터 역할, "채집 vs 사냥" 첫 명시 시점, 레비아탄 정체성 차별화 축을 확정한다.
+- [x] **시스템 안정 이후 서사 연결:** 핵심 combat/reward/node 흐름이 굳어진 뒤에 narrative를 얹는다.
+- [x] **전환점 삽입 시점 결정:** 첫 런 시작, node select 진입, reward reveal 직후, 첫 artifact 획득, failure summary, mini-run clear, Leviathan clear 중 허용 지점을 확정한다.
+- [x] **짧은 의미 부여 계층:** 긴 컷신이 아니라 node/reward/failure/clear 화면에 1줄 작전 로그, 무전, subtitle, run log를 붙인다.
+- [x] **core reducer 오염 금지:** narrative trigger와 read-model은 domain replay 결과, combat damage, reward roll, node generation을 바꾸지 않는다.
+- [x] **핵심 beat 제공:** `intro_contract`, `first_valid_hit`, `first_artifact`, `first_failure`, `first_clear`, `hunt_tension`을 구현한다.
+- [x] **용어/톤 정리:** 기본 UI는 "채집/외피/파동/마력장/균열/침습도/회수/고정핀" 중심으로 잡고, "사냥"은 금기/갈등어로 의도적으로만 사용한다.
+- [x] **분리된 파일군:** `models/NarrativeBeat.gd`, `models/NarrativeHistory.gd`, `vocabulary/narrative/*`, `ui/read_models/NarrativeReadModel.gd`, `scenes/narrative/*`, `tests/test_narrative_contract.gd`를 둔다.
+- [x] **자동 테스트:** trigger 위치, shown-once persist, replay invariance, reward 선택 비차단, failure summary 동시 표시, terminology, text overflow를 검증한다.
+- [x] **Telemetry:** `narrative_beat_selected`, `narrative_beat_shown`, `narrative_beat_skipped`, `narrative_history_updated`를 기록한다.
+- [x] **사용자 결정 사항:** 내러티브 톤, 캐릭터 역할, "채집 vs 사냥" 첫 명시 시점, 레비아탄 정체성 차별화 축을 확정한다.
 
 ## 현재 소스 비교 분석
 
@@ -128,7 +132,7 @@
 - Modify: `app-LTL/src/vocabulary/ReleaseContentVocab.gd`
 - Modify: `app-LTL/tests/test_release_content_contract.gd`
 
-- [ ] **Step 1: Write failing content-shape tests**
+- [x] **Step 1: Write failing content-shape tests**
 
 Add assertions in `test_release_content_contract.gd`:
 
@@ -149,7 +153,7 @@ func test_narrative_beats_have_screen_and_skip_contract() -> void:
 		_assert(beat.has("skipInputAllowed"), "narrative beat declares skipInputAllowed: %s" % str(beat.get("id", "")))
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -159,7 +163,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1
 
 Expected: FAIL until the six M7 beat ids and new required fields exist.
 
-- [ ] **Step 3: Update `narrative-beats.json`**
+- [x] **Step 3: Update `narrative-beats.json`**
 
 Replace the current five rows with six M7 rows using this schema:
 
@@ -187,7 +191,7 @@ Add equivalent rows for:
 - `first_clear`: `trigger=first_clear`, `screenId=clear`, `displayMode=run_log`.
 - `hunt_tension`: `trigger=leviathan_clear`, `screenId=clear`, `displayMode=post_run_log`.
 
-- [ ] **Step 4: Tighten release content validation**
+- [x] **Step 4: Tighten release content validation**
 
 In `ReleaseContentVocab.validate_content_bundle()`, change narrative required fields to:
 
@@ -195,7 +199,7 @@ In `ReleaseContentVocab.validate_content_bundle()`, change narrative required fi
 _validate_required_fields(bundle.get("narrativeBeats", []), "narrativeBeats", ["id", "trigger", "screenId", "triggerPhase", "displayMode", "textKo", "textEn", "sideEffectFree", "skipInputAllowed"], errors)
 ```
 
-- [ ] **Step 5: Run focused validation**
+- [x] **Step 5: Run focused validation**
 
 Run:
 
@@ -214,7 +218,7 @@ Expected: PASS for release-content validation, with later narrative runtime test
 - Create: `app-LTL/src/vocabulary/narrative/MarkNarrativeSeen.gd`
 - Create: `app-LTL/tests/test_narrative_contract.gd`
 
-- [ ] **Step 1: Write failing trigger/history tests**
+- [x] **Step 1: Write failing trigger/history tests**
 
 Create `test_narrative_contract.gd` with:
 
@@ -271,7 +275,7 @@ func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 
@@ -281,7 +285,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1
 
 Expected: FAIL because `vocabulary/narrative/*` files do not exist and runner is not wired yet.
 
-- [ ] **Step 3: Implement `NarrativeHistory.gd`**
+- [x] **Step 3: Implement `NarrativeHistory.gd`**
 
 Create:
 
@@ -304,7 +308,7 @@ static func mark_seen(progress: Dictionary, beat_id: String) -> Dictionary:
 	return next
 ```
 
-- [ ] **Step 4: Implement selection and mark wrappers**
+- [x] **Step 4: Implement selection and mark wrappers**
 
 `SelectNarrativeBeat.gd`:
 
@@ -359,7 +363,7 @@ static func mark_seen(progress: Dictionary, beat_id: String) -> Dictionary:
 	return NarrativeHistoryScript.mark_seen(progress, beat_id)
 ```
 
-- [ ] **Step 5: Wire test runner**
+- [x] **Step 5: Wire test runner**
 
 In `godot_contract_runner.gd`, add:
 
@@ -387,7 +391,7 @@ Call `_test_narrative_contracts()` from `_run_contracts()` before release-conten
 - Modify: `app-LTL/src/vocabulary/ReleaseContentVocab.gd`
 - Modify: `app-LTL/tests/test_narrative_contract.gd`
 
-- [ ] **Step 1: Add replay invariance test**
+- [x] **Step 1: Add replay invariance test**
 
 Append:
 
@@ -400,7 +404,7 @@ func test_narrative_projection_does_not_change_domain_snapshot() -> void:
 	_assert_eq(state, before, "narrative selection does not mutate state")
 ```
 
-- [ ] **Step 2: Implement `NarrativeReadModel.gd`**
+- [x] **Step 2: Implement `NarrativeReadModel.gd`**
 
 Create:
 
@@ -423,7 +427,7 @@ static func project(beat: Dictionary, locale: String = "ko") -> Dictionary:
 	}
 ```
 
-- [ ] **Step 3: Keep `SceneReadModel` pure**
+- [x] **Step 3: Keep `SceneReadModel` pure**
 
 Do not call narrative selection from `SceneReadModel.create()` yet. Instead, expose enough state that `MainControllerRuntime` can select narrative after scene decoration:
 
@@ -434,7 +438,7 @@ Do not call narrative selection from `SceneReadModel.create()` yet. Instead, exp
 
 If `growth` is already omitted from the read model, add it as a cloned field and assert no combat/reward fields change.
 
-- [ ] **Step 4: Delegate old release helper**
+- [x] **Step 4: Delegate old release helper**
 
 Keep `ReleaseContentVocab.project_narrative_beats()` as a wrapper:
 
@@ -455,7 +459,7 @@ static func project_narrative_beats(state: Dictionary, beats: Array, history: Di
 - Modify: `app-LTL/src/MainControllerRuntime.gd`
 - Modify: `app-LTL/tests/test_narrative_contract.gd`
 
-- [ ] **Step 1: Add telemetry builder tests**
+- [x] **Step 1: Add telemetry builder tests**
 
 Add assertions:
 
@@ -468,7 +472,7 @@ func test_narrative_telemetry_payloads_have_required_fields() -> void:
 		_assert(payload.has(key), "shown telemetry has %s" % key)
 ```
 
-- [ ] **Step 2: Implement telemetry builder**
+- [x] **Step 2: Implement telemetry builder**
 
 Create:
 
@@ -500,7 +504,7 @@ static func _base(event_name: String, beat_id: String, screen_id: String, trigge
 	}
 ```
 
-- [ ] **Step 3: Implement toast view**
+- [x] **Step 3: Implement toast view**
 
 `NarrativeToast.gd` should extend `PanelContainer`, set `mouse_filter = Control.MOUSE_FILTER_IGNORE`, own one speaker label and one text label, and expose:
 
@@ -513,7 +517,7 @@ func render(model: Dictionary) -> void:
 	body_label.text = str(model.get("text", ""))
 ```
 
-- [ ] **Step 4: Install toast in MainViewRuntime**
+- [x] **Step 4: Install toast in MainViewRuntime**
 
 Add a `narrative_toast` field, instantiate it in `_ready()`, and expose:
 
@@ -525,7 +529,7 @@ func render_narrative(model: Dictionary) -> void:
 
 The toast must not hide or disable action buttons.
 
-- [ ] **Step 5: Select narrative in MainControllerRuntime**
+- [x] **Step 5: Select narrative in MainControllerRuntime**
 
 After `_decorate_scene(scene)` and before `view.render_scene(...)`, call a helper:
 
@@ -556,7 +560,7 @@ Use the existing `_emit_ui_telemetry()` printer.
 - Modify: `app-LTL/tests/test_narrative_contract.gd`
 - Modify: `app-LTL/tests/run_i18n_localization_smoke.gd`
 
-- [ ] **Step 1: Add terminology test with allowlist**
+- [x] **Step 1: Add terminology test with allowlist**
 
 Add a test that scans `text-ko.json` and flags:
 
@@ -566,7 +570,7 @@ var ko_forbidden := ["사냥", "처치", "사망"]
 
 For `전투` and `전리품`, use an explicit temporary allowlist of keys, then reduce that allowlist as copy is changed to `채굴`, `회수품`, `유물`, `외피`, `추락`.
 
-- [ ] **Step 2: Replace high-impact default copy**
+- [x] **Step 2: Replace high-impact default copy**
 
 Change visible player-facing keys first:
 
@@ -577,7 +581,7 @@ Change visible player-facing keys first:
 - `log.reward.ceremony_starting`: "전리품" -> "회수품"
 - English equivalents: "Start Combat" -> "Start Mining", "Loot" where needed -> "Recovered artifacts" or "haul".
 
-- [ ] **Step 3: Feed page narrative slots**
+- [x] **Step 3: Feed page narrative slots**
 
 In `PageSceneModelBuilder.project()`, preserve existing fields and allow `scene.get("narrative", {})` to pass through:
 
@@ -596,7 +600,7 @@ Use this only for page scenes; combat HUD still uses toast.
 - Optional Modify: `app-LTL/tests/run_main_layout_audit_contract.gd`
 - Create or update: `docs/m7-manual-signoff-checklist.ko.md`
 
-- [ ] **Step 1: Add flow assertions**
+- [x] **Step 1: Add flow assertions**
 
 In `run_main_start_flow_contract.gd`, assert:
 
@@ -605,11 +609,11 @@ In `run_main_start_flow_contract.gd`, assert:
 - Defeat page shows both failure cause/tip and narrative beat.
 - Clear page shows clear beat.
 
-- [ ] **Step 2: Add layout assertions**
+- [x] **Step 2: Add layout assertions**
 
 In `run_main_layout_audit_contract.gd`, assert visible narrative toast/control stays inside viewport at canonical desktop size and does not cover action bar hit targets.
 
-- [ ] **Step 3: Run focused checks**
+- [x] **Step 3: Run focused checks**
 
 Run:
 
@@ -624,7 +628,7 @@ Expected:
 - Existing release content and UI read model suites still pass.
 - No replay summary changes except optional narrative projection fields.
 
-- [ ] **Step 4: Manual QA checklist**
+- [x] **Step 4: Manual QA checklist**
 
 Create `docs/m7-manual-signoff-checklist.ko.md` with:
 

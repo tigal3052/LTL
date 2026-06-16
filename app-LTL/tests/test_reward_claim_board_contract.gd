@@ -440,9 +440,16 @@ func _boot_live_reward_tray() -> Node:
 	if reward_reveal_overlay != null:
 		await _finish_reward_ceremony(controller, reward_reveal_overlay)
 	await _settle_frames(10)
+	await _dismiss_visible_narrative(main_instance)
 	_assert_eq(str(main_instance.get("active_page_id")), "reward", "live reward flow remains on the reward page after ceremony completion")
 	_assert_eq(str(controller.get("reward_presentation_step")), "tray_review", "live reward flow advances to tray review before click checks")
 	return main_instance
+
+func _dismiss_visible_narrative(main_instance: Node) -> void:
+	var toast = main_instance.get("narrative_toast") as Control
+	if toast != null and toast.visible and toast.has_method("dismiss"):
+		toast.call("dismiss")
+	await _settle_frames(2)
 
 func _instantiate_reward_board_surface(rewards: Array, tray_model: Dictionary) -> Node:
 	var MainScene = load("res://src/Main.tscn")
@@ -460,6 +467,24 @@ func _instantiate_reward_board_surface(rewards: Array, tray_model: Dictionary) -
 	await _settle_frames(2)
 	return main_instance
 
+func _advance_story_if_present(main_instance: Node, return_page_id: String) -> void:
+	if str(main_instance.get("active_page_id")) != "story_scene":
+		return
+	var story_page = main_instance.get("story_scene_page")
+	var controller = main_instance.get_node_or_null("MainController")
+	_assert(story_page != null, "story scene page exists during reward-board boot")
+	_assert(controller != null, "main controller exists during reward-board story handoff")
+	if story_page == null or controller == null:
+		return
+	var story: Dictionary = controller.get("active_story_scene")
+	var scene_id := str(story.get("id", ""))
+	_assert(scene_id != "", "story scene exposes an active scene id during reward-board boot")
+	story_page.continue_requested.emit(scene_id)
+	await _settle_frames(1)
+	story_page.continue_requested.emit(scene_id)
+	await _settle_frames(2)
+	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s during reward-board boot" % return_page_id)
+
 func _boot_to_node_select(main_instance: Node, color: String = "purple", leviathan_id: String = "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during reward-board boot")
@@ -471,6 +496,7 @@ func _boot_to_node_select(main_instance: Node, color: String = "purple", leviath
 		character_page.color_selected.emit(color)
 		character_page.continue_requested.emit()
 	await _settle_frames(2)
+	await _advance_story_if_present(main_instance, "leviathan_select")
 	_assert_eq(str(main_instance.get("active_page_id")), "leviathan_select", "character select advances to leviathan select during reward-board boot")
 	var leviathan_page = main_instance.get("leviathan_select_page")
 	_assert(leviathan_page != null, "leviathan select page exists during reward-board boot")
@@ -691,10 +717,15 @@ func _first_inventory_coord(inventory) -> Vector2:
 func _backpack_slot_for_artifact(backpack_panel: Control, artifact) -> Control:
 	if backpack_panel == null or artifact == null:
 		return null
+	return _backpack_slot_at(backpack_panel, int(artifact.x), int(artifact.y))
+
+func _backpack_slot_at(backpack_panel: Control, column: int, row: int) -> Control:
+	if backpack_panel == null:
+		return null
 	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as GridContainer
 	if grid == null:
 		return null
-	var slot_idx := (int(artifact.y) + 1) * 10 + (int(artifact.x) + 1)
+	var slot_idx := (row + 1) * 10 + (column + 1)
 	if slot_idx < 0 or slot_idx >= grid.get_child_count():
 		return null
 	return grid.get_child(slot_idx) as Control
@@ -763,12 +794,29 @@ func _assert_artifact_rendered_in_reward_backpack(backpack_panel: Control, artif
 	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control if backpack_panel != null else null
 	var image = image_layer.get_node_or_null("DrillImage_%s" % str(artifact.id)) as TextureRect if image_layer != null else null
 	if image != null:
-		_assert_centers_close(image.get_global_rect(), slot.get_global_rect(), 1.0, "%s centers the image-backed artifact" % label)
+		_assert_centers_close(image.get_global_rect(), _artifact_footprint_global_rect(backpack_panel, artifact), 1.0, "%s centers the image-backed artifact" % label)
 		return
 	var overlay = slot.get_node_or_null("Overlay") as Panel
 	_assert(overlay != null, "%s finds the placed artifact overlay" % label)
 	if overlay != null:
 		_assert(not (overlay.get_theme_stylebox("panel") is StyleBoxEmpty), "%s draws the non-image artifact overlay" % label)
+
+func _artifact_footprint_global_rect(backpack_panel: Control, artifact) -> Rect2:
+	var rect := Rect2()
+	var initialized := false
+	var shape: Array = artifact.shape
+	for shape_row in range(shape.size()):
+		if not shape[shape_row] is Array:
+			continue
+		for shape_column in range(shape[shape_row].size()):
+			if int(shape[shape_row][shape_column]) != 1:
+				continue
+			var slot = _backpack_slot_at(backpack_panel, int(artifact.x) + shape_column, int(artifact.y) + shape_row) as Control
+			if slot == null:
+				continue
+			rect = slot.get_global_rect() if not initialized else rect.merge(slot.get_global_rect())
+			initialized = true
+	return rect
 
 func _settle_frames(count: int) -> void:
 	for _index in range(count):

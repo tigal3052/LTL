@@ -29,12 +29,17 @@ static func _matches(trigger: String, state: Dictionary) -> bool:
 		"first_run_start":
 			return str(state.get("phase", "")) == "node_select" and int(state.get("stageIndex", 0)) == 0
 		"first_valid_hit":
-			var combat := _dict_from(state.get("combat", {}))
-			var summary := _dict_from(combat.get("summary", {}))
-			return int(summary.get("shots_hit_match", 0)) > 0
+			return str(state.get("phase", "")) == "combat"
 		"first_artifact":
+			if str(state.get("phase", "")) != "reward_loot":
+				return false
+			var reward := _dict_from(state.get("reward", {}))
+			if not _array_from(reward.get("pendingRewards", [])).is_empty():
+				return true
+			if not _array_from(state.get("pendingRewards", [])).is_empty():
+				return true
 			var growth := _dict_from(state.get("growth", {}))
-			return str(state.get("phase", "")) == "reward_loot" and not _array_from(growth.get("artifactDiscovery", [])).is_empty()
+			return not _array_from(growth.get("artifactDiscovery", [])).is_empty()
 		"first_failure":
 			return str(state.get("phase", "")) == "run_complete" and bool(state.get("failed", false))
 		"first_clear":

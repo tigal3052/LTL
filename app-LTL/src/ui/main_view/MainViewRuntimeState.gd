@@ -1,7 +1,7 @@
 class_name MainViewRuntimeState
 extends PanelContainer
 
-const META_PAGE_IDS := ["character_select", "leviathan_select", "clear", "defeat"]
+const META_PAGE_IDS := ["character_select", "leviathan_select", "story_scene", "clear", "defeat"]
 const SURFACE_PAGE_IDS := ["battle", "boss_battle", "reward", "boss_reward"]
 const ACTION_BAR_PAGE_IDS := ["node_select", "battle", "boss_battle", "reward", "boss_reward"]
 const SHOP_ENABLED := false
@@ -45,10 +45,13 @@ signal character_continue_pressed
 signal leviathan_selected(leviathan_id: String)
 signal looting_start_pressed
 signal return_to_character_select_pressed
+signal story_continue_requested(scene_id: String)
+signal story_skip_requested(scene_id: String)
 signal shop_open_pressed
 signal codex_open_pressed
 signal buy_passive(passive_id: String, cost: int)
 signal buy_base_item(item_id: String)
+signal narrative_continue_requested(beat_id: String)
 
 @onready var header_panel: PanelContainer = $RootMargin/AppShell/Header
 @onready var header_title_label: Label = $RootMargin/AppShell/Header/Margin/PhaseRow/TitleLabel
@@ -146,6 +149,7 @@ var reward_reveal_pending_step := ""
 var tooltip_panel: PanelContainer
 var tooltip_label: RichTextLabel
 var narrative_toast: Control = null
+var narrative_toast_model: Dictionary = {"visible": false}
 var node_select_content_row: HBoxContainer = null
 var node_select_runtime_page: Control = null
 var node_select_backpack_host: Control = null
@@ -186,6 +190,7 @@ var _active_action_bar_bundle_id := "node_select"
 var active_page_id := ""
 var character_select_page: Control
 var leviathan_select_page: Control
+var story_scene_page: Control
 var reward_cloud_scroll: ScrollContainer = null
 var discard_card_scroll: ScrollContainer = null
 var claim_card_scroll: ScrollContainer = null

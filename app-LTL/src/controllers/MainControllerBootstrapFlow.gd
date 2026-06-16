@@ -32,6 +32,7 @@ static func ready(controller) -> void:
 	controller.growth_state = RunGrowthStateScript.new(default_growth)
 	controller.campaign_progress = controller.preview_controller.run.state.get("progress", {"clearedLeviathanIds": []}).duplicate(true)
 	controller.narrative_beats = ReleaseContentVocabScript.load_content_bundle().get("narrativeBeats", []).duplicate(true)
+	controller.story_scenes = ReleaseContentVocabScript.load_content_bundle().get("storyScenes", []).duplicate(true)
 
 	controller._load_backpack_items_into_inventory()
 	_connect_view_signals(controller)
@@ -72,6 +73,12 @@ static func _connect_view_signals(controller) -> void:
 		controller.view.looting_start_pressed.connect(controller._on_looting_start_pressed)
 	if controller.view.has_signal("return_to_character_select_pressed"):
 		controller.view.return_to_character_select_pressed.connect(controller._on_return_to_character_select_pressed)
+	if controller.view.has_signal("narrative_continue_requested"):
+		controller.view.narrative_continue_requested.connect(controller._on_narrative_continue_requested)
+	if controller.view.has_signal("story_continue_requested"):
+		controller.view.story_continue_requested.connect(controller._on_story_continue_requested)
+	if controller.view.has_signal("story_skip_requested"):
+		controller.view.story_skip_requested.connect(controller._on_story_skip_requested)
 	controller.view.settings_panel.reset_requested.connect(controller._on_reset_pressed)
 	controller.view.settings_panel.language_changed.connect(controller._on_language_changed)
 	controller.view.settings_panel.screenshake_toggled.connect(func(enabled):

@@ -1,14 +1,8 @@
-# 怨꾩빟:
-# - Responsibility: project selected narrative beats into compact UI-safe dictionaries.
-# - Input: selected narrative beat dictionaries and locale names.
-# - Output: visible/hidden narrative models for non-blocking toast or page slots.
-# - Forbidden: beat selection, progress writes, telemetry, SceneTree access.
-#
-# ?ㅽ뻾: define narrative UI read-model projection.
+# 계약: selected narrative beats are projected into UI-safe dictionaries.
+# 실행: choose locale text, continue affordance copy, and blocking metadata.
 class_name NarrativeReadModel
 extends RefCounted
 
-# ?ㅽ뻾: project a selected beat into locale-specific UI text.
 static func project(beat: Dictionary, locale: String = "ko") -> Dictionary:
 	if beat.is_empty():
 		return {"visible": false}
@@ -22,12 +16,25 @@ static func project(beat: Dictionary, locale: String = "ko") -> Dictionary:
 		"screenId": str(beat.get("screenId", "")),
 		"triggerPhase": str(beat.get("triggerPhase", "")),
 		"shownOnce": bool(beat.get("shownOnce", true)),
-		"skipInputAllowed": bool(beat.get("skipInputAllowed", true))
+		"blocksInput": bool(beat.get("blocksInput", false)),
+		"skipInputAllowed": bool(beat.get("skipInputAllowed", true)),
+		"anchorPreset": str(beat.get("anchorPreset", "bottom_center")),
+		"portraitPath": str(beat.get("portraitPath", "")),
+		"portraitSide": str(beat.get("portraitSide", "none")),
+		"visualPath": str(beat.get("visualPath", "")),
+		"toastVariant": str(beat.get("toastVariant", beat.get("displayMode", "operation_log"))),
+		"continuePrompt": _continue_prompt_for_locale(locale),
+		"continueIcon": ">"
 	}
 
-# ??쎈뻬: choose the narrative data key for the active locale without embedding UI copy in code.
 static func _text_key_for_locale(locale: String) -> String:
 	match locale:
 		"en":
 			return "textEn"
 	return "textKo"
+
+static func _continue_prompt_for_locale(locale: String) -> String:
+	match locale:
+		"en":
+			return "Click or press any key to continue"
+	return "진행하려면 클릭해주세요"

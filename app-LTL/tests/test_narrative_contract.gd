@@ -16,6 +16,7 @@ func run_all_tests() -> Dictionary:
 	test_failure_and_clear_match_run_complete_scene()
 	test_narrative_projection_does_not_change_domain_snapshot()
 	test_narrative_read_model_projects_locale_text()
+	test_narrative_read_model_projects_toast_visual_metadata()
 	test_narrative_telemetry_payloads_have_required_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
 
@@ -55,6 +56,16 @@ func test_narrative_read_model_projects_locale_text() -> void:
 	_assert_eq(bool(model.get("visible", false)), true, "narrative read model is visible for selected beat")
 	_assert_eq(str(model.get("beatId", "")), "intro_contract", "narrative read model exposes beat id")
 	_assert(str(model.get("text", "")).contains("does not hunt"), "narrative read model projects English text")
+
+# 실행: verify toast-specific metadata reaches the read model without changing narrative selection.
+func test_narrative_read_model_projects_toast_visual_metadata() -> void:
+	var beat: Dictionary = SelectNarrativeBeatScript.select({"phase": "node_select", "stageIndex": 0}, _beats(), {})
+	var model: Dictionary = NarrativeReadModelScript.project(beat, "ko")
+	_assert_eq(str(model.get("anchorPreset", "")), "bottom_center", "narrative read model exposes anchor preset")
+	_assert_eq(str(model.get("toastVariant", "")), "operation_log", "narrative read model exposes toast variant")
+	_assert(str(model.get("portraitPath", "")).ends_with(".png"), "narrative read model exposes portrait path")
+	_assert(str(model.get("visualPath", "")).ends_with(".png"), "narrative read model exposes visual path")
+	_assert_eq(str(model.get("portraitSide", "")), "left", "narrative read model exposes portrait side")
 
 func test_narrative_telemetry_payloads_have_required_fields() -> void:
 	var payload: Dictionary = BuildNarrativeTelemetryScript.build_shown("intro_contract", "node_select", "node_select", true, 2400, false)

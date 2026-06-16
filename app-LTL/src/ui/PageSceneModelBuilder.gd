@@ -17,6 +17,10 @@ static func project(page_id: String, scene: Dictionary, character_portrait_path:
 			return scene
 		"leviathan_select":
 			return scene
+		"story_scene":
+			return {
+				"storyScene": scene.get("storyScene", {"visible": false})
+			}
 		"node_select":
 			var node_select_scene := scene.duplicate(true)
 			node_select_scene["pageTitle"] = str(selected_leviathan.get("name", TextCatalogScript.t("leviathan.roster.title")))

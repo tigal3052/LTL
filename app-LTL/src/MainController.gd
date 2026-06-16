@@ -61,6 +61,10 @@ var narrative_beats: Array = []
 var active_narrative_model: Dictionary = {"visible": false}
 var active_narrative_phase := ""
 var active_narrative_stage_index := -1
+var story_scenes: Array = []
+var active_story_scene: Dictionary = {}
+var active_story_step_index := 0
+var story_return_page_id := ""
 var page_override_id := "character_select"
 var weakness_shift_step: int = 0
 var reward_presentation_step: String = ""
@@ -125,11 +129,25 @@ func _process(delta: float) -> void:
 	MainControllerCombatFlowScript.process(self, delta)
 
 func _on_language_changed(next_locale: String) -> void:
+	call_deferred("_apply_language_change", next_locale)
+
+func _apply_language_change(next_locale: String) -> void:
 	TextCatalogScript.set_locale(next_locale)
 	character_roster = _load_character_roster()
 	leviathan_roster = _load_leviathan_roster()
 	if not current_scene.is_empty():
 		_render_scene(current_scene)
+
+func _narrative_input_block_active() -> bool:
+	return MainControllerRenderFlowScript.narrative_input_block_active(self)
+func _on_narrative_continue_requested(beat_id: String) -> void:
+	MainControllerRenderFlowScript.on_narrative_continue_requested(self, beat_id)
+func _open_story_scene_for_page(page_id: String) -> bool:
+	return MainControllerRenderFlowScript.open_story_scene_for_page(self, page_id)
+func _on_story_continue_requested(scene_id: String) -> void:
+	MainControllerRenderFlowScript.on_story_continue_requested(self, scene_id)
+func _on_story_skip_requested(scene_id: String) -> void:
+	MainControllerRenderFlowScript.on_story_skip_requested(self, scene_id)
 
 # ?ㅽ뻾: handle interactive hover cell aiming.
 func _on_cell_hovered(cell_id: String, color_name: String) -> void:

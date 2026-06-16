@@ -76,6 +76,9 @@ static func on_reset_pressed(controller) -> void:
 	controller.held_inventory_origin = Vector2(-1, -1)
 	controller.view.set_confirm_overlay_visible(false)
 	controller.view.update_backpack_ghost(null)
+	controller.active_story_scene = {}
+	controller.active_story_step_index = 0
+	controller.story_return_page_id = ""
 
 	controller.growth_state.gold = controller.growth_state.get_starting_gold()
 	controller.growth_state.xp = 0
@@ -88,6 +91,8 @@ static func on_reset_pressed(controller) -> void:
 
 # ?ㅽ뻾: ask for confirmation before discarding unclaimed rewards.
 static func on_claim_rewards_pressed(controller) -> void:
+	if controller.has_method("_narrative_input_block_active") and controller._narrative_input_block_active():
+		return
 	if not controller.local_rewards_list.is_empty():
 		controller.view.set_confirm_overlay_visible(true)
 	else:
@@ -167,6 +172,9 @@ static func on_character_selected(controller, character_id: String) -> void:
 # ?ㅽ뻾: continue from character selection to leviathan selection.
 static func on_character_continue_pressed(controller) -> void:
 	controller.page_override_id = "leviathan_select"
+	if controller.has_method("_open_story_scene_for_page") and bool(controller._open_story_scene_for_page("leviathan_select")):
+		controller._render_scene(controller.current_scene)
+		return
 	controller._render_scene(controller.current_scene)
 
 # ?ㅽ뻾: select a leviathan id and refresh the page.
@@ -190,6 +198,9 @@ static func on_looting_start_pressed(controller) -> void:
 	if controller.preview_controller != null and controller.preview_controller.run != null:
 		controller.preview_controller.run.state["selectedCharacter"] = controller.selected_character_id
 	controller.page_override_id = ""
+	controller.active_story_scene = {}
+	controller.active_story_step_index = 0
+	controller.story_return_page_id = ""
 	load_backpack_items_into_inventory(controller)
 	controller.view.render_backpack(controller.inventory)
 	controller._recalculate_queue_colors()

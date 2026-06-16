@@ -81,22 +81,51 @@ static func create_narrative_toast(view) -> void:
 	if view.narrative_toast != null:
 		return
 	view.narrative_toast = NarrativeToastScript.new()
-	view.narrative_toast.anchor_left = 1.0
-	view.narrative_toast.anchor_right = 1.0
-	view.narrative_toast.anchor_top = 0.0
-	view.narrative_toast.anchor_bottom = 0.0
-	view.narrative_toast.offset_left = -464.0
-	view.narrative_toast.offset_right = -24.0
-	view.narrative_toast.offset_top = 86.0
-	view.narrative_toast.offset_bottom = 210.0
 	view.add_child(view.narrative_toast)
-	view._set_descendant_mouse_filter_ignore(view.narrative_toast)
+	view.narrative_toast.continue_requested.connect(func(beat_id: String):
+		view.narrative_continue_requested.emit(beat_id)
+	)
+	view.narrative_toast.set_as_top_level(true)
+	layout_narrative_toast(view)
 
 static func render_narrative(view, model: Dictionary) -> void:
+	view.narrative_toast_model = model.duplicate(true)
 	if view.narrative_toast == null:
 		create_narrative_toast(view)
 	if view.narrative_toast != null and view.narrative_toast.has_method("render"):
 		view.narrative_toast.render(model)
+		layout_narrative_toast(view)
+
+# 실행: position the story surface outside PanelContainer layout ownership.
+static func layout_narrative_toast(view) -> void:
+	if view.narrative_toast == null or not view.is_inside_tree():
+		return
+	var model: Dictionary = view.narrative_toast_model if view.narrative_toast_model is Dictionary else {}
+	var anchor_preset := str(model.get("anchorPreset", "bottom_center"))
+	var viewport_size: Vector2 = Vector2(view.get_tree().root.size)
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		viewport_size = view.size
+	var view_origin: Vector2 = view.get_global_rect().position
+	var story_width := clampf(viewport_size.x * 0.58, 560.0, 860.0)
+	var story_height := clampf(viewport_size.y * 0.42, 320.0, 420.0)
+	var story_pos := Vector2((viewport_size.x - story_width) * 0.5, viewport_size.y - story_height - clampf(viewport_size.y * 0.09, 64.0, 96.0))
+	match anchor_preset:
+		"top_left":
+			story_width = clampf(viewport_size.x * 0.38, 420.0, 620.0)
+			story_height = clampf(viewport_size.y * 0.34, 260.0, 340.0)
+			story_pos = Vector2(32.0, clampf(viewport_size.y * 0.10, 58.0, 92.0))
+		"combat_right":
+			story_width = clampf(viewport_size.x * 0.34, 420.0, 560.0)
+			story_height = clampf(viewport_size.y * 0.38, 280.0, 380.0)
+			story_pos = Vector2(viewport_size.x - story_width - 32.0, (viewport_size.y - story_height) * 0.52)
+		"boss_bottom":
+			story_width = clampf(viewport_size.x * 0.72, 680.0, 1000.0)
+			story_height = clampf(viewport_size.y * 0.44, 330.0, 440.0)
+			story_pos = Vector2((viewport_size.x - story_width) * 0.5, viewport_size.y - story_height - 42.0)
+	story_pos.x = clampf(story_pos.x, 24.0, maxf(24.0, viewport_size.x - story_width - 24.0))
+	story_pos.y = clampf(story_pos.y, 24.0, maxf(24.0, viewport_size.y - story_height - 24.0))
+	view.narrative_toast.global_position = view_origin + story_pos
+	view.narrative_toast.size = Vector2(story_width, story_height)
 
 static func show_artifact_tooltip(view, art) -> void:
 	if view.tooltip_panel == null:

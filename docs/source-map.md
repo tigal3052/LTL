@@ -682,6 +682,8 @@ This file is the live implementation map for AI agents. It records each current 
   - progression default stores balance or progression data.
 - `app-LTL/src/data/release-resource-needs.json`
   - release resource needs table stores final-art paths and procedural fallback tags.
+- `app-LTL/src/data/story-scenes.json`
+  - story scenes table stores full VN-style story steps, return routes, portraits, and backgrounds.
 - `app-LTL/src/data/reward-table.json`
   - reward table stores balance or progression data.
 - `app-LTL/src/data/i18n/text-en.json`
@@ -709,11 +711,11 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/controllers/MainControllerDisplayText.gd`
   - Converts artifact, rarity, color, passive, shop item, and toggle values into localized labels for controller log messages.
 - `app-LTL/src/controllers/MainControllerRewardBackpackFlow.gd`
-  - Owns reward tray and backpack interaction flow, including artifact selection, placement, drag/drop, discard, tooltip, reward claim side effects, and telemetry handoff.
+  - Owns reward tray and backpack interaction flow, including artifact selection, placement, drag/drop, discard, tooltip, reward guide gating, reward claim side effects, and telemetry handoff.
 - `app-LTL/src/controllers/MainControllerRenderFlow.gd`
-  - Owns scene decoration, page-id resolution, phase log side effects, battlefield disabled-state render handoff, and reward tray rendering.
+  - Owns scene decoration, page-id resolution, phase log side effects, narrative blocking state, battlefield disabled-state render handoff, and reward tray rendering.
 - `app-LTL/src/controllers/MainControllerRunFlow.gd`
-  - Owns run lifecycle transitions, including start/reset, reward proceed, starter loadout reloads, character/leviathan roster loading, preview options, and selected-node start eligibility.
+  - Owns run lifecycle transitions, including start/reset, reward proceed gating, starter loadout reloads, character/leviathan roster loading, preview options, and selected-node start eligibility.
 - `app-LTL/src/controllers/MainControllerSupportFlow.gd`
   - Owns shop-disabled handling, artifact codex opening/debug refresh, growth modifier application, shop purchase side effects, telemetry, accessibility normalization, and persistence handoff.
 - `app-LTL/src/models/Artifact.gd`
@@ -743,6 +745,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Validates and normalizes release narrative beat dictionaries without mutating caller data.
 - `app-LTL/src/models/NarrativeHistory.gd`
   - Converts campaign progress into seen-beat lookups and records narrative seen ids separately.
+- `app-LTL/src/models/StoryScene.gd`
+  - Validates and normalizes full VN story scene dictionaries and nested dialogue steps.
+- `app-LTL/src/models/StoryHistory.gd`
+  - Converts campaign progress into seen-story lookups and records story scene ids separately.
 - `app-LTL/src/phases/BackpackOrganizePhase.gd`
   - Creates backpack-organize phase snapshots.
   - Preserves held artifact and pending reward state across phase transitions.
@@ -847,6 +853,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Shared backpack scene shell used for consistent backpack docking across runtime pages.
 - `app-LTL/src/scenes/narrative/NarrativeToast.gd`
   - Renders non-blocking narrative beat toast overlays from narrative read models.
+- `app-LTL/src/scenes/pages/StoryScenePage.gd`
+  - Renders one full VN story step and emits continue/skip requests without mutating game state.
+- `app-LTL/src/scenes/pages/StoryScenePage.tscn`
+  - Story scene page shell with background, left/right portrait slots, dialogue panel, continue, and skip controls.
 - `app-LTL/src/scenes/pages/EventNodePage.tscn`
   - Event-node page shell scene matching the event-node wireframe.
 - `app-LTL/src/scenes/pages/DefeatPage.gd`
@@ -1001,7 +1011,9 @@ This file is the live implementation map for AI agents. It records each current 
   - Projects node-select candidates into UI cards with title, body, and weakness labels.
   - Converts candidate risk, reward, and weakness information into readable copy.
 - `app-LTL/src/ui/read_models/NarrativeReadModel.gd`
-  - Projects selected narrative beats into locale-specific non-blocking toast models.
+  - Projects selected narrative beats into locale-specific story-surface models, including continue affordance and input-blocking metadata.
+- `app-LTL/src/ui/read_models/StorySceneReadModel.gd`
+  - Projects selected story scenes into locale-specific full VN page step models.
 - `app-LTL/src/ui/read_models/ArtifactCodexReadModel.gd`
   - Projects artifact catalog and discovery snapshots into codex-facing section data.
   - Builds debug-all and discovered-only artifact rows without exposing runtime-only state.
@@ -1144,7 +1156,11 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/vocabulary/narrative/MarkNarrativeSeen.gd`
   - Returns copied campaign progress with narrative seen beat ids recorded once.
 - `app-LTL/src/vocabulary/narrative/SelectNarrativeBeat.gd`
-  - Selects the first valid side-effect-free narrative beat matching scene state and history.
+  - Selects the first valid side-effect-free narrative beat matching scene state and history, including entry-time combat and reward guide triggers.
+- `app-LTL/src/vocabulary/story/BuildStoryTelemetry.gd`
+  - Builds stable story scene started, step-shown, skipped, and completed telemetry payloads.
+- `app-LTL/src/vocabulary/story/SelectStoryScene.gd`
+  - Selects the first valid side-effect-free story scene matching safe page-transition state and story history.
 - `app-LTL/tests/fixtures/input_logs/basic_clear.json`
   - basic clear verifies Godot contracts and regression behavior.
 - `app-LTL/tests/fixtures/input_logs/empty_queue_repair.json`
@@ -1182,6 +1198,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
 - `app-LTL/tests/run_node_select_start_gate_contract.gd`
   - Verifies node-select click-to-toggle selection, menu round-trip start readiness, and boss-stage mining-start gating.
+- `app-LTL/tests/run_m7_narrative_gating_contract.gd`
+  - Verifies M7 combat guide pause-before-action, reward guide block-before-selection, and English settings Apply & Close interactivity.
 - `app-LTL/tests/run_shared_backpack_visual_capture.gd`
   - Captures shared backpack visual states used as manual evidence for docking and item art.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
@@ -1268,6 +1286,8 @@ This file is the live implementation map for AI agents. It records each current 
   - test release content contract verifies M4-M9 release tables, deterministic hazards, base unlocks, passive branches, and resource manifest paths.
 - `app-LTL/tests/test_narrative_contract.gd`
   - Verifies pure narrative beat selection, seen-history updates, read models, telemetry, and side-effect boundaries.
+- `app-LTL/tests/test_story_scene_contract.gd`
+  - Verifies full VN story scene selection, seen-history updates, read models, telemetry, and return-page boundaries.
 - `app-LTL/tests/test_ui_read_models.gd`
   - Thin aggregator that preserves the public UI read-model test runner surface while delegating real coverage to smaller leaf suites.
 - `design_review.md.resolved`
@@ -1336,6 +1356,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Captured live M6 node-select page evidence at the 1680x1050 viewport.
 - `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1920x1080.png`
   - Captured live M6 node-select page evidence at the 1920x1080 viewport.
+- `docs/evidence/m7-narrative-story-surface-2026-06-16/node_select_1440x900.png`
+  - Captured live M7 narrative story surface evidence at the 1440x900 node-select viewport.
 - `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1280x720.png`
   - Captured live M6 reward page evidence at the 1280x720 viewport.
 - `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1440x900.png`

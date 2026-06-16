@@ -9,6 +9,7 @@ func run_all_tests() -> Dictionary:
 	test_reward_reveal_quantity_tease_uses_three_bands()
 	test_reward_reveal_count_tease_hides_exact_count_and_uses_band_preview()
 	test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst()
+	test_reward_reveal_count_tease_auto_advances_to_count_lock()
 	return _result()
 
 func test_reward_reveal_extracts_model_helpers_for_first_size_split() -> void:
@@ -207,6 +208,32 @@ func test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst() -> void
 		_assert(float(burst_mid.get("orbRevealAlpha", 0.0)) > 0.4, "orbs become visible while the lid is popping away")
 		_assert(float(burst_mid.get("orbRiseDistance", 0.0)) > 0.0, "orbs rise out of the lid instead of appearing statically in place")
 		_assert_eq(str(burst_mid.get("orbMotionStyle", "")), "buoyant_arc_silhouette", "reward orb silhouettes use a buoyant arc instead of a static popup")
+
+func test_reward_reveal_count_tease_auto_advances_to_count_lock() -> void:
+	var RewardRevealOverlayScript = load("res://src/ui/RewardRevealOverlay.gd")
+	_assert(RewardRevealOverlayScript != null, "reward ceremony overlay script loads for count-tease auto-advance contract")
+	if RewardRevealOverlayScript == null:
+		return
+	var overlay = RewardRevealOverlayScript.new()
+	overlay.size = Vector2(1440.0, 900.0)
+	overlay.start_reveal(
+		[
+			{"kind": "Dust Charm", "rarity": "common", "payload": {"item_type": "relic", "energy_type": "green"}},
+			{"kind": "Ruby Drill", "rarity": "rare", "payload": {"item_type": "drill", "energy_type": "red"}}
+		],
+		Callable(),
+		Callable(),
+		Rect2(Vector2(260.0, 620.0), Vector2(96.0, 58.0))
+	)
+	var timing = RewardRevealOverlayScript.reveal_timing_profile()
+	_assert_eq(str(overlay.current_step), "count_tease", "reward reveal starts on the lid-opening count tease")
+	overlay.call("_process", float(timing.get("countTeaseSmall", 2.8)) + 0.05)
+	_assert_eq(str(overlay.current_step), "count_lock", "count tease auto-advances into the item-count burst without confirm input")
+	_assert_eq(bool(overlay.readable), false, "auto-entered count lock starts its burst animation instead of showing a continue prompt")
+	overlay.call("_process", float(timing.get("countLockHold", 1.8)) + 0.05)
+	_assert_eq(str(overlay.current_step), "count_lock", "count lock still waits for confirm after the burst becomes readable")
+	_assert_eq(bool(overlay.readable), true, "count lock becomes readable before the card reveal confirmation")
+	overlay.free()
 
 func _source_line_count(path: String) -> int:
 	var file := FileAccess.open(path, FileAccess.READ)

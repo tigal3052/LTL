@@ -5,6 +5,7 @@ const PageSceneRegistryScript = preload("res://src/ui/PageSceneRegistry.gd")
 const PageSceneModelBuilderScript = preload("res://src/ui/PageSceneModelBuilder.gd")
 const CharacterSelectPageScene = preload("res://src/scenes/pages/CharacterSelectPage.tscn")
 const LeviathanSelectPageScene = preload("res://src/scenes/pages/LeviathanSelectPage.tscn")
+const StoryScenePageScene = preload("res://src/scenes/pages/StoryScenePage.tscn")
 const NodeSelectRuntimePageScene = preload("res://src/scenes/pages/NodeSelectRuntimePage.tscn")
 const BattlePageScene = preload("res://src/scenes/pages/BattlePage.tscn")
 const BossBattlePageScene = preload("res://src/scenes/pages/BossBattlePage.tscn")
@@ -14,7 +15,7 @@ const EventNodePageScene = preload("res://src/scenes/pages/EventNodePage.tscn")
 const DefeatPageScene = preload("res://src/scenes/pages/DefeatPage.tscn")
 const ClearPageScene = preload("res://src/scenes/pages/ClearPage.tscn")
 
-const META_PAGE_IDS := ["character_select", "leviathan_select", "clear", "defeat"]
+const META_PAGE_IDS := ["character_select", "leviathan_select", "story_scene", "clear", "defeat"]
 const SURFACE_PAGE_IDS := ["battle", "boss_battle", "reward", "boss_reward"]
 const ACTION_BAR_PAGE_IDS := ["node_select", "battle", "boss_battle", "reward", "boss_reward"]
 const CHARACTER_PORTRAIT_PATH := "res://resources/charactor/charactor1.png"
@@ -28,6 +29,7 @@ static func create_page_scenes(view) -> void:
 	view.active_phase_container.move_child(view.page_shell_host, 0)
 	register_page_scene(view, "character_select", CharacterSelectPageScene.instantiate())
 	register_page_scene(view, "leviathan_select", LeviathanSelectPageScene.instantiate())
+	register_page_scene(view, "story_scene", StoryScenePageScene.instantiate())
 	register_page_scene(view, "node_select", NodeSelectRuntimePageScene.instantiate())
 	register_page_scene(view, "battle", BattlePageScene.instantiate())
 	register_page_scene(view, "boss_battle", BossBattlePageScene.instantiate())
@@ -38,6 +40,7 @@ static func create_page_scenes(view) -> void:
 	register_page_scene(view, "clear", ClearPageScene.instantiate())
 	view.character_select_page = view.page_scenes.get("character_select")
 	view.leviathan_select_page = view.page_scenes.get("leviathan_select")
+	view.story_scene_page = view.page_scenes.get("story_scene")
 	view.node_select_runtime_page = view.page_scenes.get("node_select") as Control
 	cache_node_select_runtime_hosts(view)
 	if view.character_select_page != null and view.character_select_page.has_signal("character_selected"):
@@ -52,6 +55,10 @@ static func create_page_scenes(view) -> void:
 		view.leviathan_select_page.connect("leviathan_selected", func(leviathan_id): view.leviathan_selected.emit(leviathan_id))
 	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("start_requested"):
 		view.leviathan_select_page.connect("start_requested", func(): view.looting_start_pressed.emit())
+	if view.story_scene_page != null and view.story_scene_page.has_signal("continue_requested"):
+		view.story_scene_page.connect("continue_requested", func(scene_id): view.story_continue_requested.emit(scene_id))
+	if view.story_scene_page != null and view.story_scene_page.has_signal("skip_requested"):
+		view.story_scene_page.connect("skip_requested", func(scene_id): view.story_skip_requested.emit(scene_id))
 	if view.node_select_runtime_page != null and view.node_select_runtime_page.has_signal("node_selected"):
 		view.node_select_runtime_page.connect("node_selected", func(index): view.node_meta_clicked.emit(index))
 	if view.node_select_runtime_page != null and view.node_select_runtime_page.has_signal("settings_requested"):

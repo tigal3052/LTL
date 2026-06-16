@@ -362,6 +362,8 @@
     "node_runtime.leviathan_default": "레비아탄 계약",
     "common.on": "켜짐",
     "common.off": "꺼짐",
+    "story.continue": "계속",
+    "story.skip": "건너뛰기",
     "log.combat.item_activated": "아이템 발동: {0} ({1}) 사용!",
     "log.combat.hit_result": "타격 좌표: {0} | 에너지: {1} | 광석 타입: {2} | 최종 피해: {3}",
     "log.combat.empty_queue": "경고: 에너지 큐가 비어 드릴 가동이 중단되었습니다.",

@@ -10,7 +10,7 @@ const PopupOverlayHostScript = preload("res://src/ui/PopupOverlayHost.gd")
 
 const SURFACE_PAGE_IDS := ["battle", "boss_battle", "reward", "boss_reward"]
 const ACTION_BAR_PAGE_IDS := ["node_select", "battle", "boss_battle", "reward", "boss_reward"]
-const META_PAGE_IDS := ["character_select", "leviathan_select", "clear", "defeat"]
+const META_PAGE_IDS := ["character_select", "leviathan_select", "story_scene", "clear", "defeat"]
 const REWARD_REVEAL_OVERLAY_Z_INDEX := 600
 
 static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) -> void:
@@ -150,15 +150,16 @@ static func update_action_state(view, scene: Dictionary, show_victory_overlay: b
 	var phase := str(scene.get("phase", "unknown"))
 	var page_id := str(scene.get("pageId", phase))
 	var reward_ceremony_active := RewardCeremonyPolicyScript.is_active_scene(scene)
+	var narrative_blocked := bool(scene.get("narrativeBlocksInput", false))
 	view.reset_button.visible = page_id not in META_PAGE_IDS
 	view.start_button.visible = page_id == "node_select"
 	view.hold_fire_button.visible = page_id in ["battle", "boss_battle"]
 	view.repair_button.visible = page_id in ["battle", "boss_battle"]
 	view.claim_rewards_button.visible = page_id in ["reward", "boss_reward"]
 	view.start_button.disabled = not (page_id == "node_select" and node_select_start_ready(scene))
-	view.hold_fire_button.disabled = not (phase == "combat" and bool(scene.get("hud", {}).get("aim", {}).get("canFire", false)))
-	view.repair_button.disabled = not (phase == "combat" and bool(scene.get("hud", {}).get("repair", {}).get("available", false)))
-	var claim_disabled := (page_id not in ["reward", "boss_reward"] or show_victory_overlay or reward_ceremony_active or bool(scene.get("is_reveal_vfx_running", false)))
+	view.hold_fire_button.disabled = narrative_blocked or not (phase == "combat" and bool(scene.get("hud", {}).get("aim", {}).get("canFire", false)))
+	view.repair_button.disabled = narrative_blocked or not (phase == "combat" and bool(scene.get("hud", {}).get("repair", {}).get("available", false)))
+	var claim_disabled := (narrative_blocked or page_id not in ["reward", "boss_reward"] or show_victory_overlay or reward_ceremony_active or bool(scene.get("is_reveal_vfx_running", false)))
 	view.claim_rewards_button.disabled = claim_disabled
 	view.claim_inline_button.disabled = claim_disabled
 

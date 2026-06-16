@@ -18,6 +18,7 @@ const CONTENT_PATHS := {
 	"baseShop": "res://src/data/base-shop-table.json",
 	"passives": "res://src/data/passive-tree.json",
 	"narrativeBeats": "res://src/data/narrative-beats.json",
+	"storyScenes": "res://src/data/story-scenes.json",
 	"resourceNeeds": "res://src/data/release-resource-needs.json"
 }
 
@@ -30,6 +31,7 @@ static func load_content_bundle() -> Dictionary:
 	var shop_data := _load_json(CONTENT_PATHS["baseShop"])
 	var passive_data := _load_json(CONTENT_PATHS["passives"])
 	var narrative_data := _load_json(CONTENT_PATHS["narrativeBeats"])
+	var story_data := _load_json(CONTENT_PATHS["storyScenes"])
 	var resource_data := _load_json(CONTENT_PATHS["resourceNeeds"])
 	return {
 		"nodes": node_data.get("nodes", []),
@@ -39,6 +41,7 @@ static func load_content_bundle() -> Dictionary:
 		"baseShop": shop_data.get("items", []),
 		"passives": passive_data.get("passives", []),
 		"narrativeBeats": narrative_data.get("beats", []),
+		"storyScenes": story_data.get("scenes", []),
 		"resourceNeeds": resource_data.get("resources", [])
 	}
 
@@ -52,6 +55,7 @@ static func validate_content_bundle(bundle: Dictionary) -> Dictionary:
 	_require_min(bundle, "baseShop", 6, errors)
 	_require_min(bundle, "passives", 9, errors)
 	_require_min(bundle, "narrativeBeats", 5, errors)
+	_require_min(bundle, "storyScenes", 1, errors)
 	_require_min(bundle, "resourceNeeds", 18, errors)
 	_require_unique_ids(bundle.get("leviathans", []), "leviathans", errors)
 	_require_unique_ids(bundle.get("characters", []), "characters", errors)
@@ -59,13 +63,15 @@ static func validate_content_bundle(bundle: Dictionary) -> Dictionary:
 	_require_unique_ids(bundle.get("baseShop", []), "baseShop", errors)
 	_require_unique_ids(bundle.get("passives", []), "passives", errors)
 	_require_unique_ids(bundle.get("narrativeBeats", []), "narrativeBeats", errors)
+	_require_unique_ids(bundle.get("storyScenes", []), "storyScenes", errors)
 	_require_unique_ids(bundle.get("resourceNeeds", []), "resourceNeeds", errors)
 	_validate_required_fields(bundle.get("leviathans", []), "leviathans", ["id", "name", "stageCnt", "runCnt", "bossNodeId"], errors)
 	_validate_required_fields(bundle.get("characters", []), "characters", ["id", "name", "costGold", "modifiers"], errors)
 	_validate_required_fields(bundle.get("hazards", []), "hazards", ["id", "warningTicks", "durationTicks", "pinDelta", "counterplay"], errors)
 	_validate_required_fields(bundle.get("baseShop", []), "baseShop", ["id", "type", "costGold", "unlockId"], errors)
 	_validate_required_fields(bundle.get("passives", []), "passives", ["id", "branch", "maxLevel", "costGold", "effect"], errors)
-	_validate_required_fields(bundle.get("narrativeBeats", []), "narrativeBeats", ["id", "trigger", "screenId", "triggerPhase", "displayMode", "textKo", "textEn", "sideEffectFree", "skipInputAllowed"], errors)
+	_validate_required_fields(bundle.get("narrativeBeats", []), "narrativeBeats", ["id", "trigger", "screenId", "triggerPhase", "displayMode", "textKo", "textEn", "sideEffectFree", "skipInputAllowed", "anchorPreset", "portraitPath", "portraitSide", "visualPath", "toastVariant"], errors)
+	_validate_story_scene_fields(bundle.get("storyScenes", []), errors)
 	_validate_required_fields(bundle.get("resourceNeeds", []), "resourceNeeds", ["id", "path", "type", "fallback"], errors)
 	return {"ok": errors.is_empty(), "errors": errors, "diagnostics": errors}
 
@@ -189,6 +195,24 @@ static func _validate_required_fields(items: Array, table_name: String, fields: 
 		for field in fields:
 			if not item.has(str(field)):
 				errors.append("%s.%s missing %s" % [table_name, id, str(field)])
+
+# 실행: validate story scenes and nested VN step rows.
+static func _validate_story_scene_fields(items: Array, errors: Array[String]) -> void:
+	_validate_required_fields(items, "storyScenes", ["id", "trigger", "returnPageId", "shownOnce", "sideEffectFree", "steps"], errors)
+	for item in items:
+		var id := str(item.get("id", "<missing>"))
+		var steps: Array = item.get("steps", []) if item.get("steps", []) is Array else []
+		if steps.is_empty():
+			errors.append("storyScenes.%s needs at least one step" % id)
+			continue
+		for index in range(steps.size()):
+			var step = steps[index]
+			if not (step is Dictionary):
+				errors.append("storyScenes.%s.steps[%d] must be a dictionary" % [id, index])
+				continue
+			for field in ["speaker", "textKo", "textEn", "portraitPath", "side", "backgroundPath", "expression"]:
+				if not step.has(field):
+					errors.append("storyScenes.%s.steps[%d] missing %s" % [id, index, field])
 
 # 실행: find a dictionary row by id.
 static func _find_by_id(items: Array, item_id: String) -> Dictionary:

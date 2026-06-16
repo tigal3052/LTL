@@ -40,7 +40,7 @@ func _run() -> void:
 
 	_assert_eq(int(controller.get("selected_node_index")), -1, "node select starts without an implicit selected node")
 	_assert_eq(bool(start_button.disabled), true, "mining start is disabled before a current node click")
-	_assert_intro_narrative_toast_nonblocking(main_instance)
+	await _assert_intro_narrative_story_surface(main_instance)
 	_assert(node_select_page.has_method("press_start_marker"), "node-select page exposes fixed-start marker automation")
 	if node_select_page.has_method("press_start_marker"):
 		node_select_page.call("press_start_marker")
@@ -202,17 +202,45 @@ func _node_select_page(main_instance: Node) -> Node:
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	return page_scenes.get("node_select", null)
 
-func _assert_intro_narrative_toast_nonblocking(main_instance: Node) -> void:
+func _assert_intro_narrative_story_surface(main_instance: Node) -> void:
 	var toast = main_instance.get("narrative_toast") as Control
-	_assert(toast != null, "intro narrative toast exists on first node select")
+	_assert(toast != null, "intro narrative story surface exists on first node select")
 	if toast == null:
 		return
-	_assert_eq(toast.visible, true, "intro narrative toast is visible on first node select")
-	_assert_eq(toast.mouse_filter, Control.MOUSE_FILTER_IGNORE, "intro narrative toast does not block node-select input")
-	var body_label = toast.get_node_or_null("Margin/VBox/BodyLabel") as Label
-	_assert(body_label != null, "intro narrative toast exposes body text label")
+	_assert_eq(toast.visible, true, "intro narrative story surface is visible on first node select")
+	var visual_area = toast.get_node_or_null("StoryFrame/VisualArea") as Control
+	var dialog_panel = toast.get_node_or_null("StoryFrame/DialogPanel") as Control
+	var body_label = toast.get_node_or_null("StoryFrame/DialogPanel/DialogMargin/DialogBox/BodyLabel") as Label
+	var continue_prompt = toast.get_node_or_null("StoryFrame/DialogPanel/DialogMargin/DialogBox/PromptRow/ContinuePrompt") as Label
+	var continue_icon = toast.get_node_or_null("StoryFrame/DialogPanel/DialogMargin/DialogBox/PromptRow/ContinueIcon") as Label
+	_assert(visual_area != null, "intro narrative story surface exposes an upper visual area")
+	_assert(dialog_panel != null, "intro narrative story surface exposes a lower dialogue area")
+	_assert(body_label != null, "intro narrative dialogue area exposes body text")
+	_assert(continue_prompt != null, "intro narrative exposes a visible continue prompt")
+	_assert(continue_icon != null, "intro narrative exposes a visible continue icon")
+	_assert(toast.get_global_rect().size.x >= 640.0, "intro narrative story surface has readable screen width")
+	_assert(toast.get_global_rect().size.y >= 300.0, "intro narrative story surface has readable screen height")
+	_assert(toast.get_global_rect().size.x <= 1100.0, "intro narrative story surface does not cover the full screen width")
+	_assert(toast.get_global_rect().size.y <= 560.0, "intro narrative story surface does not cover the full screen height")
+	if visual_area != null:
+		_assert(visual_area.get_global_rect().size.y >= 100.0, "intro narrative visual area has visible height")
+	if dialog_panel != null:
+		_assert(dialog_panel.get_global_rect().size.y >= 120.0, "intro narrative dialogue area has visible height")
 	if body_label != null:
 		_assert(str(body_label.text).contains("채집") or str(body_label.text).contains("collect"), "intro narrative explains collection framing")
+	if continue_prompt != null:
+		_assert(str(continue_prompt.text).contains("클릭") or str(continue_prompt.text).to_lower().contains("click"), "intro narrative prompt tells the player to click or continue")
+	if continue_icon != null:
+		_assert(not str(continue_icon.text).strip_edges().is_empty(), "intro narrative continue icon is visible")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	_assert(toast.has_method("consume_continue_input"), "intro narrative exposes click/continue input handling")
+	if toast.has_method("consume_continue_input"):
+		var consumed := bool(toast.call("consume_continue_input", click))
+		await process_frame
+		_assert_eq(consumed, true, "intro narrative click input is consumed as continue")
+		_assert_eq(toast.visible, false, "intro narrative story surface hides after click")
 
 func _assert(condition: bool, label: String) -> void:
 	if not condition:

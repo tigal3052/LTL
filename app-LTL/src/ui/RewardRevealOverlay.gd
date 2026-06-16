@@ -1,5 +1,5 @@
 # 계약:
-# - Responsibility: render the mining-themed reward ceremony overlay and keep it on screen until the player confirms each beat.
+# - Responsibility: render the mining-themed reward ceremony overlay, auto-link the lid/count beats, and gate later beats by confirmation.
 # - Input: pending reward dictionaries from the controller plus step/done callbacks.
 # - Output: full-screen reward ceremony visuals, confirm-gated step progression, and callback notifications.
 # - Prohibited: mutating run-state rewards, claiming artifacts, or deciding reward tray logic.
@@ -94,7 +94,7 @@ func skip_to_silhouettes() -> void:
 	if readable:
 		_advance_step()
 	else:
-		_finish_current_step_animation()
+		_complete_current_step_animation()
 
 # 실행: stop the ceremony overlay without notifying the controller completion callback.
 func cancel_reveal() -> void:
@@ -135,7 +135,7 @@ func _process(delta: float) -> void:
 		return
 	timer += delta
 	if timer >= _current_step_duration():
-		_finish_current_step_animation()
+		_complete_current_step_animation()
 	queue_redraw()
 
 func _draw() -> void:
@@ -169,7 +169,7 @@ func _handle_confirm_input() -> void:
 	if readable:
 		_advance_step()
 	else:
-		_finish_current_step_animation()
+		_complete_current_step_animation()
 
 func _advance_step() -> void:
 	match current_step:
@@ -195,6 +195,15 @@ func _finish_current_step_animation() -> void:
 	timer = _current_step_duration()
 	readable = true
 	queue_redraw()
+
+func _complete_current_step_animation() -> void:
+	if _auto_advances_after_animation(current_step):
+		_advance_step()
+	else:
+		_finish_current_step_animation()
+
+func _auto_advances_after_animation(step: String) -> bool:
+	return step == "count_tease"
 
 func _emit_step_changed(step: String) -> void:
 	ceremony_step_changed.emit(step)

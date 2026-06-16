@@ -14,6 +14,10 @@ const SelectNarrativeBeatScript = preload("res://src/vocabulary/narrative/Select
 const MarkNarrativeSeenScript = preload("res://src/vocabulary/narrative/MarkNarrativeSeen.gd")
 const NarrativeReadModelScript = preload("res://src/ui/read_models/NarrativeReadModel.gd")
 const BuildNarrativeTelemetryScript = preload("res://src/vocabulary/narrative/BuildNarrativeTelemetry.gd")
+const StoryHistoryScript = preload("res://src/models/StoryHistory.gd")
+const SelectStorySceneScript = preload("res://src/vocabulary/story/SelectStoryScene.gd")
+const StorySceneReadModelScript = preload("res://src/ui/read_models/StorySceneReadModel.gd")
+const BuildStoryTelemetryScript = preload("res://src/vocabulary/story/BuildStoryTelemetry.gd")
 const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
@@ -85,8 +89,12 @@ static func render_scene(controller, scene: Dictionary) -> void:
 # ??쎈뻬: select and render a side-effect-free narrative toast while recording shown-once progress separately.
 static func sync_narrative_for_scene(controller, scene: Dictionary) -> void:
 	var hidden_model := {"visible": false}
+	scene["narrativeBlocksInput"] = false
 	if controller.view == null or not controller.view.has_method("render_narrative"):
 		scene["narrative"] = hidden_model
+		return
+	if str(scene.get("pageId", "")) == "story_scene":
+		clear_narrative(controller, scene, hidden_model)
 		return
 	if RewardCeremonyPolicyScript.is_active_scene(scene) or controller._reward_ceremony_active():
 		clear_narrative(controller, scene, hidden_model)
@@ -99,11 +107,14 @@ static func sync_narrative_for_scene(controller, scene: Dictionary) -> void:
 	if beat.is_empty():
 		if narrative_anchor_matches(controller, scene):
 			scene["narrative"] = controller.active_narrative_model.duplicate(true)
+			scene["narrativeBlocksInput"] = bool(controller.active_narrative_model.get("blocksInput", false))
 			controller.view.render_narrative(controller.active_narrative_model)
+			sync_narrative_pause(controller, scene)
 		else:
 			clear_narrative(controller, scene, hidden_model)
 		return
 	scene["narrative"] = model.duplicate(true)
+	scene["narrativeBlocksInput"] = bool(model.get("blocksInput", false))
 	controller.view.render_narrative(model)
 	controller.active_narrative_model = model.duplicate(true)
 	controller.active_narrative_phase = str(scene.get("phase", ""))
@@ -119,6 +130,7 @@ static func sync_narrative_for_scene(controller, scene: Dictionary) -> void:
 	if controller.preview_controller != null and controller.preview_controller.run != null:
 		controller.preview_controller.run.state["progress"] = controller.campaign_progress.duplicate(true)
 	controller._emit_ui_telemetry(BuildNarrativeTelemetryScript.build_history_updated(beat_id, screen_id, trigger_phase, shown_once))
+	sync_narrative_pause(controller, scene)
 
 # ??쎈뻬: keep the currently visible toast stable across repeated renders of the same screen.
 static func narrative_anchor_matches(controller, scene: Dictionary) -> bool:
@@ -132,8 +144,103 @@ static func clear_narrative(controller, scene: Dictionary, hidden_model: Diction
 	controller.active_narrative_phase = ""
 	controller.active_narrative_stage_index = -1
 	scene["narrative"] = hidden_model
+	scene["narrativeBlocksInput"] = false
 	if controller.view != null and controller.view.has_method("render_narrative"):
 		controller.view.render_narrative(hidden_model)
+	sync_narrative_pause(controller, scene)
+
+# 실행: report whether a blocking narrative currently owns gameplay input.
+static func narrative_input_block_active(controller) -> bool:
+	return bool(controller.active_narrative_model.get("visible", false)) and bool(controller.active_narrative_model.get("blocksInput", false))
+
+# 실행: clear blocking narrative state after the player presses continue.
+static func on_narrative_continue_requested(controller, beat_id: String) -> void:
+	if not beat_id.is_empty() and beat_id != str(controller.active_narrative_model.get("beatId", "")):
+		return
+	controller.active_narrative_model = {"visible": false}
+	controller.active_narrative_phase = ""
+	controller.active_narrative_stage_index = -1
+	if not controller.current_scene.is_empty():
+		controller.current_scene["narrative"] = {"visible": false}
+		controller.current_scene["narrativeBlocksInput"] = false
+	controller._sync_battle_pause_from_overlay_visibility()
+	if controller.view != null and not controller.current_scene.is_empty():
+		controller.view.update_action_state(controller.current_scene, controller.show_victory_overlay)
+
+# 실행: keep combat paused while a blocking guide narrative owns input.
+static func sync_narrative_pause(controller, scene: Dictionary) -> void:
+	if str(scene.get("phase", "")) == "combat" and bool(scene.get("narrativeBlocksInput", false)):
+		controller._set_battle_pause_active(true)
+		return
+	controller._sync_battle_pause_from_overlay_visibility()
+
+# 실행: select a full VN story scene for a safe page transition.
+static func open_story_scene_for_page(controller, return_page_id: String) -> bool:
+	if not controller.active_story_scene.is_empty():
+		return true
+	if controller.story_scenes.is_empty():
+		controller.story_scenes = ReleaseContentVocabScript.load_content_bundle().get("storyScenes", []).duplicate(true)
+	var state: Dictionary = controller.current_scene.duplicate(true)
+	state["pageId"] = return_page_id
+	var history: Dictionary = StoryHistoryScript.from_progress(controller.campaign_progress)
+	var story: Dictionary = SelectStorySceneScript.select(state, controller.story_scenes, history)
+	if story.is_empty():
+		return false
+	controller.active_story_scene = story.duplicate(true)
+	controller.active_story_step_index = 0
+	controller.story_return_page_id = str(story.get("returnPageId", return_page_id))
+	controller.page_override_id = "story_scene"
+	controller._emit_ui_telemetry(BuildStoryTelemetryScript.build_started(str(story.get("id", "")), controller.story_return_page_id, _story_step_count(story)))
+	_emit_current_story_step(controller)
+	return true
+
+# 실행: progress the active full VN story scene or complete it at the last step.
+static func on_story_continue_requested(controller, scene_id: String) -> void:
+	if controller.active_story_scene.is_empty() or scene_id != str(controller.active_story_scene.get("id", "")):
+		return
+	var step_count := _story_step_count(controller.active_story_scene)
+	if controller.active_story_step_index + 1 < step_count:
+		controller.active_story_step_index += 1
+		_emit_current_story_step(controller)
+		controller._render_scene(controller.current_scene)
+		return
+	_complete_story_scene(controller, false)
+
+# 실행: skip the active full VN story scene and mark it as seen.
+static func on_story_skip_requested(controller, scene_id: String) -> void:
+	if controller.active_story_scene.is_empty() or scene_id != str(controller.active_story_scene.get("id", "")):
+		return
+	_complete_story_scene(controller, true)
+
+# 실행: finish or skip the active story scene, persist story history, and return to its owner page.
+static func _complete_story_scene(controller, skipped: bool) -> void:
+	var story: Dictionary = controller.active_story_scene.duplicate(true)
+	var scene_id := str(story.get("id", ""))
+	var return_page_id := str(story.get("returnPageId", controller.story_return_page_id))
+	if skipped:
+		controller._emit_ui_telemetry(BuildStoryTelemetryScript.build_skipped(scene_id, controller.active_story_step_index, return_page_id))
+	else:
+		controller._emit_ui_telemetry(BuildStoryTelemetryScript.build_completed(scene_id, return_page_id))
+	controller.campaign_progress = StoryHistoryScript.mark_seen(controller.campaign_progress, scene_id)
+	if controller.preview_controller != null and controller.preview_controller.run != null:
+		controller.preview_controller.run.state["progress"] = controller.campaign_progress.duplicate(true)
+	controller.active_story_scene = {}
+	controller.active_story_step_index = 0
+	controller.story_return_page_id = ""
+	controller.page_override_id = return_page_id
+	controller._render_scene(controller.current_scene)
+
+# 실행: emit telemetry for the currently projected story step.
+static func _emit_current_story_step(controller) -> void:
+	if controller.active_story_scene.is_empty():
+		return
+	var model: Dictionary = StorySceneReadModelScript.project(controller.active_story_scene, controller.active_story_step_index, TextCatalogScript.locale())
+	controller._emit_ui_telemetry(BuildStoryTelemetryScript.build_step_shown(str(model.get("sceneId", "")), int(model.get("stepIndex", 0)), str(model.get("speaker", ""))))
+
+# 실행: count the VN steps on a selected story scene.
+static func _story_step_count(story: Dictionary) -> int:
+	var steps: Array = story.get("steps", []) if story.get("steps", []) is Array else []
+	return steps.size()
 
 # ?ㅽ뻾: delegate battlefield disabled-state rendering to the view.
 static func render_battlefield(controller, scene: Dictionary) -> void:
@@ -189,6 +296,8 @@ static func decorate_scene(controller, scene: Dictionary) -> Dictionary:
 	decorated["selectedNodeStartEnabled"] = controller._selected_node_start_enabled(decorated)
 	decorated["nodeSelectSummary"] = str(NodeSelectReadModelScript.project(decorated, controller.selected_node_index).get("text", ""))
 	decorated["pageId"] = resolve_page_id(controller, decorated)
+	if str(decorated.get("pageId", "")) == "story_scene":
+		decorated["storyScene"] = StorySceneReadModelScript.project(controller.active_story_scene, controller.active_story_step_index, TextCatalogScript.locale())
 	return decorated
 
 # ?ㅽ뻾: resolve the page resource id for the decorated scene.
