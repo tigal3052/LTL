@@ -9,6 +9,13 @@ extends RefCounted
 
 const RewardReadModelScript = preload("res://src/ui/read_models/RewardReadModel.gd")
 const NodeSelectReadModelScript = preload("res://src/ui/read_models/NodeSelectReadModel.gd")
+const NarrativeHistoryScript = preload("res://src/models/NarrativeHistory.gd")
+const SelectNarrativeBeatScript = preload("res://src/vocabulary/narrative/SelectNarrativeBeat.gd")
+const MarkNarrativeSeenScript = preload("res://src/vocabulary/narrative/MarkNarrativeSeen.gd")
+const NarrativeReadModelScript = preload("res://src/ui/read_models/NarrativeReadModel.gd")
+const BuildNarrativeTelemetryScript = preload("res://src/vocabulary/narrative/BuildNarrativeTelemetry.gd")
+const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const RewardCeremonyPolicyScript = preload("res://src/ui/presenters/RewardCeremonyPolicy.gd")
 
 # ?ㅽ뻾: render full state scene updates and delegate to sub UI systems.
@@ -55,6 +62,7 @@ static func render_scene(controller, scene: Dictionary) -> void:
 	controller.current_scene["selectedStartColor"] = controller.selected_start_color
 	controller.current_scene["allowStartColorSelection"] = controller._allow_start_color_selection(controller.current_scene)
 	controller.current_scene["loadoutColors"] = controller.node_map_loadout_colors_for_scene(controller.current_scene)
+	sync_narrative_for_scene(controller, controller.current_scene)
 	if phase == "combat":
 		var pin_active = bool(scene.get("hud", {}).get("pin", {}).get("active", false))
 		if pin_active != controller.prev_pin_active:
@@ -73,6 +81,59 @@ static func render_scene(controller, scene: Dictionary) -> void:
 	render_battlefield(controller, controller.current_scene)
 	controller.view.update_action_state(controller.current_scene, controller.show_victory_overlay)
 	render_rewards(controller, controller.current_scene)
+
+# ??쎈뻬: select and render a side-effect-free narrative toast while recording shown-once progress separately.
+static func sync_narrative_for_scene(controller, scene: Dictionary) -> void:
+	var hidden_model := {"visible": false}
+	if controller.view == null or not controller.view.has_method("render_narrative"):
+		scene["narrative"] = hidden_model
+		return
+	if RewardCeremonyPolicyScript.is_active_scene(scene) or controller._reward_ceremony_active():
+		clear_narrative(controller, scene, hidden_model)
+		return
+	if controller.narrative_beats.is_empty():
+		controller.narrative_beats = ReleaseContentVocabScript.load_content_bundle().get("narrativeBeats", []).duplicate(true)
+	var history: Dictionary = NarrativeHistoryScript.from_progress(controller.campaign_progress)
+	var beat: Dictionary = SelectNarrativeBeatScript.select(scene, controller.narrative_beats, history)
+	var model: Dictionary = NarrativeReadModelScript.project(beat, TextCatalogScript.locale())
+	if beat.is_empty():
+		if narrative_anchor_matches(controller, scene):
+			scene["narrative"] = controller.active_narrative_model.duplicate(true)
+			controller.view.render_narrative(controller.active_narrative_model)
+		else:
+			clear_narrative(controller, scene, hidden_model)
+		return
+	scene["narrative"] = model.duplicate(true)
+	controller.view.render_narrative(model)
+	controller.active_narrative_model = model.duplicate(true)
+	controller.active_narrative_phase = str(scene.get("phase", ""))
+	controller.active_narrative_stage_index = int(scene.get("stageIndex", -1))
+	var beat_id := str(beat.get("id", ""))
+	var screen_id := str(beat.get("screenId", ""))
+	var trigger_phase := str(beat.get("triggerPhase", ""))
+	var shown_once := bool(beat.get("shownOnce", true))
+	controller._emit_ui_telemetry(BuildNarrativeTelemetryScript.build_selected(beat_id, screen_id, trigger_phase, shown_once))
+	controller._emit_ui_telemetry(BuildNarrativeTelemetryScript.build_shown(beat_id, screen_id, trigger_phase, shown_once, 0, bool(beat.get("skipInputAllowed", true))))
+	controller.campaign_progress = MarkNarrativeSeenScript.mark_seen(controller.campaign_progress, beat_id)
+	scene["progress"] = controller.campaign_progress.duplicate(true)
+	if controller.preview_controller != null and controller.preview_controller.run != null:
+		controller.preview_controller.run.state["progress"] = controller.campaign_progress.duplicate(true)
+	controller._emit_ui_telemetry(BuildNarrativeTelemetryScript.build_history_updated(beat_id, screen_id, trigger_phase, shown_once))
+
+# ??쎈뻬: keep the currently visible toast stable across repeated renders of the same screen.
+static func narrative_anchor_matches(controller, scene: Dictionary) -> bool:
+	if not bool(controller.active_narrative_model.get("visible", false)):
+		return false
+	return controller.active_narrative_phase == str(scene.get("phase", "")) and controller.active_narrative_stage_index == int(scene.get("stageIndex", -1))
+
+# ??쎈뻬: hide narrative state and clear the scene slot.
+static func clear_narrative(controller, scene: Dictionary, hidden_model: Dictionary) -> void:
+	controller.active_narrative_model = hidden_model.duplicate(true)
+	controller.active_narrative_phase = ""
+	controller.active_narrative_stage_index = -1
+	scene["narrative"] = hidden_model
+	if controller.view != null and controller.view.has_method("render_narrative"):
+		controller.view.render_narrative(hidden_model)
 
 # ?ㅽ뻾: delegate battlefield disabled-state rendering to the view.
 static func render_battlefield(controller, scene: Dictionary) -> void:

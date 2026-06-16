@@ -305,6 +305,10 @@ func set_volume(val: float) -> void:
 	MainViewChromeRuntimeScript.set_volume(self, val)
 func _create_tooltip_panel() -> void:
 	MainViewChromeRuntimeScript.create_tooltip_panel(self)
+func _create_narrative_toast() -> void:
+	MainViewChromeRuntimeScript.create_narrative_toast(self)
+func render_narrative(model: Dictionary) -> void:
+	MainViewChromeRuntimeScript.render_narrative(self, model)
 func show_artifact_tooltip(art) -> void:
 	MainViewChromeRuntimeScript.show_artifact_tooltip(self, art)
 func show_reward_tooltip(reward: Dictionary, equipped_artifacts: Array) -> void:

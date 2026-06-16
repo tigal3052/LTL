@@ -66,6 +66,7 @@ func get_scene() -> Dictionary:
 	scene["routeHistory"] = scene["nodeSelect"]["routeHistory"].duplicate(true)
 	scene["futureUnknownCount"] = int(scene["nodeSelect"].get("futureUnknownCount", 0))
 	scene["reward"] = reward_state.duplicate(true)
+	scene["growth"] = read_model.get("growth", {}).duplicate(true)
 	scene["progress"] = read_model.get("progress", {}).duplicate(true)
 	scene["combat"] = read_model.get("combat", null)
 	return scene

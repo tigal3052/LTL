@@ -23,6 +23,8 @@ func run_all_tests() -> Dictionary:
 	test_base_shop_and_character_purchase_unlocks_choices()
 	test_growth_state_base_purchase_serializes()
 	test_passive_tree_has_three_branches_and_caps()
+	test_narrative_beats_cover_m7_core_beats()
+	test_narrative_beats_have_screen_and_skip_contract()
 	test_narrative_beats_are_side_effect_free()
 	test_resource_manifest_uses_ready_to_swap_paths()
 	return {"ok": failures.is_empty(), "errors": failures}
@@ -104,11 +106,28 @@ func test_passive_tree_has_three_branches_and_caps() -> void:
 # 실행: verify narrative beats project presentation only and do not mutate replay state.
 func test_narrative_beats_are_side_effect_free() -> void:
 	var bundle: Dictionary = ReleaseContentVocabScript.load_content_bundle()
-	var state := {"phase": "reward_loot", "stageIndex": 0, "runComplete": false, "growth": {"rewardHistory": ["reward_1"]}}
+	var state := {"phase": "reward_loot", "stageIndex": 0, "runComplete": false, "growth": {"artifactDiscovery": ["artifact_1"]}}
 	var projected := ReleaseContentVocabScript.project_narrative_beats(state, bundle.get("narrativeBeats", []), {})
-	_assert(projected.size() >= 1, "narrative projection finds first reward beat")
+	_assert(projected.size() >= 1, "narrative projection finds first artifact beat")
 	_assert_eq(state.get("phase", ""), "reward_loot", "narrative projection does not mutate phase")
 	_assert_eq(state.get("stageIndex", -1), 0, "narrative projection does not mutate stage")
+
+# ?ㅽ뻾: verify M7 narrative content exposes the required core beat ids.
+func test_narrative_beats_cover_m7_core_beats() -> void:
+	var bundle: Dictionary = ReleaseContentVocabScript.load_content_bundle()
+	var ids := {}
+	for beat in bundle.get("narrativeBeats", []):
+		ids[str(beat.get("id", ""))] = true
+	for required_id in ["intro_contract", "first_valid_hit", "first_artifact", "first_failure", "first_clear", "hunt_tension"]:
+		_assert(ids.has(required_id), "M7 narrative beat exists: %s" % required_id)
+
+# ?ㅽ뻾: verify M7 narrative beats declare screen, display, and skip metadata.
+func test_narrative_beats_have_screen_and_skip_contract() -> void:
+	var bundle: Dictionary = ReleaseContentVocabScript.load_content_bundle()
+	for beat in bundle.get("narrativeBeats", []):
+		_assert(not str(beat.get("screenId", "")).is_empty(), "narrative beat has screenId: %s" % str(beat.get("id", "")))
+		_assert(not str(beat.get("displayMode", "")).is_empty(), "narrative beat has displayMode: %s" % str(beat.get("id", "")))
+		_assert(beat.has("skipInputAllowed"), "narrative beat declares skipInputAllowed: %s" % str(beat.get("id", "")))
 
 # 실행: verify resource manifest gives exact future drop-in paths.
 func test_resource_manifest_uses_ready_to_swap_paths() -> void:

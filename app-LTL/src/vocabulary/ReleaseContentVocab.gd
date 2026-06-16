@@ -8,6 +8,8 @@
 class_name ReleaseContentVocab
 extends RefCounted
 
+const SelectNarrativeBeatScript = preload("res://src/vocabulary/narrative/SelectNarrativeBeat.gd")
+
 const CONTENT_PATHS := {
 	"nodes": "res://src/data/node-table.json",
 	"leviathans": "res://src/data/leviathan-table.json",
@@ -63,7 +65,7 @@ static func validate_content_bundle(bundle: Dictionary) -> Dictionary:
 	_validate_required_fields(bundle.get("hazards", []), "hazards", ["id", "warningTicks", "durationTicks", "pinDelta", "counterplay"], errors)
 	_validate_required_fields(bundle.get("baseShop", []), "baseShop", ["id", "type", "costGold", "unlockId"], errors)
 	_validate_required_fields(bundle.get("passives", []), "passives", ["id", "branch", "maxLevel", "costGold", "effect"], errors)
-	_validate_required_fields(bundle.get("narrativeBeats", []), "narrativeBeats", ["id", "trigger", "textKo", "sideEffectFree"], errors)
+	_validate_required_fields(bundle.get("narrativeBeats", []), "narrativeBeats", ["id", "trigger", "screenId", "triggerPhase", "displayMode", "textKo", "textEn", "sideEffectFree", "skipInputAllowed"], errors)
 	_validate_required_fields(bundle.get("resourceNeeds", []), "resourceNeeds", ["id", "path", "type", "fallback"], errors)
 	return {"ok": errors.is_empty(), "errors": errors, "diagnostics": errors}
 
@@ -147,16 +149,8 @@ static func passive_branch_summary(passives: Array) -> Dictionary:
 
 # 실행: project narrative beats matching state/history without side effects.
 static func project_narrative_beats(state: Dictionary, beats: Array, history: Dictionary = {}) -> Array:
-	var projected := []
-	for beat in beats:
-		if not bool(beat.get("sideEffectFree", false)):
-			continue
-		var trigger := str(beat.get("trigger", ""))
-		if bool(history.get(str(beat.get("id", "")), false)) and bool(beat.get("shownOnce", true)):
-			continue
-		if _beat_matches(trigger, state):
-			projected.append(beat.duplicate(true))
-	return projected
+	var beat := SelectNarrativeBeatScript.select(state, beats, history)
+	return [] if beat.is_empty() else [beat]
 
 # 실행: load helper for JSON files.
 static func _load_json(path: String) -> Dictionary:
@@ -215,13 +209,17 @@ static func _beat_matches(trigger: String, state: Dictionary) -> bool:
 	match trigger:
 		"first_run_start":
 			return str(state.get("phase", "")) == "node_select" and int(state.get("stageIndex", 0)) == 0
-		"first_reward":
+		"first_artifact":
 			var growth: Dictionary = state.get("growth", {})
-			return str(state.get("phase", "")) == "reward_loot" and not Array(growth.get("rewardHistory", [])).is_empty()
+			return str(state.get("phase", "")) == "reward_loot" and not Array(growth.get("artifactDiscovery", [])).is_empty()
+		"first_valid_hit":
+			var combat: Dictionary = state.get("combat", {}) if state.get("combat", {}) is Dictionary else {}
+			var summary: Dictionary = combat.get("summary", {}) if combat.get("summary", {}) is Dictionary else {}
+			return int(summary.get("shots_hit_match", 0)) > 0
 		"first_failure":
-			return str(state.get("result", "")) in ["failed", "time_over"]
+			return str(state.get("phase", "")) == "run_complete" and bool(state.get("failed", false))
 		"first_clear":
-			return str(state.get("phase", "")) == "run_complete" or str(state.get("result", "")) == "clear"
-		"leviathan_unlocked":
-			return not Array(state.get("scanUnlocks", [])).is_empty()
+			return str(state.get("phase", "")) == "run_complete" and bool(state.get("runComplete", false)) and not bool(state.get("failed", false))
+		"leviathan_clear":
+			return str(state.get("phase", "")) == "run_complete" and bool(state.get("runComplete", false)) and not bool(state.get("failed", false))
 	return false

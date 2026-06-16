@@ -9,6 +9,7 @@ extends RefCounted
 
 const InventoryModelScript = preload("res://src/models/InventoryModel.gd")
 const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
+const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
 
 # ?ㅽ뻾: obtain the parent view, wire event handlers, and bootstrap initial run state after view readiness.
 static func ready(controller) -> void:
@@ -30,6 +31,7 @@ static func ready(controller) -> void:
 	var default_growth = controller.preview_controller.run.state.get("growth", {})
 	controller.growth_state = RunGrowthStateScript.new(default_growth)
 	controller.campaign_progress = controller.preview_controller.run.state.get("progress", {"clearedLeviathanIds": []}).duplicate(true)
+	controller.narrative_beats = ReleaseContentVocabScript.load_content_bundle().get("narrativeBeats", []).duplicate(true)
 
 	controller._load_backpack_items_into_inventory()
 	_connect_view_signals(controller)

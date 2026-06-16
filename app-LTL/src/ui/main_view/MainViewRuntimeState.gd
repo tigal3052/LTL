@@ -145,6 +145,7 @@ var reward_reveal_pending_callback: Callable = Callable()
 var reward_reveal_pending_step := ""
 var tooltip_panel: PanelContainer
 var tooltip_label: RichTextLabel
+var narrative_toast: Control = null
 var node_select_content_row: HBoxContainer = null
 var node_select_runtime_page: Control = null
 var node_select_backpack_host: Control = null

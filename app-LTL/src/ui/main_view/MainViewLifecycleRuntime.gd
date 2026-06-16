@@ -33,6 +33,7 @@ static func ready(view) -> void:
 	view._create_reward_reveal_overlay()
 	view._create_vignette_overlay()
 	view._create_tooltip_panel()
+	view._create_narrative_toast()
 	view.settings_panel.volume_changed.connect(view.set_volume)
 	view.settings_panel.language_changed.connect(func(_locale): view.apply_locale())
 	view._apply_shell_theme()

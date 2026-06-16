@@ -632,6 +632,38 @@ This file is the live implementation map for AI agents. It records each current 
   - tile panel nobg is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/tile_panel_nobg.png.import`
   - tile panel nobg.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_common.png`
+  - Blue common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/blue_drill_common.png.import`
+  - Godot import metadata for blue common drill item art.
+- `app-LTL/resources/items/drill/blue_drill_rare.png`
+  - Blue rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/blue_drill_rare.png.import`
+  - Godot import metadata for blue rare drill item art.
+- `app-LTL/resources/items/drill/green_drill_common.png`
+  - Green common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/green_drill_common.png.import`
+  - Godot import metadata for green common drill item art.
+- `app-LTL/resources/items/drill/green_drill_rare.png`
+  - Green rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/green_drill_rare.png.import`
+  - Godot import metadata for green rare drill item art.
+- `app-LTL/resources/items/drill/purple_drill_common.png`
+  - Purple common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/purple_drill_common.png.import`
+  - Godot import metadata for purple common drill item art.
+- `app-LTL/resources/items/drill/purple_drill_rare.png`
+  - Purple rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/purple_drill_rare.png.import`
+  - Godot import metadata for purple rare drill item art.
+- `app-LTL/resources/items/drill/red_drill_common.png`
+  - Red common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/red_drill_common.png.import`
+  - Godot import metadata for red common drill item art.
+- `app-LTL/resources/items/drill/red_drill_rare.png`
+  - Red rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/red_drill_rare.png.import`
+  - Godot import metadata for red rare drill item art.
 - `app-LTL/src/data/node-table.json`
   - node table stores balance or progression data.
 - `app-LTL/src/data/base-shop-table.json`
@@ -707,6 +739,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Handles gold and XP gain plus passive purchases.
   - Persists release base unlocks for characters, starter items, and leviathan scans.
   - Serializes growth state into persistable dictionaries.
+- `app-LTL/src/models/NarrativeBeat.gd`
+  - Validates and normalizes release narrative beat dictionaries without mutating caller data.
+- `app-LTL/src/models/NarrativeHistory.gd`
+  - Converts campaign progress into seen-beat lookups and records narrative seen ids separately.
 - `app-LTL/src/phases/BackpackOrganizePhase.gd`
   - Creates backpack-organize phase snapshots.
   - Preserves held artifact and pending reward state across phase transitions.
@@ -799,12 +835,18 @@ This file is the live implementation map for AI agents. It records each current 
   - Boss reward page shell scene matching the boss-reward wireframe.
 - `app-LTL/src/scenes/pages/shells/ActionBar.tscn`
   - Shared gameplay action-bar shell instanced by node-select, battle, and reward page scenes.
+- `app-LTL/src/scenes/pages/shells/BackpackEnginePanel.tscn`
+  - Shared backpack engine panel scene used by page shells that host the reusable backpack.
 - `app-LTL/src/scenes/pages/shells/BattlefieldPanel.tscn`
   - Shared battlefield shell that owns the combat board, timer, and VFX presentation nodes.
 - `app-LTL/src/scenes/pages/shells/GameplayTopContent.tscn`
   - Shared gameplay top-row shell that owns the status panel, shared backpack slot, and log sidebar layout.
 - `app-LTL/src/scenes/pages/shells/RewardPanel.tscn`
   - Shared reward-tray shell that owns the reward board, workspace host, inspector, and discard/claim zones.
+- `app-LTL/src/scenes/pages/shells/SharedBackpack.tscn`
+  - Shared backpack scene shell used for consistent backpack docking across runtime pages.
+- `app-LTL/src/scenes/narrative/NarrativeToast.gd`
+  - Renders non-blocking narrative beat toast overlays from narrative read models.
 - `app-LTL/src/scenes/pages/EventNodePage.tscn`
   - Event-node page shell scene matching the event-node wireframe.
 - `app-LTL/src/scenes/pages/DefeatPage.gd`
@@ -958,6 +1000,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`
   - Projects node-select candidates into UI cards with title, body, and weakness labels.
   - Converts candidate risk, reward, and weakness information into readable copy.
+- `app-LTL/src/ui/read_models/NarrativeReadModel.gd`
+  - Projects selected narrative beats into locale-specific non-blocking toast models.
 - `app-LTL/src/ui/read_models/ArtifactCodexReadModel.gd`
   - Projects artifact catalog and discovery snapshots into codex-facing section data.
   - Builds debug-all and discovered-only artifact rows without exposing runtime-only state.
@@ -989,9 +1033,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Renders purchase buttons from gold, XP, and passive level state.
   - Calculates passive costs and emits purchase signals.
 - `app-LTL/src/ui/ArtifactCodexPanelUI.gd`
-  - Creates the artifact codex menu panel with discovered-only and debug-all display modes.
-  - Renders projected codex rows and emits debug visibility toggle signals.
-  - Delegates book safe-area math, card construction, placeholder artwork, and shape-grid visuals to codex helper scripts.
+  - Renders the artifact codex panel, section filters, discovery rows, and debug visibility controls.
+  - Delegates book layout, card construction, fallback art, and shape-grid visuals to codex helpers.
 - `app-LTL/src/ui/ArtifactCodexArtResolver.gd`
   - Resolves codex hero and thumbnail artwork descriptors from reward-table image contracts.
   - Falls back to default and discovery-state artwork descriptors when authored art is unavailable.
@@ -999,17 +1042,15 @@ This file is the live implementation map for AI agents. It records each current 
   - Centralizes artifact codex book aspect, safe-area, page, grid, and viewport transform calculations.
   - Keeps ratio-driven codex layout math deterministic for panel rendering and structural tests.
 - `app-LTL/src/ui/codex/ArtifactCodexBookVisualFactory.gd`
-  - Builds artifact codex entry cards, placeholder artwork plates, fact chips, and shape-grid detail controls.
-  - Owns codex book visual style helpers for cards, frames, rarity plates, section buttons, and mouse passthrough.
+  - Builds artifact codex cards, artwork plates, fact chips, and shape-grid detail controls.
+  - Owns codex visual style helpers for cards, frames, rarity plates, section buttons, and mouse passthrough.
 - `app-LTL/src/ui/StatusPanelUI.gd`
-	- Renders combat target shield/health bars and extractor status.
-	- Visualizes the current queue gems and maps energy colors.
-	- Clears stale queue gems immediately so repeated same-frame rerenders cannot inflate the status-column layout.
-	- Builds copy for repair, pin, and global terrain debuff status.
-	- Manages victory, repair, and combat overlay display.
+  - Renders combat target shield and health bars, extractor status, queue gems, and energy colors.
+  - Clears stale queue gems so repeated rerenders do not inflate the status-column layout.
+  - Builds repair, pin, terrain debuff, victory, repair overlay, and combat overlay display state.
 - `app-LTL/src/ui/status_panel/StatusPanelInfoCards.gd`
-	- Builds status-panel terrain copy, weakness cards, note chips, and metric card controls from node context.
-	- Normalizes weakness color data and resolves tile textures used by the status info panel.
+  - Builds status-panel terrain copy, weakness cards, note chips, and metric card controls from node context.
+  - Normalizes weakness color data and resolves tile textures used by the status info panel.
 - `app-LTL/src/ui/TextCatalog.gd`
   - Provides locale state and translation key lookup.
   - Strips implementation tags and size noise from item names/descriptions for display.
@@ -1098,6 +1139,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Loads M4-M9 release content tables into one deterministic bundle.
   - Validates minimum coverage for nodes, leviathans, hazards, characters, passives, narrative, and resources.
   - Projects deterministic hazard schedules plus base purchase, passive tree, and narrative read models.
+- `app-LTL/src/vocabulary/narrative/BuildNarrativeTelemetry.gd`
+  - Builds stable narrative selected, shown, skipped, and history-updated telemetry payloads.
+- `app-LTL/src/vocabulary/narrative/MarkNarrativeSeen.gd`
+  - Returns copied campaign progress with narrative seen beat ids recorded once.
+- `app-LTL/src/vocabulary/narrative/SelectNarrativeBeat.gd`
+  - Selects the first valid side-effect-free narrative beat matching scene state and history.
 - `app-LTL/tests/fixtures/input_logs/basic_clear.json`
   - basic clear verifies Godot contracts and regression behavior.
 - `app-LTL/tests/fixtures/input_logs/empty_queue_repair.json`
@@ -1135,6 +1182,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
 - `app-LTL/tests/run_node_select_start_gate_contract.gd`
   - Verifies node-select click-to-toggle selection, menu round-trip start readiness, and boss-stage mining-start gating.
+- `app-LTL/tests/run_shared_backpack_visual_capture.gd`
+  - Captures shared backpack visual states used as manual evidence for docking and item art.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
   - run pin miner layout probe verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_ceremony_contract.gd`
@@ -1160,13 +1209,17 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/tests/run_test_node_routing_contract.gd`
   - Executes the focused node-routing contract runner for the formal node-select and progression path surface.
 - `app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd`
-  - Covers shared backpack shell sizing, pin overlay geometry, and grid-layout contracts for the split UI read-model surface.
+  - Covers shared backpack shell sizing, shared backpack hosts, and grid-layout contracts for the split UI read-model surface.
+- `app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd`
+  - Verifies backpack pin count, atlas trim, anchor, visibility, and removal VFX contracts.
 - `app-LTL/tests/ui_read_models/ui_battlefield_hud_suite.gd`
   - Covers battlefield layout, hazard presentation, miner pose mapping, and combat terrain read-model contracts.
 - `app-LTL/tests/ui_read_models/ui_battlefield_hud_status_suite.gd`
   - Covers battle HUD status panel scene structure, FIFO energy queue projection, node modifier metadata, and failure overlay contracts.
 - `app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd`
-  - Covers codex panel projection plus reward-board and reward-inspector read-model contracts.
+  - Covers codex panel projection, book layout, discovery state, and codex helper contracts.
+- `app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd`
+  - Covers node-select read-model projection plus reward tray, inspector, discard, and helper copy contracts.
 - `app-LTL/tests/ui_read_models/ui_defeat_visual_suite.gd`
   - Covers defeat-page model and scene-shell contracts plus nearby failure-overlay expectations.
 - `app-LTL/tests/ui_read_models/ui_interaction_controller_suite.gd`
@@ -1213,6 +1266,8 @@ This file is the live implementation map for AI agents. It records each current 
   - test reward contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/test_release_content_contract.gd`
   - test release content contract verifies M4-M9 release tables, deterministic hazards, base unlocks, passive branches, and resource manifest paths.
+- `app-LTL/tests/test_narrative_contract.gd`
+  - Verifies pure narrative beat selection, seen-history updates, read models, telemetry, and side-effect boundaries.
 - `app-LTL/tests/test_ui_read_models.gd`
   - Thin aggregator that preserves the public UI read-model test runner surface while delegating real coverage to smaller leaf suites.
 - `design_review.md.resolved`
@@ -1231,6 +1286,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Current Korean M6 sign-off checklist with automated status, manual QA steps, and plain-language pass criteria.
 - `docs/m6-known-issues.ko.md`
   - Records the remaining M6 sign-off gaps and known evidence debts carried forward after user-accepted M6 closure.
+- `docs/m7-manual-signoff-checklist.ko.md`
+  - Records M7 narrative integration automatic checks, manual QA criteria, and remaining manual sign-off items.
+- `docs/evidence/shared-backpack-2026-06-16/reward_1280x720.png`
+  - Captured shared-backpack reward state evidence at the 1280x720 viewport.
+- `docs/evidence/shared-backpack-2026-06-16/reward_drop_1280x720.png`
+  - Captured shared-backpack reward drop state evidence at the 1280x720 viewport.
+- `docs/evidence/shared-backpack-2026-06-16/second_battle_1280x720.png`
+  - Captured shared-backpack second battle state evidence at the 1280x720 viewport.
 - `docs/evidence/m6-screenshot-matrix/2026-06-15/README.ko.md`
   - Indexes the captured M6 screenshot matrix, capture command, viewport coverage, and manual sign-off notes.
 - `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1280x720.png`
@@ -1307,6 +1370,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the main controller ownership split scope, preserved invariants, extraction units, and verification obligations.
 - `docs/request-ledgers/2026-06-15-feature-unit-lifecycle-harness.md`
   - Records the harness methodology follow-up for enforcing design, implementation, and maintenance-stage feature-unit lifecycle planning.
+- `docs/request-ledgers/2026-06-16-m7-narrative-integration.md`
+  - Records the M7 narrative integration scope, source-map findings, verification proof, and request-analysis gate evidence.
 - `docs/release-resource-needs.md`
   - release resource needs documents exact final-art and audio paths that can be populated after implementation.
 - `docs/release-visual-quality-upgrade-plan.md`

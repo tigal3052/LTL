@@ -2,8 +2,10 @@ extends RefCounted
 
 const UITextTooltipSuiteScript = preload("res://tests/ui_read_models/ui_text_tooltip_suite.gd")
 const UICodexRewardBoardSuiteScript = preload("res://tests/ui_read_models/ui_codex_reward_board_suite.gd")
+const UIRewardBoardReadModelSuiteScript = preload("res://tests/ui_read_models/ui_reward_board_read_model_suite.gd")
 const UIPhaseLayoutSuiteScript = preload("res://tests/ui_read_models/ui_phase_layout_suite.gd")
 const UIBackpackLayoutSuiteScript = preload("res://tests/ui_read_models/ui_backpack_layout_suite.gd")
+const UIBackpackPinVfxSuiteScript = preload("res://tests/ui_read_models/ui_backpack_pin_vfx_suite.gd")
 const UIBattlefieldHudSuiteScript = preload("res://tests/ui_read_models/ui_battlefield_hud_suite.gd")
 const UIBattlefieldHudStatusSuiteScript = preload("res://tests/ui_read_models/ui_battlefield_hud_status_suite.gd")
 const UIDefeatVisualSuiteScript = preload("res://tests/ui_read_models/ui_defeat_visual_suite.gd")
@@ -27,8 +29,10 @@ func run_all_tests() -> Dictionary:
 	for suite_script in [
 		UITextTooltipSuiteScript,
 		UICodexRewardBoardSuiteScript,
+		UIRewardBoardReadModelSuiteScript,
 		UIPhaseLayoutSuiteScript,
 		UIBackpackLayoutSuiteScript,
+		UIBackpackPinVfxSuiteScript,
 		UIBattlefieldHudSuiteScript,
 		UIBattlefieldHudStatusSuiteScript,
 		UIDefeatVisualSuiteScript,
@@ -55,10 +59,10 @@ func run_reward_ceremony_tests() -> Dictionary:
 	return {"ok": failures.is_empty(), "errors": failures}
 
 func test_reward_tray_backpack_inspector_localizes_starter_loadout_artifact() -> void:
-	_run_suite_method(UICodexRewardBoardSuiteScript, "test_reward_tray_backpack_inspector_localizes_starter_loadout_artifact")
+	_run_suite_method(UIRewardBoardReadModelSuiteScript, "test_reward_tray_backpack_inspector_localizes_starter_loadout_artifact")
 
 func test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_description_is_missing() -> void:
-	_run_suite_method(UICodexRewardBoardSuiteScript, "test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_description_is_missing")
+	_run_suite_method(UIRewardBoardReadModelSuiteScript, "test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_description_is_missing")
 
 func test_main_view_defeat_page_model_uses_selected_leviathan_art() -> void:
 	_run_suite_method(UIDefeatVisualSuiteScript, "test_main_view_defeat_page_model_uses_selected_leviathan_art")

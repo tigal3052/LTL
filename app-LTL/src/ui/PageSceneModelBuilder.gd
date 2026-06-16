@@ -11,7 +11,7 @@ static func project(page_id: String, scene: Dictionary, character_portrait_path:
 	var max_stages := maxi(1, int(scene.get("maxStages", 1)))
 	var stage_label_text := TextCatalogScript.t("stage.label", [stage_index, max_stages])
 	if page_id == "defeat":
-		return _defeat_page_model(scene, selected_leviathan, character_portrait_path)
+		return _with_narrative(_defeat_page_model(scene, selected_leviathan, character_portrait_path), scene)
 	match page_id:
 		"character_select":
 			return scene
@@ -22,54 +22,54 @@ static func project(page_id: String, scene: Dictionary, character_portrait_path:
 			node_select_scene["pageTitle"] = str(selected_leviathan.get("name", TextCatalogScript.t("leviathan.roster.title")))
 			node_select_scene["pageSubtitle"] = ""
 			node_select_scene["pageHeroPath"] = str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_turtle.png"))
-			return node_select_scene
+			return _with_narrative(node_select_scene, scene)
 		"battle":
-			return {
+			return _with_narrative({
 				"pageBadge": TextCatalogScript.t("main.page.badge.combat"),
 				"pageKicker": TextCatalogScript.t("main.page.kicker.extraction"),
 				"pageTitle": str(node_context.get("label", scene.get("lastNodeLabel", TextCatalogScript.display_name("Safe Scar")))),
 				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.battle"),
 				"pageHeroPath": "res://resources/charactor/background.png"
-			}
+			}, scene)
 		"boss_battle":
-			return {
+			return _with_narrative({
 				"pageBadge": TextCatalogScript.t("main.page.badge.boss"),
 				"pageKicker": TextCatalogScript.t("main.page.kicker.final_engagement"),
 				"pageTitle": str(node_context.get("label", TextCatalogScript.display_name("Spine Anchor"))),
 				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.boss"),
 				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png"))
-			}
+			}, scene)
 		"reward":
-			return {
+			return _with_narrative({
 				"pageBadge": TextCatalogScript.t("main.page.badge.reward"),
 				"pageKicker": TextCatalogScript.t("main.page.kicker.recovery"),
 				"pageTitle": TextCatalogScript.t("main.page.title.reward"),
 				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.reward"),
 				"pageHeroPath": "res://resources/Leviathan/Leviathan_lizard.png"
-			}
+			}, scene)
 		"boss_reward":
-			return {
+			return _with_narrative({
 				"pageBadge": TextCatalogScript.t("main.page.badge.boss_reward"),
 				"pageKicker": TextCatalogScript.t("main.page.kicker.contract_payout"),
 				"pageTitle": TextCatalogScript.t("main.page.title.boss_reward"),
 				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.boss_reward"),
 				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png"))
-			}
+			}, scene)
 		"event_node":
-			return {
+			return _with_narrative({
 				"pageBadge": TextCatalogScript.t("main.page.badge.event"),
 				"pageKicker": TextCatalogScript.t("main.page.kicker.special_node"),
 				"pageTitle": str(node_context.get("label", TextCatalogScript.display_name("Mysterious Crevice"))),
 				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.event"),
 				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_turtle.png"))
-			}
+			}, scene)
 		"clear":
-			return {
+			return _with_narrative({
 				"pageTitle": TextCatalogScript.t("main.page.title.clear"),
 				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.clear"),
 				"pageButtonText": TextCatalogScript.t("main.page.button.return_character"),
 				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_lizard.png"))
-			}
+			}, scene)
 	return scene
 
 static func refresh_inactive_meta_page_models(page_scenes: Dictionary, meta_page_ids: Array, active_id: String, scene: Dictionary, character_portrait_path: String) -> void:
@@ -103,6 +103,12 @@ static func _defeat_page_model(scene: Dictionary, selected_leviathan: Dictionary
 		"pageCharacterArtPath": str(selected_character.get("portraitPath", character_portrait_path)),
 		"pageStageBackdropPath": "res://resources/charactor/background.png"
 	}
+
+static func _with_narrative(model: Dictionary, scene: Dictionary) -> Dictionary:
+	var next := model.duplicate(true)
+	var narrative_value = scene.get("narrative", {"visible": false})
+	next["narrative"] = narrative_value.duplicate(true) if narrative_value is Dictionary else {"visible": false}
+	return next
 
 static func _node_select_page_subtitle(stage_label_text: String) -> String:
 	return TextCatalogScript.t("main.node_select.subtitle", [stage_label_text])

@@ -9,6 +9,7 @@ const ArtifactTooltipUIScript = preload("res://src/ui/ArtifactTooltipUI.gd")
 const GiantTimerUIScript = preload("res://src/ui/GiantTimerUI.gd")
 const RewardRevealOverlayScript = preload("res://src/ui/RewardRevealOverlay.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
+const NarrativeToastScript = preload("res://src/scenes/narrative/NarrativeToast.gd")
 
 static func install_interaction_fx(view) -> void:
 	InteractionFXScript.install_tree(view)
@@ -75,6 +76,27 @@ static func create_tooltip_panel(view) -> void:
 	view.add_child(view.tooltip_panel)
 	if view.tooltip_panel.has_method("get"):
 		view.tooltip_label = view.tooltip_panel.label
+
+static func create_narrative_toast(view) -> void:
+	if view.narrative_toast != null:
+		return
+	view.narrative_toast = NarrativeToastScript.new()
+	view.narrative_toast.anchor_left = 1.0
+	view.narrative_toast.anchor_right = 1.0
+	view.narrative_toast.anchor_top = 0.0
+	view.narrative_toast.anchor_bottom = 0.0
+	view.narrative_toast.offset_left = -464.0
+	view.narrative_toast.offset_right = -24.0
+	view.narrative_toast.offset_top = 86.0
+	view.narrative_toast.offset_bottom = 210.0
+	view.add_child(view.narrative_toast)
+	view._set_descendant_mouse_filter_ignore(view.narrative_toast)
+
+static func render_narrative(view, model: Dictionary) -> void:
+	if view.narrative_toast == null:
+		create_narrative_toast(view)
+	if view.narrative_toast != null and view.narrative_toast.has_method("render"):
+		view.narrative_toast.render(model)
 
 static func show_artifact_tooltip(view, art) -> void:
 	if view.tooltip_panel == null:

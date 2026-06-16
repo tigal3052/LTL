@@ -124,3 +124,43 @@ Dropping a reward item into the backpack on the reward list page now keeps the s
 ### Remaining Gaps
 
 - The working tree remains broadly dirty/untracked from unrelated earlier work; no unrelated files were reverted.
+
+## M7 Narrative Integration Completion
+
+### Completion Summary
+
+The pre-M7 workspace state was checkpointed and pushed first as commit `d02e6e0`, then M7 narrative integration was completed against `docs/superpowers/plans/2026-06-13-m7-narrative-integration-replan.ko.md`.
+
+### Actual Outputs
+
+- Replaced the placeholder narrative content with six M7 narrative beats covering intro contract, first valid hit, first artifact, first failure, first clear, and hunt tension.
+- Added pure `NarrativeBeat`, `NarrativeHistory`, selection, mark-seen, telemetry, and read-model capsules.
+- Wired narrative loading, selection, shown-once state, telemetry emission, and a non-blocking toast surface through the current MainController/runtime split.
+- Added M7 contract coverage for content shape, pure narrative behavior, telemetry payloads, side-effect-free selection, and node-select intro rendering.
+- Added `docs/m7-manual-signoff-checklist.ko.md` and `docs/request-ledgers/2026-06-16-m7-narrative-integration.md`.
+- Updated the source map for new M7 source, tests, docs, and gate-driven test-suite splits.
+
+### Changes From Plan
+
+- Existing M6 documentation already recorded M6 as complete by user request, with only manual accessibility/tactile signoff debt remaining, so no M6 completion rewrite was needed.
+- Two oversized UI read-model test files were split and `CharacterSelectPage.gd` had blank lines removed to pass required quality gates; these were behavior-preserving gate compliance changes.
+
+### Verification Results
+
+- Passed: `res://tests/run_node_select_start_gate_contract.gd` -> `NODE_SELECT_START_GATE_CONTRACT_OK`.
+- Passed: `res://tests/godot_contract_runner.gd` -> `GODOT_CONTRACTS_OK`.
+- Passed: `res://tests/run_test_ui_read_models.gd` -> `UI_READ_MODEL_TESTS_OK`.
+- Passed: source-map, test-size, runtime-size, transition-safety, and i18n text gates.
+- Passed: `tools/run-compile-check.ps1` -> `Compilation Check: PASSED`.
+- Passed: `tools/run-ltl-quality-gate.ps1` -> `LTL_QUALITY_GATE_OK`.
+
+### Blockers Or Unverified Areas
+
+- No blocker remains for M7 implementation.
+- Passing Godot runs still print existing shutdown RID/resource leak warnings and an anchor warning.
+- Quality gate output still reports existing warning-only architectural/legacy-size items and the historical `MainControllerRuntime.gd` warning.
+- Manual in-editor M7 signoff remains documented in `docs/m7-manual-signoff-checklist.ko.md`.
+
+### Remaining Gaps
+
+- Push the final M7 implementation commit after this completion report is recorded.

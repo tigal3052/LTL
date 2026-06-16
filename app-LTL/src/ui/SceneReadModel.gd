@@ -41,6 +41,7 @@ func create(run_snapshot: Dictionary, options: Dictionary = {}) -> Dictionary:
 		"isFixedStartStage": phase == "node_select" and stage_index == 0,
 		"combat": _project_combat(run_snapshot.get("combat", null)),
 		"reward": _project_rewards(run_snapshot.get("pendingRewards", []), run_snapshot.get("held", null)),
+		"growth": run_snapshot.get("growth", {}).duplicate(true),
 		"progress": run_snapshot.get("progress", {}).duplicate(true)
 	}
 

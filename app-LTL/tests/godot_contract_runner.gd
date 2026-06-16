@@ -20,9 +20,12 @@ const REQUIRED_SCRIPTS := [
 	"res://src/tools/FormalReplayRunner.gd",
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
+	"res://src/models/NarrativeBeat.gd",
+	"res://src/models/NarrativeHistory.gd",
 	"res://src/ui/TextCatalog.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/ui/read_models/TooltipReadModel.gd",
+	"res://src/ui/read_models/NarrativeReadModel.gd",
 	"res://src/ui/ArtifactCodexArtResolver.gd",
 	"res://src/ui/read_models/ArtifactCodexReadModel.gd",
 	"res://src/ui/read_models/NodeSelectReadModel.gd",
@@ -55,6 +58,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
 	"res://src/ui/InteractionFX.gd",
+	"res://src/scenes/narrative/NarrativeToast.gd",
 	"res://src/ui/MainUI.gd",
 	"res://src/ui/MainViewRuntime.gd",
 	"res://src/ui/main_view/MainViewRuntimeState.gd",
@@ -92,6 +96,9 @@ const REQUIRED_SCRIPTS := [
 	"res://src/vocabulary/NodeVocab.gd",
 	"res://src/vocabulary/RewardVocab.gd",
 	"res://src/vocabulary/ReleaseContentVocab.gd",
+	"res://src/vocabulary/narrative/SelectNarrativeBeat.gd",
+	"res://src/vocabulary/narrative/MarkNarrativeSeen.gd",
+	"res://src/vocabulary/narrative/BuildNarrativeTelemetry.gd",
 	"res://src/process/MiniRunStageScript.gd",
 	"res://src/phases/PhaseReducers.gd",
 	"res://src/phases/NodeSelectPhase.gd",
@@ -137,9 +144,12 @@ const COMMENTED_SCRIPTS := [
 	"res://src/tools/FormalReplayRunner.gd",
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
+	"res://src/models/NarrativeBeat.gd",
+	"res://src/models/NarrativeHistory.gd",
 	"res://src/ui/TextCatalog.gd",
 	"res://src/ui/read_models/RewardReadModel.gd",
 	"res://src/ui/read_models/TooltipReadModel.gd",
+	"res://src/ui/read_models/NarrativeReadModel.gd",
 	"res://src/ui/ArtifactCodexArtResolver.gd",
 	"res://src/ui/read_models/ArtifactCodexReadModel.gd",
 	"res://src/ui/read_models/NodeSelectReadModel.gd",
@@ -172,6 +182,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/ui/LogConsoleUI.gd",
 	"res://src/ui/VFXManager.gd",
 	"res://src/ui/InteractionFX.gd",
+	"res://src/scenes/narrative/NarrativeToast.gd",
 	"res://src/ui/MainUI.gd",
 	"res://src/ui/MainViewRuntime.gd",
 	"res://src/controllers/MainControllerCombatFlow.gd",
@@ -190,6 +201,9 @@ const COMMENTED_SCRIPTS := [
 	"res://src/vocabulary/NodeVocab.gd",
 	"res://src/vocabulary/RewardVocab.gd",
 	"res://src/vocabulary/ReleaseContentVocab.gd",
+	"res://src/vocabulary/narrative/SelectNarrativeBeat.gd",
+	"res://src/vocabulary/narrative/MarkNarrativeSeen.gd",
+	"res://src/vocabulary/narrative/BuildNarrativeTelemetry.gd",
 	"res://src/process/MiniRunStageScript.gd",
 	"res://src/phases/PhaseReducers.gd",
 	"res://src/phases/NodeSelectPhase.gd",
@@ -282,6 +296,7 @@ func _run_contracts() -> void:
 	_test_formal_replay_runner_contracts()
 	_test_node_routing_contracts()
 	_test_ui_read_model_contracts()
+	_test_narrative_contracts()
 	_test_release_content_contracts()
 	if not smoke_only:
 		_test_main_scene_instantiation()
@@ -487,6 +502,18 @@ func _test_release_content_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Release content test failed: %s" % err)
+
+# 실행: load and run M7 narrative projection/history unit tests.
+func _test_narrative_contracts() -> void:
+	var TestNarrativeClass = _load_script("res://tests/test_narrative_contract.gd")
+	if TestNarrativeClass == null:
+		return
+	var tester = TestNarrativeClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "narrative contract tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Narrative test failed: %s" % err)
 
 # 실행: verify that the main scene can load and instantiate without ready runtime errors.
 func _test_main_scene_instantiation() -> void:

@@ -40,6 +40,7 @@ func _run() -> void:
 
 	_assert_eq(int(controller.get("selected_node_index")), -1, "node select starts without an implicit selected node")
 	_assert_eq(bool(start_button.disabled), true, "mining start is disabled before a current node click")
+	_assert_intro_narrative_toast_nonblocking(main_instance)
 	_assert(node_select_page.has_method("press_start_marker"), "node-select page exposes fixed-start marker automation")
 	if node_select_page.has_method("press_start_marker"):
 		node_select_page.call("press_start_marker")
@@ -200,6 +201,18 @@ func _assert_menu_round_trip_keeps_start_ready(main_instance: Node, node_select_
 func _node_select_page(main_instance: Node) -> Node:
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	return page_scenes.get("node_select", null)
+
+func _assert_intro_narrative_toast_nonblocking(main_instance: Node) -> void:
+	var toast = main_instance.get("narrative_toast") as Control
+	_assert(toast != null, "intro narrative toast exists on first node select")
+	if toast == null:
+		return
+	_assert_eq(toast.visible, true, "intro narrative toast is visible on first node select")
+	_assert_eq(toast.mouse_filter, Control.MOUSE_FILTER_IGNORE, "intro narrative toast does not block node-select input")
+	var body_label = toast.get_node_or_null("Margin/VBox/BodyLabel") as Label
+	_assert(body_label != null, "intro narrative toast exposes body text label")
+	if body_label != null:
+		_assert(str(body_label.text).contains("채집") or str(body_label.text).contains("collect"), "intro narrative explains collection framing")
 
 func _assert(condition: bool, label: String) -> void:
 	if not condition:

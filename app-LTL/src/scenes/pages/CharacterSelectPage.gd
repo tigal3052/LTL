@@ -1,5 +1,4 @@
 extends Control
-
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const ArtifactScript = preload("res://src/models/Artifact.gd")
@@ -8,12 +7,10 @@ const BackpackArtifactRendererScript = preload("res://src/ui/backpack/BackpackAr
 const CharacterSelectLoadoutTextScript = preload("res://src/scenes/pages/character_select/CharacterSelectLoadoutText.gd")
 const CharacterSelectPaletteViewScript = preload("res://src/scenes/pages/character_select/CharacterSelectPaletteView.gd")
 const BACKDROP_PATH := "res://resources/charactor/background.png"
-
 signal character_selected(character_id: String)
 signal continue_requested
 signal color_selected(color: String)
 signal settings_requested
-
 @onready var backdrop: ColorRect = $Backdrop
 @onready var root_margin: MarginContainer = $Margin
 @onready var page_stack: VBoxContainer = $Margin/VStack
@@ -70,7 +67,6 @@ signal settings_requested
 @onready var continue_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/ContinueButton
 @onready var cta_footnote: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/CtaFootnote
 @onready var cta_card: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard
-
 var _roster: Array = []
 var _selected_id := ""
 var _selected_color := "red"
@@ -84,7 +80,6 @@ var _bag_detail_body: Label
 var _bag_detail_scroll: ScrollContainer
 var _pinned_bag_slot_index := 0
 var _hovered_bag_slot_index := -1
-
 func _ready() -> void:
 	continue_button.pressed.connect(func() -> void:
 		continue_requested.emit()
@@ -96,11 +91,9 @@ func _ready() -> void:
 	_apply_theme()
 	_apply_cleanup_layout()
 	_queue_settled_layout_sync()
-
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and is_inside_tree():
 		_queue_settled_layout_sync()
-
 func apply_state(state: Dictionary) -> void:
 	_roster = state.get("characterRoster", []).duplicate(true)
 	_selected_color = str(state.get("selectedStartColor", _selected_color))
@@ -115,7 +108,6 @@ func apply_state(state: Dictionary) -> void:
 	_sync_palette()
 	_render_selected(selected_character)
 	_queue_settled_layout_sync()
-
 func _apply_theme() -> void:
 	backdrop.color = Color(0.05, 0.08, 0.11, 0.98)
 	board_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.07, 0.09, 0.12, 0.98), Color(0.18, 0.23, 0.30, 1.0), 28, 1, 0.28))
@@ -164,7 +156,6 @@ func _apply_theme() -> void:
 	var detail_card := bag_vbox.get_node_or_null("BagDetailCard") as PanelContainer
 	if detail_card != null:
 		detail_card.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.08, 0.10, 0.13, 0.95), Color(0.18, 0.23, 0.30, 1.0), 18, 1, 0.08))
-
 func _apply_cleanup_layout() -> void:
 	page_title.text = TextCatalogScript.t("character.page.title")
 	hero_eyebrow.visible = false
@@ -187,7 +178,6 @@ func _apply_cleanup_layout() -> void:
 		if slot != null:
 			slot.custom_minimum_size = Vector2(52.0, 52.0)
 	_refresh_active_bag_detail()
-
 func _ensure_settings_button() -> void:
 	if has_node("SettingsButton"):
 		_settings_button = get_node("SettingsButton") as Button
@@ -207,7 +197,6 @@ func _ensure_settings_button() -> void:
 		settings_requested.emit()
 	)
 	add_child(_settings_button)
-
 func _ensure_bag_detail_panel() -> void:
 	if bag_vbox.has_node("BagDetailCard"):
 		_bag_detail_title = bag_vbox.get_node("BagDetailCard/BagDetailMargin/BagDetailVBox/BagDetailTitle") as Label
@@ -244,7 +233,6 @@ func _ensure_bag_detail_panel() -> void:
 	detail_margin.add_child(detail_vbox)
 	detail_card.add_child(detail_margin)
 	bag_vbox.add_child(detail_card)
-
 func _bind_bag_hover_signals() -> void:
 	for index in range(mini_slots.size()):
 		var slot := mini_slots[index] as Control

@@ -46,6 +46,37 @@ No implementation history has been recorded yet.
 - Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
 - Verification: Not recorded by hook. Update this after running checks.
 
+## M7 Narrative Integration Implementation
+
+- Intent: Finish the user's requested M7 narrative integration after checkpointing and pushing the pre-M7 state.
+- Files or areas touched:
+  - `app-LTL/src/data/narrative-beats.json`
+  - `app-LTL/src/models/NarrativeBeat.gd`
+  - `app-LTL/src/models/NarrativeHistory.gd`
+  - `app-LTL/src/vocabulary/narrative/*`
+  - `app-LTL/src/ui/read_models/NarrativeReadModel.gd`
+  - `app-LTL/src/controllers/MainControllerBootstrapFlow.gd`
+  - `app-LTL/src/controllers/MainControllerRenderFlow.gd`
+  - `app-LTL/src/ui/main_view/*`
+  - `app-LTL/src/scenes/narrative/NarrativeToast.gd`
+  - M7 contract tests, source map, request ledger, and manual signoff checklist.
+- Actual change summary:
+  - Added six M7 core narrative beats with trigger, phase, screen, display, skip, speaker, localized text, and side-effect-free metadata.
+  - Added pure beat selection, seen-history, telemetry, and read-model capsules so narrative logic stays outside combat/reward/node reducers.
+  - Wired narrative projection through the current MainController/view split and rendered a non-blocking narrative toast during eligible runtime phases.
+  - Stored narrative seen state separately as `narrativeSeenBeatIds`, emitted narrative telemetry, and suppressed the toast during reward ceremony.
+  - Preserved existing M6 completion docs because they already mark M6 complete by user request and leave only manual tactile/accessibility follow-up debt.
+  - Split two oversized UI read-model suites and removed blank lines from `CharacterSelectPage.gd` only to satisfy existing quality gates without behavior changes.
+- Plan impact: Matches the 2026-06-16 plan; added gate-driven test-file splits and source-map cleanup as verification requirements.
+- Verification status:
+  - Passed focused node-select start gate contract: `NODE_SELECT_START_GATE_CONTRACT_OK`.
+  - Passed full Godot contract runner: `GODOT_CONTRACTS_OK`.
+  - Passed UI read-model runner: `UI_READ_MODEL_TESTS_OK`.
+  - Passed source-map, test-size, runtime-size, transition-safety, and i18n text gates.
+  - Passed `tools/run-compile-check.ps1` with `Compilation Check: PASSED`.
+  - Passed `tools/run-ltl-quality-gate.ps1` with `LTL_QUALITY_GATE_OK`.
+  - Remaining warnings were existing gate warnings: legacy oversized tests, large architectural files, missing historical `MainControllerRuntime.gd` warning, Godot shutdown RID/resource leaks, and an anchor warning.
+
 ## 2026-06-16 Shared Backpack Panel Integration
 
 - Intent: Remove page-local backpack panel instances so battle, reward, and boss surfaces share one live backpack object and therefore one artifact placement path.
@@ -546,3 +577,1283 @@ docs/evidence/shared-backpack-2026-06-16/reward_drop_1280x720.png
 - Actual change summary: Added a RED reward-drop contract that selects a placeable reward, emits the same drop signal, waits through deferred reparent, and verifies the shared backpack stays in the reward workspace with the newly placed artifact rendered. Updated surface activation to avoid scheduling top-host reparent when the shared backpack is already docked to that bundle's reward host, and updated reward docking to override any stale pending reparent with the reward workspace host. Extended the visual capture helper with a `reward_drop` page.
 - Plan impact: Stayed within shared backpack host arbitration after reward drops. Inventory mutation, placement validity, reward data, cooldown rendering, and page-local backpack ownership were not changed.
 - Verification: RED: `run_reward_claim_board_contract.gd` failed on "reward drop keeps the shared backpack docked in the reward workspace host." Green checks passed: `run_reward_claim_board_contract.gd`, `run_test_ui_read_models.gd`, `run_reward_handoff_contract.gd`, `godot_contract_runner.gd`, and `git diff --check`. Captured and inspected `docs/evidence/shared-backpack-2026-06-16/reward_drop_1280x720.png`, which shows the reward backpack grid visible with the newly dropped blue item and starter drill rendered.
+
+## 2026-06-16 13:17:03
+
+<!-- codex-worklog-signature: 7678aae8f2182a17308174dad8a06bf8ab4c022448a721710554346f926816c8 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  LTL-harness/00_AGENTS.md
+M  LTL-harness/docs/request-analysis-execution-gate.md
+M  LTL-harness/docs/templates/request-constraint-ledger-template.md
+M  LTL-harness/tools/request-analysis-gate.ps1
+M  LTL-harness/tools/request-analysis-gate.tests.ps1
+A  app-LTL/resources/items/drill/blue_drill_common.png
+A  app-LTL/resources/items/drill/blue_drill_common.png.import
+A  app-LTL/resources/items/drill/blue_drill_rare.png
+A  app-LTL/resources/items/drill/blue_drill_rare.png.import
+A  app-LTL/resources/items/drill/green_drill_common.png
+A  app-LTL/resources/items/drill/green_drill_common.png.import
+A  app-LTL/resources/items/drill/green_drill_rare.png
+A  app-LTL/resources/items/drill/green_drill_rare.png.import
+A  app-LTL/resources/items/drill/purple_drill_common.png
+A  app-LTL/resources/items/drill/purple_drill_common.png.import
+A  app-LTL/resources/items/drill/purple_drill_rare.png
+A  app-LTL/resources/items/drill/purple_drill_rare.png.import
+A  app-LTL/resources/items/drill/red_drill_common.png
+A  app-LTL/resources/items/drill/red_drill_common.png.import
+A  app-LTL/resources/items/drill/red_drill_rare.png
+A  app-LTL/resources/items/drill/red_drill_rare.png.import
+M  app-LTL/src/MainController.gd
+D  app-LTL/src/MainControllerRuntime.gd
+A  app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+A  app-LTL/src/controllers/MainControllerCombatFlow.gd
+A  app-LTL/src/controllers/MainControllerDisplayText.gd
+A  app-LTL/src/controllers/MainControllerRenderFlow.gd
+A  app-LTL/src/controllers/MainControllerRewardBackpackFlow.gd
+A  app-LTL/src/controllers/MainControllerRunFlow.gd
+A  app-LTL/src/controllers/MainControllerSupportFlow.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:17:18
+
+<!-- codex-worklog-signature: 4c8dc0a5f0abb5fd84e90d0f1bf172b1aa7e224f2ddd1fd0fd1135bb7d739f10 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 Checkpoint Push and M7 Plan Switch
+
+- Intent: Preserve the user's current workspace state before starting M7 narrative integration.
+- Files or areas touched:
+```text
+Git history
+docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+```
+- Actual change summary: Created checkpoint commit `d02e6e0` (`checkpoint current M6 implementation state`) and pushed it to `origin/codex/m4-m9-release-quality-implementation`. Replaced the stale reward-drop worklog plan with the current M6-completion/M7-narrative implementation plan.
+- Plan impact: Establishes `d02e6e0` as the boundary before M7 work; later changes belong to M6 completion and M7 implementation.
+- Verification status: Pre-commit `tools/run-compile-check.ps1` failed at source-map gate reporting missing mapped drill image paths in the current state. The checkpoint was still committed and pushed because the user explicitly requested preserving the current state first.
+
+## 2026-06-16 13:18:09
+
+<!-- codex-worklog-signature: 1ef58e00d8a02c0876ae32c50bbf86b5ce24cd9b3644f151ce736a81414a5a2f -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:18:51
+
+<!-- codex-worklog-signature: c6939a63d7c658dcb08a02dca0552922c9c230bed5e3542034a4be76f63b12ca -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:18:51
+
+<!-- codex-worklog-signature: c6939a63d7c658dcb08a02dca0552922c9c230bed5e3542034a4be76f63b12ca -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:20:43
+
+<!-- codex-worklog-signature: 7288e3daf259ad4543b0868c7c1de9432498d27ca56bbbb64c4a2431ffacc024 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:21:05
+
+<!-- codex-worklog-signature: 90099cc14bcf15aae79b79dd7aebd760b5f8bcd6f39ef7ec83b2e4048a4443c9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ D app-LTL/src/data/narrative-beats.json
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:21:26
+
+<!-- codex-worklog-signature: 89a1ea60baa836c0dc3902e3c6433197013fcf2d0ab9f3ca9f959b28456a4d9d -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:21:39
+
+<!-- codex-worklog-signature: cef4e244e3b4ba759da7f0c8fd27fba5c38556718fe61d8ccab1cf97861ebec1 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:22:19
+
+<!-- codex-worklog-signature: 271c59f3bb4b16e04718448b2f59b93c250994c83f26fec2c9012f767ec8827e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:22:38
+
+<!-- codex-worklog-signature: 1b8fbde72c916331f4216d6ec6c3c76798dd35a3787819627a6bd4b6674b6434 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:22:52
+
+<!-- codex-worklog-signature: 9e85d78dcccc6d44b50b5bf06eb637d3076b0aeea4a368e40e6b410013ec5889 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:23:47
+
+<!-- codex-worklog-signature: 562cc4f9f13dcbcbda6eb86f29d1b535bda7ec475eb3bea075efead44ee08579 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:24:00
+
+<!-- codex-worklog-signature: 894508a05c4ebec23a19f0f56524793acaa7c8542386ae1407caefe75fbcd2c3 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:24:18
+
+<!-- codex-worklog-signature: d4c7d9eadc5219b1a54b6b17971d8d8f04dc46cf81c88489fd1c9d5ee2b7ff34 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:24:40
+
+<!-- codex-worklog-signature: 0fde9e46b556f3afbb21b7c8d41d5dbd44706e74ebcfa2a3e87fc05b36484eb6 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:25:42
+
+<!-- codex-worklog-signature: 9a967696463e05094bf07b461ec8d532ed3c379037458dd8b811457613502ec2 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:26:26
+
+<!-- codex-worklog-signature: 5bc8fff12b9ce6eed0b877fb329729b322022a5eda2c475e20b19f04b68d15f9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:26:43
+
+<!-- codex-worklog-signature: 15a13433e2646e61e90aa15066ea2bb955827a650c5c034869f6258b5f097a7b -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:30:31
+
+<!-- codex-worklog-signature: e4cbd4042db9f7139aa107af227a45440b3c6314fe9f13d100b2d57c6974ddaf -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:30:43
+
+<!-- codex-worklog-signature: 2038eeb12bb7c2aff6f55febc715706d798d4811090d91fd284de910b7d239c7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:31:16
+
+<!-- codex-worklog-signature: 995f991d20468ab7dfa8a23fd94a17535c6b948323d06f795edc30d89f93fd0c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:31:28
+
+<!-- codex-worklog-signature: fe5415d703603caa6fe9bbb4dbc0e1e2e32fc99b35b1d401e81bc2e76552477a -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:32:20
+
+<!-- codex-worklog-signature: 06efc112e00a5de0e478ed7426784dc2f91678cf3eb18a455122b3c7a82f7787 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:32:54
+
+<!-- codex-worklog-signature: 3be20d31584aed04299d2a64b352cc469b2dc9d7cc8c43ae7ec5010fee355d49 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:36:11
+
+<!-- codex-worklog-signature: b85739e5773dda702b98dd2a2cb30dc0d1efb0a99dcb4478ce58e37b53e5b739 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:36:11
+
+<!-- codex-worklog-signature: b85739e5773dda702b98dd2a2cb30dc0d1efb0a99dcb4478ce58e37b53e5b739 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:38:57
+
+<!-- codex-worklog-signature: d1fb0d3eec15a1f4b44d28f836a9e835c23f2b2eca7ec9ba5de66b0c7302690c -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:39:36
+
+<!-- codex-worklog-signature: 44b04217ffb1a41cbce2c20578ab3cfca7ccda01a7ff29a83fb08080e497479e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:40:07
+
+<!-- codex-worklog-signature: f5671752825c2ccbc2088e72c4fe4a9dd25929d25d6d986c9af8684be8f24a26 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:42:37
+
+<!-- codex-worklog-signature: d922d97c458c06b734075b23d9817fb05b161f9f22edd5ed3479638b985b7127 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:43:15
+
+<!-- codex-worklog-signature: 9ff40eccd4c841c6396074bee5a6762c51d66814b8107de557ef1dd1757c44b4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:46:22
+
+<!-- codex-worklog-signature: 4d251b5afa8a994429e73b53c06fd1c9737716cb1a0e0b66c6ef68a6240b1853 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:47:17
+
+<!-- codex-worklog-signature: 45201e69bef3b21e269b738df1cbb25a35442b853c4981353eef658238b42397 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:47:25
+
+<!-- codex-worklog-signature: efda092b42f5029f1c25ad41065882a447045fdd9042adaf48b2dbc431eca9aa -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:47:52
+
+<!-- codex-worklog-signature: 7178c54202d1720923532b3e5085356366fa4309186629e547684c7996d738c7 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:48:56
+
+<!-- codex-worklog-signature: 788227eab8640fcf4854c10e2d2919f0436b9376ad4129da37ee9d010562d0b9 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+?? docs/request-ledgers/2026-06-16-m7-narrative-integration.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:49:56
+
+<!-- codex-worklog-signature: 4c069c923d4e9cb5141fe39b266dd7af5132c81448eb66590b89c49e143fda0e -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:50:42
+
+<!-- codex-worklog-signature: 929d4ccf40cb1bd8d4a240b51d531f0f8add9019cb3b6d1ce4b2475b28bb6410 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd
+?? docs/m7-manual-signoff-checklist.ko.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:51:08
+
+<!-- codex-worklog-signature: f8472d2d50a39ad12b3f66cfb0d63f8222980f3de41f19bb450dea277dbb4ea3 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/scenes/pages/CharacterSelectPage.gd
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 13:51:15
+
+<!-- codex-worklog-signature: d3c7efca21020e148a1890f42525d87b0a79b8de0df4d558d9f0545a754b07d4 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/scenes/pages/CharacterSelectPage.gd
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+?? app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 14:03:10
+
+<!-- codex-worklog-signature: 4f1cef3b261c8624bd2795772fced06e7842d821a2cbf6470270a7bee2fb4908 -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: apply_patch
+- Files or areas touched:
+``text
+ M app-LTL/src/MainController.gd
+ M app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+ M app-LTL/src/controllers/MainControllerRenderFlow.gd
+ M app-LTL/src/data/narrative-beats.json
+ M app-LTL/src/scenes/pages/CharacterSelectPage.gd
+ M app-LTL/src/ui/CombatScenePreviewController.gd
+ M app-LTL/src/ui/MainViewRuntime.gd
+ M app-LTL/src/ui/PageSceneModelBuilder.gd
+ M app-LTL/src/ui/SceneReadModel.gd
+ M app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+ M app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+ M app-LTL/src/vocabulary/ReleaseContentVocab.gd
+ M app-LTL/tests/godot_contract_runner.gd
+ M app-LTL/tests/run_node_select_start_gate_contract.gd
+ M app-LTL/tests/test_release_content_contract.gd
+ M app-LTL/tests/test_ui_read_models.gd
+ M app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+ M app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+ M docs/codex-worklog/complete_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md
+ M docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md
+ M docs/source-map.md
+?? app-LTL/src/models/NarrativeBeat.gd
+?? app-LTL/src/models/NarrativeHistory.gd
+?? app-LTL/src/scenes/narrative/
+?? app-LTL/src/ui/read_models/NarrativeReadModel.gd
+?? app-LTL/src/vocabulary/narrative/
+?? app-LTL/tests/test_narrative_contract.gd
+?? app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
+
+## 2026-06-16 15:11:45
+
+<!-- codex-worklog-signature: ffd28327d2ab900517ac178d4b242f11f76f22bf508ed5e3fad5d4fd94a592bf -->
+
+- Intent: Workspace files changed through Codex tooling.
+- Tool: Bash
+- Files or areas touched:
+``text
+M  app-LTL/src/MainController.gd
+M  app-LTL/src/controllers/MainControllerBootstrapFlow.gd
+M  app-LTL/src/controllers/MainControllerRenderFlow.gd
+M  app-LTL/src/data/narrative-beats.json
+A  app-LTL/src/models/NarrativeBeat.gd
+A  app-LTL/src/models/NarrativeHistory.gd
+A  app-LTL/src/scenes/narrative/NarrativeToast.gd
+M  app-LTL/src/scenes/pages/CharacterSelectPage.gd
+M  app-LTL/src/ui/CombatScenePreviewController.gd
+M  app-LTL/src/ui/MainViewRuntime.gd
+M  app-LTL/src/ui/PageSceneModelBuilder.gd
+M  app-LTL/src/ui/SceneReadModel.gd
+M  app-LTL/src/ui/main_view/MainViewChromeRuntime.gd
+M  app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd
+M  app-LTL/src/ui/main_view/MainViewRuntimeState.gd
+A  app-LTL/src/ui/read_models/NarrativeReadModel.gd
+M  app-LTL/src/vocabulary/ReleaseContentVocab.gd
+A  app-LTL/src/vocabulary/narrative/BuildNarrativeTelemetry.gd
+A  app-LTL/src/vocabulary/narrative/MarkNarrativeSeen.gd
+A  app-LTL/src/vocabulary/narrative/SelectNarrativeBeat.gd
+M  app-LTL/tests/godot_contract_runner.gd
+M  app-LTL/tests/run_node_select_start_gate_contract.gd
+A  app-LTL/tests/test_narrative_contract.gd
+M  app-LTL/tests/test_release_content_contract.gd
+M  app-LTL/tests/test_ui_read_models.gd
+M  app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd
+A  app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd
+M  app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd
+A  app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd
+M  docs/codex-worklog/complete_LootingTheLeviathan_2026-06-16.md
+``
+- Summary: Review the plan and current diff for semantic details; keep this entry compressed if later updates touch the same area.
+- Verification: Not recorded by hook. Update this after running checks.
