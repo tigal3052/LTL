@@ -10,6 +10,7 @@ func run_all_tests() -> Dictionary:
 	test_text_catalog_switches_korean_and_english()
 	test_text_catalog_loads_external_locale_json()
 	test_text_catalog_korean_names_are_readable()
+	test_main_view_locale_runtime_helper_exists()
 	test_main_controller_character_roster_reloads_from_locale_catalog()
 	test_main_controller_leviathan_roster_reloads_from_locale_catalog()
 	test_reward_drill_tooltip_compares_same_color_equipped_drill()
@@ -141,9 +142,21 @@ func test_text_catalog_korean_names_are_readable() -> void:
 	_assert_eq(TextCatalogScript.display_name("Safe Scar"), "안전한 균열", "safe scar korean display name")
 	_assert_eq(TextCatalogScript.display_name("Ruby Drill"), "루비 드릴", "ruby drill korean display name")
 
+func test_main_view_locale_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewLocaleRuntime.gd"
+	var Helper = load(helper_path)
+	_assert(Helper != null, "main view locale runtime helper exists")
+	if Helper != null:
+		_assert(Helper.has_method("apply_locale"), "locale helper owns main view text application")
+		_assert(Helper.has_method("set_label_text"), "locale helper owns direct label text updates")
+		_assert(Helper.has_method("set_bundle_label_text"), "locale helper owns page bundle label text updates")
+		_assert(Helper.has_method("resolved_header_title"), "locale helper owns header title resolution")
+		_assert(_source_line_count(helper_path) <= 500, "main view locale runtime helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1135, "MainViewRuntime delegates locale responsibilities")
+
 # ?ㅽ뻾: verify character roster projections rebuild from the active locale catalog.
 func test_main_controller_character_roster_reloads_from_locale_catalog() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	TextCatalogScript.set_locale("ko")
 	var korean_roster: Array = controller.call("_load_character_roster")
 	TextCatalogScript.set_locale("en")
@@ -162,7 +175,7 @@ func test_main_controller_character_roster_reloads_from_locale_catalog() -> void
 
 # ?ㅽ뻾: verify leviathan roster projections rebuild from the active locale catalog.
 func test_main_controller_leviathan_roster_reloads_from_locale_catalog() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	TextCatalogScript.set_locale("ko")
 	var korean_roster: Array = controller.call("_load_leviathan_roster")
 	TextCatalogScript.set_locale("en")
@@ -272,4 +285,12 @@ func test_reward_read_model_uses_localized_reward_text() -> void:
 	_assert_eq(str(ko_model.get("presentation", {}).get("description", "")), "?쒗뿕??鍮꾩퐯 ?ㅻ챸", "reward read model uses Korean localized description")
 	_assert_eq(str(en_model.get("presentation", {}).get("description", "")), "Test beacon description", "reward read model uses English localized description")
 	TextCatalogScript.set_locale("ko")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var text := file.get_as_text()
+	file.close()
+	return text.split("\n").size()
 

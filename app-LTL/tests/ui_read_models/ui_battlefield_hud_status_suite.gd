@@ -2,6 +2,8 @@ extends "res://tests/support/UiReadModelTestSuite.gd"
 
 func run_all_tests() -> Dictionary:
 	failures.clear()
+	test_status_panel_extracts_info_cards_and_caps_owner()
+	test_main_view_feedback_runtime_helper_exists()
 	test_main_scene_uses_header_miner_status_timer_and_tabbed_sidebar()
 	test_status_panel_scene_uses_node_info_and_drill_info_structure()
 	test_status_panel_metric_cards_use_health_before_shield_with_round_dots()
@@ -11,6 +13,34 @@ func run_all_tests() -> Dictionary:
 	test_failure_read_model_projects_run_failed_overlay()
 	test_status_panel_overlay_honors_explicit_hidden_flag()
 	return _result()
+
+func test_status_panel_extracts_info_cards_and_caps_owner() -> void:
+	var helper_path := "res://src/ui/status_panel/StatusPanelInfoCards.gd"
+	_assert(FileAccess.file_exists(helper_path), "status panel info-card helper exists")
+	if FileAccess.file_exists(helper_path):
+		var HelperScript = load(helper_path)
+		_assert(HelperScript != null, "status panel info-card helper loads")
+		if HelperScript != null:
+			_assert(HelperScript.has_method("node_meta_text"), "status panel info-card helper owns node metadata copy")
+			_assert(HelperScript.has_method("metric_stack"), "status panel info-card helper owns metric card construction")
+			_assert(HelperScript.has_method("render_note_row"), "status panel info-card helper owns node info note chips")
+		var helper_lines := _source_line_count(helper_path)
+		_assert(helper_lines > 0 and helper_lines <= 500, "status panel info-card helper stays within 500 lines, got %d" % helper_lines)
+	var status_lines := _source_line_count("res://src/ui/StatusPanelUI.gd")
+	_assert(status_lines > 0 and status_lines <= 500, "StatusPanelUI.gd stays within 500 lines after info-card extraction, got %d" % status_lines)
+
+func test_main_view_feedback_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewFeedbackRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView feedback runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("add_log"), "feedback helper owns log forwarding")
+		_assert(HelperScript.has_method("update_discard_zone"), "feedback helper owns discard zone state")
+		_assert(HelperScript.has_method("get_cell_global_pos"), "feedback helper owns battlefield cell positioning")
+		_assert(HelperScript.has_method("trigger_damage_popups"), "feedback helper owns damage popup anchoring")
+		_assert(HelperScript.has_method("trigger_screenshake"), "feedback helper owns screenshake triggering")
+		_assert(_source_line_count(helper_path) <= 500, "MainView feedback helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 946, "MainViewRuntime delegates combat feedback responsibilities")
 
 func test_main_scene_uses_header_miner_status_timer_and_tabbed_sidebar() -> void:
 	var BattlefieldPanelScene = load("res://src/scenes/pages/shells/BattlefieldPanel.tscn")
@@ -226,3 +256,13 @@ func test_status_panel_overlay_honors_explicit_hidden_flag() -> void:
 		"accent": "danger"
 	})
 	_assert_eq(overlay.visible, false, "status panel respects explicit hidden overlay requests so defeat pages can own the full screen")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return -1
+	var count := 0
+	while not file.eof_reached():
+		file.get_line()
+		count += 1
+	return count

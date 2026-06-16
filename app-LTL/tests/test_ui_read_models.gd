@@ -9,6 +9,7 @@ const UIBattlefieldHudStatusSuiteScript = preload("res://tests/ui_read_models/ui
 const UIDefeatVisualSuiteScript = preload("res://tests/ui_read_models/ui_defeat_visual_suite.gd")
 const UIInteractionControllerSuiteScript = preload("res://tests/ui_read_models/ui_interaction_controller_suite.gd")
 const UIInteractionFeedbackAccessibilitySuiteScript = preload("res://tests/ui_read_models/ui_interaction_feedback_accessibility_suite.gd")
+const UIMainControllerStructureSuiteScript = preload("res://tests/ui_read_models/ui_main_controller_structure_suite.gd")
 const UIAppShellLayoutPolicySuiteScript = preload("res://tests/ui_read_models/ui_app_shell_layout_policy_suite.gd")
 const UIOverlayContractSuiteScript = preload("res://tests/ui_read_models/ui_overlay_contract_suite.gd")
 const UIPageSceneModelBuilderSuiteScript = preload("res://tests/ui_read_models/ui_page_scene_model_builder_suite.gd")
@@ -33,6 +34,7 @@ func run_all_tests() -> Dictionary:
 		UIDefeatVisualSuiteScript,
 		UIInteractionControllerSuiteScript,
 		UIInteractionFeedbackAccessibilitySuiteScript,
+		UIMainControllerStructureSuiteScript,
 		UIAppShellLayoutPolicySuiteScript,
 		UIOverlayContractSuiteScript,
 		UIPageSceneModelBuilderSuiteScript,

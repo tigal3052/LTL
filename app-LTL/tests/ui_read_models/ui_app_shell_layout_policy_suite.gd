@@ -3,6 +3,7 @@ extends "res://tests/support/UiReadModelTestSuite.gd"
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_app_shell_layout_policy_script_exists()
+	test_main_view_app_shell_runtime_helper_exists()
 	test_app_shell_layout_policy_projects_safe_shell_size()
 	test_app_shell_layout_policy_projects_active_phase_budget()
 	test_app_shell_layout_policy_projects_top_content_budget()
@@ -12,6 +13,20 @@ func run_all_tests() -> Dictionary:
 func test_app_shell_layout_policy_script_exists() -> void:
 	var script = load("res://src/ui/presenters/AppShellLayoutPolicy.gd")
 	_assert(script != null, "app shell layout policy helper exists for MainViewRuntime extraction")
+
+func test_main_view_app_shell_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewAppShellRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView app shell runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("max_safe_active_phase_height"), "MainView app shell helper owns active phase height budget")
+		_assert(HelperScript.has_method("apply_top_content_backpack_bounds"), "MainView app shell helper owns top-content backpack bounds")
+		_assert(HelperScript.has_method("viewport_safe_app_shell_size"), "MainView app shell helper owns safe viewport size")
+		_assert(HelperScript.has_method("sync_top_content_backpack_layout"), "MainView app shell helper owns top-content backpack sync")
+		_assert(HelperScript.has_method("queue_shared_backpack_layout_sync"), "MainView app shell helper owns shared backpack queueing")
+		_assert(HelperScript.has_method("sync_shared_backpack_layout"), "MainView app shell helper owns shared backpack sync")
+		_assert(_source_line_count(helper_path) <= 500, "MainView app shell helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1480, "MainViewRuntime delegates app shell layout runtime after the fifth split checkpoint")
 
 func test_app_shell_layout_policy_projects_safe_shell_size() -> void:
 	var script = load("res://src/ui/presenters/AppShellLayoutPolicy.gd")
@@ -46,3 +61,14 @@ func test_app_shell_layout_policy_caps_reward_backpack_panel_height() -> void:
 		return
 	var cap := float(script.reward_backpack_panel_visible_height_cap(540.0, 32.0, 16.0, 12.0, 44.0, 132.0))
 	_assert_close(cap, 286.0, 0.01, "reward backpack height cap subtracts panel chrome from the active reward panel height")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count

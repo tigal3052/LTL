@@ -3,6 +3,7 @@ extends "res://tests/support/UiReadModelTestSuite.gd"
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_reward_board_layout_policy_script_exists()
+	test_main_view_reward_layout_runtime_helper_exists()
 	test_reward_board_available_width_keeps_chrome_cushion()
 	test_reward_board_layout_targets_preserve_bottom_row_minimum()
 	test_reward_zone_body_target_height_subtracts_zone_chrome()
@@ -12,6 +13,20 @@ func run_all_tests() -> Dictionary:
 func test_reward_board_layout_policy_script_exists() -> void:
 	var script = load("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
 	_assert(script != null, "reward board layout policy helper exists for MainViewRuntime extraction")
+
+func test_main_view_reward_layout_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewRewardLayoutRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView reward layout runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("apply_node_select_backpack_dock"), "MainView reward layout helper owns node-select backpack docking")
+		_assert(HelperScript.has_method("apply_reward_backpack_dock"), "MainView reward layout helper owns reward backpack docking")
+		_assert(HelperScript.has_method("sync_reward_board_layout"), "MainView reward layout helper owns reward board sync")
+		_assert(HelperScript.has_method("reward_board_available_width"), "MainView reward layout helper owns reward board width projection")
+		_assert(HelperScript.has_method("reward_backpack_panel_dimensions_for_host"), "MainView reward layout helper owns reward backpack panel dimensions")
+		_assert(HelperScript.has_method("reward_backpack_panel_visible_height_cap"), "MainView reward layout helper owns reward backpack visible-height cap")
+		_assert(_source_line_count(helper_path) <= 500, "MainView reward layout helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1900, "MainViewRuntime delegates reward board layout runtime after the third split checkpoint")
 
 func test_reward_board_available_width_keeps_chrome_cushion() -> void:
 	var script = load("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
@@ -47,3 +62,14 @@ func test_reward_backpack_panel_dimensions_respect_height_cap() -> void:
 	var dims: Vector2 = script.backpack_panel_dimensions_for_host(host_size, 32.0, 56.0, 250.0)
 	_assert(dims.x <= host_size.x + 0.01, "reward backpack panel width stays inside the host width cap")
 	_assert(dims.y <= 250.0 + 0.01, "reward backpack panel height respects the visible height cap")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count

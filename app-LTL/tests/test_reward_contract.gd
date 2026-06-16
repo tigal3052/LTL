@@ -15,6 +15,7 @@ const CreateArtifactFromRewardScript = preload("res://src/vocabulary/reward/Crea
 const ApplyRewardEffectScript = preload("res://src/vocabulary/reward/ApplyRewardEffect.gd")
 const ApplyGrowthModifiersScript = preload("res://src/vocabulary/progression/ApplyGrowthModifiers.gd")
 const ArtifactCodexReadModelScript = preload("res://src/ui/read_models/ArtifactCodexReadModel.gd")
+const ArtifactCodexArtResolverScript = preload("res://src/ui/ArtifactCodexArtResolver.gd")
 
 var failures: Array[String] = []
 
@@ -30,6 +31,7 @@ func run_all_tests() -> Dictionary:
 	test_reward_table_has_balanced_expanded_artifact_pool()
 	test_reward_table_includes_launch_relic_slice()
 	test_reward_table_uses_beacon_heavy_type_distribution()
+	test_common_and_rare_drill_shapes_match_drill_art()
 	test_reward_table_uses_localized_text_contract()
 	test_reward_table_korean_localized_text_is_readable()
 	test_epic_plus_rewards_define_special_effect_schema()
@@ -43,6 +45,7 @@ func run_all_tests() -> Dictionary:
 	test_apply_reward_effect_records_artifact_discovery()
 	test_artifact_codex_projects_discovered_and_debug_entries()
 	test_artifact_codex_projects_book_sections_selection_and_art_descriptors()
+	test_artifact_codex_drill_descriptor_prefers_raw_common_rare_png()
 	test_artifact_codex_selection_normalizes_when_filtered_out()
 	test_artifact_codex_sorts_entries_by_rarity_color_type_name()
 	test_reward_artifact_creation_vocab()
@@ -362,6 +365,25 @@ func test_reward_table_uses_beacon_heavy_type_distribution() -> void:
 	_assert_eq(total_relics, 12, "expanded pool has the approved twelve relics")
 	_assert(total_beacons > total_drills, "beacon combinators outnumber one-per-color drill anchors")
 
+func test_common_and_rare_drill_shapes_match_drill_art() -> void:
+	var table := _load_reward_table_fixture()
+	var expected_shapes := {
+		"common": [[1]],
+		"rare": [[1], [1]]
+	}
+	var seen := {"common": 0, "rare": 0}
+	for reward in table.get("rewards", []):
+		var rarity := str((reward as Dictionary).get("rarity", "")).to_lower()
+		if not expected_shapes.has(rarity):
+			continue
+		var payload: Dictionary = (reward as Dictionary).get("payload", {})
+		if str(payload.get("item_type", "drill")).to_lower() != "drill":
+			continue
+		_assert_eq(_normalized_int_shape(payload.get("shape", [])), expected_shapes[rarity], "%s %s drill shape matches drill art footprint" % [str(reward.get("id", "")), rarity])
+		seen[rarity] = int(seen.get(rarity, 0)) + 1
+	_assert_eq(int(seen["common"]), 4, "common drill pool keeps one drill per color")
+	_assert_eq(int(seen["rare"]), 4, "rare drill pool keeps one drill per color")
+
 func test_reward_table_uses_localized_text_contract() -> void:
 	var table := _load_reward_table_fixture()
 	for reward in table.get("rewards", []):
@@ -610,6 +632,30 @@ func test_artifact_codex_projects_book_sections_selection_and_art_descriptors() 
 	_assert(hero_art.has("state"), "hero art descriptor exposes state")
 	var right_page: Dictionary = model.get("rightPage", {})
 	_assert(right_page.has("gridEntries"), "codex exposes grid entries for the right page")
+
+func test_artifact_codex_drill_descriptor_prefers_raw_common_rare_png() -> void:
+	var common_desc: Dictionary = ArtifactCodexArtResolverScript.descriptor_for_reward({
+		"id": "reward_common_red_drill_test",
+		"rarity": "common",
+		"payload": {"item_type": "drill", "energy_type": "red"},
+		"presentation": {"icon": "missing_common_drill_art"}
+	}, "thumb", true)
+	_assert_eq(str(common_desc.get("path", "")), "res://resources/items/drill/red_drill_common.png", "common red drill art resolves to raw item PNG")
+	_assert((common_desc.get("fallbackChain", []) as Array).has("res://resources/items/drill/red_drill_common.png"), "common drill art path is part of the fallback chain")
+	var rare_desc: Dictionary = ArtifactCodexArtResolverScript.descriptor_for_reward({
+		"id": "reward_rare_blue_drill_test",
+		"rarity": "rare",
+		"payload": {"item_type": "drill", "energy_type": "blue"},
+		"presentation": {"icon": "missing_rare_drill_art"}
+	}, "thumb", true)
+	_assert_eq(str(rare_desc.get("path", "")), "res://resources/items/drill/blue_drill_rare.png", "rare blue drill art resolves to raw item PNG")
+	var beacon_desc: Dictionary = ArtifactCodexArtResolverScript.descriptor_for_reward({
+		"id": "reward_common_blue_beacon_test",
+		"rarity": "common",
+		"payload": {"item_type": "beacon", "energy_type": "blue"},
+		"presentation": {"icon": "missing_common_beacon_art"}
+	}, "thumb", true)
+	_assert(not str(beacon_desc.get("path", "")).begins_with("res://resources/items/drill/"), "non-drill rewards do not inherit drill item PNG fallbacks")
 
 func test_artifact_codex_selection_normalizes_when_filtered_out() -> void:
 	var table := _load_reward_table_fixture()
@@ -868,6 +914,19 @@ func _shape_is_valid(shape: Variant) -> bool:
 			if value == 1:
 				filled += 1
 	return filled > 0 and width <= 8 and shape.size() <= 8
+
+func _normalized_int_shape(shape: Variant) -> Array:
+	var normalized: Array = []
+	if not shape is Array:
+		return normalized
+	for row in shape:
+		if not row is Array:
+			continue
+		var normalized_row: Array = []
+		for cell in row:
+			normalized_row.append(int(cell))
+		normalized.append(normalized_row)
+	return normalized
 
 func _localized_pair_is_valid(value: Variant) -> bool:
 	if not (value is Dictionary):

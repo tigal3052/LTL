@@ -9,6 +9,11 @@ func run_all_tests() -> Dictionary:
 	test_reward_reveal_overlay_safe_layout_caps_effect_radii()
 	test_reward_reveal_quantity_slots_center_even_pairs()
 	test_reward_ceremony_step_contract_and_node_select_color_gate()
+	test_node_select_runtime_extracts_visual_factory()
+	test_node_select_runtime_extracts_layout_policy()
+	test_node_select_runtime_extracts_roadmap_renderer()
+	test_node_select_runtime_extracts_content_model()
+	test_node_select_runtime_extracts_roadmap_composer()
 	test_reward_ceremony_policy_is_single_source_for_step_gates()
 	test_reward_reveal_cancel_suppresses_done_callback()
 	return _result()
@@ -158,7 +163,7 @@ func test_reward_reveal_quantity_slots_center_even_pairs() -> void:
 	overlay.free()
 
 func test_reward_ceremony_step_contract_and_node_select_color_gate() -> void:
-	var MainControllerScript = load("res://src/MainControllerRuntime.gd")
+	var MainControllerScript = load("res://src/MainController.gd")
 	var NodeSelectRuntimePageScene = load("res://src/scenes/pages/NodeSelectRuntimePage.tscn")
 	_assert(MainControllerScript != null, "main controller runtime loads for reward ceremony step contract")
 	_assert(NodeSelectRuntimePageScene != null, "node-select runtime page scene loads for starter-color gate contract")
@@ -178,6 +183,73 @@ func test_reward_ceremony_step_contract_and_node_select_color_gate() -> void:
 			if node_select_page.has_method("start_color_chip_count"):
 				_assert_eq(int(node_select_page.call("start_color_chip_count")), 0, "node-select runtime page keeps starter color chips absent while the stage-two gate is closed")
 			node_select_page.free()
+
+func test_node_select_runtime_extracts_visual_factory() -> void:
+	var visual_factory_path := "res://src/scenes/pages/node_select/NodeSelectVisualFactory.gd"
+	var VisualFactoryScript = load(visual_factory_path)
+	_assert(VisualFactoryScript != null, "node-select visual factory helper exists")
+	if VisualFactoryScript != null:
+		_assert(VisualFactoryScript.has_method("attach_hotspot_visual"), "node-select visual factory owns hotspot visual nodes")
+		_assert(VisualFactoryScript.has_method("refresh_hotspot_visual"), "node-select visual factory owns hover visual refresh")
+		_assert(VisualFactoryScript.has_method("attach_hotspot_tag"), "node-select visual factory owns hotspot tag placement")
+		_assert(VisualFactoryScript.has_method("panel_style"), "node-select visual factory owns panel style construction")
+		_assert(VisualFactoryScript.has_method("tone_palette"), "node-select visual factory owns route tone palettes")
+		_assert(VisualFactoryScript.has_method("node_core_texture"), "node-select visual factory owns generated node core textures")
+		_assert(_source_line_count(visual_factory_path) <= 500, "node-select visual factory stays within the 500-line cap")
+	_assert(_source_line_count("res://src/scenes/pages/NodeSelectRuntimePage.gd") <= 1050, "node-select runtime delegates visual construction after the first split checkpoint")
+
+func test_node_select_runtime_extracts_layout_policy() -> void:
+	var layout_policy_path := "res://src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd"
+	var LayoutPolicyScript = load(layout_policy_path)
+	_assert(LayoutPolicyScript != null, "node-select layout policy helper exists")
+	if LayoutPolicyScript != null:
+		_assert(LayoutPolicyScript.has_method("current_route_positions"), "node-select layout policy owns current route positions")
+		_assert(LayoutPolicyScript.has_method("spine_stage_position"), "node-select layout policy owns spine stage positions")
+		_assert(LayoutPolicyScript.has_method("future_slot_positions"), "node-select layout policy owns future slot positions")
+		_assert(LayoutPolicyScript.has_method("history_position_for_entry"), "node-select layout policy owns history entry positions")
+		_assert(LayoutPolicyScript.has_method("quadratic_curve"), "node-select layout policy owns route curve sampling")
+		_assert(_source_line_count(layout_policy_path) <= 500, "node-select layout policy stays within the 500-line cap")
+	_assert(_source_line_count("res://src/scenes/pages/NodeSelectRuntimePage.gd") <= 930, "node-select runtime delegates layout math after the second split checkpoint")
+
+func test_node_select_runtime_extracts_roadmap_renderer() -> void:
+	var renderer_path := "res://src/scenes/pages/node_select/NodeSelectRoadmapRenderer.gd"
+	var RendererScript = load(renderer_path)
+	_assert(RendererScript != null, "node-select roadmap renderer helper exists")
+	if RendererScript != null:
+		_assert(RendererScript.has_method("build_canvas_backdrop"), "node-select roadmap renderer owns canvas backdrop visuals")
+		_assert(RendererScript.has_method("build_stage_ruler"), "node-select roadmap renderer owns stage ruler visuals")
+		_assert(RendererScript.has_method("build_anatomy_backdrop"), "node-select roadmap renderer owns anatomy backdrop visuals")
+		_assert(RendererScript.has_method("add_dotted_route"), "node-select roadmap renderer owns dotted route drawing")
+		_assert(RendererScript.has_method("add_forecast_route"), "node-select roadmap renderer owns forecast route drawing")
+		_assert(RendererScript.has_method("add_ghost_route"), "node-select roadmap renderer owns ghost route drawing")
+		_assert(_source_line_count(renderer_path) <= 500, "node-select roadmap renderer stays within the 500-line cap")
+	_assert(_source_line_count("res://src/scenes/pages/NodeSelectRuntimePage.gd") <= 800, "node-select runtime delegates roadmap rendering after the third split checkpoint")
+
+func test_node_select_runtime_extracts_content_model() -> void:
+	var content_model_path := "res://src/scenes/pages/node_select/NodeSelectContentModel.gd"
+	var ContentModelScript = load(content_model_path)
+	_assert(ContentModelScript != null, "node-select content model helper exists")
+	if ContentModelScript != null:
+		_assert(ContentModelScript.has_method("candidate_palette"), "node-select content model owns candidate palette projection")
+		_assert(ContentModelScript.has_method("candidate_icon_kind"), "node-select content model owns candidate icon projection")
+		_assert(ContentModelScript.has_method("candidate_description"), "node-select content model owns candidate description copy")
+		_assert(ContentModelScript.has_method("route_history"), "node-select content model owns route-history fallback projection")
+		_assert(ContentModelScript.has_method("is_boss_stage"), "node-select content model owns boss-stage gating")
+		_assert(_source_line_count(content_model_path) <= 500, "node-select content model stays within the 500-line cap")
+	_assert(_source_line_count("res://src/scenes/pages/NodeSelectRuntimePage.gd") <= 680, "node-select runtime delegates content projection after the fourth split checkpoint")
+
+func test_node_select_runtime_extracts_roadmap_composer() -> void:
+	var composer_path := "res://src/scenes/pages/node_select/NodeSelectRoadmapComposer.gd"
+	var ComposerScript = load(composer_path)
+	_assert(ComposerScript != null, "node-select roadmap composer helper exists")
+	if ComposerScript != null:
+		_assert(ComposerScript.has_method("rebuild_canvas"), "node-select roadmap composer owns canvas rebuild orchestration")
+		_assert(ComposerScript.has_method("build_history_chain"), "node-select roadmap composer owns history chain composition")
+		_assert(ComposerScript.has_method("build_future_chain"), "node-select roadmap composer owns future chain composition")
+		_assert(ComposerScript.has_method("create_route_button"), "node-select roadmap composer owns route button construction")
+		_assert(ComposerScript.has_method("add_hover_hotspot"), "node-select roadmap composer owns hover hotspot construction")
+		_assert(_source_line_count(composer_path) <= 500, "node-select roadmap composer stays within the 500-line cap")
+	_assert(_source_line_count("res://src/scenes/pages/NodeSelectRuntimePage.gd") <= 500, "node-select runtime delegates composition and stays within the 500-line cap")
 
 # ?ㅽ뻾: verify battlefield cells keep the compact pre-M4 terrain aspect ratio.
 # ?ㅽ뻾: append a failure when condition is false.
@@ -222,3 +294,13 @@ func _record_reward_reveal_done_for_cancel_contract() -> void:
 func _ignore_reward_reveal_step_for_cancel_contract(_step: String) -> void:
 	pass
 
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count

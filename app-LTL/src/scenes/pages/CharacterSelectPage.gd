@@ -3,6 +3,8 @@ extends Control
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const ArtifactScript = preload("res://src/models/Artifact.gd")
+const BackpackGridFactoryScript = preload("res://src/ui/presenters/BackpackGridFactory.gd")
+const BackpackArtifactRendererScript = preload("res://src/ui/backpack/BackpackArtifactRenderer.gd")
 const CharacterSelectLoadoutTextScript = preload("res://src/scenes/pages/character_select/CharacterSelectLoadoutText.gd")
 const CharacterSelectPaletteViewScript = preload("res://src/scenes/pages/character_select/CharacterSelectPaletteView.gd")
 const BACKDROP_PATH := "res://resources/charactor/background.png"
@@ -382,10 +384,34 @@ func _refresh_bag_preview() -> void:
 			style.bg_color = accent.darkened(0.42).lightened(0.10)
 			style.border_color = accent.lightened(0.12)
 		slot_panel.add_theme_stylebox_override("panel", style)
+	_refresh_mini_bag_drill_image()
 	bag_hint.text = TextCatalogScript.t("character.bag_hint", [TextCatalogScript.color_label(_selected_color)])
 	_pinned_bag_slot_index = clampi(_pinned_bag_slot_index, 0, max(0, mini_slots.size() - 1))
 	_hovered_bag_slot_index = -1
 	_refresh_active_bag_detail()
+
+func _refresh_mini_bag_drill_image() -> void:
+	if mini_slots.is_empty():
+		return
+	var slot := mini_slots[0] as Control
+	if slot == null:
+		return
+	var image := slot.get_node_or_null("ItemImage") as TextureRect
+	if image == null:
+		image = TextureRect.new()
+		image.name = "ItemImage"
+		image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		image.z_index = 4
+		slot.add_child(image)
+		image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var texture_path := BackpackGridFactoryScript.drill_texture_path(_selected_color, "basic")
+	var texture := BackpackArtifactRendererScript.drill_display_texture(LTLThemeScript.art_texture(texture_path), [[1]])
+	image.texture = texture
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	image.visible = texture != null
+	image.set_meta("drill_texture_path", texture_path)
 
 func _refresh_cta_copy() -> void:
 	var selected := _find_character(_selected_id)

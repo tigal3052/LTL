@@ -9,6 +9,10 @@ func run_all_tests() -> Dictionary:
 	test_node_select_layout_is_full_page()
 	test_node_select_layout_uses_roadmap_page_shell()
 	test_node_select_layout_reuses_palette_when_start_panel_is_hidden()
+	test_main_view_runtime_state_base_exists()
+	test_main_view_lifecycle_runtime_helper_exists()
+	test_main_view_scene_runtime_helper_exists()
+	test_main_view_chrome_runtime_helper_exists()
 	test_top_content_backpack_uses_fixed_width_policy()
 	test_top_content_backpack_width_tracks_full_row_height()
 	test_top_content_backpack_width_ignores_available_space_clamp()
@@ -94,7 +98,7 @@ func test_node_select_layout_uses_roadmap_page_shell() -> void:
 	_assert_eq(model["shopButtonVisible"], false, "node select no longer uses the legacy shell shop button because the page frame owns utility actions")
 
 func test_node_select_layout_reuses_palette_when_start_panel_is_hidden() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	_assert(controller.has_method("node_map_loadout_colors_for_scene"), "main controller exposes one node-map loadout palette source")
 	if controller.has_method("node_map_loadout_colors_for_scene"):
 		_assert_eq(controller.call("node_map_loadout_colors_for_scene", {"phase": "node_select", "stageIndex": 1, "allowStartColorSelection": false}), ["red", "blue", "purple", "green"], "stage two keeps the same node-map palette data while the start panel is hidden")
@@ -103,6 +107,52 @@ func test_node_select_layout_reuses_palette_when_start_panel_is_hidden() -> void
 	var stage_two_layout := PhaseLayoutPresenterScript.project({"phase": "node_select", "stageIndex": 1, "maxStages": 5}, false)
 	_assert_eq(stage_one_layout.get("nodeMapFullPage", false), stage_two_layout.get("nodeMapFullPage", true), "node select keeps the same full-page layout shell across stages")
 	_assert_eq(stage_one_layout.get("nodeSelectBackpackDock", ""), stage_two_layout.get("nodeSelectBackpackDock", ""), "node select keeps the same backpack dock across stages")
+
+func test_main_view_scene_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewSceneRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView scene runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("render_scene"), "MainView scene helper owns scene render application")
+		_assert(HelperScript.has_method("start_reward_reveal_vfx"), "MainView scene helper owns reward reveal VFX startup")
+		_assert(HelperScript.has_method("reward_lid_source_global_rect"), "MainView scene helper owns reward reveal source rect fallback")
+		_assert(HelperScript.has_method("update_action_state"), "MainView scene helper owns action button state projection")
+		_assert(HelperScript.has_method("node_select_start_ready"), "MainView scene helper owns node-select start gating")
+		_assert(_source_line_count(helper_path) <= 500, "MainView scene helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1320, "MainViewRuntime delegates scene render runtime after the sixth split checkpoint")
+
+func test_main_view_runtime_state_base_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewRuntimeState.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView runtime state base exists")
+	if HelperScript != null:
+		_assert(_source_line_count(helper_path) <= 500, "MainView runtime state base stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 500, "MainViewRuntime facade stays within the 500-line cap")
+
+func test_main_view_lifecycle_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewLifecycleRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView lifecycle runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("ready"), "MainView lifecycle helper owns ready bootstrap")
+		_assert(HelperScript.has_method("input"), "MainView lifecycle helper owns drag input dispatch")
+		_assert(HelperScript.has_method("sync_viewport_shell_bounds"), "MainView lifecycle helper owns viewport shell sync")
+		_assert(HelperScript.has_method("apply_shared_split_layout_text_policies"), "MainView lifecycle helper owns wrapping text policy")
+		_assert(_source_line_count(helper_path) <= 500, "MainView lifecycle helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 750, "MainViewRuntime delegates lifecycle bootstrap responsibilities")
+
+func test_main_view_chrome_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewChromeRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView chrome runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("apply_shell_theme"), "MainView chrome helper owns shell theme application")
+		_assert(HelperScript.has_method("process"), "MainView chrome helper owns per-frame chrome updates")
+		_assert(HelperScript.has_method("create_tooltip_panel"), "MainView chrome helper owns tooltip panel construction")
+		_assert(HelperScript.has_method("show_reward_tooltip"), "MainView chrome helper owns reward tooltip projection")
+		_assert(HelperScript.has_method("defer_interaction_fx_install"), "MainView chrome helper owns deferred interaction FX install")
+		_assert(_source_line_count(helper_path) <= 500, "MainView chrome helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1000, "MainViewRuntime delegates chrome runtime responsibilities")
 
 func test_top_content_backpack_uses_fixed_width_policy() -> void:
 	var MainViewRuntimeScript = load("res://src/ui/MainViewRuntime.gd")
@@ -188,4 +238,15 @@ func test_top_content_backpack_width_uses_slot_scaled_pin_overhang() -> void:
 	_assert_close(main_side_outset, side_outset, 0.001, "main view and backpack agree on pin side outset")
 	_assert_close(width, grid_extent + side_outset * 2.0, 0.001, "top-content backpack width adds only left and right pin outsets")
 	_assert(width < 712.4, "top-content backpack no longer uses the old broad 30 percent full-grid width")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count
 

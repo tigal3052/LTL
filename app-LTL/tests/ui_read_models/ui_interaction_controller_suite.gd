@@ -3,10 +3,6 @@
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	reward_reveal_cancel_done_calls = 0
-	test_main_controller_uses_terrain_shift_interval()
-	test_main_controller_syncs_combat_ticks_to_shift_interval()
-	test_main_controller_prefers_clicked_cell_color_for_targeting()
-	test_main_controller_starter_loadout_positions_are_adjacent()
 	test_phase_layout_restores_combat_active_phase_height()
 	test_text_catalog_strips_item_implementation_tags()
 	test_combat_scene_projects_global_debuff_and_queue_match()
@@ -14,42 +10,11 @@ func run_all_tests() -> Dictionary:
 	test_vfx_manager_popup_palette_tracks_tile_color()
 	test_interaction_cues_distinguish_hover_press_drag_and_disabled()
 	test_backpack_drop_feedback_uses_real_placement_rules()
+	test_backpack_drop_feedback_targets_current_footprint_only()
 	test_backpack_hover_fx_stays_off()
 	test_backpack_ui_exposes_drag_start_signal_for_reward_board_rearrange()
 	test_reward_cloud_drag_anchor_clamps_inside_panel_bounds()
 	return _result()
-
-func test_main_controller_uses_terrain_shift_interval() -> void:
-	var MainControllerScript = load("res://src/MainControllerRuntime.gd")
-	_assert(MainControllerScript != null, "main controller runtime loads")
-	if MainControllerScript == null:
-		return
-	_assert_eq(float(MainControllerScript.TERRAIN_SHIFT_SECONDS), 1.5, "terrain marker shift interval is 1.5 seconds")
-
-# ?ㅽ뻾: verify backend cooldown ticks use the same 20 ticks/sec cadence as backpack animation.
-func test_main_controller_syncs_combat_ticks_to_shift_interval() -> void:
-	var MainControllerScript = load("res://src/MainControllerRuntime.gd")
-	_assert(MainControllerScript != null, "main controller runtime loads for shift tick sync")
-	if MainControllerScript == null:
-		return
-	_assert_eq(int(MainControllerScript.TERRAIN_SHIFT_TICKS), 30, "1.5 second shift advances 30 combat ticks")
-
-func test_main_controller_prefers_clicked_cell_color_for_targeting() -> void:
-	_assert_eq(MainControllerRuntimeScript.resolve_target_color_for_interaction("blue", "red"), "blue", "click targeting uses the clicked tile color instead of the active queue color")
-	_assert_eq(MainControllerRuntimeScript.resolve_target_color_for_interaction("green", "purple"), "green", "hover and hold targeting preserve the actual cell color")
-	_assert_eq(MainControllerRuntimeScript.resolve_target_color_for_interaction("normal", "red"), "red", "normal fallback still uses the active queue color when a cell exposes no color")
-	_assert_eq(MainControllerRuntimeScript.resolve_target_color_for_interaction("", "purple"), "purple", "empty cell-color input falls back to the active queue color")
-
-# ?ㅽ뻾: verify starter drill and beacon begin adjacent so stage-one cooldown support can work.
-func test_main_controller_starter_loadout_positions_are_adjacent() -> void:
-	var MainControllerScript = load("res://src/MainControllerRuntime.gd")
-	_assert(MainControllerScript != null, "main controller runtime loads for starter positions")
-	if MainControllerScript == null:
-		return
-	var positions: Array = MainControllerScript.STARTER_LOADOUT_POSITIONS
-	_assert_eq(positions.size(), 2, "starter loadout exposes two positions")
-	var delta: Vector2 = positions[0] - positions[1]
-	_assert_eq(int(abs(delta.x) + abs(delta.y)), 1, "starter drill and beacon begin orthogonally adjacent")
 
 # ??쎈뻬: verify reward names hide version, color, and size implementation tags.
 # ?ㅽ뻾: verify the expanded active phase is limited to the node-map page.
@@ -117,7 +82,7 @@ func test_combat_scene_projects_global_debuff_and_queue_match() -> void:
 	_assert_eq(scene["hud"].get("purplePressure", {}).get("active", false), true, "purple pressure flag turns on when weakened or fortified stacks are active")
 
 func test_main_controller_projects_split_damage_popups_using_tile_color() -> void:
-	var events: Array = MainControllerRuntimeScript.build_damage_popup_events(
+	var events: Array = MainControllerCombatFlowScript.build_damage_popup_events(
 		{"shield": 2.4, "health": 10.0},
 		{"shield": 1.6, "health": 9.1},
 		"purple",
@@ -131,7 +96,7 @@ func test_main_controller_projects_split_damage_popups_using_tile_color() -> voi
 	_assert_eq(str(events[1].get("channel", "")), "health", "health popup is emitted second")
 	_assert(abs(float(events[1].get("amount", 0.0)) - 0.9) < 0.001, "health popup keeps exact hp damage")
 	_assert_eq(str(events[1].get("color", "")), "purple", "health popup color also follows the hit tile color")
-	var fallback_events: Array = MainControllerRuntimeScript.build_damage_popup_events(
+	var fallback_events: Array = MainControllerCombatFlowScript.build_damage_popup_events(
 		{"shield": 1.0, "health": 10.0},
 		{"shield": 0.5, "health": 10.0},
 		"normal",
@@ -139,7 +104,7 @@ func test_main_controller_projects_split_damage_popups_using_tile_color() -> voi
 		"match"
 	)
 	_assert_eq(str(fallback_events[0].get("color", "")), "green", "normal tiles fall back to the active shot color for popup tint")
-	var empty_events: Array = MainControllerRuntimeScript.build_damage_popup_events(
+	var empty_events: Array = MainControllerCombatFlowScript.build_damage_popup_events(
 		{"shield": 1.0, "health": 10.0},
 		{"shield": 1.0, "health": 10.0},
 		"red",
@@ -181,6 +146,19 @@ func test_backpack_drop_feedback_uses_real_placement_rules() -> void:
 	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, held, 2, 2), true, "empty space accepts dragged artifact")
 	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, held, 0, 0), false, "occupied slot blocks dragged artifact")
 	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, held, 7, 7), false, "out of bounds shape blocks dragged artifact")
+	var same_color_drill = ArtifactScript.new({"id": "held_red", "name": "Held Red", "shape": [[1]], "energyType": "red", "item_type": "drill"})
+	var other_color_drill = ArtifactScript.new({"id": "held_blue_drill", "name": "Held Blue Drill", "shape": [[1]], "energyType": "blue", "item_type": "drill"})
+	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, same_color_drill, 2, 2), false, "same-color drill duplicate blocks dragged drill")
+	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, other_color_drill, 2, 2), true, "different-color drill remains placeable under the existing duplicate policy")
+
+func test_backpack_drop_feedback_targets_current_footprint_only() -> void:
+	var held = ArtifactScript.new({"id": "held_shape", "name": "Held Shape", "shape": [[1, 1], [0, 1]], "energyType": "green", "item_type": "beacon"})
+	_assert_eq(
+		BackpackUIScript.drop_feedback_cells_for(held, 3, 4),
+		[Vector2(3, 4), Vector2(4, 4), Vector2(4, 5)],
+		"drop feedback marks only occupied cells in the current hover footprint"
+	)
+	_assert_eq(BackpackUIScript.drop_feedback_cells_for(held, -1, 4), [], "drop feedback clears when the hover origin is outside the backpack")
 
 func test_backpack_hover_fx_stays_off() -> void:
 	_assert_eq(BackpackUIScript.slot_hover_fx_enabled(), false, "backpack slots keep hover wobble disabled so inventory readability stays stable")

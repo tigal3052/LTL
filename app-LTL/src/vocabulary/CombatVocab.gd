@@ -10,118 +10,15 @@ extends RefCounted
 
 const ShiftWeaknessMarkersScript = preload("res://src/vocabulary/combat/ShiftWeaknessMarkers.gd")
 const SpawnNewTileObstaclesScript = preload("res://src/vocabulary/combat/SpawnNewTileObstacles.gd")
+const CombatRelicHooksScript = preload("res://src/vocabulary/combat/CombatRelicHooks.gd")
+const CombatTerrainEffectsScript = preload("res://src/vocabulary/combat/CombatTerrainEffects.gd")
+const CombatObstacleDefinitionsScript = preload("res://src/vocabulary/combat/CombatObstacleDefinitions.gd")
 
-const OBSTACLE_FAMILIES := ["red", "blue", "purple", "green"]
-const PURPLE_WEAKENED_EFFECT := "weakened_terrain"
-const PURPLE_FORTIFIED_EFFECT := "fortified_terrain"
-const OBSTACLE_MIN_REACTION_COLUMNS := 2
-const OBSTACLE_WARNING_TICKS_FAST := 10
-const OBSTACLE_WARNING_TICKS_NORMAL := 20
 const OBSTACLE_AFTERGLOW_TICKS := 12
 
 # 실행: prepare a new combat simulator instance.
 static func prepare_combat(choice: Dictionary, tuning: Dictionary, queue_capacity: int) -> CombatSimulator:
 	return CombatSimulator.new(choice, tuning, queue_capacity)
-
-static func _equipped_relics(inventory: InventoryModel) -> Array:
-	var relics: Array = []
-	if inventory == null:
-		return relics
-	for art_id in inventory.artifacts:
-		var art = inventory.artifacts[art_id]
-		if art is Artifact and art.item_type == "relic":
-			relics.append(art)
-	return relics
-
-static func _relics_with_type(inventory: InventoryModel, effect_type: String) -> Array:
-	var relics: Array = []
-	for relic in _equipped_relics(inventory):
-		if str(relic.effect_schema.get("type", "")) == effect_type:
-			relics.append(relic)
-	return relics
-
-static func _linked_relics_for_artifact(inventory: InventoryModel, artifact: Artifact, effect_type: String = "") -> Array:
-	var relics: Array = []
-	if inventory == null or artifact == null:
-		return relics
-	for relic in _equipped_relics(inventory):
-		if not effect_type.is_empty() and str(relic.effect_schema.get("type", "")) != effect_type:
-			continue
-		for linked_artifact in inventory.get_relic_linked_artifacts(relic):
-			if linked_artifact is Artifact and linked_artifact.id == artifact.id:
-				relics.append(relic)
-				break
-	return relics
-
-static func _runtime_bucket(sim: CombatSimulator, key: String) -> Dictionary:
-	if not sim.relic_runtime.has(key) or not (sim.relic_runtime.get(key) is Dictionary):
-		sim.relic_runtime[key] = {}
-	return sim.relic_runtime[key]
-
-static func _consume_once(sim: CombatSimulator, relic_id: String) -> bool:
-	var consumed := _runtime_bucket(sim, "consumed")
-	if consumed.has(relic_id):
-		return false
-	consumed[relic_id] = true
-	return true
-
-static func _increment_relic_counter(sim: CombatSimulator, relic_id: String, amount: int = 1) -> int:
-	var counters := _runtime_bucket(sim, "counters")
-	var next_value := int(counters.get(relic_id, 0)) + amount
-	counters[relic_id] = next_value
-	return next_value
-
-static func _set_relic_counter(sim: CombatSimulator, relic_id: String, value: int) -> void:
-	var counters := _runtime_bucket(sim, "counters")
-	counters[relic_id] = maxi(0, value)
-
-static func _grant_shot_buff(sim: CombatSimulator, source_artifact_id: String, charges: int, damage_multiplier: float) -> void:
-	if source_artifact_id.is_empty() or charges <= 0:
-		return
-	var shot_buffs := _runtime_bucket(sim, "shotBuffs")
-	var buff: Dictionary = shot_buffs.get(source_artifact_id, {})
-	buff["charges"] = int(buff.get("charges", 0)) + charges
-	buff["damageMultiplier"] = maxf(float(buff.get("damageMultiplier", 1.0)), damage_multiplier)
-	shot_buffs[source_artifact_id] = buff
-
-static func _consume_shot_buff_multiplier(sim: CombatSimulator, source_artifact_id: String, source_drill: Artifact = null) -> float:
-	var artifact_id := source_artifact_id
-	if artifact_id.is_empty() and source_drill != null:
-		artifact_id = source_drill.id
-	if artifact_id.is_empty():
-		return 1.0
-	var shot_buffs := _runtime_bucket(sim, "shotBuffs")
-	if not shot_buffs.has(artifact_id):
-		return 1.0
-	var buff = shot_buffs.get(artifact_id, {})
-	if not (buff is Dictionary):
-		shot_buffs.erase(artifact_id)
-		return 1.0
-	var charges := int(buff.get("charges", 0))
-	if charges <= 0:
-		shot_buffs.erase(artifact_id)
-		return 1.0
-	var multiplier := maxf(1.0, float(buff.get("damageMultiplier", 1.5)))
-	charges -= 1
-	if charges <= 0:
-		shot_buffs.erase(artifact_id)
-	else:
-		buff["charges"] = charges
-		shot_buffs[artifact_id] = buff
-	return multiplier
-
-static func _consume_linked_relic_once(sim: CombatSimulator, inventory: InventoryModel, artifact: Artifact, effect_type: String) -> bool:
-	for relic in _linked_relics_for_artifact(inventory, artifact, effect_type):
-		if _consume_once(sim, relic.id):
-			return true
-	return false
-
-static func _queue_token(color: String, source_artifact_id: String) -> Dictionary:
-	return {
-		"color": color,
-		"source_artifact_id": source_artifact_id,
-		"source_item_type": "drill"
-	}
 
 # 실행: fire a shot, consume energy from the queue, determine damage, update health/shield, and apply obstacle progress.
 static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_id: Variant, tuning: Dictionary, inventory: InventoryModel = null) -> void:
@@ -147,21 +44,21 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 	if sim.queue.is_empty() and not sim.repair_active:
 		apply_repair(sim)
 
-	var profile := _energy_profile(energy_color)
+	var profile := CombatTerrainEffectsScript.energy_profile(energy_color)
 	var base_shield := float(profile.get("shield", 0.5))
 	var base_hp := float(profile.get("health", 1.0))
 	var pierces_health := bool(profile.get("pierceHealth", false))
 	var applies_terrain_debuff := bool(profile.get("terrainDebuff", false))
-	var fortified_stacks := _terrain_buff_stack_count(sim)
+	var fortified_stacks := CombatTerrainEffectsScript.terrain_buff_stack_count(sim)
 	if energy_color == "purple":
-		var stack_bonus := float(_terrain_debuff_stack_count(sim)) * 0.20
+		var stack_bonus := float(CombatTerrainEffectsScript.terrain_debuff_stack_count(sim)) * 0.20
 		base_shield += stack_bonus
 		base_hp += stack_bonus
 
 	var damage_multiplier := 1.0
 	if source_drill != null:
 		damage_multiplier = source_drill.damage
-	damage_multiplier *= _consume_shot_buff_multiplier(sim, source_artifact_id, source_drill)
+	damage_multiplier *= CombatRelicHooksScript.consume_shot_buff_multiplier(sim, source_artifact_id, source_drill)
 	base_shield *= damage_multiplier
 	base_hp *= damage_multiplier
 
@@ -202,7 +99,7 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 	if pierces_health or sim.shield <= 0.0:
 		sim.health = maxf(0.0, sim.health - dmg_hp)
 	if applies_terrain_debuff:
-		_apply_purple_terrain_shift(sim, str(target_cell_id), energy_color)
+		CombatTerrainEffectsScript.apply_purple_terrain_shift(sim, str(target_cell_id), energy_color)
 
 	_apply_obstacle_hit(sim, resolved_target_cell_id, energy_color, inventory, source_artifact_id, source_drill)
 
@@ -213,10 +110,10 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 		sim.result = hit_type
 		if hit_type == "mismatch":
 			pin_active = true
-			if _consume_linked_relic_once(sim, inventory, source_drill, "first_mismatch_cleanse"):
+			if CombatRelicHooksScript.consume_linked_relic_once(sim, inventory, source_drill, "first_mismatch_cleanse"):
 				pin_active = false
 		elif hit_type == "match":
-			_after_weakness_hit(sim, inventory, resolved_target_color, energy_color)
+			CombatRelicHooksScript.after_weakness_hit(sim, inventory, resolved_target_color, energy_color)
 
 	if hit_type == "match" or sim.result == "clear":
 		sim.summary_shots_hit_match += 1
@@ -235,68 +132,6 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 	sim.aim_can_fire = not sim.disabled
 
 # 실행: return shield/health identity for each energy color.
-static func _energy_profile(energy_color: String) -> Dictionary:
-	match energy_color:
-		"red":
-			return {"shield": 0.5, "health": 1.35}
-		"blue":
-			return {"shield": 2.0, "health": 0.5}
-		"green":
-			return {"shield": 0.0, "health": 0.9, "pierceHealth": true}
-		"purple":
-			return {"shield": 0.55, "health": 0.55, "pierceHealth": true, "terrainDebuff": true}
-	return {"shield": 0.5, "health": 1.0}
-
-# 실행: record a stackable global terrain debuff caused by purple energy.
-static func _terrain_debuff_stack_count(sim: CombatSimulator) -> int:
-	var stacks := 0
-	for debuff in sim.terrain_debuffs:
-		if debuff is Dictionary and str(debuff.get("effect", "")) == PURPLE_WEAKENED_EFFECT:
-			stacks += maxi(1, int(debuff.get("stacks", 1)))
-	return stacks
-
-static func _terrain_buff_stack_count(sim: CombatSimulator) -> int:
-	var stacks := 0
-	for buff in sim.terrain_buffs:
-		if buff is Dictionary and str(buff.get("effect", "")) == PURPLE_FORTIFIED_EFFECT:
-			stacks += maxi(1, int(buff.get("stacks", 1)))
-	return stacks
-
-static func _apply_terrain_debuff(sim: CombatSimulator, target_cell_id: String, energy_color: String) -> void:
-	for debuff in sim.terrain_debuffs:
-		if str(debuff.get("scope", "")) == "global" and str(debuff.get("effect", "")) == PURPLE_WEAKENED_EFFECT:
-			debuff["stacks"] = int(debuff.get("stacks", 1)) + 1
-			return
-	sim.terrain_debuffs.append({"scope": "global", "lastCellId": target_cell_id, "effect": PURPLE_WEAKENED_EFFECT, "energy": energy_color, "stacks": 1})
-
-static func _apply_purple_terrain_shift(sim: CombatSimulator, target_cell_id: String, energy_color: String) -> void:
-	if _consume_global_terrain_modifier_stack(sim.terrain_buffs, PURPLE_FORTIFIED_EFFECT):
-		return
-	_apply_terrain_debuff(sim, target_cell_id, energy_color)
-
-static func _apply_terrain_buff(sim: CombatSimulator, effect_name: String, energy_color: String) -> void:
-	for buff in sim.terrain_buffs:
-		if str(buff.get("scope", "")) == "global" and str(buff.get("effect", "")) == effect_name:
-			buff["stacks"] = int(buff.get("stacks", 1)) + 1
-			return
-	sim.terrain_buffs.append({"scope": "global", "effect": effect_name, "energy": energy_color, "stacks": 1})
-
-static func _consume_global_terrain_modifier_stack(modifiers: Array, effect_name: String) -> bool:
-	for modifier in modifiers:
-		if not modifier is Dictionary:
-			continue
-		if str(modifier.get("scope", "")) != "global":
-			continue
-		if str(modifier.get("effect", "")) != effect_name:
-			continue
-		var stacks := maxi(0, int(modifier.get("stacks", 1)) - 1)
-		if stacks <= 0:
-			modifiers.erase(modifier)
-		else:
-			modifier["stacks"] = stacks
-		return true
-	return false
-
 # 실행: apply repair intent to fully reload the energy queue and reset pin/empty-shot states.
 static func apply_repair(sim: CombatSimulator) -> void:
 	sim.queue.clear()
@@ -329,7 +164,7 @@ static func tick_combat(sim: CombatSimulator, ticks: int, inventory: InventoryMo
 				sim.repair_available = true
 				sim.aim_can_fire = true
 				sim.result = "active"
-				_on_repair_end(sim, inventory)
+				CombatRelicHooksScript.on_repair_end(sim, inventory)
 
 		_tick_obstacles(sim)
 		_update_pin_progress(sim)
@@ -367,12 +202,12 @@ static func resolve_obstacle_shift_exit(sim: CombatSimulator, exiting_obstacle_i
 		if not obstacle is Dictionary:
 			continue
 		if exiting.has(str(obstacle.get("id", ""))):
-			if not _before_obstacle_execute(sim, obstacle, inventory):
+			if not CombatRelicHooksScript.before_obstacle_execute(sim, obstacle, inventory):
 				_resolve_obstacle_fail(sim, obstacle)
 		else:
 			survivors.append(obstacle)
 	sim.obstacles = survivors
-	_recalculate_purple_damage_reduction(sim)
+	CombatTerrainEffectsScript.recalculate_purple_damage_reduction(sim)
 
 # 실행: shift weakness markers and obstacle host cells together, then spawn the next obstacle wave.
 static func shift_battlefield(sim: CombatSimulator, seed_val: int, colors: Array, shift_step: int, stage_index: int, hazard_modifier: float = 1.0, inventory: InventoryModel = null) -> void:
@@ -392,12 +227,12 @@ static func shift_battlefield(sim: CombatSimulator, seed_val: int, colors: Array
 	sim.weakness_markers = shift_result.get("markers", [])
 	sim.obstacle_shift_count += 1
 	_spawn_shift_wave_from_new_tiles(sim, stage_index, seed_val, shift_step, hazard_modifier, inventory)
-	_recalculate_purple_damage_reduction(sim)
+	CombatTerrainEffectsScript.recalculate_purple_damage_reduction(sim)
 
 # 실행: seed the first obstacle wave for a fresh combat without advancing the battlefield itself.
 static func prime_obstacles(sim: CombatSimulator, seed_val: int, stage_index: int, hazard_modifier: float = 1.0, inventory: InventoryModel = null) -> void:
 	_spawn_initial_wave_from_new_tiles(sim, stage_index, seed_val, hazard_modifier, inventory)
-	_recalculate_purple_damage_reduction(sim)
+	CombatTerrainEffectsScript.recalculate_purple_damage_reduction(sim)
 
 # 실행: tick purple live-pressure pulses and clear resolved afterglow shells.
 static func _tick_obstacles(sim: CombatSimulator) -> void:
@@ -426,7 +261,7 @@ static func _tick_obstacles(sim: CombatSimulator) -> void:
 		next_obstacles.append(obstacle)
 
 	sim.obstacles = next_obstacles
-	_recalculate_purple_damage_reduction(sim)
+	CombatTerrainEffectsScript.recalculate_purple_damage_reduction(sim)
 
 # 실행: update the visible pin progress buckets from the latest remaining combat time.
 static func _update_pin_progress(sim: CombatSimulator) -> void:
@@ -458,13 +293,13 @@ static func _apply_obstacle_hit(sim: CombatSimulator, target_cell_id: String, en
 			continue
 		var required_color := str(obstacle.get("requiredColor", obstacle.get("family", "")))
 		var progress_delta := 2 if energy_color == required_color else 1
-		for relic in _linked_relics_for_artifact(inventory, source_drill, "obstacle_progress_bonus"):
-			if _consume_once(sim, relic.id):
+		for relic in CombatRelicHooksScript.linked_relics_for_artifact(inventory, source_drill, "obstacle_progress_bonus"):
+			if CombatRelicHooksScript.consume_once(sim, relic.id):
 				progress_delta += int(relic.effect_schema.get("value", 1))
 		obstacle["progress"] = int(obstacle.get("progress", 0)) + progress_delta
 		if int(obstacle.get("progress", 0)) >= int(obstacle.get("clearProgress", 2)):
 			_resolve_obstacle_clear(obstacle)
-			_after_obstacle_clear(sim, obstacle, inventory, source_artifact_id, energy_color, source_drill)
+			CombatRelicHooksScript.after_obstacle_clear(sim, obstacle, inventory, source_artifact_id, energy_color, source_drill)
 			if bool(obstacle.get("clearImmediately", false)):
 				clear_immediately[str(obstacle.get("id", ""))] = true
 	if not clear_immediately.is_empty():
@@ -473,7 +308,7 @@ static func _apply_obstacle_hit(sim: CombatSimulator, target_cell_id: String, en
 			if not clear_immediately.has(str(obstacle.get("id", ""))):
 				survivors.append(obstacle)
 		sim.obstacles = survivors
-	_recalculate_purple_damage_reduction(sim)
+	CombatTerrainEffectsScript.recalculate_purple_damage_reduction(sim)
 
 # 실행: convert a cleared obstacle into an optional short visual afterglow shell.
 static func _resolve_obstacle_clear(obstacle: Dictionary) -> void:
@@ -490,7 +325,7 @@ static func _resolve_obstacle_fail(sim: CombatSimulator, obstacle: Dictionary) -
 		"green":
 			sim.health = minf(sim.max_health, sim.health + float(obstacle.get("healAmount", 1.0)))
 		"purple":
-			_apply_purple_pressure_pulse(sim)
+			CombatTerrainEffectsScript.apply_purple_pressure_pulse(sim)
 		_:
 			pass
 	if sim.obstacle_miss_debt.has(family):
@@ -498,15 +333,6 @@ static func _resolve_obstacle_fail(sim: CombatSimulator, obstacle: Dictionary) -
 	elapsed_ticks_check(sim)
 
 # 실행: remove one weakened-terrain stack, or refresh purple damage reduction when nothing is left to cleanse.
-static func _apply_purple_pressure_pulse(sim: CombatSimulator) -> void:
-	if _consume_global_terrain_modifier_stack(sim.terrain_debuffs, PURPLE_WEAKENED_EFFECT):
-		return
-	_apply_terrain_buff(sim, PURPLE_FORTIFIED_EFFECT, "purple")
-
-# 실행: derive the active purple damage-reduction ratio from live purple obstacles.
-static func _recalculate_purple_damage_reduction(sim: CombatSimulator) -> void:
-	sim.purple_damage_reduction_ratio = 0.0
-
 # 실행: skip some inventory cooldown ticks while frozen blue obstacles remain on the battlefield.
 static func _skip_inventory_tick_due_to_blue(sim: CombatSimulator) -> bool:
 	var blue_count := 0
@@ -554,227 +380,13 @@ static func _materialize_spawn_requests(sim: CombatSimulator, requests: Array, s
 	for request in requests:
 		if not request is Dictionary:
 			continue
-		var obstacle := _build_obstacle_definition(sim, str(request.get("family", "")), str(request.get("cellId", "")), stage_index, ordinal)
-		_maybe_protect_blue_activation(sim, obstacle, inventory)
+		var obstacle := CombatObstacleDefinitionsScript.build(sim, str(request.get("family", "")), str(request.get("cellId", "")), stage_index, ordinal)
+		CombatRelicHooksScript.maybe_protect_blue_activation(sim, obstacle, inventory)
 		sim.obstacles.append(obstacle)
 		ordinal += 1
 
-# 실행: keep the active obstacle count near the stage target and spend any miss-debt/backlog pressure on the next waves.
-static func _spawn_obstacles_to_target(sim: CombatSimulator, stage_index: int, seed_val: int, shift_step: int, hazard_modifier: float, inventory: InventoryModel = null) -> void:
-	var target_active := _target_active_obstacle_count(stage_index, hazard_modifier)
-	var current_active := _uncleared_obstacle_count(sim)
-	var family_order := _spawn_family_order(sim, seed_val, shift_step)
-	var family_index := 0
-	while family_index < family_order.size():
-		var family: String = str(family_order[family_index])
-		var request := 0
-		if current_active < target_active:
-			request += 1
-		request += int(sim.obstacle_miss_debt.get(family, 0))
-		request += int(sim.obstacle_spawn_backlog.get(family, 0))
-		if request <= 0:
-			family_index += 1
-			continue
-
-		sim.obstacle_miss_debt[family] = 0
-		sim.obstacle_spawn_backlog[family] = 0
-		var spawned := _spawn_family_obstacles(sim, family, request, stage_index, seed_val, shift_step, inventory)
-		current_active += spawned
-		if spawned < request:
-			sim.obstacle_spawn_backlog[family] = request - spawned
-		if current_active >= target_active and _total_spawn_pressure(sim) <= 0:
-			break
-		family_index += 1
-
-# 실행: choose a deterministic family order that prioritizes the most urgent miss-debt or backlog.
-static func _spawn_family_order(sim: CombatSimulator, seed_val: int, shift_step: int) -> Array:
-	var weighted: Array = []
-	var available_families := _spawnable_families(sim)
-	var family_count := maxi(1, available_families.size())
-	var rotation_start := posmod(seed_val + sim.obstacle_shift_count, family_count)
-	for family in available_families:
-		var family_index := available_families.find(family)
-		weighted.append({
-			"family": family,
-			"pressure": int(sim.obstacle_miss_debt.get(family, 0)) + int(sim.obstacle_spawn_backlog.get(family, 0)),
-			"order": posmod(family_index - rotation_start, family_count)
-		})
-	weighted.sort_custom(func(a, b):
-		if int(a["pressure"]) == int(b["pressure"]):
-			return int(a["order"]) < int(b["order"])
-		return int(a["pressure"]) > int(b["pressure"])
-	)
-	var result: Array = []
-	for entry in weighted:
-		result.append(str(entry["family"]))
-	return result
-
-# 실행: spawn up to the requested number of same-family obstacles onto eligible cells with a minimum immediate-reaction window.
-static func _spawn_family_obstacles(sim: CombatSimulator, family: String, request: int, stage_index: int, seed_val: int, shift_step: int, inventory: InventoryModel = null) -> int:
-	if request <= 0:
-		return 0
-	var candidates := _eligible_spawn_cell_ids(sim, family)
-	if candidates.is_empty():
-		return 0
-
-	var offset := posmod(seed_val + shift_step * 5 + OBSTACLE_FAMILIES.find(family) * 11, candidates.size())
-	var spawned := 0
-	for index in range(candidates.size()):
-		if spawned >= request:
-			break
-		var cell_id := str(candidates[(offset + index) % candidates.size()])
-		var obstacle := _build_obstacle_definition(sim, family, cell_id, stage_index, spawned)
-		_maybe_protect_blue_activation(sim, obstacle, inventory)
-		sim.obstacles.append(obstacle)
-		spawned += 1
-	return spawned
-
 # 실행: build one obstacle snapshot with stage-scaled family pressure numbers.
-static func _build_obstacle_definition(sim: CombatSimulator, family: String, cell_id: String, stage_index: int, ordinal: int) -> Dictionary:
-	var config := _obstacle_config_for_stage(sim, family, stage_index)
-	return {
-		"id": "obs_%s_%d_%d" % [family, sim.obstacle_shift_count, ordinal],
-		"family": family,
-		"requiredColor": family,
-		"cellId": cell_id,
-		"state": "active",
-		"progress": 0,
-		"clearProgress": int(config.get("clearProgress", 2)),
-		"afterglowTicks": int(config.get("afterglowTicks", OBSTACLE_AFTERGLOW_TICKS)),
-		"afterglowTicksRemaining": 0,
-		"timeCutTicks": int(config.get("timeCutTicks", 200)),
-		"healAmount": float(config.get("healAmount", 1.0)),
-		"pulseIntervalTicks": int(config.get("pulseIntervalTicks", 20)),
-		"pulseTicksRemaining": int(config.get("pulseIntervalTicks", 20)),
-		"visual": {
-			"family": family,
-			"pattern": "single_cell"
-		}
-	}
-
 # 실행: return the stage-scaled obstacle numbers for one family.
-static func _obstacle_config_for_stage(sim: CombatSimulator, family: String, stage_index: int) -> Dictionary:
-	var stage_band := 0
-	if stage_index >= 8:
-		stage_band = 3
-	elif stage_index >= 6:
-		stage_band = 2
-	elif stage_index >= 2:
-		stage_band = 1
-	var clear_progress := 2
-	if stage_index >= 4:
-		clear_progress = 3
-	if stage_index >= 8:
-		clear_progress = 4
-	match family:
-		"red":
-			var time_cuts := [200, 260, 340, 400]
-			return {
-				"clearProgress": clear_progress,
-				"afterglowTicks": OBSTACLE_AFTERGLOW_TICKS,
-				"timeCutTicks": time_cuts[stage_band]
-			}
-		"blue":
-			return {
-				"clearProgress": clear_progress,
-				"afterglowTicks": OBSTACLE_AFTERGLOW_TICKS
-			}
-		"purple":
-			var pulse_intervals := [24, 20, 18, 16]
-			return {
-				"clearProgress": clear_progress,
-				"afterglowTicks": OBSTACLE_AFTERGLOW_TICKS,
-				"pulseIntervalTicks": pulse_intervals[stage_band]
-			}
-		"green":
-			var heal_percents := [0.03, 0.05, 0.07, 0.08]
-			return {
-				"clearProgress": clear_progress,
-				"afterglowTicks": OBSTACLE_AFTERGLOW_TICKS,
-				"healAmount": maxf(1.0, sim.max_health * heal_percents[stage_band])
-			}
-	return {
-		"clearProgress": clear_progress,
-		"afterglowTicks": OBSTACLE_AFTERGLOW_TICKS
-	}
-
-# 실행: keep new obstacle spawns away from cells that are about to exit or still carrying same-family afterglow.
-static func _eligible_spawn_cell_ids(sim: CombatSimulator, family: String) -> Array:
-	var min_shift_distance := OBSTACLE_MIN_REACTION_COLUMNS
-	var blocked_afterglow := {}
-	var occupied_cells := {}
-	for obstacle in sim.obstacles:
-		if not obstacle is Dictionary:
-			continue
-		var state := str(obstacle.get("state", "active"))
-		var cell_id := str(obstacle.get("cellId", ""))
-		if _is_afterglow_state(state) and str(obstacle.get("family", "")) == family:
-			blocked_afterglow[cell_id] = true
-		elif not _is_afterglow_state(state):
-			occupied_cells[cell_id] = true
-
-	var cells: Array = []
-	for row in range(sim.battlefield_rows):
-		for column in range(sim.battlefield_cols):
-			if (sim.battlefield_cols - 1 - column) <= min_shift_distance:
-				continue
-			var cell_id := "r%dc%d" % [row, column]
-			if blocked_afterglow.has(cell_id):
-				continue
-			if occupied_cells.has(cell_id):
-				continue
-			cells.append(cell_id)
-	return cells
-
-# 실행: compute the desired active obstacle pressure for the current stage and node hazard modifier.
-static func _target_active_obstacle_count(stage_index: int, hazard_modifier: float) -> int:
-	var target := 1
-	if stage_index >= 8:
-		target = 3
-	elif stage_index >= 4:
-		target = 2
-	if hazard_modifier >= 1.4:
-		target += 1
-	elif hazard_modifier <= 0.7:
-		target = maxi(1, target - 1)
-	return target
-
-# 실행: count only live pressure obstacles, excluding afterglow shells.
-static func _uncleared_obstacle_count(sim: CombatSimulator) -> int:
-	var count := 0
-	for obstacle in sim.obstacles:
-		if not obstacle is Dictionary:
-			continue
-		if not _is_afterglow_state(str(obstacle.get("state", "active"))):
-			count += 1
-	return count
-
-# 실행: count live obstacles for a specific family, excluding only resolved afterglow shells.
-static func _active_obstacle_count(sim: CombatSimulator, family: String) -> int:
-	var count := 0
-	for obstacle in sim.obstacles:
-		if not obstacle is Dictionary:
-			continue
-		if str(obstacle.get("family", "")) != family:
-			continue
-		if _is_afterglow_state(str(obstacle.get("state", "active"))):
-			continue
-		count += 1
-	return count
-
-# 실행: sum the remaining backlog and miss-debt still waiting to be spent on future spawns.
-static func _total_spawn_pressure(sim: CombatSimulator) -> int:
-	var total := 0
-	for family in _spawnable_families(sim):
-		total += int(sim.obstacle_miss_debt.get(family, 0))
-		total += int(sim.obstacle_spawn_backlog.get(family, 0))
-	return total
-
-static func _spawnable_families(sim: CombatSimulator) -> Array:
-	if sim != null and not sim.obstacle_allowed_families.is_empty():
-		return sim.obstacle_allowed_families.duplicate(true)
-	return OBSTACLE_FAMILIES.duplicate(true)
-
 # 실행: treat both clear and fail afterglow shells as resolved overlays.
 static func _is_afterglow_state(state: String) -> bool:
 	return state.begins_with("afterglow")
@@ -840,76 +452,6 @@ static func _shift_cell_right(cell_id: String, max_columns: int) -> String:
 		return ""
 	return "r%dc%d" % [int(row_text), next_column]
 
-static func _on_repair_end(sim: CombatSimulator, inventory: InventoryModel) -> void:
-	for relic in _relics_with_type(inventory, "next_two_shots_boost"):
-		var charges := maxi(1, int(relic.effect_schema.get("value", 2)))
-		var damage_multiplier := maxf(1.1, float(relic.effect_schema.get("damage_multiplier", 1.5)))
-		for linked_artifact in inventory.get_relic_linked_artifacts(relic):
-			if linked_artifact is Artifact and linked_artifact.item_type == "drill":
-				_grant_shot_buff(sim, linked_artifact.id, charges, damage_multiplier)
-
-static func _maybe_protect_blue_activation(sim: CombatSimulator, obstacle: Dictionary, inventory: InventoryModel) -> void:
-	if str(obstacle.get("family", "")) != "blue":
-		return
-	for relic in _relics_with_type(inventory, "ignore_first_blue_obstacle"):
-		if not _consume_once(sim, relic.id):
-			continue
-		obstacle["ignoreBlueTax"] = true
-		obstacle["ignoreExecute"] = true
-		obstacle["ignoredByRelicId"] = relic.id
-		return
-
-static func _before_obstacle_execute(sim: CombatSimulator, obstacle: Dictionary, inventory: InventoryModel) -> bool:
-	if bool(obstacle.get("ignoreExecute", false)):
-		return true
-	for relic in _relics_with_type(inventory, "prevent_first_execute"):
-		if _consume_once(sim, relic.id):
-			return true
-	return false
-
-static func _after_obstacle_clear(sim: CombatSimulator, obstacle: Dictionary, inventory: InventoryModel, source_artifact_id: String, energy_color: String, source_drill: Artifact = null) -> void:
-	for relic in _relics_with_type(inventory, "clear_add_time"):
-		sim.time_limit_ticks += int(relic.effect_schema.get("value", 20))
-
-	for relic in _relics_with_type(inventory, "clear_skip_afterglow"):
-		if not _consume_once(sim, relic.id):
-			continue
-		obstacle["afterglowTicksRemaining"] = 0
-		obstacle["clearImmediately"] = true
-		break
-
-	for relic in _relics_with_type(inventory, "clear_paint_cell"):
-		_paint_weakness_cell(sim, str(obstacle.get("cellId", "")), energy_color)
-		var refund := maxi(0, int(relic.effect_schema.get("value", 0)))
-		if refund > 0 and source_drill != null:
-			source_drill.current_cooldown = clampi(int(source_drill.current_cooldown) - refund, 0, maxi(1, int(source_drill.base_cooldown_ticks) - int(source_drill.synergy_cooldown_reduction)))
-
-	for relic in _relics_with_type(inventory, "clear_refund_cooldown"):
-		_refund_all_drill_cooldowns(inventory, maxi(0, int(relic.effect_schema.get("value", 4))))
-
-	for relic in _relics_with_type(inventory, "first_clear_refund_queue"):
-		if not _consume_once(sim, relic.id):
-			continue
-		if sim.queue.size() < sim.queue_capacity:
-			sim.queue.append(_queue_token(energy_color, source_artifact_id))
-			if sim.repair_active:
-				sim.repair_active = false
-				sim.repair_available = true
-				sim.aim_can_fire = true
-				sim.result = "active"
-		break
-
-static func _after_weakness_hit(sim: CombatSimulator, inventory: InventoryModel, _target_color: String, _energy_color: String) -> void:
-	for relic in _relics_with_type(inventory, "globalize_weakness_every_five_hits"):
-		var threshold := maxi(1, int(relic.effect_schema.get("threshold", 5)))
-		var hit_count := _increment_relic_counter(sim, relic.id, 1)
-		if hit_count < threshold:
-			continue
-		_set_relic_counter(sim, relic.id, hit_count - threshold)
-		for marker in sim.weakness_markers:
-			if marker is Dictionary:
-				marker["allEnergyWeakness"] = true
-
 static func _weakness_marker_for_cell(markers: Array, cell_id: String) -> Dictionary:
 	for marker in markers:
 		if marker is Dictionary and str(marker.get("cellId", "")) == cell_id:
@@ -920,19 +462,3 @@ static func _clear_all_energy_weakness_flags(markers: Array) -> void:
 	for marker in markers:
 		if marker is Dictionary and marker.has("allEnergyWeakness"):
 			marker.erase("allEnergyWeakness")
-
-static func _paint_weakness_cell(sim: CombatSimulator, cell_id: String, color: String) -> void:
-	for marker in sim.weakness_markers:
-		if marker is Dictionary and str(marker.get("cellId", "")) == cell_id:
-			marker["color"] = color
-			return
-
-static func _refund_all_drill_cooldowns(inventory: InventoryModel, amount: int) -> void:
-	if inventory == null or amount <= 0:
-		return
-	for art_id in inventory.artifacts:
-		var art = inventory.artifacts[art_id]
-		if not (art is Artifact) or art.item_type != "drill":
-			continue
-		var effective_cooldown := maxi(1, int(art.base_cooldown_ticks) - int(art.synergy_cooldown_reduction))
-		art.current_cooldown = clampi(int(art.current_cooldown) - amount, 0, effective_cooldown)

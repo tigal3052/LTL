@@ -13,6 +13,7 @@ func _run() -> void:
 	TextCatalogScript.set_locale("ko")
 	await _assert_stage_one_contract()
 	await _assert_stage_two_contract()
+	await _assert_canvas_rebuild_defers_replaced_control_free()
 	if failures.is_empty():
 		print("NODE_SELECT_RUNTIME_CONTRACT_OK")
 		await process_frame
@@ -106,6 +107,36 @@ func _assert_stage_two_contract() -> void:
 	_assert_eq(int(page.call("future_marker_count")), 0, "stage two renders no future ? markers for a three-stage leviathan")
 	_assert_eq(int(page.call("boss_marker_count")), 1, "stage two keeps the boss marker visible")
 	_assert_eq(int(page.call("current_unknown_route_count")), 0, "stage two keeps the current branch icons distinct from future ? markers")
+	page.queue_free()
+	await process_frame
+
+func _assert_canvas_rebuild_defers_replaced_control_free() -> void:
+	var page := await _instantiate_page()
+	if page == null:
+		return
+	page.apply_state(_stage_two_state())
+	await process_frame
+	await process_frame
+	var node_layer := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/NodeLayer")
+	_assert(node_layer != null, "node-select exposes the canvas node layer for rebuild lifetime verification")
+	if node_layer == null:
+		page.queue_free()
+		await process_frame
+		return
+	var old_children := node_layer.get_children()
+	_assert(old_children.size() > 0, "node-select canvas has replaceable hotspot children before rebuild")
+	if old_children.is_empty():
+		page.queue_free()
+		await process_frame
+		return
+	var old_hotspot: Node = old_children[0]
+	var next_state := _stage_two_state()
+	next_state["selectedNodeIndex"] = 1
+	page.apply_state(next_state)
+	page.call("_rebuild_canvas")
+	_assert(is_instance_valid(old_hotspot), "node-select rebuild keeps replaced hotspot valid for Godot deferred mouse-over cleanup")
+	if is_instance_valid(old_hotspot):
+		_assert(old_hotspot.get_parent() == null, "node-select rebuild detaches replaced hotspot from the live node layer immediately")
 	page.queue_free()
 	await process_frame
 

@@ -3,12 +3,63 @@
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	reward_reveal_cancel_done_calls = 0
+	test_reward_reveal_extracts_model_helpers_for_first_size_split()
 	test_reward_reveal_overlay_uses_cinematic_hero_contract_and_removes_legacy_backup()
 	test_reward_reveal_presentation_requires_confirm_and_sorted_reveal_queue()
 	test_reward_reveal_quantity_tease_uses_three_bands()
 	test_reward_reveal_count_tease_hides_exact_count_and_uses_band_preview()
 	test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst()
 	return _result()
+
+func test_reward_reveal_extracts_model_helpers_for_first_size_split() -> void:
+	var presentation_helper_path := "res://src/ui/reward_reveal/RewardRevealPresentationModel.gd"
+	var layout_helper_path := "res://src/ui/reward_reveal/RewardRevealLayoutPolicy.gd"
+	var animation_helper_path := "res://src/ui/reward_reveal/RewardRevealAnimationModels.gd"
+	var ceremony_renderer_path := "res://src/ui/reward_reveal/RewardRevealCeremonyRenderer.gd"
+	var effect_renderer_path := "res://src/ui/reward_reveal/RewardRevealEffectRenderer.gd"
+	_assert(FileAccess.file_exists(presentation_helper_path), "reward reveal presentation model helper exists")
+	_assert(FileAccess.file_exists(layout_helper_path), "reward reveal layout policy helper exists")
+	_assert(FileAccess.file_exists(animation_helper_path), "reward reveal animation model helper exists")
+	_assert(FileAccess.file_exists(ceremony_renderer_path), "reward reveal ceremony renderer helper exists")
+	_assert(FileAccess.file_exists(effect_renderer_path), "reward reveal effect renderer helper exists")
+	if FileAccess.file_exists(presentation_helper_path):
+		var PresentationHelper = load(presentation_helper_path)
+		_assert(PresentationHelper != null, "reward reveal presentation helper loads")
+		_assert(PresentationHelper.has_method("build_presentation_model"), "presentation helper owns reward presentation projection")
+		_assert(PresentationHelper.has_method("rarity_accent"), "presentation helper owns rarity accent mapping")
+		_assert(PresentationHelper.has_method("energy_accent"), "presentation helper owns energy accent mapping")
+		_assert(_source_line_count(presentation_helper_path) <= 500, "presentation helper stays within the 500-line cap")
+	if FileAccess.file_exists(layout_helper_path):
+		var LayoutHelper = load(layout_helper_path)
+		_assert(LayoutHelper != null, "reward reveal layout helper loads")
+		_assert(LayoutHelper.has_method("overlay_safe_layout_model"), "layout helper owns safe-area overlay layout")
+		_assert(LayoutHelper.has_method("reward_card_layout_metrics"), "layout helper owns reward card metrics")
+		_assert(LayoutHelper.has_method("quantity_slot_rects"), "layout helper owns quantity-slot rect layout")
+		_assert(_source_line_count(layout_helper_path) <= 500, "layout helper stays within the 500-line cap")
+	if FileAccess.file_exists(animation_helper_path):
+		var AnimationHelper = load(animation_helper_path)
+		_assert(AnimationHelper != null, "reward reveal animation helper loads")
+		_assert(AnimationHelper.has_method("count_tease_preview_model"), "animation helper owns count tease preview model")
+		_assert(AnimationHelper.has_method("mined_lid_motion_model"), "animation helper owns mined-lid motion model")
+		_assert(AnimationHelper.has_method("card_reveal_phase_model"), "animation helper owns card reveal phase model")
+		_assert(_source_line_count(animation_helper_path) <= 500, "animation helper stays within the 500-line cap")
+	if FileAccess.file_exists(ceremony_renderer_path):
+		var CeremonyRenderer = load(ceremony_renderer_path)
+		_assert(CeremonyRenderer != null, "reward reveal ceremony renderer loads")
+		_assert(CeremonyRenderer.has_method("draw_count_tease"), "ceremony renderer owns count tease drawing")
+		_assert(CeremonyRenderer.has_method("draw_count_lock"), "ceremony renderer owns count lock drawing")
+		_assert(CeremonyRenderer.has_method("draw_reveal_queue"), "ceremony renderer owns reveal queue drawing")
+		_assert(CeremonyRenderer.has_method("draw_reward_panel"), "ceremony renderer owns reward panel drawing")
+		_assert(_source_line_count(ceremony_renderer_path) <= 500, "ceremony renderer stays within the 500-line cap")
+	if FileAccess.file_exists(effect_renderer_path):
+		var EffectRenderer = load(effect_renderer_path)
+		_assert(EffectRenderer != null, "reward reveal effect renderer loads")
+		_assert(EffectRenderer.has_method("draw_mined_lid_charge"), "effect renderer owns mined lid charge drawing")
+		_assert(EffectRenderer.has_method("draw_count_burst_animation"), "effect renderer owns count burst drawing")
+		_assert(EffectRenderer.has_method("draw_rarity_burst"), "effect renderer owns rarity burst drawing")
+		_assert(EffectRenderer.has_method("draw_lid_slot"), "effect renderer owns lid-slot drawing")
+		_assert(_source_line_count(effect_renderer_path) <= 500, "effect renderer stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/RewardRevealOverlay.gd") <= 500, "RewardRevealOverlay delegates model and renderer helpers and stays within 500 lines")
 
 func test_reward_reveal_overlay_uses_cinematic_hero_contract_and_removes_legacy_backup() -> void:
 	TextCatalogScript.set_locale("en")
@@ -156,4 +207,15 @@ func test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst() -> void
 		_assert(float(burst_mid.get("orbRevealAlpha", 0.0)) > 0.4, "orbs become visible while the lid is popping away")
 		_assert(float(burst_mid.get("orbRiseDistance", 0.0)) > 0.0, "orbs rise out of the lid instead of appearing statically in place")
 		_assert_eq(str(burst_mid.get("orbMotionStyle", "")), "buoyant_arc_silhouette", "reward orb silhouettes use a buoyant arc instead of a static popup")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count
 

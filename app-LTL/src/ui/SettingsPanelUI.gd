@@ -32,6 +32,7 @@ var reduced_flash_checkbox: CheckBox
 var reduced_particles_checkbox: CheckBox
 var hold_fire_assist_checkbox: CheckBox
 var volume_value_label: Label
+var _syncing_language_select := false
 
 # 실행: wire up signals and inputs.
 func _ready() -> void:
@@ -88,7 +89,11 @@ func _create_language_selector() -> void:
 	language_select.add_item(TextCatalogScript.t("settings.language.ko", [], "ko"), 0)
 	language_select.add_item(TextCatalogScript.t("settings.language.en", [], "en"), 1)
 	language_select.item_selected.connect(func(index: int):
-		var next_locale := "ko" if index == 0 else "en"
+		if _syncing_language_select:
+			return
+		var next_locale := _locale_for_language_index(index)
+		if TextCatalogScript.locale() == next_locale:
+			return
 		TextCatalogScript.set_locale(next_locale)
 		apply_locale()
 		language_changed.emit(next_locale)
@@ -153,7 +158,20 @@ func apply_locale() -> void:
 			(row.get_node("LanguageLabel") as Label).text = TextCatalogScript.t("settings.language")
 		language_select.set_item_text(0, TextCatalogScript.t("settings.language.ko", [], "ko"))
 		language_select.set_item_text(1, TextCatalogScript.t("settings.language.en", [], "en"))
-		language_select.selected = 0 if TextCatalogScript.locale() == "ko" else 1
+		_sync_language_select_to_locale()
+
+func _locale_for_language_index(index: int) -> String:
+	return "ko" if index == 0 else "en"
+
+func _language_index_for_locale(locale: String) -> int:
+	return 1 if locale == "en" else 0
+
+func _sync_language_select_to_locale() -> void:
+	if language_select == null:
+		return
+	_syncing_language_select = true
+	language_select.select(_language_index_for_locale(TextCatalogScript.locale()))
+	_syncing_language_select = false
 
 func focus_first_control() -> void:
 	if screenshake_checkbox != null:

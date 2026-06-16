@@ -11,9 +11,6 @@
 				"shape": [
 					[
 						1
-					],
-					[
-						1
 					]
 				],
 				"base_cooldown_ticks": 105,
@@ -99,7 +96,6 @@
 				"energy_type": "blue",
 				"shape": [
 					[
-						1,
 						1
 					]
 				],
@@ -186,12 +182,7 @@
 				"energy_type": "purple",
 				"shape": [
 					[
-						1,
 						1
-					],
-					[
-						1,
-						0
 					]
 				],
 				"base_cooldown_ticks": 105,
@@ -277,11 +268,6 @@
 				"energy_type": "green",
 				"shape": [
 					[
-						1,
-						1
-					],
-					[
-						1,
 						1
 					]
 				],
@@ -634,8 +620,9 @@
 				"energy_type": "red",
 				"shape": [
 					[
-						1,
-						1,
+						1
+					],
+					[
 						1
 					]
 				],
@@ -779,9 +766,6 @@
 					],
 					[
 						1
-					],
-					[
-						1
 					]
 				],
 				"base_cooldown_ticks": 92,
@@ -916,12 +900,10 @@
 				"energy_type": "purple",
 				"shape": [
 					[
-						1,
 						1
 					],
 					[
-						1,
-						0
+						1
 					]
 				],
 				"base_cooldown_ticks": 96,
@@ -1059,11 +1041,9 @@
 				"energy_type": "green",
 				"shape": [
 					[
-						1,
 						1
 					],
 					[
-						1,
 						1
 					]
 				],

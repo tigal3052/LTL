@@ -55,12 +55,12 @@ func test_interaction_fx_skips_shader_on_panel_slots() -> void:
 	_assert_eq(InteractionFXScript._supports_shader_material(Button.new()), true, "buttons still use shader-backed cues")
 
 func test_hold_fire_stops_when_overload_repair_starts() -> void:
-	var stopped := MainControllerRuntimeScript.should_continue_hold_fire({
+	var stopped := MainControllerCombatFlowScript.should_continue_hold_fire({
 		"phase": "combat",
 		"feedback": {"status": "empty_queue"},
 		"hud": {"repair": {"active": true}, "queue": {"items": []}}
 	}, true)
-	var active := MainControllerRuntimeScript.should_continue_hold_fire({
+	var active := MainControllerCombatFlowScript.should_continue_hold_fire({
 		"phase": "combat",
 		"feedback": {"status": "match"},
 		"hud": {"repair": {"active": false}, "queue": {"items": ["red"]}}
@@ -69,12 +69,12 @@ func test_hold_fire_stops_when_overload_repair_starts() -> void:
 	_assert_eq(active, true, "hold-fire continues only while combat can actually keep firing")
 
 func test_main_controller_hold_fire_assist_expands_burst() -> void:
-	_assert_eq(MainControllerRuntimeScript.hold_fire_burst_count({}), 2, "hold-fire assist keeps the default two-shot burst when accessibility assist is off")
-	_assert_eq(MainControllerRuntimeScript.hold_fire_burst_count({"holdFireAssist": true}), 4, "hold-fire assist expands the burst window for accessibility mode")
+	_assert_eq(MainControllerCombatFlowScript.hold_fire_burst_count({}), 2, "hold-fire assist keeps the default two-shot burst when accessibility assist is off")
+	_assert_eq(MainControllerCombatFlowScript.hold_fire_burst_count({"holdFireAssist": true}), 4, "hold-fire assist expands the burst window for accessibility mode")
 
 func test_main_controller_accessibility_state_persists_to_config() -> void:
-	var MainControllerScript = load("res://src/MainControllerRuntime.gd")
-	_assert(MainControllerScript != null, "main controller runtime loads for accessibility persistence")
+	var MainControllerScript = load("res://src/MainController.gd")
+	_assert(MainControllerScript != null, "main controller loads for accessibility persistence")
 	if MainControllerScript == null:
 		return
 	var writer = MainControllerScript.new()
@@ -103,11 +103,11 @@ func test_main_controller_accessibility_state_persists_to_config() -> void:
 	reader.free()
 
 func test_combat_clicks_block_while_repair_or_aim_lock_is_active() -> void:
-	var blocked := MainControllerRuntimeScript.can_accept_combat_click({
+	var blocked := MainControllerCombatFlowScript.can_accept_combat_click({
 		"phase": "combat",
 		"hud": {"repair": {"active": true}, "aim": {"canFire": false}}
 	}, "r0c0", [])
-	var ready := MainControllerRuntimeScript.can_accept_combat_click({
+	var ready := MainControllerCombatFlowScript.can_accept_combat_click({
 		"phase": "combat",
 		"hud": {"repair": {"active": false}, "aim": {"canFire": true}}
 	}, "r0c0", [])

@@ -1,26 +1,25 @@
 # M6 Known Issues And Sign-Off Gaps
 
-## 2026-06-15 Closure Status
+기준일: 2026-06-15
 
-- M6 is closed by explicit user request on 2026-06-15.
-- The items below are no longer treated as blockers for creating the M6 completion report, but they remain release-polish / M7+ evidence gaps.
-- Do not reinterpret this closure as proof that the unperformed manual screenshot matrix or human readability checks passed.
+## 현재 상태
 
-기준일: 2026-06-12
+- M6는 2026-06-15 사용자의 명시 요청으로 완료 처리되었다.
+- 전체 스크린샷 매트릭스는 저장소 증거로 추가되었다.
+- 전투 화면 1초 가독성과 게임오버 재시작 문구는 사용자가 통과로 판단했다.
 
-## 남아 있는 항목
+## 남은 항목
 
-1. 전체 스크린샷 매트릭스가 아직 저장소 증거로 남아 있지 않다.
-2. 전투 화면의 "1초 가독성"은 자동 테스트로 증명할 수 없어서 사람 눈 검수가 남아 있다.
-3. failure/retry 화면의 설명력이 충분한지는 최종 문구 체감 확인이 남아 있다.
-4. 접근성 토글은 코드상 저장과 재적용이 되지만, 실제 체감 강도가 충분한지는 수동 확인이 남아 있다.
+1. 접근성 토글은 코드상 저장/적용 계약이 있지만, 실제 체감 강도가 충분한지에 대한 사람의 최종 판단은 아직 별도 확인이 필요하다.
 
 ## 해석
 
-- 1번은 코드 결함이라기보다 증거 공백이다.
-- 2번과 3번은 UX 품질 판정이라 자동 계약만으로는 닫을 수 없다.
-- 4번은 기능 자체는 구현되어 있지만, "사용자가 확실히 느낄 정도인가"는 사람 검수가 필요하다.
+- 스크린샷 매트릭스는 `docs/evidence/m6-screenshot-matrix/2026-06-15/`에 24장 PNG와 README 색인으로 남겼다.
+- 전투 1초 가독성은 자동 테스트만으로 증명하기 어려운 UX 판단 항목이지만, 2026-06-15 사용자 판단에 따라 통과로 기록한다.
+- failure/retry 문구도 2026-06-15 사용자 수정 및 판단에 따라 통과로 기록한다.
+- 접근성 토글의 남은 확인은 "구현 여부"가 아니라 "체감 차이가 충분한가"에 대한 수동 UX 판단이다.
 
 ## 완료 판정 규칙
 
-- 위 4개 중 하나라도 비어 있으면 "M6 코드 구현은 거의 완료"라고는 말할 수 있어도 "M6 최종 완료"라고는 말하지 않는다.
+- 현재 남은 항목은 M6 완료를 막는 블로커가 아니라 release-polish/M7+ 성격의 UX 사인오프 항목이다.
+- 접근성 체감까지 통과로 보려면 `screenshake`, `reduced flash`, `reduced particles`, `hold-fire assist`를 각각 켜고 끈 뒤 실제 전투에서 차이를 확인해야 한다.

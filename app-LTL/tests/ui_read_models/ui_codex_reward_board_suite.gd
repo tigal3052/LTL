@@ -3,12 +3,14 @@
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	reward_reveal_cancel_done_calls = 0
+	test_codex_panel_extracts_layout_and_book_visual_helpers()
 	test_codex_book_safe_area_uses_ratios_instead_of_fixed_pixels()
 	test_codex_panel_exposes_split_page_scroll_structure()
 	test_codex_header_stays_inside_safe_spread_area()
 	test_codex_entry_cards_keep_decorative_layers_click_through()
 	test_codex_header_controls_use_compact_button_heights()
 	test_codex_left_page_projects_shape_footprint_and_matrix()
+	test_main_view_panels_runtime_helper_exists()
 	test_main_view_codex_keeps_selected_entry_and_section_state()
 	test_main_controller_can_force_codex_discovery_state()
 	test_main_controller_maps_starter_color_to_codex_discoveries()
@@ -20,6 +22,37 @@ func run_all_tests() -> Dictionary:
 	test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_description_is_missing()
 	test_reward_board_helper_copy_is_removed()
 	return _result()
+
+func test_codex_panel_extracts_layout_and_book_visual_helpers() -> void:
+	var layout_helper_path := "res://src/ui/codex/ArtifactCodexLayoutPolicy.gd"
+	var visual_helper_path := "res://src/ui/codex/ArtifactCodexBookVisualFactory.gd"
+	var LayoutHelper = load(layout_helper_path)
+	var VisualHelper = load(visual_helper_path)
+	_assert(LayoutHelper != null, "codex layout policy helper exists")
+	_assert(VisualHelper != null, "codex book visual factory helper exists")
+	if LayoutHelper != null:
+		_assert(LayoutHelper.has_method("book_layout_metrics_for_rect"), "codex layout helper owns safe-area metrics")
+		_assert(LayoutHelper.has_method("book_transform_for_viewport"), "codex layout helper owns viewport fit math")
+		_assert(_source_line_count(layout_helper_path) <= 500, "codex layout helper stays within the 500-line cap")
+	if VisualHelper != null:
+		_assert(VisualHelper.has_method("build_entry_card"), "codex visual helper owns entry card construction")
+		_assert(VisualHelper.has_method("render_art_placeholder"), "codex visual helper owns art placeholder rendering")
+		_assert(VisualHelper.has_method("render_shape_info"), "codex visual helper owns shape detail rendering")
+		_assert(_source_line_count(visual_helper_path) <= 500, "codex visual helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/ArtifactCodexPanelUI.gd") <= 500, "ArtifactCodexPanelUI delegates layout and visual helpers and stays within 500 lines")
+
+func test_main_view_panels_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewPanelsRuntime.gd"
+	var Helper = load(helper_path)
+	_assert(Helper != null, "main view panels runtime helper exists")
+	if Helper != null:
+		_assert(Helper.has_method("toggle_settings"), "panels helper owns settings panel toggling")
+		_assert(Helper.has_method("toggle_artifact_codex"), "panels helper owns artifact codex visibility")
+		_assert(Helper.has_method("render_artifact_codex"), "panels helper owns artifact codex projection")
+		_assert(Helper.has_method("set_battle_pause_active"), "panels helper owns battle pause propagation")
+		_assert(Helper.has_method("is_combat_pause_overlay_visible"), "panels helper owns popup pause overlay state")
+		_assert(_source_line_count(helper_path) <= 500, "main view panels runtime helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1235, "MainViewRuntime delegates panel runtime responsibilities")
 
 func test_codex_book_safe_area_uses_ratios_instead_of_fixed_pixels() -> void:
 	var panel = ArtifactCodexPanelUIScript.new()
@@ -125,8 +158,8 @@ func test_main_view_codex_keeps_selected_entry_and_section_state() -> void:
 	view.free()
 
 func test_main_controller_can_force_codex_discovery_state() -> void:
-	_assert(MainControllerRuntimeScript != null, "main controller runtime loads for codex debug discovery helper")
-	if MainControllerRuntimeScript == null:
+	_assert(MainControllerScript != null, "main controller loads for codex debug discovery helper")
+	if MainControllerScript == null:
 		return
 	var reward_table := {
 		"rewards": [
@@ -137,15 +170,15 @@ func test_main_controller_can_force_codex_discovery_state() -> void:
 		]
 	}
 	var growth_state := {"artifactDiscovery": ["drill_red_common"], "gold": 77}
-	var normal_state: Dictionary = MainControllerRuntimeScript.codex_growth_state_for_debug(growth_state, reward_table, false)
-	var forced_state: Dictionary = MainControllerRuntimeScript.codex_growth_state_for_debug(growth_state, reward_table, true)
+	var normal_state: Dictionary = MainControllerScript.codex_growth_state_for_debug(growth_state, reward_table, false)
+	var forced_state: Dictionary = MainControllerScript.codex_growth_state_for_debug(growth_state, reward_table, true)
 	_assert_eq(normal_state.get("artifactDiscovery", []), ["drill_red_common"], "codex debug discovery helper keeps the original discovery list when disabled")
 	_assert_eq(forced_state.get("artifactDiscovery", []), ["drill_red_common", "beacon_blue_rare"], "codex debug discovery helper appends each reward id once when enabled")
 	_assert_eq(int(forced_state.get("gold", 0)), 77, "codex debug discovery helper preserves unrelated growth fields")
 
 func test_main_controller_maps_starter_color_to_codex_discoveries() -> void:
-	_assert(MainControllerRuntimeScript != null, "main controller runtime loads for starter codex discovery mapping")
-	if MainControllerRuntimeScript == null:
+	_assert(MainControllerScript != null, "main controller loads for starter codex discovery mapping")
+	if MainControllerScript == null:
 		return
 	var reward_table := {
 		"rewards": [
@@ -161,7 +194,7 @@ func test_main_controller_maps_starter_color_to_codex_discoveries() -> void:
 		]
 	}
 	var growth_state := {"artifactDiscovery": ["already_found"]}
-	var discovered_state: Dictionary = MainControllerRuntimeScript.codex_growth_state_with_starter_discoveries(growth_state, reward_table, "red")
+	var discovered_state: Dictionary = MainControllerScript.codex_growth_state_with_starter_discoveries(growth_state, reward_table, "red")
 	_assert_eq(
 		discovered_state.get("artifactDiscovery", []),
 		[
@@ -301,4 +334,12 @@ func test_reward_board_helper_copy_is_removed() -> void:
 	_assert(not TextCatalogScript.t("discard.idle").contains("버리기 구역"), "korean discard idle copy drops the duplicate discard-zone heading")
 	_assert(not TextCatalogScript.t("discard.active", ["테스트 유물"]).contains("버리기 구역"), "korean discard active copy drops the duplicate discard-zone heading")
 	TextCatalogScript.set_locale("ko")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var text := file.get_as_text()
+	file.close()
+	return text.split("\n").size()
 

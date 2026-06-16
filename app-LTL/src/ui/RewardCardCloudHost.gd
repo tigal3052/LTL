@@ -204,22 +204,30 @@ static func _build_reward_card_button(card: Dictionary, on_wire_card_interaction
 	body.alignment = BoxContainer.ALIGNMENT_CENTER
 	body.add_theme_constant_override("separation", 8)
 	margin.add_child(body)
-	var icon_shell := PanelContainer.new()
-	icon_shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_shell.custom_minimum_size = Vector2(0, 62)
-	icon_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	icon_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.29, 0.34, 0.41, 0.92), Color(0.44, 0.50, 0.58, 1.0), 18, 1, 0.12))
-	body.add_child(icon_shell)
+	var art: Dictionary = card.get("art", {})
+	var art_path := str(art.get("path", ""))
+	var icon_texture_value := LTLThemeScript.art_texture(art_path)
+	var drill_image_only := str(card.get("itemType", "")).to_lower() == "drill" and art_path.begins_with("res://resources/items/drill/") and icon_texture_value != null
 	var icon_center := CenterContainer.new()
 	icon_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_shell.add_child(icon_center)
+	icon_center.custom_minimum_size = Vector2(0, 62)
+	icon_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if drill_image_only:
+		body.add_child(icon_center)
+	else:
+		var icon_shell := PanelContainer.new()
+		icon_shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_shell.custom_minimum_size = Vector2(0, 62)
+		icon_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		icon_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.29, 0.34, 0.41, 0.92), Color(0.44, 0.50, 0.58, 1.0), 18, 1, 0.12))
+		body.add_child(icon_shell)
+		icon_shell.add_child(icon_center)
 	var icon_texture := TextureRect.new()
 	icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_texture.custom_minimum_size = Vector2(42, 42)
+	icon_texture.custom_minimum_size = Vector2(58, 58) if drill_image_only else Vector2(42, 42)
 	icon_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	var art: Dictionary = card.get("art", {})
-	icon_texture.texture = LTLThemeScript.art_texture(str(art.get("path", "")))
+	icon_texture.texture = icon_texture_value
 	if icon_texture.texture == null:
 		icon_texture.self_modulate = _reward_rarity_border_color(rarity)
 	icon_center.add_child(icon_texture)

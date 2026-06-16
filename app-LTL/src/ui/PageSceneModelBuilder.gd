@@ -72,6 +72,15 @@ static func project(page_id: String, scene: Dictionary, character_portrait_path:
 			}
 	return scene
 
+static func refresh_inactive_meta_page_models(page_scenes: Dictionary, meta_page_ids: Array, active_id: String, scene: Dictionary, character_portrait_path: String) -> void:
+	for page_id in meta_page_ids:
+		if page_id == active_id:
+			continue
+		var page_scene = page_scenes.get(page_id, null)
+		if page_scene == null or not page_scene.has_method("apply_state"):
+			continue
+		page_scene.apply_state(project(page_id, scene, character_portrait_path))
+
 static func _defeat_page_model(scene: Dictionary, selected_leviathan: Dictionary, character_portrait_path: String) -> Dictionary:
 	var failure_model: Dictionary = FailureReadModelScript.project(scene)
 	var selected_character: Dictionary = scene.get("selectedCharacter", {})

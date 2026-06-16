@@ -21,6 +21,7 @@ var failures: Array[String] = []
 # 실행: run all combat utility vocabulary tests.
 func run_all_tests() -> Dictionary:
 	failures.clear()
+	test_combat_vocab_extracts_relic_hooks_and_caps_owner()
 	test_queue_colors_cycle_active_drill_colors()
 	test_queue_items_keep_dictionary_shape_when_inventory_generates_energy()
 	test_shift_markers_moves_right_and_inserts_seeded_left_column()
@@ -60,6 +61,32 @@ func run_all_tests() -> Dictionary:
 	test_shift_obstacle_spawn_can_fill_multiple_new_tiles_with_multiple_families()
 	test_prime_obstacles_respects_initial_spawn_cap()
 	return {"ok": failures.is_empty(), "errors": failures}
+
+func test_combat_vocab_extracts_relic_hooks_and_caps_owner() -> void:
+	var helper_path := "res://src/vocabulary/combat/CombatRelicHooks.gd"
+	_assert(FileAccess.file_exists(helper_path), "combat relic hooks helper exists")
+	if FileAccess.file_exists(helper_path):
+		var HelperScript = load(helper_path)
+		_assert(HelperScript != null, "combat relic hooks helper loads")
+		if HelperScript != null:
+			_assert(HelperScript.has_method("on_repair_end"), "combat relic hooks owns repair-end effects")
+			_assert(HelperScript.has_method("maybe_protect_blue_activation"), "combat relic hooks owns blue activation guard")
+			_assert(HelperScript.has_method("before_obstacle_execute"), "combat relic hooks owns execute prevention")
+			_assert(HelperScript.has_method("after_obstacle_clear"), "combat relic hooks owns obstacle-clear effects")
+			_assert(HelperScript.has_method("after_weakness_hit"), "combat relic hooks owns weakness-hit effects")
+		var helper_lines := _source_line_count(helper_path)
+		_assert(helper_lines > 0 and helper_lines <= 500, "combat relic hooks helper stays within 500 lines, got %d" % helper_lines)
+	var definition_helper_path := "res://src/vocabulary/combat/CombatObstacleDefinitions.gd"
+	_assert(FileAccess.file_exists(definition_helper_path), "combat obstacle definitions helper exists")
+	if FileAccess.file_exists(definition_helper_path):
+		var DefinitionHelperScript = load(definition_helper_path)
+		_assert(DefinitionHelperScript != null, "combat obstacle definitions helper loads")
+		if DefinitionHelperScript != null:
+			_assert(DefinitionHelperScript.has_method("build"), "combat obstacle definitions helper owns obstacle dictionary construction")
+		var definition_helper_lines := _source_line_count(definition_helper_path)
+		_assert(definition_helper_lines > 0 and definition_helper_lines <= 500, "combat obstacle definitions helper stays within 500 lines, got %d" % definition_helper_lines)
+	var vocab_lines := _source_line_count("res://src/vocabulary/CombatVocab.gd")
+	_assert(vocab_lines > 0 and vocab_lines <= 500, "CombatVocab.gd stays within 500 lines after relic hook extraction, got %d" % vocab_lines)
 
 # 실행: verify active drill colors repeat to queue capacity.
 func test_queue_colors_cycle_active_drill_colors() -> void:
@@ -650,6 +677,16 @@ func _obstacle(id: String, family: String, cell_id: String, overrides: Dictionar
 	for key in overrides.keys():
 		obstacle[key] = overrides[key]
 	return obstacle
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return -1
+	var count := 0
+	while not file.eof_reached():
+		file.get_line()
+		count += 1
+	return count
 
 # 실행: append a failure when condition is false.
 func _assert(condition: bool, msg: String) -> void:

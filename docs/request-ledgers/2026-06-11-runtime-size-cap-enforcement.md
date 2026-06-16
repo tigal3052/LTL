@@ -43,6 +43,14 @@
 - `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
   - The page is just over 500 lines because starter loadout text/detail projection is mixed into page rendering.
 
+## Root Cause Review
+
+- Observed symptom: runtime `.gd` files could grow beyond the intended 500-line implementation rule and only fail during completion-time verification.
+- Evidence: the previous manifest allowed high exact caps for large runtime owners, and the pre-edit request-analysis gate only mapped exact monitored paths instead of strict glob caps.
+- Root cause target: LTL-harness/tools/request-analysis-gate.ps1
+- Rejected workaround: relying on the final runtime-size gate alone forces agents to refactor after implementation rather than splitting by responsibility before editing.
+- Chosen fix: separate frozen legacy debt from strict runtime caps, then require execution-responsibility coverage for touched monitored runtime owners before implementation.
+
 ## Transition Safety Review
 
 - no transition impact
@@ -56,12 +64,18 @@
   - Focused proof: `LTL-harness/tools/runtime-size-gate.tests.ps1`.
 - Owner: `app-LTL/src/vocabulary/RewardVocab.gd`
   - Unit: fallback reward catalog data.
-  - Extract to: `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`.
-  - Focused proof: `app-LTL/tests/run_test_reward_contract.gd`.
+  - Extract to: `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`
+  - Focused proof: `app-LTL/tests/run_test_reward_contract.gd`
 - Owner: `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
   - Unit: starter loadout detail and color copy projection.
-  - Extract to: `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`.
-  - Focused proof: `app-LTL/tests/run_character_select_cleanup_contract.gd`.
+  - Extract to: `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`
+  - Focused proof: `app-LTL/tests/run_character_select_cleanup_contract.gd`
+
+## File Size Budget
+
+- `app-LTL/src/vocabulary/RewardVocab.gd`: current over 500 before split, cap 500, planned final below cap, split target `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`.
+- `app-LTL/src/scenes/pages/CharacterSelectPage.gd`: current over 500 before split, cap 500, planned final below cap, split target `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`.
+- Frozen debt owners listed in `legacy_debt_path_caps`: planned final non-growth unless directly split in a future request.
 
 ## Refactor/Delete Disposition
 
@@ -113,3 +127,9 @@
 - Scene file exception policy:
   - No active `.tscn` currently exceeds 500 lines.
   - If a future scene needs more than 500 lines, it must be recorded as an exact frozen debt path with a documented split owner and must not be allowed through broad glob caps.
+
+## Resolution Proof
+
+- RED proof: `runtime-size-gate.tests.ps1` failed before implementation because strict `app-LTL/src/**/*.gd=500` caps also blocked known oversized legacy owners.
+- Root-cause proof: `runtime-size-gate.tests.ps1` and `runtime-size-gate.ps1 -Root .` passed after `legacy_debt_path_caps` separated frozen debt from strict non-debt caps.
+- Workaround guard: the ledger records concrete split units for `RewardVocab.gd` and `CharacterSelectPage.gd`, not only a completion-time line-count exception.

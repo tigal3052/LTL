@@ -150,6 +150,11 @@ func _assert_character_select_cleanup(main_scene: PackedScene) -> void:
 	_assert(bag_slot_1 != null, "character select bag slot 1 exists for hover audit")
 	_assert(bag_slot_2 != null, "character select bag slot 2 exists for hover audit")
 	_assert(bag_slot_1 == null or bag_slot_1.size.x >= 48.0, "character select bag slots expand after helper copy is removed")
+	var bag_slot_1_image := bag_slot_1.get_node_or_null("ItemImage") as TextureRect if bag_slot_1 != null else null
+	_assert(bag_slot_1_image != null, "character select bag slot 1 shows the selected starter drill image")
+	_assert(bag_slot_1_image == null or bag_slot_1_image.texture != null, "character select bag slot 1 drill image loads a texture")
+	_assert_eq(int(bag_slot_1_image.stretch_mode) if bag_slot_1_image != null else -1, int(TextureRect.STRETCH_KEEP_ASPECT_COVERED), "character select bag slot 1 drill image uses the backpack drill cover placement mode")
+	_assert_eq(str(bag_slot_1_image.get_meta("drill_texture_path", "")) if bag_slot_1_image != null else "", "res://resources/items/drill/red_drill_common.png", "character select bag slot 1 starts with the red basic drill image path")
 	if roster_scroll != null and selector_zone_head != null:
 		_assert(roster_scroll.position.y <= 22.0, "character select roster list starts near the top inset instead of leaving the removed header lane empty")
 	if feature_column != null and feature_zone_head != null:
@@ -202,6 +207,7 @@ func _assert_character_select_cleanup(main_scene: PackedScene) -> void:
 		palette_blue.pressed.emit()
 		await process_frame
 		await process_frame
+		_assert_eq(str(bag_slot_1_image.get_meta("drill_texture_path", "")) if bag_slot_1_image != null else "", "res://resources/items/drill/blue_drill_common.png", "character select bag slot 1 refreshes to the blue basic drill image path after color selection")
 		_assert(
 			board_shell.global_position.y + board_shell.size.y <= float(VIEWPORT_SIZE.y),
 			"character select board shell stays inside the viewport after starter selection"

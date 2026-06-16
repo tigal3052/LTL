@@ -5,48 +5,52 @@ Date: 2026-06-15
 
 ## Active Work
 
-Commit the current workspace state and process M6 as completed.
+Fix idle-state drill image alignment in the reward-list backpack while preserving the drag-state alignment that already works.
 
 ## Request Summary
 
-The user asked to commit the current state and mark M6 complete. The tree already contains broad M6/UI runtime changes, the codex pause fix, worklog files, and supporting docs/tests.
+The user reports that image-backed drills align correctly while another item is being dragged, but in the normal idle state after releasing the mouse the image is displayed left of the backpack grid center again. Combat-page placement and drag-state placement must remain correct; idle reward-list placement must keep the image centered in its assigned grid slot/footprint.
 
 ## Scope
 
-- Add an M6 completed milestone report under the harness completed-plan directory.
-- Update the M6 checklist/known-issues wording honestly: completed by user acceptance, with remaining manual evidence gaps carried forward.
-- Stage and commit the current workspace state as requested.
-- Run fresh verification before commit and report any blocked checks.
+- Inspect idle versus drag image positioning paths in `BackpackUI` and `BackpackArtifactRenderer`.
+- Add focused RED coverage for idle image rect anchoring/centering after release or no held artifact.
+- Adjust only image overlay placement, refresh, or anchoring logic needed for idle state.
+- Preserve the existing background removal, cooldown overlay behavior, non-image square rendering, drag-state alignment, and combat-page placement.
+- Preserve unrelated dirty/untracked workspace changes.
 
 ## Out Of Scope
 
-- Reverting or splitting the existing broad dirty worktree.
-- Creating a PR or pushing unless requested separately.
-- Claiming unperformed manual screenshot or accessibility QA as independently passed.
+- Changing reward vocabulary, combat logic, inventory placement rules, or controller flow.
+- Changing non-image item rendering.
+- Removing or changing cooldown timing semantics.
+- Reverting unrelated dirty/untracked workspace changes.
+- Broad UI redesign of the reward board or combat page.
 
 ## Steps
 
-- Inspect M6 active/completed plan conventions.
-- Create/update M6 closure docs and source-map entries.
-- Run focused verification and source-map/compile gates after staging current files.
-- Commit the current state and record the commit hash.
+- Read the current idle image overlay path, drag ghost path, and reward/backpack image tests.
+- Reproduce or isolate the idle-only offset with a focused test or diagnostic.
+- Add/adjust RED coverage that proves idle item image center equals the assigned slot center.
+- Implement the smallest image overlay fix that makes idle and drag positioning use compatible geometry.
+- Run focused Godot contracts, full contract runner, and `git diff --check`.
+- Update history and completion worklog entries with results.
 
 ## Expected Outputs
 
-- `LTL-harness/docs/11_exec-plans/02_completed/12_M6_ui_ux_finalization_completed.md`
-- Updated M6 checklist/known-issues wording if needed.
-- Updated `docs/source-map.md`.
-- A git commit containing the current state.
-- Updated dated worklog files.
+- Reward-list basic drill images remain centered inside their backpack grid slot/footprint in idle state and while dragging other items.
+- Combat-page drill placement remains unchanged.
+- Image-backed drills still show item art without colored artifact background overlay.
+- Cooldown masking still appears above image-backed artifacts when enabled.
+- Non-image artifacts keep the current colored box presentation.
 
 ## Verification Method
 
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_codex_pause_timing_contract.gd`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script tests/run_main_layout_audit_contract.gd`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/milestone-gate.ps1 -TargetPlan 13_M7_narrative_integration.md -Root .`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script res://tests/run_test_ui_read_models.gd`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script res://tests/run_reward_claim_board_contract.gd`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/invoke-godot.ps1 -ProjectPath app-LTL -Headless -Script res://tests/godot_contract_runner.gd`
+- `git diff --check`
 
 ## Plan Change Log
 
-- 2026-06-15: Replaced the completed HUD layout plan with the active codex pause/resume battle-time bugfix plan before touching runtime code.
-- 2026-06-15: Updated active work to the user's requested current-state commit and M6 completion processing.
+- 2026-06-15: Replaced stale 500-line split plan with the active idle-state reward backpack drill image alignment bugfix.

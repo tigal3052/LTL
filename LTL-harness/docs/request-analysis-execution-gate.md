@@ -9,9 +9,11 @@ This document is the source of truth for converting a user request into a checka
 3. Constraint Ledger Gate: create a ledger under `docs/request-ledgers/` for broad refactors, visual changes, deletion work, or harness changes.
 4. Root Cause Gate: record the observed symptom, evidence, actual source-level target, rejected workaround, and chosen fix before implementation begins.
 5. Transition Safety Review Gate: declare touched transition ids or explicit `no transition impact`, record the entry owner and exit owner, and map shared handoff risks to runnable proofs when a request affects runtime boundaries.
-6. Execution Mapping Gate: map every implementation step to at least one mutable scope item or preserved invariant.
-7. Verification Gate: map tests, scripts, visual QA, or manual checks to the claims they prove.
-8. Completion Gate: state which claims are verified and which remain explicitly unverified, including proof that the change resolved the cause rather than only masking the symptom.
+6. Feature Unit Lifecycle Gate: when source or harness implementation surfaces are in scope, record design-stage ownership, implementation split rules, maintenance drift guards, capsule boundaries, and size triggers before editing.
+7. Runtime Performance Review Gate: when a request touches a high-frequency runtime path, record the hot path, performance risk, proof runner, and measurable budget before editing.
+8. Execution Mapping Gate: map every implementation step to at least one mutable scope item or preserved invariant.
+9. Verification Gate: map tests, scripts, visual QA, or manual checks to the claims they prove.
+10. Completion Gate: state which claims are verified and which remain explicitly unverified, including proof that the change resolved the cause rather than only masking the symptom.
 
 ## Required Ledger Sections
 
@@ -21,6 +23,8 @@ This document is the source of truth for converting a user request into a checka
 - `Source Map Findings`
 - `Root Cause Review`
 - `Transition Safety Review`
+- `Feature Unit Lifecycle Plan` when `Mutable Scope` touches `app-LTL/src/**`, `LTL-harness/**`, `docs/architectural-gates/**`, or `docs/source-map.md`
+- `Runtime Performance Review` when `Mutable Scope` touches a high-frequency runtime path enforced by `request-analysis-gate.ps1`
 - `Execution Responsibility Units` when `Mutable Scope` touches a monitored runtime owner from `docs/architectural-gates/runtime-size-gate.md`
 - `Refactor/Delete Disposition`
 - `Verification Checklist`
@@ -41,12 +45,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/request-an
 
 `request-source-map.ps1` is the harness helper for turning the live file map into a short candidate list before manual code search expands further.
 
-When `Mutable Scope` includes a strict runtime-owner path such as `app-LTL/src/ui/MainViewRuntime.gd`, the pre-edit gate now requires `Execution Responsibility Units` coverage for that owner. Each owner block must declare:
+When `Mutable Scope` includes a monitored runtime-owner path such as `app-LTL/src/ui/MainViewRuntime.gd`, the pre-edit gate requires `Execution Responsibility Units` coverage for that owner. Monitored owners are:
+
+- paths listed in `legacy_debt_path_caps`
+- paths listed in `strict_path_caps`
+- paths matched by `strict_glob_caps` whose current line count is at least 80% of that cap
+
+Each owner block must declare:
 
 - `Owner: <runtime-owner path>`
 - `Unit: <the concrete execution slice being split>`
 - `Extract to: <helper or leaf target path>`
 - `Focused proof: <runner or focused suite path>`
+
+Small helper files that match a strict glob but are still comfortably below the cap can be listed in `Mutable Scope` without their own owner block. They should normally appear as the `Extract to` target of a larger owner.
+
+When `Mutable Scope` includes a high-frequency runtime path such as `app-LTL/src/ui/MainViewRuntime.gd`, `app-LTL/src/MainControllerRuntime.gd`, `BattlefieldUI.gd`, `BattlefieldVFX.gd`, or `CombatVocab.gd`, the pre-edit gate requires `Runtime Performance Review` coverage. Each section must declare:
+
+- `Hot path: <backticked owner/function plus runtime scenario>`
+- `Risk: <the repeated work or frame-time risk>`
+- `Performance proof: <runner or focused suite path>`
+- `Budget: <measurable bound such as no hidden-page apply_state calls, no full rebuilds, or a repeat-hit frame/update budget>`
 
 Every non-trivial request ledger must also pass the root-cause checks:
 
@@ -55,6 +74,14 @@ Every non-trivial request ledger must also pass the root-cause checks:
 - `Root cause target: <backticked owner path or formal target>`
 - `Rejected workaround: <the tempting symptom-only patch that is not acceptable>`
 - `Chosen fix: <the source-level repair being implemented>`
+
+When `Mutable Scope` touches source or harness implementation surfaces, the pre-edit gate requires `Feature Unit Lifecycle Plan` coverage. This catches maintenance-time growth before it becomes another post-hoc split. The section must declare:
+
+- `Design stage: <the owner/helper boundary before coding>`
+- `Implementation stage: <the test-first split or non-growth implementation rule>`
+- `Maintenance stage: <the drift guard for follow-up edits>`
+- `Capsule boundary: <public API and private responsibility boundary>`
+- `Size trigger: <when to split, stop, or declare non-growth before editing>`
 
 Before completion, the ledger must also prove that the request did not stop at symptom masking:
 

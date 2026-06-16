@@ -3,6 +3,11 @@
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	reward_reveal_cancel_done_calls = 0
+	test_backpack_ui_extracts_pin_and_artifact_runtime_helpers()
+	test_main_view_backpack_runtime_helper_exists()
+	test_shared_backpack_scene_composes_one_engine_panel()
+	test_surface_pages_expose_backpack_host_without_embedded_engine_panel()
+	test_main_view_backpack_runtime_targets_single_shared_panel()
 	test_backpack_pin_layout_policy_unifies_backpack_and_main_width_math()
 	test_backpack_grid_keeps_expand_fill_layout_with_shell_gutter()
 	test_backpack_shell_gutter_uses_side_margin_overhang_only_in_combat()
@@ -19,6 +24,82 @@ func run_all_tests() -> Dictionary:
 	test_backpack_pin_visibility_removes_in_requested_order()
 	test_backpack_pin_vfx_contract_is_localized_pullout()
 	return _result()
+
+func test_backpack_ui_extracts_pin_and_artifact_runtime_helpers() -> void:
+	var pin_helper_path := "res://src/ui/backpack/BackpackPinOverlayRuntime.gd"
+	var artifact_helper_path := "res://src/ui/backpack/BackpackArtifactRenderer.gd"
+	var PinHelper = load(pin_helper_path)
+	var ArtifactHelper = load(artifact_helper_path)
+	_assert(PinHelper != null, "backpack pin overlay runtime helper exists")
+	_assert(ArtifactHelper != null, "backpack artifact renderer helper exists")
+	if PinHelper != null:
+		_assert(PinHelper.has_method("visible_count"), "pin helper owns pin count mapping")
+		_assert(PinHelper.has_method("layout"), "pin helper owns pin overlay layout")
+		_assert(_source_line_count(pin_helper_path) <= 500, "pin helper stays within the 500-line cap")
+	if ArtifactHelper != null:
+		_assert(ArtifactHelper.has_method("render_items"), "artifact helper owns backpack item rendering")
+		_assert(ArtifactHelper.has_method("control_rect_in_layer_space"), "artifact helper owns transformed rect math")
+		_assert(_source_line_count(artifact_helper_path) <= 500, "artifact helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/BackpackUI.gd") <= 500, "BackpackUI delegates runtime helpers and stays within 500 lines")
+
+func test_main_view_backpack_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewBackpackRuntime.gd"
+	var Helper = load(helper_path)
+	_assert(Helper != null, "main view backpack runtime helper exists")
+	if Helper != null:
+		_assert(Helper.has_method("create_shared_backpack"), "backpack helper owns the single shared backpack scene creation")
+		_assert(Helper.has_method("connect_shared_backpack_signals"), "backpack helper owns one-time shared backpack signal wiring")
+		_assert(Helper.has_method("setup_backpack_slots"), "backpack helper owns page backpack slot setup")
+		_assert(Helper.has_method("render_backpack"), "backpack helper owns page backpack item rendering")
+		_assert(Helper.has_method("schedule_backpack_reparent"), "backpack helper owns shared backpack reparent scheduling")
+		_assert(Helper.has_method("commit_backpack_reparent"), "backpack helper owns shared backpack reparent commit")
+		_assert(Helper.has_method("flush_pending_backpack_pin_scene"), "backpack helper owns delayed pin-scene flushing")
+		_assert(_source_line_count(helper_path) <= 500, "main view backpack runtime helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 965, "MainViewRuntime delegates shared backpack runtime responsibilities")
+
+func test_shared_backpack_scene_composes_one_engine_panel() -> void:
+	var SharedBackpackScene = load("res://src/scenes/pages/shells/SharedBackpack.tscn")
+	var BackpackUIScript = load("res://src/ui/BackpackUI.gd")
+	_assert(SharedBackpackScene != null, "shared backpack scene exists so page shells can host one live backpack instance")
+	_assert(BackpackUIScript != null, "backpack ui script loads for shared backpack scene contract")
+	if SharedBackpackScene == null:
+		return
+	var shared = SharedBackpackScene.instantiate()
+	_assert(shared is AspectRatioContainer, "shared backpack scene root is the AspectRatioContainer moved between hosts")
+	var engine_panel = shared.get_node_or_null("BackpackEnginePanel")
+	_assert(engine_panel != null, "shared backpack scene owns exactly one BackpackEnginePanel child")
+	if engine_panel != null and BackpackUIScript != null:
+		_assert(engine_panel.get_script() == BackpackUIScript, "shared backpack engine panel uses the production BackpackUI script")
+	if shared != null:
+		shared.free()
+
+func test_surface_pages_expose_backpack_host_without_embedded_engine_panel() -> void:
+	for scene_path in [
+		"res://src/scenes/pages/BattlePage.tscn",
+		"res://src/scenes/pages/RewardPage.tscn",
+		"res://src/scenes/pages/BossBattlePage.tscn",
+		"res://src/scenes/pages/BossRewardPage.tscn"
+	]:
+		var page_scene = load(scene_path)
+		_assert(page_scene != null, "%s loads for empty backpack host contract" % scene_path)
+		if page_scene == null:
+			continue
+		var page = page_scene.instantiate()
+		_assert(page != null, "%s instantiates for empty backpack host contract" % scene_path)
+		if page == null:
+			continue
+		var host = page.get_node_or_null("TopContent/BackpackContainer") as AspectRatioContainer
+		_assert(host != null, "%s exposes TopContent/BackpackContainer as the shared backpack host" % scene_path)
+		_assert(page.get_node_or_null("TopContent/BackpackContainer/BackpackEnginePanel") == null, "%s no longer embeds a page-local BackpackEnginePanel" % scene_path)
+		page.free()
+
+func test_main_view_backpack_runtime_targets_single_shared_panel() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewBackpackRuntime.gd"
+	var source := _source_text(helper_path)
+	_assert(source.find("static func create_shared_backpack") >= 0, "main view backpack runtime exposes shared backpack creation")
+	_assert(source.find("static func connect_shared_backpack_signals") >= 0, "main view backpack runtime exposes one-time shared backpack signal wiring")
+	_assert(source.find("for bundle in view.page_shell_bundles.values():") < 0, "main view backpack runtime no longer loops over page-local backpacks for render/setup/ghost updates")
+	_assert(source.find("view.backpack_ui.render_backpack_items") >= 0, "main view backpack runtime renders inventory through the single shared backpack ui")
 
 func test_backpack_pin_layout_policy_unifies_backpack_and_main_width_math() -> void:
 	var MainViewRuntimeScript = load("res://src/ui/MainViewRuntime.gd")
@@ -56,19 +137,19 @@ func test_backpack_shell_gutter_uses_side_margin_overhang_only_in_combat() -> vo
 	_assert_eq(int(backpack_ui.call("pin_shell_side_margin_for_outset", 24.4, true)), 40, "combat backpack converts pin overhang into extra side margin gutter")
 
 func test_main_scene_backpack_grid_uses_shell_gutter_layout() -> void:
-	var GameplayTopContentScene = load("res://src/scenes/pages/shells/GameplayTopContent.tscn")
-	_assert(GameplayTopContentScene != null, "gameplay top-content shell loads for backpack shell gutter layout contract")
-	if GameplayTopContentScene == null:
+	var BackpackEnginePanelScene = load("res://src/scenes/pages/shells/BackpackEnginePanel.tscn")
+	_assert(BackpackEnginePanelScene != null, "shared backpack engine panel shell loads for backpack shell gutter layout contract")
+	if BackpackEnginePanelScene == null:
 		return
-	var gameplay_top_content = GameplayTopContentScene.instantiate()
-	_assert(gameplay_top_content != null, "gameplay top-content shell instantiates for backpack shell gutter layout contract")
-	if gameplay_top_content == null:
+	var engine_panel = BackpackEnginePanelScene.instantiate()
+	_assert(engine_panel != null, "shared backpack engine panel shell instantiates for backpack shell gutter layout contract")
+	if engine_panel == null:
 		return
-	var grid = gameplay_top_content.get_node_or_null("BackpackContainer/BackpackEnginePanel/Margin/EngineBox/GridMock") as GridContainer
-	_assert(grid != null, "gameplay top-content shell exposes the backpack grid node")
+	var grid = engine_panel.get_node_or_null("Margin/EngineBox/GridMock") as GridContainer
+	_assert(grid != null, "shared backpack engine panel exposes the backpack grid node")
 	if grid != null:
-		_assert_eq(int(grid.size_flags_horizontal), int(Control.SIZE_EXPAND_FILL), "gameplay top-content shell grid remains expand-fill and relies on shell margins for pin gutter spacing")
-	gameplay_top_content.free()
+		_assert_eq(int(grid.size_flags_horizontal), int(Control.SIZE_EXPAND_FILL), "shared backpack engine panel grid remains expand-fill and relies on shell margins for pin gutter spacing")
+	engine_panel.free()
 
 func test_main_scene_shared_layout_text_nodes_do_not_fit_content() -> void:
 	var RewardPanelScene = load("res://src/scenes/pages/shells/RewardPanel.tscn")
@@ -278,4 +359,20 @@ func test_backpack_pin_vfx_contract_is_localized_pullout() -> void:
 	_assert_close(float(profile.get("pullDistance", 0.0)), 36.0, 0.001, "pin removal pull distance scales visibly from displayed pin size")
 	_assert_eq(float(profile.get("fadeToAlpha", 1.0)), 0.0, "removed pin fades out")
 	_assert_eq(bool(profile.get("localOnly", false)), true, "pin removal VFX is localized rather than screen shake")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var text := file.get_as_text()
+	file.close()
+	return text.split("\n").size()
+
+func _source_text(path: String) -> String:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return ""
+	var text := file.get_as_text()
+	file.close()
+	return text
 

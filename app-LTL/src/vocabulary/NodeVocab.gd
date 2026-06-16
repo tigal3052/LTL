@@ -21,7 +21,7 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 	for node in nodes:
 		if node.get("alwaysOffer", false) == true or node.get("id", "") == "normal":
 			normal_node = node
-		if bool(node.get("isBoss", false)) or str(node.get("nodeType", "")) == "boss":
+		if _is_boss_node(node):
 			boss_node = node
 	if normal_node.is_empty():
 		push_error("node table must include a normal node")
@@ -50,6 +50,8 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 		var available_nodes: Array = []
 		for node in nodes:
 			if selected_ids.has(node.get("id", "")):
+				continue
+			if _is_boss_node(node):
 				continue
 			available_nodes.append({"node": node, "score": rng.randf() / maxf(0.001, float(node.get("pickWeight", 1.0)))})
 		available_nodes.sort_custom(func(a, b): return float(a["score"]) < float(b["score"]))
@@ -84,6 +86,9 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 	return result
 
 # 실행: normalize candidate route fields used by node map and selection contracts.
+static func _is_boss_node(node: Dictionary) -> bool:
+	return bool(node.get("isBoss", false)) or str(node.get("nodeType", "")) == "boss" or str(node.get("riskTier", "")) == "boss"
+
 static func _normalize_route_fields(candidate: Dictionary, seed_val: int, stage_index: int, max_stages: int) -> void:
 	candidate["nodeType"] = str(candidate.get("nodeType", "normal"))
 	candidate["riskTier"] = str(candidate.get("riskTier", "safe"))

@@ -1,7 +1,7 @@
 extends SceneTree
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
-const MainControllerRuntimeScript = preload("res://src/MainControllerRuntime.gd")
+const MainControllerScript = preload("res://src/MainController.gd")
 const HudReadModelScript = preload("res://src/ui/read_models/HudReadModel.gd")
 const FailureReadModelScript = preload("res://src/ui/read_models/FailureReadModel.gd")
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
@@ -34,7 +34,7 @@ func _run() -> void:
 	_assert_eq(TextCatalogScript.t("action.start"), "채굴 시작", "Korean start action resolves from catalog")
 	TextCatalogScript.set_locale("en")
 	_assert_eq(TextCatalogScript.t("action.start"), "Start Mining", "English start action resolves from catalog")
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	TextCatalogScript.set_locale("ko")
 	var korean_roster: Array = controller.call("_load_character_roster")
 	var korean_leviathans: Array = controller.call("_load_leviathan_roster")

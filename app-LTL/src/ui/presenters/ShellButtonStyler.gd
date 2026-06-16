@@ -50,7 +50,7 @@ static func _style(accent: String, state: String) -> StyleBoxFlat:
 		if state == "pressed":
 			return LTLThemeScript.surface_style(Color(0.38, 0.14, 0.11, 0.98), Color(0.72, 0.39, 0.31, 1.0), 14, 1, 0.18)
 		if state == "disabled":
-			return LTLThemeScript.surface_style(Color(0.50, 0.22, 0.17, 0.98), Color(0.74, 0.46, 0.37, 0.96), 14, 1, 0.22)
+			return LTLThemeScript.surface_style(Color(0.12, 0.10, 0.10, 0.96), Color(0.31, 0.25, 0.22, 0.86), 14, 1, 0.08)
 		return LTLThemeScript.surface_style(Color(0.53, 0.21, 0.16, 0.98), Color(0.77, 0.46, 0.36, 1.0), 14, 1, 0.26)
 	if state == "hover":
 		return LTLThemeScript.surface_style(Color(0.21, 0.15, 0.11, 0.98), LTLThemeScript.BORDER_WARM, 12, 1, 0.22)
@@ -62,7 +62,7 @@ static func _style(accent: String, state: String) -> StyleBoxFlat:
 
 static func _disabled_text_color(accent: String) -> Color:
 	if accent == "start":
-		return Color(0.97, 0.92, 0.88, 0.98)
+		return Color(0.62, 0.58, 0.54, 0.86)
 	if accent == "reset":
 		return Color(0.96, 0.92, 0.86, 0.98)
 	return Color(0.95, 0.91, 0.84, 0.96)

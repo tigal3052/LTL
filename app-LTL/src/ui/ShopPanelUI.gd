@@ -13,6 +13,7 @@ signal buy_base_item(item_id: String)
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
+const SHOP_ENABLED := false
 
 var title_label: Label
 var gold_label: Label
@@ -149,7 +150,7 @@ func render_shop(growth_state: Dictionary) -> void:
 		if desc_labels.has(pid):
 			desc_labels[pid].text = TextCatalogScript.t("passive.%s.desc" % pid, [cost, level])
 		if buttons.has(pid):
-			buttons[pid].disabled = gold_val < cost
+			buttons[pid].disabled = (not SHOP_ENABLED) or gold_val < cost
 			buttons[pid].text = TextCatalogScript.t("shop.buy_with_cost", [cost])
 	var unlocked_characters: Array = growth_state.get("unlockedCharacters", [])
 	var unlocked_items: Array = growth_state.get("unlockedStarterItems", [])
@@ -166,7 +167,7 @@ func render_shop(growth_state: Dictionary) -> void:
 				[TextCatalogScript.base_shop_label(item_id, str(item.get("label", item_id))), cost_gold, cost_xp]
 			)
 		if base_item_buttons.has(item_id):
-			base_item_buttons[item_id].disabled = owned or gold_val < cost_gold or xp_val < cost_xp
+			base_item_buttons[item_id].disabled = (not SHOP_ENABLED) or owned or gold_val < cost_gold or xp_val < cost_xp
 			base_item_buttons[item_id].text = TextCatalogScript.t("shop.owned") if owned else TextCatalogScript.t("shop.base_item_button_cost", [cost_gold, cost_xp])
 
 # 실행: add one passive purchase row.
@@ -205,6 +206,8 @@ func _add_passive_row(parent: Control, passive: Dictionary) -> void:
 	row.add_child(button)
 	buttons[passive_id] = button
 	button.pressed.connect(func():
+		if not SHOP_ENABLED:
+			return
 		var purchased: Dictionary = current_state.get("purchasedPassives", {})
 		var level := int(purchased.get(passive_id, 0))
 		buy_passive.emit(passive_id, _cost_for(passive, level))
@@ -238,6 +241,8 @@ func _add_base_item_row(parent: Control, item: Dictionary) -> void:
 	row.add_child(button)
 	base_item_buttons[item_id] = button
 	button.pressed.connect(func():
+		if not SHOP_ENABLED:
+			return
 		buy_base_item.emit(item_id)
 	)
 

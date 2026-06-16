@@ -13,6 +13,11 @@ func run_all_tests() -> Dictionary:
 	await test_reward_workspace_reuses_live_backpack_panel()
 	await test_reward_workspace_uses_the_visible_workspace_shell_title()
 	await test_reward_workspace_backpack_panel_fills_host_on_first_render()
+	await test_live_reward_workspace_keeps_existing_drill_centered_after_dock()
+	await test_shared_backpack_returns_to_second_battle_after_reward_claim()
+	await test_live_reward_drop_keeps_shared_backpack_visible_and_renders_artifact()
+	await test_reward_workspace_image_drill_sits_inside_slot_without_color_overlay()
+	await test_reward_workspace_image_drill_tracks_grid_position_changes()
 	await test_reward_board_bottom_row_hides_empty_helper_rows_and_scrollbars()
 	await test_reward_header_uses_selected_leviathan_name()
 	return {"ok": failures.is_empty(), "errors": failures}
@@ -136,6 +141,204 @@ func test_reward_workspace_backpack_panel_fills_host_on_first_render() -> void:
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
 
+func test_live_reward_workspace_keeps_existing_drill_centered_after_dock() -> void:
+	var main_instance = await _boot_live_reward_tray()
+	if main_instance == null:
+		return
+	await _settle_frames(12)
+	var controller = main_instance.get_node_or_null("MainController")
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control if backpack_container != null else null
+	_assert(controller != null, "live reward dock image contract has a controller")
+	_assert(backpack_panel != null, "live reward dock image contract has the shared backpack panel")
+	if controller != null and backpack_panel != null:
+		_assert_live_starter_drill_centered(controller, backpack_panel, "live reward dock keeps the existing starter drill image centered without manual render")
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
+
+func test_shared_backpack_returns_to_second_battle_after_reward_claim() -> void:
+	var main_instance = await _boot_live_reward_tray()
+	if main_instance == null:
+		return
+	var controller = main_instance.get_node_or_null("MainController")
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var first_shared_id := int(backpack_container.get_instance_id()) if backpack_container != null else -1
+	_assert(controller != null, "second battle shared-backpack contract has a controller")
+	_assert(backpack_container != null, "second battle shared-backpack contract starts with a shared backpack")
+	if controller == null or backpack_container == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	controller.call("_proceed_to_node_select")
+	await _settle_frames(4)
+	_assert_eq(str(main_instance.get("active_page_id")), "node_select", "reward claim returns to node select before second battle")
+	_press_current_node(main_instance, 1, "second battle shared-backpack contract")
+	await Engine.get_main_loop().process_frame
+	var start_button = main_instance.get("start_button")
+	_assert(start_button != null, "start button exists for second battle shared-backpack contract")
+	if start_button != null:
+		start_button.pressed.emit()
+	await _settle_frames(8)
+	_assert_eq(str(main_instance.get("active_page_id")), "battle", "second route enters battle for shared-backpack return contract")
+	var battle_host = main_instance.call("current_surface_node", "TopContent/BackpackContainer") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control
+	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as Control if backpack_panel != null else null
+	_assert_eq(int(backpack_container.get_instance_id()), first_shared_id, "second battle keeps the same shared backpack instance id")
+	_assert(battle_host != null, "second battle exposes the top backpack host")
+	_assert(backpack_panel != null, "second battle shared container still owns the backpack panel")
+	_assert(grid != null, "second battle shared backpack still owns the grid")
+	if battle_host != null:
+		_assert(backpack_container.get_parent() == battle_host, "second battle reparents the shared backpack back into the battle host")
+	if backpack_panel != null:
+		_assert(backpack_container.visible and backpack_panel.visible, "second battle keeps the shared backpack panel visible")
+		_assert(backpack_container.get_global_rect().size.x > 1.0 and backpack_container.get_global_rect().size.y > 1.0, "second battle shared backpack has a visible non-zero rect")
+	if grid != null:
+		_assert(grid.visible and grid.get_global_rect().size.x > 1.0 and grid.get_global_rect().size.y > 1.0, "second battle grid remains visible with a non-zero rect")
+	if backpack_panel != null:
+		_assert_live_starter_drill_centered(controller, backpack_panel, "second battle keeps the starter drill image centered after returning from reward")
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
+
+func test_live_reward_drop_keeps_shared_backpack_visible_and_renders_artifact() -> void:
+	var main_instance = await _boot_live_reward_tray()
+	if main_instance == null:
+		return
+	var controller = main_instance.get_node_or_null("MainController")
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var reward_backpack_host = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/BackpackHost") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control if backpack_container != null else null
+	_assert(controller != null, "reward drop render contract has a controller")
+	_assert(backpack_container != null, "reward drop render contract has the shared backpack container")
+	_assert(reward_backpack_host != null, "reward drop render contract has the reward backpack host")
+	_assert(backpack_panel != null, "reward drop render contract has the shared backpack panel")
+	if controller == null or backpack_container == null or reward_backpack_host == null or backpack_panel == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	var selection := await _select_first_placeable_reward_drag(controller)
+	_assert(not selection.is_empty(), "reward drop render contract finds a placeable reward artifact")
+	if selection.is_empty():
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	var reward_index := int(selection.get("index", -1))
+	var coord: Vector2 = selection.get("coord", Vector2(-1, -1))
+	var artifact_id := str(selection.get("artifactId", ""))
+	main_instance.emit_signal("reward_meta_drop_requested", reward_index, coord)
+	await _settle_frames(16)
+	_assert_eq(str(main_instance.get("active_page_id")), "reward", "reward drop keeps the reward page active")
+	_assert(backpack_container.get_parent() == reward_backpack_host, "reward drop keeps the shared backpack docked in the reward workspace host")
+	_assert(backpack_container.visible, "reward drop keeps the shared backpack container visible")
+	_assert(backpack_container.get_global_rect().size.x > 1.0 and backpack_container.get_global_rect().size.y > 1.0, "reward drop keeps a non-zero shared backpack rect")
+	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as Control
+	_assert(grid != null, "reward drop keeps the backpack grid node")
+	if grid != null:
+		_assert(grid.visible and grid.get_global_rect().size.x > 1.0 and grid.get_global_rect().size.y > 1.0, "reward drop keeps the backpack grid visible with a non-zero rect")
+	var inventory = controller.get("inventory")
+	var artifact = inventory.artifacts.get(artifact_id, null) if inventory != null else null
+	_assert(artifact != null, "reward drop inventory contains the newly placed artifact")
+	if artifact != null:
+		_assert_artifact_rendered_in_reward_backpack(backpack_panel, artifact, "reward drop renders the newly placed artifact on the reward backpack")
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
+
+func test_reward_workspace_image_drill_sits_inside_slot_without_color_overlay() -> void:
+	var main_instance = await _boot_live_reward_tray()
+	if main_instance == null:
+		return
+	var controller = main_instance.get_node_or_null("MainController")
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control if backpack_container != null else null
+	_assert(controller != null, "reward workspace image contract has a live controller")
+	_assert(backpack_panel != null, "reward workspace image contract has the shared backpack panel")
+	if controller == null or backpack_panel == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	var inventory = controller.get("inventory")
+	var drill = inventory.artifacts.get("starter_purple_drill", null) if inventory != null else null
+	_assert(drill != null, "reward workspace image contract finds the starter drill")
+	if drill == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	backpack_panel.call("set_cooldown_visuals_enabled", true)
+	backpack_panel.call("render_backpack_items", inventory)
+	await _settle_frames(3)
+	var slot = _backpack_slot_for_artifact(backpack_panel, drill) as Panel
+	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control
+	var image = image_layer.get_node_or_null("DrillImage_%s" % str(drill.id)) as TextureRect if image_layer != null else null
+	_assert(slot != null, "reward workspace image contract finds the starter drill slot")
+	_assert(image_layer != null, "reward workspace image contract exposes the artifact image layer")
+	_assert(image != null, "reward workspace image contract renders a drill image node")
+	if slot != null and image != null:
+		var slot_rect: Rect2 = slot.get_global_rect()
+		var image_rect: Rect2 = image.get_global_rect()
+		_assert(slot_rect.grow(1.0).has_point(image_rect.position), "reward workspace drill image begins inside its backpack slot")
+		_assert(slot_rect.grow(1.0).has_point(image_rect.end - Vector2.ONE), "reward workspace drill image ends inside its backpack slot")
+		_assert(image_rect.size.x >= slot_rect.size.x * 0.92, "reward workspace drill image fills most of the slot width")
+		_assert(image_rect.size.y >= slot_rect.size.y * 0.92, "reward workspace drill image fills most of the slot height")
+		_assert_eq(int(image.stretch_mode), int(TextureRect.STRETCH_KEEP_ASPECT_COVERED), "reward workspace drill image uses a cover mode so art fills the slot")
+	var overlay = slot.get_node_or_null("Overlay") as Panel if slot != null else null
+	var charge = slot.get_node_or_null("ChargeOverlay") as Panel if slot != null else null
+	_assert(overlay != null, "reward workspace image contract keeps the base overlay node")
+	_assert(charge != null, "reward workspace image contract keeps the cooldown overlay node")
+	if overlay != null:
+		_assert(overlay.get_theme_stylebox("panel") is StyleBoxEmpty, "image-backed drill suppresses the colored artifact background overlay")
+	if charge != null:
+		_assert(charge.visible, "image-backed drill keeps cooldown overlay visible when cooldown visuals are enabled")
+		_assert(charge.get_theme_stylebox("panel") is StyleBoxFlat, "image-backed drill keeps the existing translucent cooldown mask style")
+		if image_layer != null:
+			_assert(int(charge.z_index) > int(image_layer.z_index), "image-backed drill keeps cooldown overlay drawn above the item image layer")
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
+
+func test_reward_workspace_image_drill_tracks_grid_position_changes() -> void:
+	var main_instance = await _boot_live_reward_tray()
+	if main_instance == null:
+		return
+	var controller = main_instance.get_node_or_null("MainController")
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control if backpack_container != null else null
+	_assert(controller != null, "reward workspace image drift contract has a live controller")
+	_assert(backpack_panel != null, "reward workspace image drift contract has the shared backpack panel")
+	if controller == null or backpack_panel == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	var inventory = controller.get("inventory")
+	var drill = inventory.artifacts.get("starter_purple_drill", null) if inventory != null else null
+	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as Control
+	_assert(drill != null, "reward workspace image drift contract finds the starter drill")
+	_assert(grid != null, "reward workspace image drift contract finds the backpack grid")
+	if drill == null or grid == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	backpack_panel.call("render_backpack_items", inventory)
+	await _settle_frames(2)
+	var slot = _backpack_slot_for_artifact(backpack_panel, drill) as Control
+	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control
+	var image = image_layer.get_node_or_null("DrillImage_%s" % str(drill.id)) as TextureRect if image_layer != null else null
+	_assert(slot != null, "reward workspace image drift contract finds the starter drill slot")
+	_assert(image != null, "reward workspace image drift contract renders a drill image node")
+	if slot == null or image == null:
+		main_instance.queue_free()
+		await Engine.get_main_loop().process_frame
+		return
+	var slot_center_before := slot.get_global_rect().get_center()
+	_assert_centers_close(image.get_global_rect(), slot.get_global_rect(), 1.0, "reward workspace drill image starts centered in its slot")
+	grid.position += Vector2(24.0, 0.0)
+	await _settle_frames(4)
+	slot = _backpack_slot_for_artifact(backpack_panel, drill) as Control
+	image = image_layer.get_node_or_null("DrillImage_%s" % str(drill.id)) as TextureRect if image_layer != null else null
+	if slot != null and image != null:
+		var slot_center_after := slot.get_global_rect().get_center()
+		_assert(slot_center_after.distance_to(slot_center_before) >= 12.0, "reward workspace image drift contract moves the grid slot without resizing it")
+		_assert_centers_close(image.get_global_rect(), slot.get_global_rect(), 1.0, "reward workspace drill image follows grid position-only layout drift")
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
+
 func test_reward_board_bottom_row_hides_empty_helper_rows_and_scrollbars() -> void:
 	var main_instance = await _instantiate_reward_board_surface(
 		_verbose_reward_fixture(),
@@ -216,7 +419,9 @@ func _boot_live_reward_tray() -> Node:
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	var node_select_page = page_scenes.get("node_select", null)
 	_assert(node_select_page != null, "node select page exists for reward-board click contract")
-	if node_select_page != null and node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
+	if node_select_page != null and node_select_page.has_method("press_start_marker"):
+		node_select_page.call("press_start_marker")
+	elif node_select_page != null and node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
 		if int(node_select_page.call("route_button_count")) > 0:
 			node_select_page.call("press_route_button", 0)
 	await Engine.get_main_loop().process_frame
@@ -275,6 +480,30 @@ func _boot_to_node_select(main_instance: Node, color: String = "purple", leviath
 	await _settle_frames(3)
 	_assert_eq(str(main_instance.get("active_page_id")), "node_select", "leviathan select advances to node select during reward-board boot")
 	return controller
+
+func _press_current_node(main_instance: Node, preferred_route_index: int, label: String) -> void:
+	var controller = main_instance.get_node_or_null("MainController")
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	var node_select_page = page_scenes.get("node_select", null)
+	_assert(node_select_page != null, "node select page exists for %s" % label)
+	if node_select_page == null:
+		return
+	var route_count := int(node_select_page.call("route_button_count")) if node_select_page.has_method("route_button_count") else 0
+	if route_count > 0:
+		_assert(node_select_page.has_method("press_route_button"), "node select page exposes route-button helper for %s" % label)
+		if node_select_page.has_method("press_route_button"):
+			node_select_page.call("press_route_button", clampi(preferred_route_index, 0, route_count - 1))
+		return
+	var current_scene: Dictionary = controller.get("current_scene") if controller != null else {}
+	var is_boss_stage := bool(current_scene.get("nodeSelect", {}).get("isBossStage", false))
+	if is_boss_stage:
+		_assert(node_select_page.has_method("press_boss_marker"), "node select page exposes boss marker helper for %s" % label)
+		if node_select_page.has_method("press_boss_marker"):
+			node_select_page.call("press_boss_marker")
+		return
+	_assert(node_select_page.has_method("press_start_marker"), "node select page exposes fixed-start marker helper for %s" % label)
+	if node_select_page.has_method("press_start_marker"):
+		node_select_page.call("press_start_marker")
 
 func _finish_reward_ceremony(controller: Node, reward_reveal_overlay: Node) -> void:
 	var reward_count: int = max(1, int(Array(controller.get("local_rewards_list")).size()))
@@ -459,6 +688,88 @@ func _first_inventory_coord(inventory) -> Vector2:
 				return Vector2(column, row)
 	return Vector2(-1, -1)
 
+func _backpack_slot_for_artifact(backpack_panel: Control, artifact) -> Control:
+	if backpack_panel == null or artifact == null:
+		return null
+	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as GridContainer
+	if grid == null:
+		return null
+	var slot_idx := (int(artifact.y) + 1) * 10 + (int(artifact.x) + 1)
+	if slot_idx < 0 or slot_idx >= grid.get_child_count():
+		return null
+	return grid.get_child(slot_idx) as Control
+
+func _assert_live_starter_drill_centered(controller: Node, backpack_panel: Control, label: String) -> void:
+	var inventory = controller.get("inventory") if controller != null else null
+	var drill = inventory.artifacts.get("starter_purple_drill", null) if inventory != null else null
+	var slot = _backpack_slot_for_artifact(backpack_panel, drill) as Control
+	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control if backpack_panel != null else null
+	var image = image_layer.get_node_or_null("DrillImage_%s" % str(drill.id)) as TextureRect if image_layer != null and drill != null else null
+	_assert(drill != null, "%s finds the starter drill" % label)
+	_assert(slot != null, "%s finds the starter drill slot" % label)
+	_assert(image != null, "%s renders the starter drill image node" % label)
+	if slot == null or image == null:
+		return
+	var slot_rect := slot.get_global_rect()
+	var image_rect := image.get_global_rect()
+	_assert(slot_rect.grow(1.0).has_point(image_rect.position), "%s keeps the starter drill image inside the slot top-left" % label)
+	_assert(slot_rect.grow(1.0).has_point(image_rect.end - Vector2.ONE), "%s keeps the starter drill image inside the slot bottom-right" % label)
+	_assert_centers_close(image_rect, slot_rect, 1.0, "%s keeps the starter drill image centered in its slot" % label)
+
+func _select_first_placeable_reward_drag(controller: Node) -> Dictionary:
+	var rewards: Array = Array(controller.get("local_rewards_list"))
+	for index in range(rewards.size()):
+		controller.call("_on_reward_meta_drag_started_v2", index)
+		await _settle_frames(2)
+		var artifact = controller.get("held_artifact")
+		if artifact == null:
+			continue
+		var coord := _first_valid_reward_drop_coord(controller.get("inventory"), artifact)
+		if coord.x >= 0.0 and coord.y >= 0.0:
+			return {
+				"index": index,
+				"coord": coord,
+				"artifactId": str(artifact.id)
+			}
+		controller.call("_on_reward_meta_drag_canceled_v2", index)
+		await _settle_frames(2)
+	return {}
+
+func _first_valid_reward_drop_coord(inventory, artifact) -> Vector2:
+	if inventory == null or artifact == null:
+		return Vector2(-1, -1)
+	if _duplicate_drill_blocked(inventory, artifact):
+		return Vector2(-1, -1)
+	for row in range(8):
+		for column in range(8):
+			if inventory.can_place_artifact(artifact, column, row):
+				return Vector2(column, row)
+	return Vector2(-1, -1)
+
+func _duplicate_drill_blocked(inventory, artifact) -> bool:
+	if inventory == null or artifact == null or str(artifact.item_type) != "drill":
+		return false
+	for art_id in inventory.artifacts:
+		var other = inventory.artifacts[art_id]
+		if other != null and str(other.item_type) == "drill" and str(other.energy_type) == str(artifact.energy_type) and str(other.id) != str(artifact.id):
+			return true
+	return false
+
+func _assert_artifact_rendered_in_reward_backpack(backpack_panel: Control, artifact, label: String) -> void:
+	var slot = _backpack_slot_for_artifact(backpack_panel, artifact) as Control
+	_assert(slot != null, "%s finds the placed artifact slot" % label)
+	if slot == null:
+		return
+	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control if backpack_panel != null else null
+	var image = image_layer.get_node_or_null("DrillImage_%s" % str(artifact.id)) as TextureRect if image_layer != null else null
+	if image != null:
+		_assert_centers_close(image.get_global_rect(), slot.get_global_rect(), 1.0, "%s centers the image-backed artifact" % label)
+		return
+	var overlay = slot.get_node_or_null("Overlay") as Panel
+	_assert(overlay != null, "%s finds the placed artifact overlay" % label)
+	if overlay != null:
+		_assert(not (overlay.get_theme_stylebox("panel") is StyleBoxEmpty), "%s draws the non-image artifact overlay" % label)
+
 func _settle_frames(count: int) -> void:
 	for _index in range(count):
 		await Engine.get_main_loop().process_frame
@@ -479,3 +790,8 @@ func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 func _assert_close(actual: float, expected: float, tolerance: float, label: String) -> void:
 	if absf(actual - expected) > tolerance:
 		failures.append("%s: expected %.2f, got %.2f (tol=%.2f)" % [label, expected, actual, tolerance])
+
+func _assert_centers_close(actual: Rect2, expected: Rect2, tolerance: float, label: String) -> void:
+	var distance := actual.get_center().distance_to(expected.get_center())
+	if distance > tolerance:
+		failures.append("%s: expected center %s, got %s (distance=%.2f tol=%.2f)" % [label, str(expected.get_center()), str(actual.get_center()), distance, tolerance])

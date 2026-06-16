@@ -19,6 +19,7 @@ var failures: Array[String] = []
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_candidates_are_deterministic_and_include_safe_route()
+	test_non_final_stages_do_not_offer_boss_candidates()
 	test_final_stage_locks_to_boss_candidate_only()
 	test_selected_node_modifiers_reach_combat_snapshot()
 	test_selected_node_uses_documented_durability_curve()
@@ -43,6 +44,15 @@ func test_candidates_are_deterministic_and_include_safe_route() -> void:
 	_assert(first[0].has("finalStageDistance"), "node routing candidate includes final stage distance")
 
 # 실행: verify the final stage locks to the boss route only.
+func test_non_final_stages_do_not_offer_boss_candidates() -> void:
+	var candidates := NodeVocabScript.generate_candidates(404, 1, _node_table(), 7, {"maxStages": 3, "nodeRouting": {"minCandidates": 1, "maxCandidates": 7}})
+	_assert(candidates.size() >= 3, "non-final node routing still exposes branch choices")
+	for candidate in candidates:
+		_assert(
+			not bool(candidate.get("isBoss", false)) and str(candidate.get("nodeType", "")) != "boss" and str(candidate.get("riskTier", "")) != "boss",
+			"non-final node routing excludes boss candidate %s" % str(candidate.get("id", ""))
+		)
+
 func test_final_stage_locks_to_boss_candidate_only() -> void:
 	var candidates := NodeVocabScript.generate_candidates(11, 2, _node_table(), 4, {"maxStages": 3, "nodeRouting": {"minCandidates": 3, "maxCandidates": 4}})
 	_assert_eq(candidates.size(), 1, "final stage locks to exactly one boss candidate")

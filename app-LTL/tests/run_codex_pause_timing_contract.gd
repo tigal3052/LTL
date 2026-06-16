@@ -1,6 +1,6 @@
 extends SceneTree
 
-const MainControllerRuntimeScript = preload("res://src/MainControllerRuntime.gd")
+const MainControllerScript = preload("res://src/MainController.gd")
 const TERRAIN_SHIFT_SECONDS := 1.5
 
 var failures: Array[String] = []
@@ -9,7 +9,7 @@ func _init() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	var timer := Timer.new()
 	timer.wait_time = TERRAIN_SHIFT_SECONDS
 	root.add_child(timer)

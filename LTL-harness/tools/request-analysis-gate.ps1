@@ -81,7 +81,47 @@ function Get-BacktickedPaths($Text) {
   return $paths
 }
 
-function Get-RuntimeSizeMonitoredPaths($RepoRoot) {
+function Normalize-RepoPath($Path) {
+  return ([string]$Path).Trim().Replace("\", "/")
+}
+
+function Convert-GlobToRegex($Pattern) {
+  $normalized = (Normalize-RepoPath $Pattern)
+  $escaped = [regex]::Escape($normalized)
+  $escaped = $escaped.Replace("\*\*", "__DOUBLE_STAR__")
+  $escaped = $escaped.Replace("\*", "[^/]*")
+  $escaped = $escaped.Replace("\?", "[^/]")
+  $escaped = $escaped.Replace("__DOUBLE_STAR__", ".*")
+  return "^$escaped$"
+}
+
+function Get-CapRules($ManifestText, $Field) {
+  $rules = New-Object System.Collections.Generic.List[object]
+  $match = [System.Text.RegularExpressions.Regex]::Match($ManifestText, ('(?m)^\s*{0}\s*:\s*(.+)\s*$' -f [regex]::Escape($Field)))
+  if (-not $match.Success) {
+    return $rules
+  }
+  foreach ($entry in ($match.Groups[1].Value -split ';')) {
+    $trimmed = $entry.Trim()
+    if ($trimmed -match "^(?<pattern>[^=]+?)\s*=\s*(?<limit>\d+)\s*$") {
+      $rules.Add([PSCustomObject]@{
+        Pattern = Normalize-RepoPath $Matches["pattern"]
+        Limit = [int]$Matches["limit"]
+      })
+    }
+  }
+  return $rules
+}
+
+function Get-CandidateLineCount($RepoRoot, $RelativePath) {
+  $fullPath = Join-Path $RepoRoot (Normalize-RepoPath $RelativePath)
+  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+    return 0
+  }
+  return (Get-Content -LiteralPath $fullPath).Count
+}
+
+function Get-RuntimeSizeMonitoredPaths($RepoRoot, [string[]]$CandidatePaths = @()) {
   $manifestPath = Join-Path $RepoRoot "docs/architectural-gates/runtime-size-gate.md"
   if (-not (Test-Path -LiteralPath $manifestPath)) {
     return @()
@@ -89,18 +129,88 @@ function Get-RuntimeSizeMonitoredPaths($RepoRoot) {
   $manifestText = Get-Content -LiteralPath $manifestPath -Raw
   $paths = New-Object System.Collections.Generic.List[string]
   foreach ($field in @('legacy_debt_path_caps', 'strict_path_caps')) {
-    $match = [System.Text.RegularExpressions.Regex]::Match($manifestText, ('(?m)^\s*{0}\s*:\s*(.+)\s*$' -f [regex]::Escape($field)))
-    if (-not $match.Success) {
-      continue
+    foreach ($pathRule in (Get-CapRules $manifestText $field)) {
+      $paths.Add($pathRule.Pattern)
     }
-    foreach ($entry in ($match.Groups[1].Value -split ';')) {
-      $candidate = (($entry -split '=')[0]).Trim()
-      if (-not [string]::IsNullOrWhiteSpace($candidate)) {
-        $paths.Add($candidate)
+  }
+  $normalizedCandidates = @($CandidatePaths | ForEach-Object { Normalize-RepoPath $_ } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
+  if ($normalizedCandidates.Count -gt 0) {
+    foreach ($globRule in (Get-CapRules $manifestText 'strict_glob_caps')) {
+      $regex = Convert-GlobToRegex $globRule.Pattern
+      $softLimit = [int][Math]::Floor($globRule.Limit * 0.8)
+      foreach ($candidatePath in $normalizedCandidates) {
+        if ($candidatePath -match $regex) {
+          $lineCount = Get-CandidateLineCount $RepoRoot $candidatePath
+          if ($lineCount -ge $softLimit) {
+            $paths.Add($candidatePath)
+          }
+        }
       }
     }
   }
   return @($paths | Select-Object -Unique)
+}
+
+function Get-HighFrequencyRuntimePaths() {
+  return @(
+    "app-LTL/src/MainControllerRuntime.gd",
+    "app-LTL/src/ui/MainViewRuntime.gd",
+    "app-LTL/src/ui/BattlefieldUI.gd",
+    "app-LTL/src/ui/BattlefieldVFX.gd",
+    "app-LTL/src/ui/VFXManager.gd",
+    "app-LTL/src/phases/CombatPhase.gd",
+    "app-LTL/src/vocabulary/CombatVocab.gd"
+  )
+}
+
+function Get-FeatureUnitLifecycleScopePaths($Sections) {
+  $mutableScopePaths = @(Get-BacktickedPaths ([string]$Sections["mutable scope"]) | ForEach-Object { Normalize-RepoPath $_ } | Select-Object -Unique)
+  if ($mutableScopePaths.Count -eq 0) {
+    return @()
+  }
+  return @($mutableScopePaths | Where-Object {
+    $_ -match '^app-LTL/src/' -or
+    $_ -match '^LTL-harness/' -or
+    $_ -match '^docs/architectural-gates/' -or
+    $_ -eq 'docs/source-map.md'
+  } | Select-Object -Unique)
+}
+
+function Require-FeatureUnitLifecyclePlan($Sections) {
+  $lifecycleScopePaths = @(Get-FeatureUnitLifecycleScopePaths $Sections)
+  if ($lifecycleScopePaths.Count -eq 0) {
+    return
+  }
+  Require-MeaningfulSection $Sections "Feature Unit Lifecycle Plan" "map source or harness scope to design, implementation, and maintenance-stage feature-unit boundaries before editing"
+  $body = [string]$Sections["feature unit lifecycle plan"]
+  Require-SectionLine $body '(?m)^\s*-\s*Design stage:\s+.+$' "Feature Unit Lifecycle Plan must declare the Design stage boundary"
+  Require-SectionLine $body '(?m)^\s*-\s*Implementation stage:\s+.+$' "Feature Unit Lifecycle Plan must declare the Implementation stage split rule"
+  Require-SectionLine $body '(?m)^\s*-\s*Maintenance stage:\s+.+$' "Feature Unit Lifecycle Plan must declare the Maintenance stage drift guard"
+  Require-SectionLine $body '(?m)^\s*-\s*Capsule boundary:\s+.+$' "Feature Unit Lifecycle Plan must declare the Capsule boundary"
+  Require-SectionLine $body '(?m)^\s*-\s*Size trigger:\s+.+$' "Feature Unit Lifecycle Plan must declare the Size trigger"
+}
+
+function Require-RuntimePerformanceCoverage($Sections) {
+  $mutableScopePaths = @(Get-BacktickedPaths ([string]$Sections["mutable scope"]) | ForEach-Object { Normalize-RepoPath $_ } | Select-Object -Unique)
+  if ($mutableScopePaths.Count -eq 0) {
+    return
+  }
+  $hotPaths = @(Get-HighFrequencyRuntimePaths)
+  $hotInScope = @($mutableScopePaths | Where-Object { $hotPaths -contains $_ } | Select-Object -Unique)
+  if ($hotInScope.Count -eq 0) {
+    return
+  }
+  Require-MeaningfulSection $Sections "Runtime Performance Review" "map each touched high-frequency runtime path to a hot path, risk, performance proof, and budget before editing"
+  $body = [string]$Sections["runtime performance review"]
+  Require-SectionLine $body '(?m)^\s*-\s*Hot path:\s*`[^`]+`\s+.+$' "Runtime Performance Review must declare a Hot path with a concrete owner/function"
+  Require-SectionLine $body '(?m)^\s*-\s*Risk:\s+.+$' "Runtime Performance Review must declare the performance Risk"
+  Require-SectionLine $body '(?m)^\s*-\s*Performance proof:\s*`[^`]+`\s*$' "Runtime Performance Review must declare a Performance proof path"
+  Require-SectionLine $body '(?m)^\s*-\s*Budget:\s+.+$' "Runtime Performance Review must declare a measurable Budget"
+  foreach ($hotPath in $hotInScope) {
+    if ($body -notmatch [regex]::Escape($hotPath)) {
+      Fail "Runtime Performance Review must name touched high-frequency runtime path: $hotPath"
+    }
+  }
 }
 
 function Get-ExecutionResponsibilityUnitBlocks($Body) {
@@ -133,11 +243,11 @@ function Get-ExecutionResponsibilityUnitBlocks($Body) {
 }
 
 function Require-ExecutionResponsibilityCoverage($Sections, $RepoRoot) {
-  $mutableScopePaths = @(Get-BacktickedPaths ([string]$Sections["mutable scope"]))
+  $mutableScopePaths = @(Get-BacktickedPaths ([string]$Sections["mutable scope"]) | ForEach-Object { Normalize-RepoPath $_ } | Select-Object -Unique)
   if ($mutableScopePaths.Count -eq 0) {
     return
   }
-  $monitoredOwnerPaths = @(Get-RuntimeSizeMonitoredPaths $RepoRoot)
+  $monitoredOwnerPaths = @(Get-RuntimeSizeMonitoredPaths $RepoRoot $mutableScopePaths)
   if ($monitoredOwnerPaths.Count -eq 0) {
     return
   }
@@ -145,10 +255,13 @@ function Require-ExecutionResponsibilityCoverage($Sections, $RepoRoot) {
   if ($monitoredInScope.Count -eq 0) {
     return
   }
+  if (-not $Sections.ContainsKey("execution responsibility units")) {
+    Fail "Execution Responsibility Units section is required for monitored runtime paths: $($monitoredInScope -join ', ')"
+  }
   Require-MeaningfulSection $Sections "Execution Responsibility Units" "map each touched large runtime owner to a split unit, extraction target, and focused proof before editing"
   $blocks = @(Get-ExecutionResponsibilityUnitBlocks ([string]$Sections["execution responsibility units"]))
   foreach ($ownerPath in $monitoredInScope) {
-    $block = $blocks | Where-Object { $_.Owner -eq $ownerPath } | Select-Object -First 1
+    $block = $blocks | Where-Object { (Normalize-RepoPath $_.Owner) -eq $ownerPath } | Select-Object -First 1
     if ($null -eq $block) {
       Fail "Execution Responsibility Units must include Owner coverage for monitored runtime path: $ownerPath"
     }
@@ -212,6 +325,8 @@ Require-Section $sections "Verification Checklist"
 if (-not ([string]$sections["source map findings"] -match '`[^`]+`|source-map')) {
   Fail "Source Map Findings must cite at least one mapped path or explicit source-map observation"
 }
+Require-FeatureUnitLifecyclePlan $sections
+Require-RuntimePerformanceCoverage $sections
 
 if ($Mode -eq "pre-complete") {
   Require-Section $sections "Verification Notes"

@@ -8,6 +8,8 @@
 class_name BackpackGridFactory
 extends RefCounted
 
+const DRILL_ITEM_ROOT := "res://resources/items/drill"
+
 # 실행: build a border texture cell.
 static func border_cell(texture: Texture2D) -> TextureRect:
 	var rect := TextureRect.new()
@@ -33,15 +35,33 @@ static func inner_slot(texture: Texture2D) -> Panel:
 	overlay.name = "Overlay"
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.z_index = 2
 	overlay.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	slot.add_child(overlay)
 	var charge := Panel.new()
 	charge.name = "ChargeOverlay"
 	charge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	charge.z_index = 16
 	charge.visible = false
 	charge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	slot.add_child(charge)
+	var drop_cue := Panel.new()
+	drop_cue.name = "DropCueOverlay"
+	drop_cue.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	drop_cue.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	drop_cue.z_index = 18
+	drop_cue.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	slot.add_child(drop_cue)
 	return slot
+
+static func drill_texture_path(energy_type: String, grade: String) -> String:
+	var color := energy_type.to_lower().strip_edges()
+	var art_grade := grade.to_lower().strip_edges()
+	if art_grade == "basic":
+		art_grade = "common"
+	if color.is_empty() or not art_grade in ["common", "rare"]:
+		return ""
+	return "%s/%s_drill_%s.png" % [DRILL_ITEM_ROOT, color, art_grade]
 
 # 실행: produce a filled artifact overlay style.
 static func artifact_style(energy_type: String, alpha: float, edges := {}) -> StyleBoxFlat:
@@ -52,6 +72,18 @@ static func artifact_style(energy_type: String, alpha: float, edges := {}) -> St
 	style.border_width_right = 1 if bool(edges.get("right", true)) else 0
 	style.border_width_bottom = 1 if bool(edges.get("bottom", true)) else 0
 	style.border_color = Color.BLACK
+	return style
+
+static func drop_cue_style(valid: bool, edges := {}) -> StyleBoxFlat:
+	var fill := Color(0.64, 0.75, 0.55, 0.36) if valid else Color(0.75, 0.38, 0.42, 0.40)
+	var border := Color(0.64, 0.75, 0.55, 0.92) if valid else Color(0.75, 0.38, 0.42, 0.95)
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_width_left = 2 if bool(edges.get("left", true)) else 0
+	style.border_width_top = 2 if bool(edges.get("top", true)) else 0
+	style.border_width_right = 2 if bool(edges.get("right", true)) else 0
+	style.border_width_bottom = 2 if bool(edges.get("bottom", true)) else 0
+	style.border_color = border
 	return style
 
 # 실행: return which sides of a shape cell are on the artifact perimeter.

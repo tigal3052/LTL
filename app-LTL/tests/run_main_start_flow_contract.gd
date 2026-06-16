@@ -158,6 +158,30 @@ func _boot_to_node_select(main_instance: Node, color := "blue", leviathan_id := 
 	_assert_eq(str(current_scene.get("phase", "")), "node_select", "expedition enters node_select after meta flow")
 	return controller
 
+func _press_current_node(main_instance: Node, preferred_route_index: int, label: String) -> void:
+	var controller = main_instance.get_node_or_null("MainController")
+	var page_scenes: Dictionary = main_instance.get("page_scenes")
+	var node_select_page = page_scenes.get("node_select", null)
+	_assert(node_select_page != null, "node select page exists for %s" % label)
+	if node_select_page == null:
+		return
+	var route_count := int(node_select_page.call("route_button_count")) if node_select_page.has_method("route_button_count") else 0
+	if route_count > 0:
+		_assert(node_select_page.has_method("press_route_button"), "node select page exposes route-button helper for %s" % label)
+		if node_select_page.has_method("press_route_button"):
+			node_select_page.call("press_route_button", clampi(preferred_route_index, 0, route_count - 1))
+		return
+	var current_scene: Dictionary = controller.get("current_scene") if controller != null else {}
+	var is_boss_stage := bool(current_scene.get("nodeSelect", {}).get("isBossStage", false))
+	if is_boss_stage:
+		_assert(node_select_page.has_method("press_boss_marker"), "node select page exposes boss marker helper for %s" % label)
+		if node_select_page.has_method("press_boss_marker"):
+			node_select_page.call("press_boss_marker")
+		return
+	_assert(node_select_page.has_method("press_start_marker"), "node select page exposes fixed-start marker helper for %s" % label)
+	if node_select_page.has_method("press_start_marker"):
+		node_select_page.call("press_start_marker")
+
 func leviathan_expected_names(leviathan_id: String) -> Array[String]:
 	var fallback := leviathan_id
 	var localized_fallback := ""
@@ -201,11 +225,7 @@ func _assert_meta_to_combat_to_reward_to_node_flow(MainScene: PackedScene) -> vo
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	var node_select_page = page_scenes.get("node_select", null)
 	_assert(node_select_page != null, "node select page exists after meta flow")
-	if node_select_page != null and node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
-		if int(node_select_page.call("route_button_count")) > 0:
-			node_select_page.call("press_route_button", 0)
-	else:
-		_assert(false, "node select page exposes route-button helpers for runtime flow automation")
+	_press_current_node(main_instance, 0, "runtime flow automation")
 	await process_frame
 	var start_button = main_instance.get("start_button")
 	_assert(start_button != null, "start button exists on node select")
@@ -250,6 +270,8 @@ func _assert_boss_clear_flow(MainScene: PackedScene) -> void:
 		await process_frame
 		return
 
+	_press_current_node(main_instance, 0, "fixed opening boss flow")
+	await process_frame
 	start_button.pressed.emit()
 	await process_frame
 	await process_frame
@@ -282,10 +304,7 @@ func _assert_boss_clear_flow(MainScene: PackedScene) -> void:
 			_assert_eq(int(node_select_page.call("future_marker_count")), 0, "stage two has no unexplored non-boss stages left for a three-stage Leviathan")
 		if node_select_page.has_method("current_unknown_route_count"):
 			_assert_eq(int(node_select_page.call("current_unknown_route_count")), 0, "stage two keeps the current five route candidates visually distinct from future ? markers")
-		if node_select_page.has_method("press_route_button"):
-			node_select_page.call("press_route_button", 1)
-		else:
-			_assert(false, "node select page exposes route-button helpers for branch-stage automation")
+		_press_current_node(main_instance, 1, "branch-stage automation")
 	await process_frame
 	if start_button != null:
 		start_button.pressed.emit()
@@ -319,6 +338,8 @@ func _assert_boss_clear_flow(MainScene: PackedScene) -> void:
 		if node_select_page.has_method("future_marker_count"):
 			_assert_eq(int(node_select_page.call("future_marker_count")), 0, "boss-stage node select does not render future ? markers once the boss is current")
 
+	_press_current_node(main_instance, 0, "boss-stage automation")
+	await process_frame
 	start_button.pressed.emit()
 	await process_frame
 	await process_frame
@@ -356,11 +377,7 @@ func _assert_defeat_flow(MainScene: PackedScene) -> void:
 
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	var node_select_page = page_scenes.get("node_select", null)
-	if node_select_page != null and node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
-		if int(node_select_page.call("route_button_count")) > 0:
-			node_select_page.call("press_route_button", 0)
-	else:
-		_assert(false, "node select page exposes route-button helpers for defeat-flow automation")
+	_press_current_node(main_instance, 0, "defeat-flow automation")
 	await process_frame
 	var start_button = main_instance.get("start_button")
 	if start_button != null:

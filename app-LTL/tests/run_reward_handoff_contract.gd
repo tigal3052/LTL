@@ -38,11 +38,13 @@ func _run() -> void:
 
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	var node_select_page = page_scenes.get("node_select", null)
-	if node_select_page != null and node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
+	if node_select_page != null and node_select_page.has_method("press_start_marker"):
+		node_select_page.call("press_start_marker")
+	elif node_select_page != null and node_select_page.has_method("route_button_count") and node_select_page.has_method("press_route_button"):
 		if int(node_select_page.call("route_button_count")) > 0:
 			node_select_page.call("press_route_button", 0)
 	else:
-		_assert(false, "node select page exposes route-button helpers for reward-handoff automation")
+		_assert(false, "node select page exposes current-node helpers for reward-handoff automation")
 	await process_frame
 
 	var start_button = main_instance.get("start_button")
@@ -52,6 +54,14 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	_assert_eq(str(main_instance.get("active_page_id")), "battle", "normal route enters battle before reward handoff checks")
+	var battle_backpack_container = main_instance.get("backpack_container") as Control
+	var battle_backpack_host = main_instance.call("current_surface_node", "TopContent/BackpackContainer") as Control
+	var battle_backpack_instance_id := int(battle_backpack_container.get_instance_id()) if battle_backpack_container != null else -1
+	_assert(battle_backpack_container != null, "battle page exposes the shared backpack container before reward handoff")
+	_assert(battle_backpack_host != null, "battle page exposes the top shared-backpack host before reward handoff")
+	if battle_backpack_container != null and battle_backpack_host != null:
+		_assert(battle_backpack_container.get_parent() == battle_backpack_host, "battle page hosts the shared backpack instance before reward handoff")
+		_assert(main_instance.call("current_surface_node", "TopContent/BackpackContainer/BackpackEnginePanel") == null, "battle page does not expose a page-local backpack panel before reward handoff")
 	print("REWARD_HANDOFF_STEP: battle_ready")
 
 	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "clear"})
@@ -87,6 +97,7 @@ func _run() -> void:
 	_assert(reward_panel != null, "reward page exposes the reward panel after ceremony completion")
 	_assert(reward_backpack_host != null, "reward page exposes the workspace backpack host after ceremony completion")
 	_assert(backpack_container != null, "main scene exposes the shared backpack container for reward handoff")
+	_assert_eq(int(backpack_container.get_instance_id()) if backpack_container != null else -1, battle_backpack_instance_id, "reward tray keeps the same shared backpack instance that battle used")
 	if reward_panel != null:
 		_assert_eq(reward_panel.visible, true, "tray review makes the reward page visible after ceremony completion")
 	if reward_backpack_host != null and backpack_container != null:

@@ -3,6 +3,7 @@ extends "res://tests/support/UiReadModelTestSuite.gd"
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_page_scene_registry_helper_exists()
+	test_main_view_page_shell_runtime_helper_exists()
 	test_page_scene_registry_mounts_meta_and_gameplay_pages_under_separate_hosts()
 	test_page_scene_registry_toggles_host_visibility_for_active_page()
 	return _result()
@@ -10,6 +11,21 @@ func run_all_tests() -> Dictionary:
 func test_page_scene_registry_helper_exists() -> void:
 	var helper = load("res://src/ui/PageSceneRegistry.gd")
 	_assert(helper != null, "page scene registry helper exists for MainViewRuntime extraction")
+
+func test_main_view_page_shell_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewPageShellRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView page shell runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("create_page_scenes"), "MainView page shell helper owns page scene creation")
+		_assert(HelperScript.has_method("cache_page_shell_bundles"), "MainView page shell helper owns page shell bundle caching")
+		_assert(HelperScript.has_method("capture_page_shell_bundle"), "MainView page shell helper owns page shell node capture")
+		_assert(HelperScript.has_method("connect_page_shell_bundle_signals"), "MainView page shell helper owns page shell signal wiring")
+		_assert(HelperScript.has_method("activate_surface_bundle"), "MainView page shell helper owns active surface assignment")
+		_assert(HelperScript.has_method("render_page_scene"), "MainView page shell helper owns page scene rendering")
+		_assert(HelperScript.has_method("page_scene_model"), "MainView page shell helper owns page model projection")
+		_assert(_source_line_count(helper_path) <= 500, "MainView page shell helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 1600, "MainViewRuntime delegates page shell runtime after the fourth split checkpoint")
 
 func test_page_scene_registry_mounts_meta_and_gameplay_pages_under_separate_hosts() -> void:
 	var helper = load("res://src/ui/PageSceneRegistry.gd")
@@ -57,3 +73,14 @@ func test_page_scene_registry_toggles_host_visibility_for_active_page() -> void:
 	_assert_eq(page_host.visible, true, "gameplay host becomes visible for gameplay pages")
 	meta_host.free()
 	page_host.free()
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count

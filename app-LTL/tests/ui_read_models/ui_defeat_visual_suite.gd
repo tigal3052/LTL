@@ -6,11 +6,16 @@ func run_all_tests() -> Dictionary:
 	test_main_view_defeat_page_model_uses_selected_leviathan_art()
 	test_main_view_defeat_page_model_exposes_wireframe_fields()
 	test_defeat_page_scene_uses_dedicated_wireframe_layout()
+	test_main_view_presentation_runtime_helper_exists()
 	test_main_scene_exposes_purple_status_row()
 	test_battlefield_lane_overlay_keeps_shell_visible_through_transparent_tiles()
 	test_combat_feedback_projects_screenshake()
 	test_tooltip_position_clamps_to_viewport()
 	test_backpack_artifact_edges_omit_internal_borders()
+	test_backpack_drill_texture_paths_and_drop_cue_styles()
+	test_backpack_drill_display_texture_keeps_centered_square_region()
+	test_backpack_item_image_placement_helper_centers_texture_rect_on_footprint()
+	test_backpack_image_rect_helper_uses_transformed_slot_corners()
 	test_backpack_drag_ghost_matches_grid_visual_scale_and_fill()
 	test_backpack_drag_ghost_anchors_to_cursor_top_left()
 	test_backpack_cooldown_charge_ratio_changes_with_current_cooldown()
@@ -77,6 +82,19 @@ func test_defeat_page_scene_uses_dedicated_wireframe_layout() -> void:
 	_assert(defeat_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RetryButton") != null, "defeat page exposes the centered retry CTA inside the board body")
 	defeat_page.queue_free()
 
+func test_main_view_presentation_runtime_helper_exists() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewPresentationRuntime.gd"
+	var HelperScript = load(helper_path)
+	_assert(HelperScript != null, "MainView presentation runtime helper exists")
+	if HelperScript != null:
+		_assert(HelperScript.has_method("install_character_presentation"), "MainView presentation helper owns character presentation installation")
+		_assert(HelperScript.has_method("layout_character_presentation"), "MainView presentation helper owns character presentation layout")
+		_assert(HelperScript.has_method("install_reward_backdrop"), "MainView presentation helper owns reward backdrop installation")
+		_assert(HelperScript.has_method("render_failure_backdrop"), "MainView presentation helper owns failure backdrop rendering")
+		_assert(HelperScript.has_method("render_character_status"), "MainView presentation helper owns character status rendering")
+		_assert(_source_line_count(helper_path) <= 500, "MainView presentation helper stays within the 500-line cap")
+	_assert(_source_line_count("res://src/ui/MainViewRuntime.gd") <= 2200, "MainViewRuntime delegates presentation runtime after the second split checkpoint")
+
 func test_main_scene_exposes_purple_status_row() -> void:
 	var GameplayTopContentScene = load("res://src/scenes/pages/shells/GameplayTopContent.tscn")
 	_assert(GameplayTopContentScene != null, "gameplay top-content shell scene loads for purple status row contract")
@@ -132,6 +150,73 @@ func test_backpack_artifact_edges_omit_internal_borders() -> void:
 	_assert_eq(style.border_width_right, 0, "internal right border is hidden")
 	_assert_eq(style.border_width_bottom, 0, "internal bottom border is hidden")
 
+func test_backpack_drill_texture_paths_and_drop_cue_styles() -> void:
+	_assert_eq(BackpackGridFactoryScript.drill_texture_path("red", "common"), "res://resources/items/drill/red_drill_common.png", "common drill texture path points at item PNG")
+	_assert_eq(BackpackGridFactoryScript.drill_texture_path("blue", "basic"), "res://resources/items/drill/blue_drill_common.png", "basic starter drill reuses common drill art")
+	_assert_eq(BackpackGridFactoryScript.drill_texture_path("green", "rare"), "res://resources/items/drill/green_drill_rare.png", "rare drill texture path points at item PNG")
+	_assert_eq(BackpackGridFactoryScript.drill_texture_path("purple", "epic"), "", "epic+ drills keep the existing square fallback presentation")
+	var valid_style: StyleBoxFlat = BackpackGridFactoryScript.drop_cue_style(true, {"left": true, "top": true, "right": true, "bottom": true})
+	var invalid_style: StyleBoxFlat = BackpackGridFactoryScript.drop_cue_style(false, {"left": true, "top": true, "right": true, "bottom": true})
+	_assert(valid_style.bg_color.g > valid_style.bg_color.r, "valid drop cue uses a green fill")
+	_assert(invalid_style.bg_color.r > invalid_style.bg_color.g, "invalid drop cue uses a red fill")
+
+func test_backpack_drill_display_texture_keeps_centered_square_region() -> void:
+	var RendererScript = load("res://src/ui/backpack/BackpackArtifactRenderer.gd")
+	var ThemeScript = load("res://src/ui/theme/LTLTheme.gd")
+	_assert(RendererScript != null, "backpack artifact renderer loads for centered drill display texture coverage")
+	_assert(ThemeScript != null, "theme texture loader loads for centered drill display texture coverage")
+	if RendererScript == null or ThemeScript == null:
+		return
+	_assert(RendererScript.has_method("drill_display_texture"), "backpack artifact renderer exposes one display texture helper for placed and dragged drill images")
+	if not RendererScript.has_method("drill_display_texture"):
+		return
+	var raw_texture: Texture2D = ThemeScript.art_texture("res://resources/items/drill/purple_drill_common.png")
+	_assert(raw_texture != null, "purple common drill raw texture loads for centered display-region test")
+	if raw_texture == null:
+		return
+	var display_texture = RendererScript.call("drill_display_texture", raw_texture)
+	_assert(display_texture is AtlasTexture, "drill display texture uses an atlas region so transparent source padding cannot shrink the item art")
+	if not display_texture is AtlasTexture:
+		return
+	var atlas := display_texture as AtlasTexture
+	_assert_close(atlas.region.size.x, atlas.region.size.y, 0.01, "drill display atlas stays square so square grid slots cannot crop it off-axis")
+	_assert(atlas.region.size.x < float(raw_texture.get_width()) * 0.9, "drill display atlas trims transparent padding while preserving source-center alignment")
+	_assert(atlas.region.size.x > float(raw_texture.get_width()) * 0.4, "drill display atlas keeps enough source area for the drill head and handle")
+	_assert(atlas.region.get_center().distance_to(Vector2(raw_texture.get_width(), raw_texture.get_height()) * 0.5) <= 1.0, "trimmed drill atlas remains centered on the original source texture center")
+
+func test_backpack_item_image_placement_helper_centers_texture_rect_on_footprint() -> void:
+	var RendererScript = load("res://src/ui/backpack/BackpackArtifactRenderer.gd")
+	_assert(RendererScript != null, "backpack artifact renderer loads for shared item image placement coverage")
+	if RendererScript == null:
+		return
+	_assert(RendererScript.has_method("apply_item_image_placement"), "backpack artifact renderer exposes one placement helper for idle and drag item images")
+	if not RendererScript.has_method("apply_item_image_placement"):
+		return
+	var image := TextureRect.new()
+	var footprint := Rect2(Vector2(120.0, 96.0), Vector2(48.0, 48.0))
+	RendererScript.call("apply_item_image_placement", image, null, footprint)
+	_assert_eq(image.position, footprint.position, "shared image placement uses the footprint top-left in the active coordinate space")
+	_assert_eq(image.size, footprint.size, "shared image placement uses the full footprint size")
+	_assert_eq(image.position + image.size * 0.5, footprint.position + footprint.size * 0.5, "shared image placement keeps the item centered on the grid footprint")
+	_assert_eq(image.expand_mode, TextureRect.EXPAND_IGNORE_SIZE, "shared image placement expands textures to the assigned footprint")
+	_assert_eq(image.stretch_mode, TextureRect.STRETCH_KEEP_ASPECT_COVERED, "shared image placement fills the footprint consistently for placed and dragged item images")
+	image.free()
+
+func test_backpack_image_rect_helper_uses_transformed_slot_corners() -> void:
+	var backpack_ui = BackpackUIScript.new()
+	_assert(backpack_ui.has_method("control_rect_in_layer_space"), "backpack exposes transformed rect helper so docked reward backpacks can align image overlays")
+	if not backpack_ui.has_method("control_rect_in_layer_space"):
+		return
+	var slot_transform := Transform2D.IDENTITY.scaled(Vector2(0.5, 0.75))
+	slot_transform.origin = Vector2(100.0, 50.0)
+	var layer_transform := Transform2D.IDENTITY
+	layer_transform.origin = Vector2(20.0, 10.0)
+	var rect: Rect2 = backpack_ui.call("control_rect_in_layer_space", slot_transform, layer_transform, Vector2(80.0, 40.0))
+	_assert_close(rect.position.x, 80.0, 0.01, "transformed slot rect keeps scaled left edge in layer space")
+	_assert_close(rect.position.y, 40.0, 0.01, "transformed slot rect keeps scaled top edge in layer space")
+	_assert_close(rect.size.x, 40.0, 0.01, "transformed slot rect uses scaled width instead of raw slot size")
+	_assert_close(rect.size.y, 30.0, 0.01, "transformed slot rect uses scaled height instead of raw slot size")
+
 # ?ㅽ뻾: verify a picked-up backpack item keeps the same slot-sized visual language instead of shrinking into a different ghost tile.
 func test_backpack_drag_ghost_matches_grid_visual_scale_and_fill() -> void:
 	var backpack_ui = BackpackUIScript.new()
@@ -184,4 +269,15 @@ func test_backpack_cooldown_display_does_not_backtrack_on_snapshot_refresh() -> 
 	_assert_eq(reduced, 30.0, "backend cooldown reductions still apply")
 	var reset := BackpackGridFactoryScript.stable_cooldown_display(0.0, 80.0, 80)
 	_assert_eq(reset, 80.0, "freshly fired drill cooldown can reset to full")
+
+func _source_line_count(path: String) -> int:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return 999999
+	var line_count := 0
+	while not file.eof_reached():
+		file.get_line()
+		line_count += 1
+	file.close()
+	return line_count
 

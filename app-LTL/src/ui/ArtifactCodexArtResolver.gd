@@ -11,6 +11,7 @@ extends RefCounted
 const HERO_ROOT := "res://resources/UI/codex/heroes"
 const THUMB_ROOT := "res://resources/UI/codex/thumbs"
 const GENERIC_ROOT := "res://resources/UI/codex"
+const DRILL_ITEM_ROOT := "res://resources/items/drill"
 const FALLBACK_TILE := "res://resources/UI/tile/tile_panel_nobg.png"
 
 # 실행: resolve a render descriptor for a reward art slot.
@@ -20,8 +21,9 @@ static func descriptor_for_reward(reward: Dictionary, slot: String, discovered: 
 	var icon_key := str(presentation.get("icon", reward.get("id", ""))).strip_edges()
 	var item_type := str(payload.get("item_type", "drill")).to_lower()
 	var energy_type := str(payload.get("energy_type", "")).to_lower()
+	var rarity := str(reward.get("rarity", payload.get("rarity", ""))).to_lower()
 	var requested_path := _requested_path_for(slot, icon_key)
-	var fallback_chain := _fallback_chain_for(slot, icon_key, item_type, energy_type)
+	var fallback_chain := _fallback_chain_for(slot, icon_key, item_type, energy_type, rarity)
 	var resolved_path := _first_existing_path(fallback_chain)
 	return {
 		"path": resolved_path,
@@ -31,7 +33,8 @@ static func descriptor_for_reward(reward: Dictionary, slot: String, discovered: 
 		"state": "discovered" if discovered else "locked",
 		"iconKey": icon_key,
 		"itemType": item_type,
-		"energyType": energy_type
+		"energyType": energy_type,
+		"rarity": rarity
 	}
 
 # 실행: build the requested art path for future final illustrations.
@@ -42,18 +45,30 @@ static func _requested_path_for(slot: String, icon_key: String) -> String:
 	return "%s/%s.png" % [root, icon_key]
 
 # 실행: provide a deterministic fallback chain while final art is absent.
-static func _fallback_chain_for(slot: String, icon_key: String, item_type: String, energy_type: String) -> Array:
+static func _fallback_chain_for(slot: String, icon_key: String, item_type: String, energy_type: String, rarity: String = "") -> Array:
 	var chain: Array = []
 	var requested := _requested_path_for(slot, icon_key)
 	if not requested.is_empty():
 		chain.append(requested)
 	if not icon_key.is_empty():
 		chain.append("%s/%s.png" % [GENERIC_ROOT, icon_key])
+	var drill_path := _drill_item_path(energy_type, rarity) if item_type == "drill" else ""
+	if not drill_path.is_empty():
+		chain.append(drill_path)
 	if not energy_type.is_empty():
 		chain.append("%s/%s_%s.png" % [GENERIC_ROOT, item_type, energy_type])
 	chain.append("%s/%s.png" % [GENERIC_ROOT, item_type])
 	chain.append(FALLBACK_TILE)
 	return chain
+
+static func _drill_item_path(energy_type: String, rarity: String) -> String:
+	var color := energy_type.to_lower().strip_edges()
+	var grade := rarity.to_lower().strip_edges()
+	if grade == "basic":
+		grade = "common"
+	if color.is_empty() or not grade in ["common", "rare"]:
+		return ""
+	return "%s/%s_drill_%s.png" % [DRILL_ITEM_ROOT, color, grade]
 
 # 실행: choose the first loadable path in the fallback chain.
 static func _first_existing_path(paths: Array) -> String:
@@ -62,6 +77,8 @@ static func _first_existing_path(paths: Array) -> String:
 		if normalized.is_empty():
 			continue
 		if ResourceLoader.exists(normalized):
+			return normalized
+		if FileAccess.file_exists(ProjectSettings.globalize_path(normalized)):
 			return normalized
 	return ""
 

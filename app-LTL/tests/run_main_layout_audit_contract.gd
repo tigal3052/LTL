@@ -140,14 +140,26 @@ func _node_select_page(main_instance: Node) -> Node:
 	return page_scenes.get("node_select", null)
 
 func _press_route_button(main_instance: Node, index: int, label: String) -> void:
+	var controller = main_instance.get_node_or_null("MainController")
 	var node_select_page = _node_select_page(main_instance)
 	_assert(node_select_page != null, "node select page exists for %s" % label)
 	if node_select_page == null:
 		return
-	_assert(node_select_page.has_method("press_route_button"), "node select page exposes route-button automation for %s" % label)
-	if not node_select_page.has_method("press_route_button"):
+	var route_count := int(node_select_page.call("route_button_count")) if node_select_page.has_method("route_button_count") else 0
+	if route_count > 0:
+		_assert(node_select_page.has_method("press_route_button"), "node select page exposes route-button automation for %s" % label)
+		if node_select_page.has_method("press_route_button"):
+			node_select_page.call("press_route_button", clampi(index, 0, route_count - 1))
 		return
-	node_select_page.call("press_route_button", index)
+	var current_scene: Dictionary = controller.get("current_scene") if controller != null else {}
+	if bool(current_scene.get("nodeSelect", {}).get("isBossStage", false)):
+		_assert(node_select_page.has_method("press_boss_marker"), "node select page exposes boss marker automation for %s" % label)
+		if node_select_page.has_method("press_boss_marker"):
+			node_select_page.call("press_boss_marker")
+		return
+	_assert(node_select_page.has_method("press_start_marker"), "node select page exposes fixed-start marker automation for %s" % label)
+	if node_select_page.has_method("press_start_marker"):
+		node_select_page.call("press_start_marker")
 
 func _assert_character_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
@@ -304,6 +316,7 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	var top_content = main_instance.get("top_content") as HBoxContainer
 	var left_column = main_instance.get("left_column") as Control
 	var backpack_container = main_instance.get("backpack_container") as Control
+	var backpack_host = main_instance.get("backpack_host") as Control
 	var right_sidebar = main_instance.get("right_sidebar") as Control
 	var active_phase_container = main_instance.get("active_phase_container") as Control
 	var action_bar = main_instance.get("action_bar") as Control
@@ -325,26 +338,29 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	_assert(top_content != null, "top-content row exists for combat layout audit")
 	_assert(left_column != null, "left sidebar exists for combat layout audit")
 	_assert(backpack_container != null, "combat backpack exists for combat layout audit")
+	_assert(backpack_host != null, "combat backpack host exists for combat layout audit")
 	_assert(right_sidebar != null, "right sidebar exists for combat layout audit")
 	_assert(active_phase_container != null, "combat active phase container exists for right-tab stability audit")
 	_assert(action_bar != null, "combat action bar exists for right-tab stability audit")
 	_assert(battlefield_panel != null, "combat battlefield tile strip exists for floor adjacency audit")
 	_assert(visual_queue_box != null, "combat status panel exposes the two-row FIFO energy queue grid")
-	if top_content != null and left_column != null and backpack_container != null and right_sidebar != null:
+	var backpack_slot: Control = backpack_host if backpack_host != null else backpack_container
+	if top_content != null and left_column != null and backpack_slot != null and backpack_container != null and right_sidebar != null:
 		_assert(bool(top_content.visible), "combat keeps the top-content row visible")
 		_assert(float(top_content.size.y) >= 510.0, "combat top row consumes the remaining vertical budget so the lower HUD band can sit on the floor (height=%.2f)" % top_content.size.y)
 		_assert(absf(float(left_column.size.y) - float(top_content.size.y)) <= 0.5, "combat left status panel matches the top-row height (left=%.2f top=%.2f)" % [left_column.size.y, top_content.size.y])
-		_assert(absf(float(backpack_container.size.y) - float(top_content.size.y)) <= 0.5, "combat backpack panel matches the top-row height (backpack=%.2f top=%.2f)" % [backpack_container.size.y, top_content.size.y])
+		_assert(absf(float(backpack_slot.size.y) - float(top_content.size.y)) <= 0.5, "combat backpack host matches the top-row height (backpack=%.2f top=%.2f)" % [backpack_slot.size.y, top_content.size.y])
+		_assert(backpack_container.get_parent() == backpack_slot, "combat shared backpack instance lives under the top-content backpack host")
 		_assert(absf(float(right_sidebar.size.y) - float(top_content.size.y)) <= 0.5, "combat right panel matches the top-row height (right=%.2f top=%.2f)" % [right_sidebar.size.y, top_content.size.y])
 		_assert(float(left_column.position.x) >= -0.5, "combat left column stays inside the top-content row")
-		_assert(float(left_column.position.x + left_column.size.x) <= float(backpack_container.position.x) + 1.0, "combat left column stays left of the backpack slot")
-		_assert(float(backpack_container.position.x + backpack_container.size.x) <= float(right_sidebar.position.x) + 1.0, "combat backpack stays left of the log sidebar")
+		_assert(float(left_column.position.x + left_column.size.x) <= float(backpack_slot.position.x) + 1.0, "combat left column stays left of the backpack slot")
+		_assert(float(backpack_slot.position.x + backpack_slot.size.x) <= float(right_sidebar.position.x) + 1.0, "combat backpack stays left of the log sidebar")
 		_assert(float(right_sidebar.position.x + right_sidebar.size.x) <= float(top_content.size.x) + 1.0, "combat right sidebar stays inside the top-content row")
 		var MainViewRuntimeScript = load("res://src/ui/MainViewRuntime.gd")
 		if MainViewRuntimeScript != null:
-			var expected_backpack_width := float(MainViewRuntimeScript.top_content_backpack_width_for_height(backpack_container.size.y))
-			_assert(absf(float(backpack_container.size.x) - expected_backpack_width) <= 8.0, "combat backpack keeps the priority height-derived width instead of being clamped first (actual=%.2f expected=%.2f)" % [backpack_container.size.x, expected_backpack_width])
-		_assert(float(backpack_container.size.x) >= 590.0, "combat backpack expands to the largest floor-aligned 8x8 ratio panel at the canonical viewport (width=%.2f)" % backpack_container.size.x)
+			var expected_backpack_width := float(MainViewRuntimeScript.top_content_backpack_width_for_height(backpack_slot.size.y))
+			_assert(absf(float(backpack_slot.size.x) - expected_backpack_width) <= 8.0, "combat backpack keeps the priority height-derived width instead of being clamped first (actual=%.2f expected=%.2f)" % [backpack_slot.size.x, expected_backpack_width])
+		_assert(float(backpack_slot.size.x) >= 590.0, "combat backpack expands to the largest floor-aligned 8x8 ratio panel at the canonical viewport (width=%.2f)" % backpack_slot.size.x)
 		_assert(float(left_column.size.x) >= 440.0 and float(left_column.size.x) <= 460.0, "combat left status column stays at the readable minimum before trimming the right rail (width=%.2f)" % left_column.size.x)
 		_assert(float(right_sidebar.size.x) >= 300.0 and float(right_sidebar.size.x) <= 330.0, "combat right sidebar absorbs the remaining side budget while keeping tab controls usable (width=%.2f)" % right_sidebar.size.x)
 	if visual_queue_box != null:
@@ -523,8 +539,9 @@ func _assert_stage_one_node_select_layout(MainScene: PackedScene) -> void:
 		_assert(disabled_style != null, "stage-one node-select start button defines a disabled style override to avoid default blur/fade")
 		var disabled_font: Color = start_button.get_theme_color("font_disabled_color")
 		var normal_font: Color = start_button.get_theme_color("font_color")
-		_assert(disabled_font.a >= 0.95, "stage-one node-select start button keeps disabled text opacity near full strength")
-		_assert_color_close(disabled_font, normal_font, 0.32, "stage-one node-select start button keeps disabled text tone close to the live CTA")
+		var disabled_delta := absf(disabled_font.r - normal_font.r) + absf(disabled_font.g - normal_font.g) + absf(disabled_font.b - normal_font.b) + absf(disabled_font.a - normal_font.a)
+		_assert(disabled_font.a <= 0.90, "stage-one node-select start button uses visibly muted disabled text opacity")
+		_assert(disabled_delta >= 0.75, "stage-one node-select start button disabled text clearly differs from the live CTA")
 	_assert_header_actions_inside_window(main_instance, "stage-one node-select")
 	_assert_node_select_layout_inside_window(main_instance, "stage-one node-select", false, 0, true, 0)
 	_assert_visible_controls_inside_viewport(main_instance, "stage-one node-select")
@@ -551,6 +568,8 @@ func _assert_stage_two_node_select_layout(MainScene: PackedScene) -> void:
 		main_instance.queue_free()
 		await process_frame
 		return
+	_press_route_button(main_instance, 0, "stage-two opening layout audit")
+	await process_frame
 	start_button.pressed.emit()
 	await process_frame
 	await process_frame
@@ -602,6 +621,8 @@ func _assert_boss_node_select_layout(MainScene: PackedScene) -> void:
 		main_instance.queue_free()
 		await process_frame
 		return
+	_press_route_button(main_instance, 0, "boss opening layout audit")
+	await process_frame
 	start_button.pressed.emit()
 	await process_frame
 	await process_frame
@@ -760,7 +781,6 @@ func _assert_overlay_layouts(MainScene: PackedScene) -> void:
 		return
 	await _boot_to_node_select(main_instance)
 	var settings_overlay = main_instance.get("settings_panel") as Control
-	var shop_overlay = main_instance.get("shop_panel") as Control
 	var codex_overlay = main_instance.get("codex_panel") as Control
 	main_instance.call("set_settings_visible", true)
 	await process_frame
@@ -771,8 +791,7 @@ func _assert_overlay_layouts(MainScene: PackedScene) -> void:
 	main_instance.call("set_shop_visible", true)
 	await process_frame
 	await process_frame
-	_assert_visible_controls_inside_viewport(main_instance, "shop overlay")
-	_assert_overlay_claims_top_layer(shop_overlay, "shop overlay")
+	_assert_eq(bool(main_instance.call("is_shop_visible")), false, "unfinished shop overlay stays hidden when forced through the view API")
 	main_instance.call("set_shop_visible", false)
 	main_instance.call("set_artifact_codex_visible", true)
 	await process_frame

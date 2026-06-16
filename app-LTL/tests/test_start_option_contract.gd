@@ -1,13 +1,14 @@
 # 계약:
 # - 책임: stage-one starter-option selection and combat-start transition stay valid inside the main controller flow.
-# - 입력: MainControllerRuntime, preview controller, starter color selection, and a minimal render stub.
+# - 입력: MainController, preview controller, starter color selection, and a minimal render stub.
 # - 출력: starter-option regression verdict dictionary with deterministic failures.
 # - 금지: Main scene boot, RewardRevealOverlay dependency, unrelated UI interaction coverage.
 #
 # 실행: define the starter-option contract test class.
 extends RefCounted
 
-const MainControllerRuntimeScript = preload("res://src/MainControllerRuntime.gd")
+const MainControllerScript = preload("res://src/MainController.gd")
+const MainControllerCombatFlowScript = preload("res://src/controllers/MainControllerCombatFlow.gd")
 const CombatScenePreviewControllerScript = preload("res://src/ui/CombatScenePreviewController.gd")
 const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
 
@@ -63,7 +64,7 @@ func run_all_tests() -> Dictionary:
 
 # 실행: verify selecting a stage-one starter option still enters combat and keeps the selected queue color.
 func test_stage_one_start_color_selection_enters_combat_without_terminating() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	_assert(controller != null, "main controller runtime instantiates for starter-option regression coverage")
 	if controller == null:
 		return
@@ -86,6 +87,8 @@ func test_stage_one_start_color_selection_enters_combat_without_terminating() ->
 	var equipped_colors := _equipped_energy_colors(controller.inventory)
 	_assert_eq(equipped_colors, ["blue", "blue"], "starter selection replaces inventory with matching-color drill and beacon")
 
+	controller._on_node_meta_clicked(0)
+	_assert_eq(int(controller.selected_node_index), 0, "starter-option contract selects the current node before pressing start")
 	controller._on_start_pressed()
 	_assert_eq(str(controller.current_scene.get("phase", "")), "combat", "starter selection plus start enters combat instead of terminating the run")
 	_assert_eq(bool(controller.current_scene.get("runComplete", false)), false, "starter selection plus start does not mark the run complete")
@@ -97,7 +100,7 @@ func test_stage_one_start_color_selection_enters_combat_without_terminating() ->
 		_assert_eq(front_color, "blue", "combat queue front color matches the selected stage-one starter option")
 
 func test_timer_shift_keeps_advancing_after_match_feedback() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	_assert(controller != null, "main controller runtime instantiates for shift regression coverage")
 	if controller == null:
 		return
@@ -113,16 +116,18 @@ func test_timer_shift_keeps_advancing_after_match_feedback() -> void:
 	controller.current_scene = controller.preview_controller.reset()
 	controller._load_backpack_items_into_inventory()
 	controller.page_override_id = ""
+	controller._render_scene(controller.current_scene)
+	controller._on_node_meta_clicked(0)
 	controller._on_start_pressed()
 	var before_markers: Array = controller.preview_controller.run.state.get("combat", {}).get("battlefield", {}).get("weaknessMarkers", []).duplicate(true)
-	controller.current_scene = controller.preview_controller.fire("r0c0", controller._get_active_queue_color())
+	controller.current_scene = controller.preview_controller.fire("r0c0", MainControllerCombatFlowScript.active_queue_color(controller.current_scene))
 	_assert(str(controller.current_scene.get("feedback", {}).get("status", "")) != "active", "shot feedback stores a non-active transient result before timer shift")
 	controller._on_shift_timer_timeout()
 	var after_markers: Array = controller.preview_controller.run.state.get("combat", {}).get("battlefield", {}).get("weaknessMarkers", []).duplicate(true)
 	_assert(before_markers != after_markers, "timer shift still advances battlefield markers after non-terminal shot feedback")
 
 func test_combat_overlay_pause_blocks_shift_until_resume() -> void:
-	var controller = MainControllerRuntimeScript.new()
+	var controller = MainControllerScript.new()
 	_assert(controller != null, "main controller runtime instantiates for combat overlay pause coverage")
 	if controller == null:
 		return
@@ -139,6 +144,8 @@ func test_combat_overlay_pause_blocks_shift_until_resume() -> void:
 	controller.current_scene = controller.preview_controller.reset()
 	controller._load_backpack_items_into_inventory()
 	controller.page_override_id = ""
+	controller._render_scene(controller.current_scene)
+	controller._on_node_meta_clicked(0)
 	controller._on_start_pressed()
 	_assert(controller.has_method("_set_battle_pause_active"), "main controller runtime exposes battle-only overlay pause ownership helper")
 	if not controller.has_method("_set_battle_pause_active"):

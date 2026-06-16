@@ -664,15 +664,26 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/Main.tscn`
   - Declares the shared main-scene shell, combat surfaces, reward tray, and reusable backpack/status/sidebar nodes.
 - `app-LTL/src/MainController.gd`
-  - Serves as the formal main controller entry script by inheriting MainControllerRuntime.
-- `app-LTL/src/MainControllerRuntime.gd`
   - Initializes the domain runtime, input adapters, and UI signal wiring during main-scene ready.
-  - Converts combat-cell hover, click, hold-fire, and repair inputs into domain combat actions.
-  - Routes backpack slot, reward selection, and discard-zone inputs into inventory and reward transitions.
+  - Delegates combat-cell hover, click, hold-fire, repair, pause, timer, and queue recalculation flow to controller helpers.
+  - Delegates backpack slot, reward selection, and discard-zone flow into inventory/reward controller helpers.
   - Sends node-select, combat, reward, and completion phase snapshots to MainViewRuntime render contracts.
   - Reflects shop opening, passive purchases, and growth modifier application in run state and UI.
   - Opens the artifact codex by pairing reward-table data with run discovery history.
-  - Manages combat weakness shuffle timers and queue color recalculation.
+- `app-LTL/src/controllers/MainControllerBootstrapFlow.gd`
+  - Owns main-scene `_ready` bootstrap, parent view readiness wait, signal wiring, initial backpack/settings render, first scene render, and shift timer setup.
+- `app-LTL/src/controllers/MainControllerCombatFlow.gd`
+  - Owns stateful combat hover/click, hold-fire, repair, pause overlay, terrain shift timer, disabled-tile release, queue recalculation flow, target projection, and combat input decisions.
+- `app-LTL/src/controllers/MainControllerDisplayText.gd`
+  - Converts artifact, rarity, color, passive, shop item, and toggle values into localized labels for controller log messages.
+- `app-LTL/src/controllers/MainControllerRewardBackpackFlow.gd`
+  - Owns reward tray and backpack interaction flow, including artifact selection, placement, drag/drop, discard, tooltip, reward claim side effects, and telemetry handoff.
+- `app-LTL/src/controllers/MainControllerRenderFlow.gd`
+  - Owns scene decoration, page-id resolution, phase log side effects, battlefield disabled-state render handoff, and reward tray rendering.
+- `app-LTL/src/controllers/MainControllerRunFlow.gd`
+  - Owns run lifecycle transitions, including start/reset, reward proceed, starter loadout reloads, character/leviathan roster loading, preview options, and selected-node start eligibility.
+- `app-LTL/src/controllers/MainControllerSupportFlow.gd`
+  - Owns shop-disabled handling, artifact codex opening/debug refresh, growth modifier application, shop purchase side effects, telemetry, accessibility normalization, and persistence handoff.
 - `app-LTL/src/models/Artifact.gd`
   - Stores artifact id, rarity, energy type, shape, cooldown, and synergy state.
   - Restores and serializes artifact models from dictionary input.
@@ -766,6 +777,16 @@ This file is the live implementation map for AI agents. It records each current 
   - Shared outcome page scene for defeat and clear shells.
 - `app-LTL/src/scenes/pages/NodeSelectRuntimePage.gd`
   - Applies the dedicated node-select runtime shell state for the crossroads board, hover card, staged route buttons, and selected Leviathan copy.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectVisualFactory.gd`
+  - Builds node-select button visuals, route tags, palette treatments, generated textures, and reusable style boxes.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd`
+  - Owns responsive node-select board, hero, route, and stage-detail sizing metrics.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapRenderer.gd`
+  - Renders roadmap segments, markers, future-route hints, and boss-path visual layers.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectContentModel.gd`
+  - Projects node-select page copy, stage status, candidate card data, and route-history labels.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapComposer.gd`
+  - Composes roadmap topology, candidate rows, route state, and current-stage marker placement for the runtime page.
 - `app-LTL/src/scenes/pages/NodeSelectRuntimePage.tscn`
   - Dedicated node-select runtime shell scene exposing the hero section, Leviathan board head, and roadmap canvas without the retired split map/backpack hosts.
 - `app-LTL/src/scenes/pages/BattlePage.tscn`
@@ -801,10 +822,15 @@ This file is the live implementation map for AI agents. It records each current 
   - Clamps tooltip position inside viewport bounds.
 - `app-LTL/src/ui/BackpackUI.gd`
   - Creates backpack grid slots and the ghost preview container.
-  - Renders held artifact ghosts and inventory artifact overlays.
+  - Delegates held artifact ghosts, inventory overlays, cooldown masks, and pin overlay runtime behavior to focused backpack helpers.
   - Applies valid and blocked drag/drop feedback using the live inventory placement rules.
   - Provides slot click/hover signals and visual state for discard interactions while keeping slot hover wobble disabled for readability.
-  - Smoothly interpolates artifact cooldown masks with frame delta.
+- `app-LTL/src/ui/backpack/BackpackArtifactRenderer.gd`
+  - Renders backpack artifact overlays, image-backed drill overlays, drag ghost cells, drop feedback helpers, and cooldown masks.
+  - Provides transformed rectangle math for aligning artifact images inside the backpack layer.
+- `app-LTL/src/ui/backpack/BackpackPinOverlayRuntime.gd`
+  - Owns combat pin visibility counts, corner specs, local canvas layout, retry scheduling, and removal VFX profiles for the backpack panel.
+  - Delegates shared pin sizing math to `BackpackPinLayoutPolicy.gd`.
 - `app-LTL/src/ui/BattlefieldUI.gd`
   - Renders combat time display and battlefield cell grid.
   - Rebuilds the grid when cell lists change and updates existing cells when structure matches.
@@ -844,17 +870,37 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/MainUI.gd`
   - Serves as the formal main UI entry script by inheriting MainViewRuntime.
 - `app-LTL/src/ui/MainViewRuntime.gd`
-  - Initializes main UI node references, panels, overlays, locale, and audio baseline state.
-  - Renders backpack, battlefield, status, reward tray, node select, and action button state.
-  - Manages settings/shop panel visibility and input shortcuts.
-  - Relays passive and base-shop purchase events from the shop panel to the controller.
-  - Mounts the shared node-map scene into the dedicated node-select runtime page and re-docks the shared backpack between gameplay and node-select hosts.
-  - Mediates combat VFX, screenshake, tooltip, discard zone, and log console behavior.
-  - Propagates locale changes and volume settings to child UI components.
+  - Serves as the compact main-view facade that preserves the controller-facing UI API and delegates feature-sized runtime responsibilities.
+- `app-LTL/src/ui/main_view/MainViewRuntimeState.gd`
+  - Holds inherited MainView node references, signals, state fields, page ids, and overlay z-index constants.
+- `app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd`
+  - Owns MainView ready bootstrap, viewport-shell sync, wrapping text policies, and drag input dispatch.
+- `app-LTL/src/ui/main_view/MainViewRewardRuntime.gd`
+  - Owns reward tray rendering, floating reward-card layout, reward drag state, inspector rendering, and footprint display.
+- `app-LTL/src/ui/main_view/MainViewPresentationRuntime.gd`
+  - Owns character presentation, reward/failure backdrops, character status projection, and sprite-frame lookup.
+- `app-LTL/src/ui/main_view/MainViewRewardLayoutRuntime.gd`
+  - Owns reward board sizing, reward/backpack docking, node-select backpack dock state, and reward-zone scroll shells.
+- `app-LTL/src/ui/main_view/MainViewPageShellRuntime.gd`
+  - Owns page scene creation, page shell bundle capture, active page routing, and page-scene model projection.
+- `app-LTL/src/ui/main_view/MainViewAppShellRuntime.gd`
+  - Owns app-shell safe viewport metrics, top-content backpack bounds, and shared backpack layout sync.
+- `app-LTL/src/ui/main_view/MainViewSceneRuntime.gd`
+  - Owns scene snapshot rendering, action state projection, reward reveal VFX lifecycle, and node-select start gating.
+- `app-LTL/src/ui/main_view/MainViewPanelsRuntime.gd`
+  - Owns settings, shop, codex, popup-pause visibility, battle-pause propagation, and codex projection rerenders.
+- `app-LTL/src/ui/main_view/MainViewLocaleRuntime.gd`
+  - Owns locale text application, page bundle label updates, reward board copy, and header title resolution.
+- `app-LTL/src/ui/main_view/MainViewChromeRuntime.gd`
+  - Owns shell theming, interaction FX install, timer/reward overlay construction, per-frame chrome updates, and tooltips.
+- `app-LTL/src/ui/main_view/MainViewBackpackRuntime.gd`
+  - Owns page backpack setup/render/ghost forwarding plus shared backpack reparent scheduling and commit.
+- `app-LTL/src/ui/main_view/MainViewFeedbackRuntime.gd`
+  - Owns log forwarding, discard-zone state, combat global-position helpers, damage popups, beams, particles, and screenshake.
 - `app-LTL/src/ui/PageSceneRegistry.gd`
   - Builds page-shell hosts, mounts meta versus gameplay page scenes, and toggles host visibility for the active page route.
 - `app-LTL/src/ui/PageSceneModelBuilder.gd`
-  - Centralizes page-scene copy and wireframe model projection for gameplay, node-select, clear, and defeat page shells.
+  - Centralizes page-scene copy, inactive meta-page refresh projection, and wireframe model projection for gameplay, node-select, clear, and defeat page shells.
 - `app-LTL/src/ui/PopupOverlayHost.gd`
   - Centralizes popup and fullscreen overlay front-order plus pause-overlay visibility projection for MainViewRuntime.
 - `app-LTL/src/ui/RewardCardCloudHost.gd`
@@ -863,6 +909,22 @@ This file is the live implementation map for AI agents. It records each current 
   - Centralizes shared backpack docking, host-specific layout sync, and deferred reparent follow-up helpers for MainViewRuntime.
 - `app-LTL/src/ui/RewardRevealOverlay.gd`
   - Renders and controls the full-screen reward reveal ceremony overlay.
+  - Delegates reward reveal presentation, layout, and animation phase models to reward-reveal helper scripts while preserving the public overlay API.
+- `app-LTL/src/ui/reward_reveal/RewardRevealPresentationModel.gd`
+  - Projects reward reveal hero, reveal order, labels, rarity profiles, timing, and accent data from reward dictionaries.
+  - Keeps presentation data deterministic without mutating reward or run state.
+- `app-LTL/src/ui/reward_reveal/RewardRevealLayoutPolicy.gd`
+  - Calculates reward reveal safe-area, centered lid, card metrics, queue strip, and quantity slot layout.
+  - Preserves deterministic Rect2/Vector2 layout contracts for overlay tests and render helpers.
+- `app-LTL/src/ui/reward_reveal/RewardRevealAnimationModels.gd`
+  - Builds count tease, mined-lid motion, count burst, card reveal, and queue marker phase models.
+  - Centralizes reward reveal easing and segment calculations used by the overlay renderer.
+- `app-LTL/src/ui/reward_reveal/RewardRevealCeremonyRenderer.gd`
+  - Orchestrates reward reveal count tease, count lock, reveal queue, headline, progress, and reward card drawing.
+  - Keeps renderer-only draw calls outside the overlay state machine while preserving localized text and timing inputs.
+- `app-LTL/src/ui/reward_reveal/RewardRevealEffectRenderer.gd`
+  - Draws reward reveal lid, burst, sealed card, rarity burst, preview chamber, queue marker, and backdrop primitives.
+  - Owns effect-only drawing details without changing ceremony state or reward data.
 - `app-LTL/src/ui/presenters/BackpackGridFactory.gd`
   - Creates backpack border cells and inner slot UI nodes.
   - Calculates artifact style, edge masks, energy colors, and border slices.
@@ -929,15 +991,25 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/ArtifactCodexPanelUI.gd`
   - Creates the artifact codex menu panel with discovered-only and debug-all display modes.
   - Renders projected codex rows and emits debug visibility toggle signals.
+  - Delegates book safe-area math, card construction, placeholder artwork, and shape-grid visuals to codex helper scripts.
 - `app-LTL/src/ui/ArtifactCodexArtResolver.gd`
   - Resolves codex hero and thumbnail artwork descriptors from reward-table image contracts.
   - Falls back to default and discovery-state artwork descriptors when authored art is unavailable.
+- `app-LTL/src/ui/codex/ArtifactCodexLayoutPolicy.gd`
+  - Centralizes artifact codex book aspect, safe-area, page, grid, and viewport transform calculations.
+  - Keeps ratio-driven codex layout math deterministic for panel rendering and structural tests.
+- `app-LTL/src/ui/codex/ArtifactCodexBookVisualFactory.gd`
+  - Builds artifact codex entry cards, placeholder artwork plates, fact chips, and shape-grid detail controls.
+  - Owns codex book visual style helpers for cards, frames, rarity plates, section buttons, and mouse passthrough.
 - `app-LTL/src/ui/StatusPanelUI.gd`
-  - Renders combat target shield/health bars and extractor status.
-  - Visualizes the current queue gems and maps energy colors.
-  - Clears stale queue gems immediately so repeated same-frame rerenders cannot inflate the status-column layout.
-  - Builds copy for repair, pin, and global terrain debuff status.
-  - Manages victory, repair, and combat overlay display.
+	- Renders combat target shield/health bars and extractor status.
+	- Visualizes the current queue gems and maps energy colors.
+	- Clears stale queue gems immediately so repeated same-frame rerenders cannot inflate the status-column layout.
+	- Builds copy for repair, pin, and global terrain debuff status.
+	- Manages victory, repair, and combat overlay display.
+- `app-LTL/src/ui/status_panel/StatusPanelInfoCards.gd`
+	- Builds status-panel terrain copy, weakness cards, note chips, and metric card controls from node context.
+	- Normalizes weakness color data and resolves tile textures used by the status info panel.
 - `app-LTL/src/ui/TextCatalog.gd`
   - Provides locale state and translation key lookup.
   - Strips implementation tags and size noise from item names/descriptions for display.
@@ -973,14 +1045,20 @@ This file is the live implementation map for AI agents. It records each current 
   - Provides facades for reward tray pickup, held placement, discard, rotate, and synergy recalculation.
 - `app-LTL/src/vocabulary/combat/RecalculateQueueColors.gd`
   - Recalculate Queue Colors implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/combat/CombatRelicHooks.gd`
+  - Applies combat relic hooks for repair completion, obstacle execution prevention, obstacle-clear rewards, weakness-hit counters, and shot buff consumption.
+- `app-LTL/src/vocabulary/combat/CombatTerrainEffects.gd`
+  - Owns color damage profiles and purple terrain buff/debuff stack mutation for combat vocabulary flows.
+- `app-LTL/src/vocabulary/combat/CombatObstacleDefinitions.gd`
+  - Builds stage-scaled obstacle dictionaries from spawn requests without selecting spawn cells or applying relic effects.
 - `app-LTL/src/vocabulary/combat/SpawnNewTileObstacles.gd`
   - Spawn New Tile Obstacles implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/combat/ShiftWeaknessMarkers.gd`
   - Shift Weakness Markers implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/CombatVocab.gd`
   - Prepares CombatSimulator instances from selected node results.
-  - Applies queue consumption, color-specific damage profiles, and terrain debuffs for fire inputs.
-  - Handles repair input, combat tick progression, and inventory cooldown ticking.
+  - Applies queue consumption and delegates color damage profiles, relic hooks, obstacle definitions, and terrain effects to focused combat helpers.
+  - Handles repair input, combat tick progression, battlefield shift orchestration, and inventory cooldown ticking.
   - Determines whether combat time has expired.
 - `app-LTL/src/vocabulary/node/ApplyNodeModifiers.gd`
   - Applies selected node modifiers to combat snapshots.
@@ -1035,6 +1113,8 @@ This file is the live implementation map for AI agents. It records each current 
   - run backpack ui compile contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_battle_hud_layout_read_model_contract.gd`
   - Runs the focused battle HUD, phase layout, and shared backpack read-model contract suites.
+- `app-LTL/tests/run_battle_render_performance_contract.gd`
+  - Verifies repeated battle renders do not refresh inactive meta page state on the tile-hit hot path.
 - `app-LTL/tests/run_codex_pause_timing_contract.gd`
   - Verifies codex pause/resume preserves the steady battle terrain timer interval and saved remaining countdown.
 - `app-LTL/tests/run_combat_layout_containment_contract.gd`
@@ -1053,6 +1133,8 @@ This file is the live implementation map for AI agents. It records each current 
   - run main viewport probe verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_node_select_runtime_contract.gd`
   - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
+- `app-LTL/tests/run_node_select_start_gate_contract.gd`
+  - Verifies node-select click-to-toggle selection, menu round-trip start readiness, and boss-stage mining-start gating.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
   - run pin miner layout probe verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_ceremony_contract.gd`
@@ -1091,6 +1173,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Covers interaction cue, drag/drop placement, cooldown, targeting, and controller-side combat feedback contracts.
 - `app-LTL/tests/ui_read_models/ui_interaction_feedback_accessibility_suite.gd`
   - Covers drag feedback restoration, layout-safe interaction polish, hold-fire accessibility, combat click blocking, and VFX accessibility contracts.
+- `app-LTL/tests/ui_read_models/ui_main_controller_structure_suite.gd`
+  - Covers MainController ownership split structure, helper wiring, line-budget checkpoints, and pure targeting/projection helper contracts.
 - `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
   - Covers the extracted app-shell layout policy for safe shell sizing, active-phase height budgets, top-content budget math, and reward backpack caps.
 - `app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd`
@@ -1147,6 +1231,56 @@ This file is the live implementation map for AI agents. It records each current 
   - Current Korean M6 sign-off checklist with automated status, manual QA steps, and plain-language pass criteria.
 - `docs/m6-known-issues.ko.md`
   - Records the remaining M6 sign-off gaps and known evidence debts carried forward after user-accepted M6 closure.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/README.ko.md`
+  - Indexes the captured M6 screenshot matrix, capture command, viewport coverage, and manual sign-off notes.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1280x720.png`
+  - Captured live M6 battle page evidence at the 1280x720 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1440x900.png`
+  - Captured live M6 battle page evidence at the 1440x900 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1680x1050.png`
+  - Captured live M6 battle page evidence at the 1680x1050 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1920x1080.png`
+  - Captured live M6 battle page evidence at the 1920x1080 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1280x720.png`
+  - Captured live M6 character-select page evidence at the 1280x720 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1440x900.png`
+  - Captured live M6 character-select page evidence at the 1440x900 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1680x1050.png`
+  - Captured live M6 character-select page evidence at the 1680x1050 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1920x1080.png`
+  - Captured live M6 character-select page evidence at the 1920x1080 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1280x720.png`
+  - Captured live M6 defeat page evidence at the 1280x720 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1440x900.png`
+  - Captured live M6 defeat page evidence at the 1440x900 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1680x1050.png`
+  - Captured live M6 defeat page evidence at the 1680x1050 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1920x1080.png`
+  - Captured live M6 defeat page evidence at the 1920x1080 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1280x720.png`
+  - Captured live M6 leviathan-select page evidence at the 1280x720 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1440x900.png`
+  - Captured live M6 leviathan-select page evidence at the 1440x900 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1680x1050.png`
+  - Captured live M6 leviathan-select page evidence at the 1680x1050 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1920x1080.png`
+  - Captured live M6 leviathan-select page evidence at the 1920x1080 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1280x720.png`
+  - Captured live M6 node-select page evidence at the 1280x720 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1440x900.png`
+  - Captured live M6 node-select page evidence at the 1440x900 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1680x1050.png`
+  - Captured live M6 node-select page evidence at the 1680x1050 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1920x1080.png`
+  - Captured live M6 node-select page evidence at the 1920x1080 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1280x720.png`
+  - Captured live M6 reward page evidence at the 1280x720 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1440x900.png`
+  - Captured live M6 reward page evidence at the 1440x900 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1680x1050.png`
+  - Captured live M6 reward page evidence at the 1680x1050 viewport.
+- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1920x1080.png`
+  - Captured live M6 reward page evidence at the 1920x1080 viewport.
 - `docs/request-ledgers/2026-06-02-refactor-harness-quality-gate.md`
   - Records request constraints, mutable scope, refactor dispositions, verification notes, and artifact ledger expectations for this broad refactor.
 - `docs/request-ledgers/2026-06-07-page-contract-harness-hardening.md`
@@ -1167,6 +1301,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the scope, invariants, split units, and verification checklist for the 500-line runtime size gate hardening pass.
 - `docs/request-ledgers/2026-06-13-root-cause-anti-workaround-gate.md`
   - Records the harness-hardening scope and verification obligations for blocking symptom-only workaround planning through root-cause proofs.
+- `docs/request-ledgers/2026-06-15-battle-render-performance-hotpath.md`
+  - Records the battle tile-hit stutter root cause, runtime performance proof, and harness high-frequency path rule changes.
+- `docs/request-ledgers/2026-06-15-main-controller-ownership-split.md`
+  - Records the main controller ownership split scope, preserved invariants, extraction units, and verification obligations.
+- `docs/request-ledgers/2026-06-15-feature-unit-lifecycle-harness.md`
+  - Records the harness methodology follow-up for enforcing design, implementation, and maintenance-stage feature-unit lifecycle planning.
 - `docs/release-resource-needs.md`
   - release resource needs documents exact final-art and audio paths that can be populated after implementation.
 - `docs/release-visual-quality-upgrade-plan.md`
@@ -1303,6 +1443,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the M7 narrative integration replan, scope boundaries, and verification expectations.
 - `docs/superpowers/plans/2026-06-14-battle-hud-runtime-implementation.md`
   - Records the battle HUD runtime implementation sequence, layout contracts, and focused verification steps.
+- `docs/superpowers/plans/2026-06-15-runtime-size-preedit-enforcement.md`
+  - Records the runtime-size pre-edit enforcement plan, glob-cap owner coverage, and focused harness verification steps.
+- `docs/superpowers/plans/2026-06-15-main-controller-ownership-split.md`
+  - Records the implementation plan for moving controller ownership into MainController and extracting controller helper units.
+- `docs/superpowers/plans/2026-06-15-main-controller-500-line-split.md`
+  - Records the follow-up plan for reducing MainController to roughly 500 lines and consolidating tiny controller helpers.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
@@ -1456,13 +1602,13 @@ This file is the live implementation map for AI agents. It records each current 
 - `LTL-harness/docs/post-m0-godot-enforcement.md`
   - post m0 godot enforcement explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/request-analysis-execution-gate.md`
-  - Explains the source-map-first request analysis flow and the pre-edit and pre-complete gate for broad refactors and large change sets.
+  - Explains the source-map-first request analysis flow and the pre-edit lifecycle, runtime-performance, execution-responsibility, and pre-complete gates for broad refactors and large change sets.
 - `LTL-harness/docs/templates/backup-manifest-template.md`
   - backup manifest template explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/templates/comment-gate-ledger-template.md`
   - comment gate ledger template explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/templates/request-constraint-ledger-template.md`
-  - Template for recording invariants, mutable scope, source-map findings, refactor/delete disposition, verification, and artifact ledger expectations.
+  - Template for recording invariants, mutable scope, source-map findings, feature-unit lifecycle planning, runtime performance review, refactor/delete disposition, verification, and artifact ledger expectations.
 - `LTL-harness/docs/templates/request-execution-checklist-template.md`
   - Template for running request analysis before edits and before completion.
 - `LTL-harness/README.md`
@@ -1484,9 +1630,9 @@ This file is the live implementation map for AI agents. It records each current 
 - `LTL-harness/tools/page-contract-gate.tests.ps1`
   - Covers missing-root and current-repository success scenarios for the page-contract gate script.
 - `LTL-harness/tools/request-analysis-gate.ps1`
-  - Validates request constraint ledgers before broad edits and before completion, including required source-map findings.
+  - Validates request constraint ledgers before broad edits and before completion, including source-map, root-cause, feature-unit lifecycle, runtime-performance, and responsibility coverage.
 - `LTL-harness/tools/request-analysis-gate.tests.ps1`
-  - Covers valid and invalid request constraint ledger scenarios, including missing source-map findings.
+  - Covers valid and invalid request constraint ledger scenarios, including missing source-map, feature-unit lifecycle, runtime-performance, and responsibility coverage.
 - `LTL-harness/tools/request-source-map.ps1`
   - Queries the live source map and prints request-scoped candidate files plus responsibility notes for faster source triage.
 - `LTL-harness/tools/request-source-map.tests.ps1`
@@ -1555,8 +1701,14 @@ This file is the live implementation map for AI agents. It records each current 
   - run node select visual hold boots the live meta flow into node select and keeps the real Godot window open for manual capture.
 - `app-LTL/tests/run_leviathan_select_visual_hold.gd`
   - run leviathan select visual hold boots the live meta flow into leviathan select and keeps the real Godot window open for manual capture.
+- `app-LTL/tests/run_m6_visual_hold.gd`
+  - Boots the live M6 flow into a requested release page and keeps the real Godot window open for matrix capture.
+- `app-LTL/tests/run_settings_language_apply_contract.gd`
+  - Verifies repeated settings-language apply cycles and guards against duplicate locale-change events.
 - `tools/capture-node-select-runtime.ps1`
   - capture node select runtime launches the live Godot window, waits for the node-select hold script to settle, and writes the canonical QA screenshot artifact.
+- `tools/capture-m6-screenshot-matrix.ps1`
+  - Launches live Godot M6 page holds across viewport sizes and captures a repository screenshot evidence matrix.
 - `docs/mockups/hazard-tile-approaches.html`
   - hazard tile approaches mockup records visual comparison options for hazard tile treatment.
 - `docs/mockups/hazard-tile-state-matrix.html`
