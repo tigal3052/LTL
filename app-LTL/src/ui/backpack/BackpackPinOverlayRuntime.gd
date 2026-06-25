@@ -177,6 +177,7 @@ static func apply_pin_shell_gutter(owner, side_outset: float) -> bool:
 	if owner.backpack_margin == null:
 		return false
 	var next_margin := shell_side_margin_for_outset(side_outset, owner.pin_shell_active)
+	next_margin = min(next_margin, max_shell_side_margin_for_square_grid(owner, next_margin))
 	var changed := false
 	if owner.backpack_margin.get_theme_constant("margin_left") != next_margin:
 		owner.backpack_margin.add_theme_constant_override("margin_left", next_margin)
@@ -186,10 +187,19 @@ static func apply_pin_shell_gutter(owner, side_outset: float) -> bool:
 		changed = true
 	return changed
 
+static func max_shell_side_margin_for_square_grid(owner, fallback_margin: int) -> int:
+	if not owner.pin_shell_active or owner.backpack_grid_mock == null:
+		return fallback_margin
+	var panel_width := float(owner.size.x)
+	var grid_height := float(owner.backpack_grid_mock.size.y)
+	if panel_width <= 1.0 or grid_height <= 1.0:
+		return fallback_margin
+	return maxi(BACKPACK_BASE_SIDE_MARGIN, int(floor((panel_width - grid_height) * 0.5)))
+
 static func layout(owner) -> void:
 	if owner.backpack_grid_mock == null or owner.backpack_grid_mock.get_child_count() == 0 or owner.pin_nodes.is_empty():
 		return
-	apply_grid_shell_layout_policy(owner)
+	owner.backpack_grid_mock.size_flags_horizontal = owner.backpack_grid_horizontal_flags()
 	var specs := corner_specs()
 	var target_side_outset := 0.0
 	for index in range(mini(owner.pin_nodes.size(), specs.size())):
@@ -248,8 +258,12 @@ static func prime_layout_settle(owner) -> void:
 
 static func run_queued_pin_layout(owner) -> void:
 	await owner.get_tree().process_frame
+	if not is_instance_valid(owner) or owner.is_queued_for_deletion():
+		return
 	owner.pin_layout_queued = false
 	layout(owner)
+	if not is_instance_valid(owner) or owner.is_queued_for_deletion():
+		return
 	if pins_need_live_layout_retry(owner) and owner.pin_live_layout_retry_budget < 4:
 		owner.pin_live_layout_retry_budget += 1
 		queue_layout(owner)

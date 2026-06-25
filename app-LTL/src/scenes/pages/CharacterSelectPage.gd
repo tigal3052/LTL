@@ -4,6 +4,7 @@ const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const ArtifactScript = preload("res://src/models/Artifact.gd")
 const BackpackGridFactoryScript = preload("res://src/ui/presenters/BackpackGridFactory.gd")
 const BackpackArtifactRendererScript = preload("res://src/ui/backpack/BackpackArtifactRenderer.gd")
+const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 const CharacterSelectLoadoutTextScript = preload("res://src/scenes/pages/character_select/CharacterSelectLoadoutText.gd")
 const CharacterSelectPaletteViewScript = preload("res://src/scenes/pages/character_select/CharacterSelectPaletteView.gd")
 const BACKDROP_PATH := "res://resources/charactor/background.png"
@@ -11,6 +12,7 @@ signal character_selected(character_id: String)
 signal continue_requested
 signal color_selected(color: String)
 signal settings_requested
+signal interaction_sfx_requested(category: String)
 @onready var backdrop: ColorRect = $Backdrop
 @onready var root_margin: MarginContainer = $Margin
 @onready var page_stack: VBoxContainer = $Margin/VStack
@@ -37,11 +39,7 @@ signal settings_requested
 @onready var hero_name: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/HeroName
 @onready var hero_role: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/HeroRole
 @onready var hero_description: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/HeroDescription
-@onready var tag_labels := [
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagOneShell/TagOne,
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagTwoShell/TagTwo,
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagThreeShell/TagThree
-]
+@onready var tag_labels := [$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagOneShell/TagOne, $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagTwoShell/TagTwo, $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/TagRow/TagThreeShell/TagThree]
 @onready var hero_summary: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/HeroSummary
 @onready var prep_zone: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone
 @onready var prep_zone_head: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/ZoneHead
@@ -55,13 +53,7 @@ signal settings_requested
 @onready var bag_head: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/BagHead
 @onready var bag_hint: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/BagHead/BagHint
 @onready var mini_bag: HBoxContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag
-@onready var mini_slots := [
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot1,
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot2,
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot3,
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot4,
-	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot5
-]
+@onready var mini_slots := [$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot1, $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot2, $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot3, $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot4, $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/MiniBag/Slot5]
 @onready var cta_label: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/CtaLabel
 @onready var cta_copy: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/CtaCopy
 @onready var continue_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/ContinueButton
@@ -80,7 +72,9 @@ var _bag_detail_body: Label
 var _bag_detail_scroll: ScrollContainer
 var _pinned_bag_slot_index := 0
 var _hovered_bag_slot_index := -1
+var _starter_drill_texture_cache: Dictionary = {}
 func _ready() -> void:
+	continue_button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "ui_confirm")
 	continue_button.pressed.connect(func() -> void:
 		continue_requested.emit()
 	)
@@ -193,6 +187,7 @@ func _ensure_settings_button() -> void:
 	_settings_button.offset_top = 18.0
 	_settings_button.offset_bottom = 58.0
 	_settings_button.focus_mode = Control.FOCUS_ALL
+	_settings_button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "menu_open")
 	_settings_button.pressed.connect(func() -> void:
 		settings_requested.emit()
 	)
@@ -252,11 +247,11 @@ func _bind_bag_hover_signals() -> void:
 				return
 			if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
 				return
+			interaction_sfx_requested.emit("item_click")
 			_pinned_bag_slot_index = slot_index
 			_hovered_bag_slot_index = -1
 			_refresh_active_bag_detail()
 		)
-
 func _sync_roster() -> void:
 	for child in roster_list.get_children():
 		child.queue_free()
@@ -284,27 +279,28 @@ func _sync_roster() -> void:
 		roster_list.add_child(button)
 		_roster_buttons[character_id] = button
 	_refresh_roster_styles()
-
 func _sync_palette() -> void:
 	for child in palette_list.get_children():
 		child.queue_free()
 	_color_buttons.clear()
 	for color_name in ["red", "blue", "purple", "green"]:
 		var button := _build_palette_button(color_name)
-		button.pressed.connect(func() -> void:
-			_selected_color = color_name
-			_refresh_palette_styles()
-			_refresh_bag_preview()
-			_refresh_cta_copy()
-			color_selected.emit(color_name)
-		)
+		button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "starter_set_select")
+		button.pressed.connect(_select_palette_color.bind(color_name))
 		palette_list.add_child(button)
 		_color_buttons[color_name] = button
 	_refresh_palette_styles()
-
 func _build_palette_button(color_name: String) -> Button:
 	return CharacterSelectPaletteViewScript.build_palette_button(color_name)
-
+func _select_palette_color(color_name: String) -> void:
+	if color_name == _selected_color:
+		color_selected.emit(color_name)
+		return
+	_selected_color = color_name
+	_refresh_palette_styles()
+	_refresh_bag_preview()
+	_refresh_cta_copy()
+	color_selected.emit(color_name)
 func _render_selected(selected_character: Dictionary) -> void:
 	var selected := selected_character.duplicate(true)
 	if selected.is_empty():
@@ -331,7 +327,6 @@ func _render_selected(selected_character: Dictionary) -> void:
 	continue_button.text = TextCatalogScript.t("character.continue")
 	_refresh_bag_preview()
 	_refresh_cta_copy()
-
 func _refresh_roster_styles() -> void:
 	for character_id in _roster_buttons.keys():
 		var button: Button = _roster_buttons[character_id]
@@ -354,10 +349,8 @@ func _refresh_roster_styles() -> void:
 		button.add_theme_stylebox_override("focus", hover)
 		button.add_theme_font_size_override("font_size", 13)
 		button.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY if selectable else LTLThemeScript.TEXT_MUTED)
-
 func _refresh_palette_styles() -> void:
 	CharacterSelectPaletteViewScript.refresh_palette_styles(_color_buttons, _selected_color)
-
 func _refresh_bag_preview() -> void:
 	var accent := LTLThemeScript.accent_color(_selected_color)
 	for index in range(mini_slots.size()):
@@ -377,7 +370,6 @@ func _refresh_bag_preview() -> void:
 	_pinned_bag_slot_index = clampi(_pinned_bag_slot_index, 0, max(0, mini_slots.size() - 1))
 	_hovered_bag_slot_index = -1
 	_refresh_active_bag_detail()
-
 func _refresh_mini_bag_drill_image() -> void:
 	if mini_slots.is_empty():
 		return
@@ -393,14 +385,24 @@ func _refresh_mini_bag_drill_image() -> void:
 		slot.add_child(image)
 		image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var texture_path := BackpackGridFactoryScript.drill_texture_path(_selected_color, "basic")
-	var texture := BackpackArtifactRendererScript.drill_display_texture(LTLThemeScript.art_texture(texture_path), [[1]])
+	var texture := _starter_drill_preview_texture(texture_path)
 	image.texture = texture
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	image.visible = texture != null
 	image.set_meta("drill_texture_path", texture_path)
-
+func starter_drill_preview_cache_size() -> int:
+	return _starter_drill_texture_cache.size()
+func _starter_drill_preview_texture(texture_path: String) -> Texture2D:
+	if texture_path.is_empty():
+		return null
+	var cache_key := "%s|single_cell" % texture_path
+	if _starter_drill_texture_cache.has(cache_key):
+		return _starter_drill_texture_cache[cache_key]
+	var texture := BackpackArtifactRendererScript.drill_display_texture(LTLThemeScript.art_texture(texture_path), [[1]])
+	_starter_drill_texture_cache[cache_key] = texture
+	return texture
 func _refresh_cta_copy() -> void:
 	var selected := _find_character(_selected_id)
 	var name := str(selected.get("name", TextCatalogScript.t("character.page.title")))
@@ -419,7 +421,6 @@ func _refresh_cta_copy() -> void:
 	continue_button.add_theme_color_override("font_color", Color(0.98, 0.97, 0.94, 1.0))
 	_refresh_active_bag_detail()
 	_queue_settled_layout_sync()
-
 func _refresh_bag_detail(slot_index: int) -> void:
 	if _bag_detail_title == null or _bag_detail_body == null:
 		return
@@ -428,21 +429,17 @@ func _refresh_bag_detail(slot_index: int) -> void:
 	_bag_detail_body.text = str(detail.get("body", ""))
 	if _bag_detail_scroll != null and _bag_detail_scroll.get_v_scroll_bar() != null:
 		_bag_detail_scroll.scroll_vertical = 0
-
 func _refresh_active_bag_detail() -> void:
 	var slot_index := _hovered_bag_slot_index if _hovered_bag_slot_index >= 0 else _pinned_bag_slot_index
 	_refresh_bag_detail(slot_index)
-
 func _queue_settled_layout_sync() -> void:
 	_layout_followup_passes = max(_layout_followup_passes, 1)
 	_queue_layout_sync()
-
 func _queue_layout_sync() -> void:
 	if _layout_sync_pending:
 		return
 	_layout_sync_pending = true
 	call_deferred("_sync_responsive_layout")
-
 func _sync_responsive_layout() -> void:
 	_layout_sync_pending = false
 	if not is_inside_tree():
@@ -471,7 +468,6 @@ func _sync_responsive_layout() -> void:
 	if _layout_followup_passes > 0:
 		_layout_followup_passes -= 1
 		_queue_layout_sync()
-
 func _zone_shell_vertical_overhead(panel: PanelContainer) -> float:
 	if panel == null:
 		return 0.0
@@ -481,18 +477,15 @@ func _zone_shell_vertical_overhead(panel: PanelContainer) -> float:
 	var zone_head_height := zone_head.get_combined_minimum_size().y if zone_head.visible else 0.0
 	var zone_gap := float(zone_vbox.get_theme_constant("separation")) if zone_head.visible else 0.0
 	return _vertical_margins(zone_margin) + zone_head_height + zone_gap
-
 func _vertical_margins(margin_container: MarginContainer) -> float:
 	if margin_container == null:
 		return 0.0
 	return float(margin_container.get_theme_constant("margin_top") + margin_container.get_theme_constant("margin_bottom"))
-
 func _first_selectable_id() -> String:
 	for character in _roster:
 		if bool(character.get("selectable", false)):
 			return str(character.get("id", ""))
 	return ""
-
 func _find_character(character_id: String) -> Dictionary:
 	for character in _roster:
 		if str(character.get("id", "")) == character_id:

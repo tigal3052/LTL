@@ -62,6 +62,8 @@ static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) ->
 	view.shop_open_button.visible = bool(layout.get("shopButtonVisible", false))
 	if view.backpack_ui != null and view.backpack_ui.has_method("set_cooldown_visuals_enabled"):
 		view.backpack_ui.set_cooldown_visuals_enabled(bool(layout.get("backpackCooldownVisible", false)))
+	if view.backpack_ui != null and view.backpack_ui.has_method("set_influence_preview_toggle_visible"):
+		view.backpack_ui.set_influence_preview_toggle_visible(bool(layout.get("backpackInfluenceToggleVisible", false)))
 	if view.backpack_ui != null and view.backpack_ui.has_method("update_pin_overlays"):
 		if view._backpack_reparent_pending:
 			view._pending_backpack_pin_scene = scene.duplicate(true)
@@ -153,12 +155,8 @@ static func update_action_state(view, scene: Dictionary, show_victory_overlay: b
 	var narrative_blocked := bool(scene.get("narrativeBlocksInput", false))
 	view.reset_button.visible = page_id not in META_PAGE_IDS
 	view.start_button.visible = page_id == "node_select"
-	view.hold_fire_button.visible = page_id in ["battle", "boss_battle"]
-	view.repair_button.visible = page_id in ["battle", "boss_battle"]
 	view.claim_rewards_button.visible = page_id in ["reward", "boss_reward"]
 	view.start_button.disabled = not (page_id == "node_select" and node_select_start_ready(scene))
-	view.hold_fire_button.disabled = narrative_blocked or not (phase == "combat" and bool(scene.get("hud", {}).get("aim", {}).get("canFire", false)))
-	view.repair_button.disabled = narrative_blocked or not (phase == "combat" and bool(scene.get("hud", {}).get("repair", {}).get("available", false)))
 	var claim_disabled := (narrative_blocked or page_id not in ["reward", "boss_reward"] or show_victory_overlay or reward_ceremony_active or bool(scene.get("is_reveal_vfx_running", false)))
 	view.claim_rewards_button.disabled = claim_disabled
 	view.claim_inline_button.disabled = claim_disabled

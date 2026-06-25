@@ -33,7 +33,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 					0,
 					next_state.get("nodeTable", {}),
 					int(next_state.get("candidateCount", 3)),
-					next_state.get("tuning", {})
+					_candidate_tuning(next_state, 0)
 				)
 				next_state["combat"] = null
 				next_state["pendingRewards"] = []
@@ -59,6 +59,11 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 					cleared_ids.append(levi_id)
 					progress["clearedLeviathanIds"] = cleared_ids
 				next_state["progress"] = progress
+				next_state["growth"] = RunGrowthStateScript.apply_m8_result_unlocks(next_state.get("growth", {}), {
+					"failed": false,
+					"runComplete": true,
+					"leviathanId": levi_id
+				})
 				return next_state
 		else:
 			# 다음 스테이지로 전이
@@ -69,7 +74,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 				stage_idx + 1,
 				next_state.get("nodeTable", {}),
 				int(next_state.get("candidateCount", 3)),
-				next_state.get("tuning", {})
+				_candidate_tuning(next_state, stage_idx + 1)
 			)
 			next_state["combat"] = null
 			next_state["pendingRewards"] = []
@@ -109,3 +114,9 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		return next_state
 
 	return next_state
+static func _candidate_tuning(state: Dictionary, local_stage_index: int) -> Dictionary:
+	var tuning: Dictionary = state.get("tuning", {}).duplicate(true)
+	var max_stages := maxi(1, int(state.get("maxStages", 5)))
+	var run_idx := int(state.get("runIndex", 0))
+	tuning["difficultyStageIndex"] = run_idx * max_stages + local_stage_index
+	return tuning

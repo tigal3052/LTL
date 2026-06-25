@@ -9,8 +9,10 @@ class_name NarrativeToast
 extends PanelContainer
 
 signal continue_requested(beat_id: String)
+signal interaction_sfx_requested(category: String)
 
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
+const TYPEWRITER_CHARS_PER_SECOND := 36.0
 
 var speaker_label: Label = null
 var body_label: Label = null
@@ -24,6 +26,10 @@ var _current_beat_id := ""
 var _dismissed_beat_id := ""
 var _skip_input_allowed := true
 var _portrait_side := "none"
+var _typewriter_key := ""
+var _typewriter_text := ""
+var _typewriter_visible_chars := 0
+var _typewriter_accumulator := 0.0
 
 # 실행: initialize the hidden story surface as a clickable continue target.
 func _init() -> void:
@@ -32,6 +38,7 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 440
 	custom_minimum_size = Vector2(420.0, 300.0)
+	set_process(false)
 
 # 실행: build the stable child tree once the control enters the scene.
 func _ready() -> void:
@@ -171,6 +178,7 @@ func render(model: Dictionary) -> void:
 	ensure_built()
 	if not bool(model.get("visible", false)):
 		visible = false
+		set_process(false)
 		return
 	var beat_id := str(model.get("beatId", ""))
 	if beat_id != _current_beat_id:
@@ -178,6 +186,7 @@ func render(model: Dictionary) -> void:
 		_dismissed_beat_id = ""
 	if not beat_id.is_empty() and beat_id == _dismissed_beat_id:
 		visible = false
+		set_process(false)
 		return
 	var speaker := str(model.get("speaker", "")).strip_edges()
 	var body := str(model.get("text", "")).strip_edges()
@@ -186,12 +195,16 @@ func render(model: Dictionary) -> void:
 	speaker_label.text = speaker
 	speaker_label.visible = not speaker.is_empty()
 	body_label.text = body
+	var next_typewriter_key := "%s|%s" % [beat_id, body]
+	if next_typewriter_key != _typewriter_key:
+		_start_typewriter(next_typewriter_key, body)
 	continue_prompt_label.text = str(model.get("continuePrompt", "진행하려면 클릭해주세요"))
 	continue_icon_label.text = str(model.get("continueIcon", "▶"))
 	continue_prompt_label.visible = _skip_input_allowed
 	continue_icon_label.visible = _skip_input_allowed
 	_apply_visuals(str(model.get("visualPath", "")), str(model.get("portraitPath", "")), _portrait_side)
 	visible = not body.is_empty()
+	set_process(visible)
 
 # 실행: consume click, keyboard, or pad input as a request to dismiss the current beat.
 func consume_continue_input(event: InputEvent) -> bool:
@@ -199,29 +212,75 @@ func consume_continue_input(event: InputEvent) -> bool:
 		return false
 	if event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			dismiss()
+			_handle_continue_input()
 			return true
 		return false
 	if event is InputEventKey:
 		if event.pressed and not event.echo:
-			dismiss()
+			_handle_continue_input()
 			return true
 		return false
 	if event is InputEventJoypadButton:
 		if event.pressed:
-			dismiss()
+			_handle_continue_input()
 			return true
 	return false
 
 # 실행: hide the current beat locally so repeated renders do not reopen it.
-func dismiss() -> void:
+func dismiss(play_sound: bool = true) -> void:
 	if not visible:
 		return
+	if play_sound:
+		interaction_sfx_requested.emit("dialogue_advance")
 	_dismissed_beat_id = _current_beat_id
 	visible = false
+	set_process(false)
 	continue_requested.emit(_current_beat_id)
 
 # 실행: route direct panel clicks through the shared continue-input path.
+func _process(delta: float) -> void:
+	_advance_typewriter(delta)
+
+func advance_typewriter_for_test(delta: float) -> void:
+	_advance_typewriter(delta)
+
+func _start_typewriter(key: String, text: String) -> void:
+	_typewriter_key = key
+	_typewriter_text = text
+	_typewriter_visible_chars = 0
+	_typewriter_accumulator = 0.0
+	if body_label != null:
+		body_label.visible_characters = 0
+
+func _advance_typewriter(delta: float) -> void:
+	if not visible or body_label == null or _typewriter_text.is_empty() or _typewriter_visible_chars >= _typewriter_text.length():
+		return
+	_typewriter_accumulator += maxf(0.0, delta) * TYPEWRITER_CHARS_PER_SECOND
+	var target := mini(_typewriter_text.length(), int(floor(_typewriter_accumulator)))
+	if target <= _typewriter_visible_chars:
+		return
+	for char_index in range(_typewriter_visible_chars, target):
+		if not _typewriter_text.substr(char_index, 1).strip_edges().is_empty():
+			interaction_sfx_requested.emit("typewriter_tick")
+	_typewriter_visible_chars = target
+	body_label.visible_characters = _typewriter_visible_chars
+
+func _complete_typewriter() -> void:
+	_typewriter_visible_chars = _typewriter_text.length()
+	_typewriter_accumulator = float(_typewriter_visible_chars)
+	if body_label != null:
+		body_label.visible_characters = _typewriter_visible_chars
+
+func _typewriter_complete() -> bool:
+	return _typewriter_text.is_empty() or _typewriter_visible_chars >= _typewriter_text.length()
+
+func _handle_continue_input() -> void:
+	interaction_sfx_requested.emit("dialogue_advance")
+	if not _typewriter_complete():
+		_complete_typewriter()
+		return
+	dismiss(false)
+
 func _gui_input(event: InputEvent) -> void:
 	if consume_continue_input(event):
 		accept_event()

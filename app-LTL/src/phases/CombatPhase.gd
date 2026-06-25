@@ -11,6 +11,7 @@ extends RefCounted
 const ArtifactScript = preload("res://src/models/Artifact.gd")
 const CombatVocabScript = preload("res://src/vocabulary/CombatVocab.gd")
 const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
 
 # 실행: reduce combat inputs, update simulator state, and evaluate completion or failure transitions.
 static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -96,6 +97,7 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 	sim.obstacle_shift_count = int(b_data.get("obstacleShiftCount", 0))
 	sim.purple_damage_reduction_ratio = float(b_data.get("purpleDamageReductionRatio", 0.0))
 	sim.paused_obstacle_ticks = int(b_data.get("pausedObstacleTicks", 0))
+	sim.obstacle_feedback_events = b_data.get("obstacleFeedbackEvents", []).duplicate(true)
 	sim.relic_runtime = combat_dict.get("relicRuntime", {}).duplicate(true)
 	
 	var s_data: Dictionary = combat_dict.get("summary", {})
@@ -147,6 +149,11 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 			next_state["failed"] = true
 			next_state["runComplete"] = true
 			next_state["failureReason"] = sim.result
+			next_state["growth"] = RunGrowthStateScript.apply_m8_result_unlocks(next_state.get("growth", {}), {
+				"failed": true,
+				"failureReason": sim.result,
+				"leviathanId": str(next_state.get("leviathanId", ""))
+			})
 		return next_state
 
 	# 사격(fire) 또는 틱(hold_fire_tick), 직접 해결(resolve) 처리
@@ -199,10 +206,15 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		next_state["failed"] = true
 		next_state["runComplete"] = true
 		next_state["failureReason"] = sim.result
+		next_state["growth"] = RunGrowthStateScript.apply_m8_result_unlocks(next_state.get("growth", {}), {
+			"failed": true,
+			"failureReason": sim.result,
+			"leviathanId": str(next_state.get("leviathanId", ""))
+		})
 
 	return next_state
 
-# 실행: extract weakness colors from battlefield markers.
+# ?ㅽ뻾: extract weakness colors from battlefield markers.
 static func _get_weakness_colors(markers: Array) -> Array:
 	var colors: Array = []
 	for marker in markers:

@@ -165,10 +165,8 @@ static func base_tile_alpha_for(weakness_value: Variant, display_or_queue_match:
 	if display_or_queue_match is bool or active_queue_color_or_has_queue is bool:
 		var queue_match_value := bool(display_or_queue_match)
 		var has_active_queue_color := bool(active_queue_color_or_has_queue)
-		if weakness_value == null:
-			return 0.5
 		if not has_active_queue_color:
-			return 0.5 if str(weakness_value).is_empty() else 1.0
+			return 0.5
 		return 1.0 if queue_match_value else 0.5
 	var resolved_display_color := str(display_or_queue_match)
 	var active_queue_color := str(active_queue_color_or_has_queue)

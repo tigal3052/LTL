@@ -9,6 +9,7 @@ func run_all_tests() -> Dictionary:
 	test_reward_tray_empty_inspector_reserves_stable_shell()
 	test_reward_tray_backpack_inspector_localizes_starter_loadout_artifact()
 	test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_description_is_missing()
+	test_reward_tray_relic_inspector_uses_not_applicable_energy_and_expanded_effect()
 	test_reward_board_helper_copy_is_removed()
 	return _result()
 
@@ -72,7 +73,7 @@ func test_reward_tray_empty_inspector_reserves_stable_shell() -> void:
 	var model = RewardReadModelScript.project_tray(rewards, -1, null, false, -1, null)
 	var inspector: Dictionary = model.get("inspector", {})
 	_assert_eq(bool(inspector.get("empty", false)), true, "reward tray starts with the fixed inspector in its empty state before selection")
-	_assert_eq(inspector.get("facts", []).size(), 4, "empty reward inspector keeps four fact slots so the board does not reflow when selection appears")
+	_assert_eq(inspector.get("facts", []).size(), 3, "empty reward inspector keeps the three visible fact slots so the board does not reflow when selection appears")
 	var empty_shape: Array = inspector.get("shapeMatrix", [])
 	_assert_eq(empty_shape.size(), 2, "empty reward inspector keeps a two-row footprint shell")
 	if empty_shape.size() >= 1:
@@ -109,11 +110,47 @@ func test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_descri
 	_assert(summary.contains("Damage"), "artifact stat fallback keeps the key drill stats readable in the inspector summary")
 	TextCatalogScript.set_locale("ko")
 
+func test_reward_tray_relic_inspector_uses_not_applicable_energy_and_expanded_effect() -> void:
+	TextCatalogScript.set_locale("en")
+	var effect_copy := "Connected drills receive the next-step repair finish bonus."
+	var rewards := [{
+		"kind": "Repair Relay Coil",
+		"rarity": "common",
+		"qty": 1,
+		"presentation": {"badge": "common relic"},
+		"payload": {
+			"item_type": "relic",
+			"energy_type": "",
+			"shape": [[1]],
+			"effect_schema": {
+				"link_mode": "diagonal_1",
+				"summary_i18n": {"en": effect_copy, "ko": effect_copy}
+			}
+		},
+		"text": {
+			"name": {"en": "Repair Relay Coil", "ko": "Repair Relay Coil"},
+			"description": {"en": effect_copy, "ko": effect_copy}
+		}
+	}]
+	var model = RewardReadModelScript.project_tray(rewards, -1, null, false, 0, null)
+	var inspector: Dictionary = model.get("inspector", {})
+	var facts: Array = inspector.get("facts", [])
+	var labels := _fact_labels(facts)
+	var energy_fact := _fact_by_label(facts, TextCatalogScript.t("reward.board.fact.energy"))
+	var effect_fact := _fact_by_label(facts, TextCatalogScript.t("reward.board.fact.effect"))
+	_assert_eq(facts.size(), 3, "relic reward inspector removes the source fact so the effect panel can use that area")
+	_assert(not labels.has(TextCatalogScript.t("reward.board.fact.source")), "relic reward inspector omits the source fact label")
+	_assert_eq(str(energy_fact.get("value", "")), TextCatalogScript.t("reward.board.fact.energy.none"), "relic reward inspector marks energy as not applicable instead of copying effect text")
+	_assert(str(effect_fact.get("value", "")).contains(effect_copy), "relic reward inspector keeps the long effect text in the effect fact")
+	_assert_eq(int(effect_fact.get("layoutColumns", 1)), 2, "relic reward inspector marks the effect fact as a two-column panel")
+	TextCatalogScript.set_locale("ko")
+
 func test_reward_board_helper_copy_is_removed() -> void:
 	TextCatalogScript.set_locale("en")
 	_assert_eq(TextCatalogScript.t("reward.board.mode_pill"), "", "english reward board mode pill copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.cloud_note"), "", "english reward board reward-cloud helper copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.rewards_zone.hint"), "", "english reward board reward-cloud hint copy removed")
+	_assert_eq(TextCatalogScript.t("reward.board.workspace_zone.hint"), "", "english reward board workspace placement-area hint copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.inspector_zone.hint"), "", "english reward board inspector hint copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.discard_zone.hint"), "", "english reward board discard hint copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.confirm_zone.hint"), "", "english reward board confirm hint copy removed")
@@ -126,6 +163,7 @@ func test_reward_board_helper_copy_is_removed() -> void:
 	_assert_eq(TextCatalogScript.t("reward.board.mode_pill"), "", "korean reward board mode pill copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.cloud_note"), "", "korean reward board reward-cloud helper copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.rewards_zone.hint"), "", "korean reward board reward-cloud hint copy removed")
+	_assert_eq(TextCatalogScript.t("reward.board.workspace_zone.hint"), "", "korean reward board workspace placement-area hint copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.inspector_zone.hint"), "", "korean reward board inspector hint copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.discard_zone.hint"), "", "korean reward board discard hint copy removed")
 	_assert_eq(TextCatalogScript.t("reward.board.confirm_zone.hint"), "", "korean reward board confirm hint copy removed")
@@ -135,3 +173,16 @@ func test_reward_board_helper_copy_is_removed() -> void:
 	_assert(not TextCatalogScript.t("discard.idle").contains("버리기 구역"), "korean discard idle copy drops the duplicate discard-zone heading")
 	_assert(not TextCatalogScript.t("discard.active", ["테스트 유물"]).contains("버리기 구역"), "korean discard active copy drops the duplicate discard-zone heading")
 	TextCatalogScript.set_locale("ko")
+
+func _fact_by_label(facts: Array, label: String) -> Dictionary:
+	for fact in facts:
+		if fact is Dictionary and str(fact.get("label", "")) == label:
+			return fact
+	return {}
+
+func _fact_labels(facts: Array) -> Array:
+	var labels: Array = []
+	for fact in facts:
+		if fact is Dictionary:
+			labels.append(str(fact.get("label", "")))
+	return labels

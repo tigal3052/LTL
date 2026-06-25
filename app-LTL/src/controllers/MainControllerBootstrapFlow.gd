@@ -10,6 +10,7 @@ extends RefCounted
 const InventoryModelScript = preload("res://src/models/InventoryModel.gd")
 const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
 const ReleaseContentVocabScript = preload("res://src/vocabulary/ReleaseContentVocab.gd")
+const MainControllerRunFlowScript = preload("res://src/controllers/MainControllerRunFlow.gd")
 
 # ?ㅽ뻾: obtain the parent view, wire event handlers, and bootstrap initial run state after view readiness.
 static func ready(controller) -> void:
@@ -54,8 +55,6 @@ static func ready(controller) -> void:
 static func _connect_view_signals(controller) -> void:
 	controller.view.reset_pressed.connect(controller._on_reset_pressed)
 	controller.view.start_combat_pressed.connect(controller._on_start_pressed)
-	controller.view.hold_fire_pressed.connect(controller._on_hold_fire_pressed)
-	controller.view.repair_pressed.connect(controller._on_repair_pressed)
 	controller.view.claim_rewards_pressed.connect(controller._on_claim_rewards_pressed)
 	controller.view.confirm_proceed_pressed.connect(controller._on_confirm_proceed_pressed)
 	controller.view.confirm_cancel_pressed.connect(controller._on_confirm_cancel_pressed)
@@ -73,6 +72,10 @@ static func _connect_view_signals(controller) -> void:
 		controller.view.looting_start_pressed.connect(controller._on_looting_start_pressed)
 	if controller.view.has_signal("return_to_character_select_pressed"):
 		controller.view.return_to_character_select_pressed.connect(controller._on_return_to_character_select_pressed)
+	if controller.view.has_signal("retry_same_seed_pressed"):
+		controller.view.retry_same_seed_pressed.connect(func(): MainControllerRunFlowScript.on_retry_same_seed_pressed(controller))
+	if controller.view.has_signal("retry_new_seed_pressed"):
+		controller.view.retry_new_seed_pressed.connect(func(): MainControllerRunFlowScript.on_retry_new_seed_pressed(controller))
 	if controller.view.has_signal("narrative_continue_requested"):
 		controller.view.narrative_continue_requested.connect(controller._on_narrative_continue_requested)
 	if controller.view.has_signal("story_continue_requested"):

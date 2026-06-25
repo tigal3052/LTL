@@ -27,5 +27,7 @@ static func rotate_held_item(art: Artifact) -> void:
 
 # 실행: discard a held artifact entirely.
 static func discard_held_item(inv: InventoryModel, art: Artifact) -> void:
-	if art != null and inv.artifacts.has(art.id):
-		inv.remove_artifact(art.id)
+	if art != null:
+		var art_key := inv.artifact_key(art) if inv.has_method("artifact_key") else str(art.id)
+		if not art_key.is_empty():
+			inv.remove_artifact(art_key)

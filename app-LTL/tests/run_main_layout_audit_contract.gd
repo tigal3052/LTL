@@ -1,12 +1,8 @@
 extends SceneTree
-
 const VIEWPORT_SIZE := Vector2i(1440, 900)
-
 var failures: Array[String] = []
-
 func _init() -> void:
 	call_deferred("_run")
-
 func _run() -> void:
 	root.size = VIEWPORT_SIZE
 	var MainScene = load("res://src/Main.tscn")
@@ -27,22 +23,17 @@ func _run() -> void:
 	await _assert_reward_reveal_layout(MainScene)
 	await _assert_overlay_layouts(MainScene)
 	await _finish()
-
 func _assert(condition: bool, label: String) -> void:
 	if not condition:
 		failures.append(label)
-
 func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])
-
 func _assert_color_close(actual: Color, expected: Color, tolerance: float, label: String) -> void:
 	var delta := absf(actual.r - expected.r) + absf(actual.g - expected.g) + absf(actual.b - expected.b) + absf(actual.a - expected.a)
 	_assert(delta <= tolerance, "%s stays within color tolerance %.3f (actual=%s expected=%s delta=%.3f)" % [label, tolerance, str(actual), str(expected), delta])
-
 func _viewport_rect() -> Rect2:
 	return Rect2(Vector2.ZERO, Vector2(root.size))
-
 func _assert_control_inside_viewport(control: Control, label: String) -> void:
 	_assert(control != null, "%s exists for viewport containment" % label)
 	if control == null:
@@ -53,7 +44,6 @@ func _assert_control_inside_viewport(control: Control, label: String) -> void:
 	_assert(rect.position.y >= viewport.position.y - 0.5, "%s stays inside the viewport top edge (rect=%s viewport=%s)" % [label, str(rect), str(viewport)])
 	_assert(rect.end.x <= viewport.end.x + 0.5, "%s stays inside the viewport right edge (rect=%s viewport=%s)" % [label, str(rect), str(viewport)])
 	_assert(rect.end.y <= viewport.end.y + 0.5, "%s stays inside the viewport bottom edge (rect=%s viewport=%s)" % [label, str(rect), str(viewport)])
-
 func _assert_control_inside_parent(control: Control, parent: Control, label: String) -> void:
 	_assert(control != null, "%s exists for parent containment" % label)
 	_assert(parent != null, "%s has a parent container for containment" % label)
@@ -65,7 +55,6 @@ func _assert_control_inside_parent(control: Control, parent: Control, label: Str
 	_assert(rect.position.y >= parent_rect.position.y - 0.5, "%s stays inside the parent top edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
 	_assert(rect.end.x <= parent_rect.end.x + 0.5, "%s stays inside the parent right edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
 	_assert(rect.end.y <= parent_rect.end.y + 0.5, "%s stays inside the parent bottom edge (rect=%s parent=%s)" % [label, str(rect), str(parent_rect)])
-
 func _assert_page_shell_host(main_instance: Node, page: Control, expected_host_property: String, label: String, require_viewport_host := false) -> void:
 	_assert(page != null, "%s exists for host ownership audit" % label)
 	var expected_host = main_instance.get(expected_host_property) as Control
@@ -76,7 +65,6 @@ func _assert_page_shell_host(main_instance: Node, page: Control, expected_host_p
 	_assert_control_inside_parent(page, expected_host, "%s root" % label)
 	if require_viewport_host:
 		_assert_control_inside_viewport(expected_host, "%s host" % label)
-
 func _assert_visible_controls_inside_viewport(main_instance: Node, label: String) -> void:
 	var viewport := _viewport_rect()
 	var stack: Array[Node] = [main_instance]
@@ -89,7 +77,6 @@ func _assert_visible_controls_inside_viewport(main_instance: Node, label: String
 			continue
 		var rect := control.get_global_rect()
 		_assert(rect.position.x >= viewport.position.x - 0.5 and rect.position.y >= viewport.position.y - 0.5 and rect.end.x <= viewport.end.x + 0.5 and rect.end.y <= viewport.end.y + 0.5, "%s visible control stays inside viewport: %s rect=%s viewport=%s" % [label, str(control.get_path()), str(rect), str(viewport)])
-
 func _finish() -> void:
 	if failures.is_empty():
 		print("MAIN_LAYOUT_AUDIT_CONTRACT_OK")
@@ -100,7 +87,6 @@ func _finish() -> void:
 		push_error(failure)
 	await process_frame
 	quit(1)
-
 func _instantiate_main(MainScene: PackedScene) -> Node:
 	root.size = VIEWPORT_SIZE
 	var main_instance = MainScene.instantiate()
@@ -112,7 +98,6 @@ func _instantiate_main(MainScene: PackedScene) -> Node:
 	await process_frame
 	await process_frame
 	return main_instance
-
 func _boot_to_node_select(main_instance: Node, color := "red", leviathan_id := "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during layout-flow boot")
@@ -135,7 +120,6 @@ func _boot_to_node_select(main_instance: Node, color := "red", leviathan_id := "
 	await process_frame
 	await process_frame
 	return controller
-
 func _advance_story_if_present(main_instance: Node, return_page_id: String) -> void:
 	if str(main_instance.get("active_page_id")) != "story_scene":
 		return
@@ -154,11 +138,9 @@ func _advance_story_if_present(main_instance: Node, return_page_id: String) -> v
 	await process_frame
 	await process_frame
 	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s during layout audit" % return_page_id)
-
 func _node_select_page(main_instance: Node) -> Node:
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	return page_scenes.get("node_select", null)
-
 func _press_route_button(main_instance: Node, index: int, label: String) -> void:
 	var controller = main_instance.get_node_or_null("MainController")
 	var node_select_page = _node_select_page(main_instance)
@@ -180,7 +162,6 @@ func _press_route_button(main_instance: Node, index: int, label: String) -> void
 	_assert(node_select_page.has_method("press_start_marker"), "node select page exposes fixed-start marker automation for %s" % label)
 	if node_select_page.has_method("press_start_marker"):
 		node_select_page.call("press_start_marker")
-
 func _assert_character_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -211,7 +192,6 @@ func _assert_character_select_layout(MainScene: PackedScene) -> void:
 	_assert_control_inside_viewport(continue_button, "character select continue button")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_leviathan_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -261,7 +241,6 @@ func _assert_leviathan_select_layout(MainScene: PackedScene) -> void:
 		_assert(button_height >= 66.0 and button_height <= 74.0, "leviathan select CTA button resolves near the intended 70px baseline at the canonical viewport (height=%.2f)" % button_height)
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_defeat_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -312,7 +291,6 @@ func _assert_defeat_layout(MainScene: PackedScene) -> void:
 		_assert_eq(repair_overlay.visible, false, "defeat page keeps the legacy repair overlay hidden during full-page layout")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_combat_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -450,7 +428,6 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	_assert_visible_controls_inside_viewport(main_instance, "combat")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -497,7 +474,6 @@ func _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene: PackedScen
 	_assert(absf(float(action_bar.global_position.y) - base_action_bar_y) <= 0.5, "purple status overlay keeps the action bar floor position stable after the first purple-state update (before=%.2f after=%.2f)" % [base_action_bar_y, action_bar.global_position.y])
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -539,7 +515,6 @@ func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
 	_assert(not bool(controller.call("is_battle_pause_active")), "closing the codex during combat resumes battle-only overlay pause")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_stage_one_node_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -569,7 +544,6 @@ func _assert_stage_one_node_select_layout(MainScene: PackedScene) -> void:
 	_assert_visible_controls_inside_viewport(main_instance, "stage-one node-select")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_stage_two_node_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -622,7 +596,6 @@ func _assert_stage_two_node_select_layout(MainScene: PackedScene) -> void:
 	_assert_visible_controls_inside_viewport(main_instance, "stage-two node-select")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_boss_node_select_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -688,7 +661,6 @@ func _assert_boss_node_select_layout(MainScene: PackedScene) -> void:
 	_assert_visible_controls_inside_viewport(main_instance, "boss node-select")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_reward_tray_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -749,7 +721,6 @@ func _assert_reward_tray_layout(MainScene: PackedScene) -> void:
 	_assert_visible_controls_inside_viewport(main_instance, "reward tray")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_reward_reveal_layout(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -796,7 +767,6 @@ func _assert_reward_reveal_layout(MainScene: PackedScene) -> void:
 	_assert_visible_controls_inside_viewport(main_instance, "reward reveal")
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_overlay_layouts(MainScene: PackedScene) -> void:
 	var main_instance = await _instantiate_main(MainScene)
 	if main_instance == null:
@@ -837,7 +807,6 @@ func _assert_overlay_layouts(MainScene: PackedScene) -> void:
 		repair_overlay.visible = false
 	main_instance.queue_free()
 	await process_frame
-
 func _assert_overlay_claims_top_layer(overlay: Control, label: String) -> void:
 	_assert(overlay != null, "%s exists for top-layer audit" % label)
 	if overlay == null:
@@ -848,7 +817,6 @@ func _assert_overlay_claims_top_layer(overlay: Control, label: String) -> void:
 		return
 	_assert_eq(parent.get_child(parent.get_child_count() - 1), overlay, "%s moves to the last sibling so gameplay nodes cannot cover it" % label)
 	_assert(int(overlay.z_index) > 200, "%s claims a popup z-index above combat HUD and damage popups" % label)
-
 func _assert_header_actions_inside_window(main_instance: Node, label: String) -> void:
 	var header = main_instance.get_node_or_null("RootMargin/AppShell/Header") as Control
 	var header_actions = main_instance.get("header_actions") as HBoxContainer
@@ -867,7 +835,6 @@ func _assert_header_actions_inside_window(main_instance: Node, label: String) ->
 			continue
 		_assert(float(button.global_position.x) >= header.global_position.x - 0.5, "header button stays inside the left shell edge for %s: %s" % [label, button.name])
 		_assert(float(button.global_position.x + button.size.x) <= header_right + 0.5, "header button stays inside the right shell edge for %s: %s" % [label, button.name])
-
 func _assert_node_select_layout_inside_window(main_instance: Node, label: String, expect_color_picker: bool, expected_route_button_count: int, expect_future_preview: bool, expected_history_marker_count: int) -> void:
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	var node_select_page: Control = null

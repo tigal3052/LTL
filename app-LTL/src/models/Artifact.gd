@@ -24,6 +24,10 @@ var damage: float = 1.0
 var base_damage: float = 1.0
 var grade: String = "basic"
 var item_type: String = "drill"
+var catalog_id: String = ""
+var fusion_key: String = ""
+var instance_id: String = ""
+var visual_id: String = ""
 var beacon_cooldown_mod: int = 0
 var beacon_damage_mod: float = 0.0
 var effect_schema: Dictionary = {}
@@ -60,6 +64,10 @@ func _init(data: Dictionary) -> void:
 	damage = base_damage
 	grade = str(data.get("grade", "basic"))
 	item_type = str(data.get("item_type", data.get("itemType", "drill")))
+	catalog_id = str(data.get("catalogId", data.get("catalog_id", "")))
+	fusion_key = str(data.get("fusionKey", data.get("fusion_key", "")))
+	instance_id = str(data.get("instanceId", data.get("instance_id", "")))
+	visual_id = str(data.get("visualId", data.get("visual_id", "")))
 	beacon_cooldown_mod = int(data.get("beacon_cooldown_mod", data.get("beaconCooldownMod", 0)))
 	beacon_damage_mod = float(data.get("beacon_damage_mod", data.get("beaconDamageMod", 0.0)))
 	var schema = data.get("effect_schema", data.get("effectSchema", {}))
@@ -140,6 +148,11 @@ func to_dict() -> Dictionary:
 		"grade": grade,
 		"item_type": item_type,
 		"itemType": item_type,
+		"catalogId": catalog_id,
+		"fusionKey": fusion_key,
+		"instanceId": instance_id,
+		"visualId": visual_id,
+		"visual_id": visual_id,
 		"native_base_cooldown_ticks": native_base_cooldown_ticks,
 		"beacon_cooldown_mod": beacon_cooldown_mod,
 		"beacon_damage_mod": beacon_damage_mod,
@@ -157,7 +170,7 @@ static func get_basic_drills() -> Array:
 		"energyType": "red",
 		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(80),
 		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(80),
-		"damage": 1.5,
+		"damage": 1.9,
 		"grade": "Basic",
 		"item_type": "drill"
 	})
@@ -168,7 +181,7 @@ static func get_basic_drills() -> Array:
 		"energyType": "blue",
 		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(60),
 		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(60),
-		"damage": 1.2,
+		"damage": 1.55,
 		"grade": "Basic",
 		"item_type": "drill"
 	})
@@ -177,9 +190,9 @@ static func get_basic_drills() -> Array:
 		"name": "Amethyst Drill",
 		"shape": [[1, 1], [1, 0]],
 		"energyType": "purple",
-		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(100),
-		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(100),
-		"damage": 1.0,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(110),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(110),
+		"damage": 0.85,
 		"grade": "Basic",
 		"item_type": "drill"
 	})
@@ -188,9 +201,9 @@ static func get_basic_drills() -> Array:
 		"name": "Emerald Drill",
 		"shape": [[1, 1], [1, 1]],
 		"energyType": "green",
-		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(120),
-		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(120),
-		"damage": 0.8,
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(70),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(70),
+		"damage": 1.35,
 		"grade": "Basic",
 		"item_type": "drill"
 	})
@@ -208,18 +221,19 @@ static func get_starter_loadout(start_color: String = "red") -> Array:
 		base_drill = get_basic_drills()[0]
 	var drill = _starter_drill_from(base_drill)
 	var beacon_text := _starter_text_block(color, "beacon")
+	var beacon_profile := _starter_beacon_profile(color)
 	var beacon = Artifact.new({
 		"id": "starter_%s_beacon" % color,
 		"name": "%s Starter Beacon" % color.capitalize(),
 		"shape": [[1]],
 		"energyType": color,
-		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(90),
-		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(90),
+		"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(int(beacon_profile.get("cooldown", 90))),
+		"nativeBaseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(int(beacon_profile.get("cooldown", 90))),
 		"damage": 0.0,
 		"grade": "Basic",
 		"item_type": "beacon",
-		"beaconCooldownMod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(-4),
-		"beaconDamageMod": 0.4,
+		"beaconCooldownMod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(int(beacon_profile.get("cooldownMod", -4))),
+		"beaconDamageMod": float(beacon_profile.get("damageMod", 0.3)),
 		"text": beacon_text,
 		"keyword": _starter_keyword(beacon_text)
 	})
@@ -244,6 +258,18 @@ static func _starter_drill_from(base_drill: Artifact) -> Artifact:
 		"text": drill_text,
 		"keyword": _starter_keyword(drill_text)
 	})
+
+static func _starter_beacon_profile(color: String) -> Dictionary:
+	match _normalized_start_color(color):
+		"red":
+			return {"cooldown": 82, "cooldownMod": -5, "damageMod": 0.35}
+		"blue":
+			return {"cooldown": 78, "cooldownMod": -5, "damageMod": 0.45}
+		"purple":
+			return {"cooldown": 104, "cooldownMod": -2, "damageMod": 0.18}
+		"green":
+			return {"cooldown": 82, "cooldownMod": -5, "damageMod": 0.35}
+	return {"cooldown": 82, "cooldownMod": -5, "damageMod": 0.35}
 
 static func _normalized_start_color(start_color: String) -> String:
 	var color := start_color.to_lower()

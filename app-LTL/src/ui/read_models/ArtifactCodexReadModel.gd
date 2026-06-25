@@ -65,8 +65,8 @@ static func _project_entry(reward: Dictionary, discovered_lookup: Dictionary, de
 	var shape_matrix := _normalized_shape(payload.get("shape", [[1]]))
 	var shape_bounds := _shape_bounds(shape_matrix)
 	var occupied_cell_count := _shape_cell_count(shape_matrix)
-	var is_discovered := discovered_lookup.has(reward_id)
-	var is_revealed := debug_all or is_discovered
+	var is_discovered := debug_all or discovered_lookup.has(reward_id)
+	var is_revealed := is_discovered
 	var rarity := str(reward.get("rarity", "common")).to_lower()
 	var display_name := TextCatalogScript.reward_name(reward, locale) if is_revealed else TextCatalogScript.t("codex.undiscovered", [], locale)
 	var description := TextCatalogScript.reward_description(reward, locale)

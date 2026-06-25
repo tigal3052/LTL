@@ -8,6 +8,9 @@
 class_name ArtifactTooltipUI
 extends PanelContainer
 
+const DEFAULT_PANEL_ALPHA := 0.95
+const OPAQUE_PANEL_ALPHA := 1.0
+
 var label: RichTextLabel
 
 # 실행: construct the tooltip panel and label.
@@ -15,13 +18,24 @@ func _ready() -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_as_top_level(true)
+	_apply_panel_style(DEFAULT_PANEL_ALPHA)
+	label = RichTextLabel.new()
+	label.fit_content = true
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(240, 0)
+	label.bbcode_enabled = true
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(label)
+
+func _apply_panel_style(panel_alpha: float) -> void:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.10, 0.12, 0.95)
+	var alpha := clampf(panel_alpha, 0.0, 1.0)
+	style.bg_color = Color(0.08, 0.10, 0.12, alpha)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
 	style.border_width_bottom = 2
-	style.border_color = Color(0.24, 0.35, 0.50, 0.9)
+	style.border_color = Color(0.24, 0.35, 0.50, OPAQUE_PANEL_ALPHA if alpha >= OPAQUE_PANEL_ALPHA else 0.9)
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
@@ -31,18 +45,12 @@ func _ready() -> void:
 	style.content_margin_right = 12
 	style.content_margin_bottom = 10
 	add_theme_stylebox_override("panel", style)
-	label = RichTextLabel.new()
-	label.fit_content = true
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(240, 0)
-	label.bbcode_enabled = true
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(label)
 
 # 실행: show the provided bbcode text.
-func show_text(bbcode_text: String) -> void:
+func show_text(bbcode_text: String, options: Dictionary = {}) -> void:
 	if label == null:
 		return
+	_apply_panel_style(float(options.get("panelAlpha", DEFAULT_PANEL_ALPHA)))
 	label.text = bbcode_text
 	visible = true
 

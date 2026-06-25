@@ -121,7 +121,7 @@ size_flags_vertical = 3
 theme_override_constants/separation = 14
 
 [node name="HeroFrame" type="PanelContainer" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody"]
-custom_minimum_size = Vector2(0, 460)
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -134,7 +134,7 @@ theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
 [node name="HeroStage" type="Control" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/HeroFrame/HeroStageMargin"]
-custom_minimum_size = Vector2(0, 428)
+custom_minimum_size = Vector2(0, 368)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -198,6 +198,12 @@ horizontal_alignment = 1
 text = ""
 
 [node name="RetryButton" type="Button" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody"]
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+text = ""
+
+[node name="NewSeedRetryButton" type="Button" parent="Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody"]
 custom_minimum_size = Vector2(320, 64)
 layout_mode = 2
 size_flags_horizontal = 4

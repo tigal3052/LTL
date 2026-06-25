@@ -19,11 +19,8 @@ static func top_content_backpack_height(view) -> float:
 	if view.top_content == null:
 		return BackpackPinLayoutPolicyScript.MIN_TOP_CONTENT_GRID_EXTENT
 	var min_row_height: float = maxf(float(view.top_content.get_combined_minimum_size().y), BackpackPinLayoutPolicyScript.MIN_TOP_CONTENT_GRID_EXTENT)
-	var resolved_height: float = BackpackPinLayoutPolicyScript.resolved_top_content_height(view.top_content.size.y, min_row_height)
 	var safe_height: float = max_safe_top_content_height(view)
-	if safe_height > 0.0:
-		resolved_height = safe_height
-	return resolved_height
+	return BackpackPinLayoutPolicyScript.bounded_top_content_height(view.top_content.size.y, min_row_height, safe_height)
 
 static func top_content_backpack_width(view) -> float:
 	return BackpackPinLayoutPolicyScript.top_content_width_for_height(top_content_backpack_height(view))

@@ -199,22 +199,11 @@ func _select_first_placeable_reward_drag(controller: Node) -> Dictionary:
 func _first_valid_reward_drop_coord(inventory, artifact) -> Vector2:
 	if inventory == null or artifact == null:
 		return Vector2(-1, -1)
-	if _duplicate_drill_blocked(inventory, artifact):
-		return Vector2(-1, -1)
 	for row in range(8):
 		for column in range(8):
 			if inventory.can_place_artifact(artifact, column, row):
 				return Vector2(column, row)
 	return Vector2(-1, -1)
-
-func _duplicate_drill_blocked(inventory, artifact) -> bool:
-	if inventory == null or artifact == null or str(artifact.item_type) != "drill":
-		return false
-	for art_id in inventory.artifacts:
-		var other = inventory.artifacts[art_id]
-		if other != null and str(other.item_type) == "drill" and str(other.energy_type) == str(artifact.energy_type) and str(other.id) != str(artifact.id):
-			return true
-	return false
 
 func _expect_active(main_instance: Node, expected: String, label: String) -> bool:
 	var active := str(main_instance.get("active_page_id"))

@@ -8,10 +8,12 @@
 class_name ArtifactCodexArtResolver
 extends RefCounted
 
+const ItemArtResolverScript = preload("res://src/ui/ItemArtResolver.gd")
 const HERO_ROOT := "res://resources/UI/codex/heroes"
 const THUMB_ROOT := "res://resources/UI/codex/thumbs"
 const GENERIC_ROOT := "res://resources/UI/codex"
-const DRILL_ITEM_ROOT := "res://resources/items/drill"
+const DRILL_ITEM_ROOT := ItemArtResolverScript.DRILL_ITEM_ROOT
+const BEACON_ITEM_ROOT := ItemArtResolverScript.BEACON_ITEM_ROOT
 const FALLBACK_TILE := "res://resources/UI/tile/tile_panel_nobg.png"
 
 # 실행: resolve a render descriptor for a reward art slot.
@@ -23,12 +25,14 @@ static func descriptor_for_reward(reward: Dictionary, slot: String, discovered: 
 	var energy_type := str(payload.get("energy_type", "")).to_lower()
 	var rarity := str(reward.get("rarity", payload.get("rarity", ""))).to_lower()
 	var requested_path := _requested_path_for(slot, icon_key)
-	var fallback_chain := _fallback_chain_for(slot, icon_key, item_type, energy_type, rarity)
+	var item_paths := _item_image_paths_for(icon_key, item_type, energy_type, rarity)
+	var fallback_chain := _fallback_chain_for(slot, icon_key, item_type, energy_type, item_paths)
 	var resolved_path := _first_existing_path(fallback_chain)
 	return {
 		"path": resolved_path,
 		"requestedPath": requested_path,
 		"fallbackChain": fallback_chain,
+		"source": _source_for_resolved_path(resolved_path, requested_path, item_paths),
 		"placeholderId": _placeholder_id_for(slot, discovered, item_type, energy_type),
 		"state": "discovered" if discovered else "locked",
 		"iconKey": icon_key,
@@ -45,30 +49,34 @@ static func _requested_path_for(slot: String, icon_key: String) -> String:
 	return "%s/%s.png" % [root, icon_key]
 
 # 실행: provide a deterministic fallback chain while final art is absent.
-static func _fallback_chain_for(slot: String, icon_key: String, item_type: String, energy_type: String, rarity: String = "") -> Array:
+static func _fallback_chain_for(slot: String, icon_key: String, item_type: String, energy_type: String, item_paths: Array = []) -> Array:
 	var chain: Array = []
 	var requested := _requested_path_for(slot, icon_key)
 	if not requested.is_empty():
-		chain.append(requested)
+		_append_unique(chain, requested)
 	if not icon_key.is_empty():
-		chain.append("%s/%s.png" % [GENERIC_ROOT, icon_key])
-	var drill_path := _drill_item_path(energy_type, rarity) if item_type == "drill" else ""
-	if not drill_path.is_empty():
-		chain.append(drill_path)
+		_append_unique(chain, "%s/%s.png" % [GENERIC_ROOT, icon_key])
+	for item_path in item_paths:
+		_append_unique(chain, str(item_path))
 	if not energy_type.is_empty():
-		chain.append("%s/%s_%s.png" % [GENERIC_ROOT, item_type, energy_type])
-	chain.append("%s/%s.png" % [GENERIC_ROOT, item_type])
-	chain.append(FALLBACK_TILE)
+		_append_unique(chain, "%s/%s_%s.png" % [GENERIC_ROOT, item_type, energy_type])
+	_append_unique(chain, "%s/%s.png" % [GENERIC_ROOT, item_type])
+	_append_unique(chain, FALLBACK_TILE)
 	return chain
 
-static func _drill_item_path(energy_type: String, rarity: String) -> String:
-	var color := energy_type.to_lower().strip_edges()
-	var grade := rarity.to_lower().strip_edges()
-	if grade == "basic":
-		grade = "common"
-	if color.is_empty() or not grade in ["common", "rare"]:
-		return ""
-	return "%s/%s_drill_%s.png" % [DRILL_ITEM_ROOT, color, grade]
+static func _item_image_paths_for(icon_key: String, item_type: String, energy_type: String, rarity: String) -> Array:
+	return ItemArtResolverScript.item_texture_candidates(item_type, icon_key, energy_type, rarity)
+
+static func _source_for_resolved_path(resolved_path: String, requested_path: String, item_paths: Array) -> String:
+	if resolved_path.is_empty():
+		return "missing"
+	if not requested_path.is_empty() and resolved_path == requested_path:
+		return "codex"
+	if item_paths.has(resolved_path):
+		return "item"
+	if resolved_path == FALLBACK_TILE:
+		return "fallback"
+	return "generic"
 
 # 실행: choose the first loadable path in the fallback chain.
 static func _first_existing_path(paths: Array) -> String:
@@ -83,6 +91,11 @@ static func _first_existing_path(paths: Array) -> String:
 	return ""
 
 # 실행: build a stable placeholder identifier for view-side placeholder rendering.
+static func _append_unique(paths: Array, path: String) -> void:
+	if path.is_empty() or paths.has(path):
+		return
+	paths.append(path)
+
 static func _placeholder_id_for(slot: String, discovered: bool, item_type: String, energy_type: String) -> String:
 	var state := "known" if discovered else "locked"
 	return "%s_%s_%s_%s" % [slot, state, item_type, energy_type if not energy_type.is_empty() else "neutral"]

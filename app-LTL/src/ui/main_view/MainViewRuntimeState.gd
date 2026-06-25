@@ -10,8 +10,6 @@ const REWARD_REVEAL_OVERLAY_Z_INDEX := 600
 
 signal reset_pressed
 signal start_combat_pressed
-signal hold_fire_pressed
-signal repair_pressed
 signal claim_rewards_pressed
 signal settings_open_pressed
 signal confirm_proceed_pressed
@@ -45,6 +43,8 @@ signal character_continue_pressed
 signal leviathan_selected(leviathan_id: String)
 signal looting_start_pressed
 signal return_to_character_select_pressed
+signal retry_same_seed_pressed
+signal retry_new_seed_pressed
 signal story_continue_requested(scene_id: String)
 signal story_skip_requested(scene_id: String)
 signal shop_open_pressed
@@ -110,8 +110,6 @@ var reward_footprint_info: Label
 var reward_footprint_grid: GridContainer
 var reset_button: Button
 var start_button: Button
-var hold_fire_button: Button
-var repair_button: Button
 var claim_rewards_button: Button
 var action_bar: HBoxContainer
 var backpack_ui
@@ -121,10 +119,16 @@ var log_console
 var discard_zone: PanelContainer
 var confirm_zone: PanelContainer
 var discard_card: PanelContainer
-var claim_card: PanelContainer
+var claim_card: Control
 var discard_label: Label
 var claim_card_body: Label
 var claim_inline_button: Button
+var info_toast_panel: Panel = null
+var info_toast_label: Label = null
+var info_toast_hint_label: Label = null
+var info_toast_timer: Timer = null
+var confirm_overlay_mode := "unclaimed"
+var confirm_overlay_subject := ""
 var shop_open_button: Button
 var shop_panel: PanelContainer
 var codex_open_button: Button
@@ -140,6 +144,13 @@ var vignette_overlay: Panel
 var pulse_time: float = 0.0
 var heartbeat_player: AudioStreamPlayer
 var _heartbeat_volume: float = 75.0
+var _interaction_sfx_volume: float = 75.0
+var interaction_sfx_players: Array[AudioStreamPlayer] = []
+var interaction_sfx_streams: Dictionary = {}
+var _interaction_sfx_next_player := 0
+var _interaction_sfx_last_msec: Dictionary = {}
+var _last_sfx_page_id := ""
+var interaction_sfx_events: Array = []
 var heartbeat_timer: float = 1.0
 var giant_timer_ui
 var reward_reveal_overlay

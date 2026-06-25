@@ -5,7 +5,7 @@ approval: approved
 profile: release-blocking
 purpose: Block removed-asset references, singleton node-map ownership drift, and other release-risk regressions while runtime-size caps are enforced by runtime-size-gate.md.
 
-orchestrator_path: app-LTL/src/MainControllerRuntime.gd
+orchestrator_path: app-LTL/src/MainController.gd
 orchestrator_threshold: 760
 orchestrator_forbidden_patterns: tile_panel_nobg2, res://resources/UI/miner.png
 

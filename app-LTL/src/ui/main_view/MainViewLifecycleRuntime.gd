@@ -122,6 +122,8 @@ static func _connect_static_signals(view) -> void:
 	view.settings_panel.visibility_changed.connect(func():
 		view._promote_popup_overlay_when_visible(view.settings_panel)
 		view._emit_combat_overlay_pause_visibility_changed()
+		if view.has_method("play_interaction_sfx"):
+			view.play_interaction_sfx("settings_open" if view.settings_panel.visible else "settings_close")
 	)
 	view.confirm_overlay.visibility_changed.connect(func(): view._promote_popup_overlay_when_visible(view.confirm_overlay))
 	view.repair_overlay.visibility_changed.connect(func(): view._promote_popup_overlay_when_visible(view.repair_overlay))
@@ -148,21 +150,32 @@ static func _commit_pointer_release(view) -> void:
 
 static func _finish_reward_drag(view, mouse_pos: Vector2, drop_coord: Vector2) -> void:
 	if drop_coord.x >= 0.0 and drop_coord.y >= 0.0:
+		_play_interaction_sfx(view, "drag_drop")
 		view.reward_meta_drop_requested.emit(view._reward_drag_index, drop_coord)
 	elif view.discard_zone != null and view.discard_zone.get_global_rect().has_point(view.get_global_mouse_position()):
+		_play_interaction_sfx(view, "ui_cancel")
 		view.reward_meta_discard_requested.emit(view._reward_drag_index)
 	elif view.reward_card_grid != null and view.reward_card_grid.get_global_rect().has_point(mouse_pos):
 		view._commit_reward_card_manual_anchor(view._reward_drag_index)
+		_play_interaction_sfx(view, "drag_drop")
 		view.reward_meta_drag_canceled.emit(view._reward_drag_index)
 	else:
+		_play_interaction_sfx(view, "drag_cancel")
 		view.reward_meta_drag_canceled.emit(view._reward_drag_index)
 	view._end_reward_drag_tracking()
 
 static func _finish_backpack_drag(view, drop_coord: Vector2) -> void:
 	if drop_coord.x >= 0.0 and drop_coord.y >= 0.0:
+		_play_interaction_sfx(view, "drag_drop")
 		view.backpack_slot_drop_requested.emit(view._backpack_drag_origin, drop_coord)
 	elif view.discard_zone != null and view.discard_zone.get_global_rect().has_point(view.get_global_mouse_position()):
+		_play_interaction_sfx(view, "ui_cancel")
 		view.backpack_slot_discard_requested.emit(view._backpack_drag_origin)
 	else:
+		_play_interaction_sfx(view, "drag_cancel")
 		view.backpack_slot_drag_canceled.emit(view._backpack_drag_origin)
 	view._end_backpack_drag_tracking()
+
+static func _play_interaction_sfx(view, category: String) -> void:
+	if view != null and view.has_method("play_interaction_sfx"):
+		view.play_interaction_sfx(category)

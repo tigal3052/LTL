@@ -11,6 +11,7 @@ extends RefCounted
 const ArtifactClass = preload("res://src/models/Artifact.gd")
 const GridFactory = preload("res://src/ui/presenters/BackpackGridFactory.gd")
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
+const BackpackInfluenceHighlighterScript = preload("res://src/ui/backpack/BackpackInfluenceHighlighter.gd")
 const VISUAL_COOLDOWN_TICKS_PER_SECOND := 20.0
 const SLOT_HOVER_FX_ENABLED := false
 const SLOT_GRID_SEPARATION := 2
@@ -34,6 +35,7 @@ static func render_items(owner, inventory) -> void:
 				if int(art.shape[row][column]) == 1:
 					apply_artifact_overlay(owner, int(art.x) + column, int(art.y) + row, art, art.shape, row, column)
 		apply_artifact_image_overlay(owner, art)
+	BackpackInfluenceHighlighterScript.refresh(owner, inventory)
 	owner.artifact_image_layout_signature = artifact_image_layout_signature(owner)
 	owner.artifact_image_layout_signature_initialized = true
 
@@ -85,6 +87,7 @@ static func ghost_cell(energy_type: String, filled: bool, shape: Array, row: int
 	return box
 
 static func clear_overlays(owner) -> void:
+	BackpackInfluenceHighlighterScript.clear(owner)
 	for row in range(8):
 		for column in range(8):
 			var overlay := slot_overlay(owner, column, row)
@@ -102,7 +105,7 @@ static func clear_overlays(owner) -> void:
 static func apply_artifact_overlay(owner, column: int, row: int, art: ArtifactClass, shape: Array, shape_row: int, shape_column: int) -> void:
 	var overlay := slot_overlay(owner, column, row)
 	if overlay:
-		var image_backed := drill_texture_for_artifact(owner, art) != null
+		var image_backed := item_texture_for_artifact(owner, art) != null
 		if image_backed:
 			overlay.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		else:
@@ -127,18 +130,25 @@ static func apply_artifact_overlay(owner, column: int, row: int, art: ArtifactCl
 		charge.add_theme_stylebox_override("panel", GridFactory.cooldown_mask_style(0.46, GridFactory.artifact_edge_mask(shape, shape_row, shape_column)))
 		apply_cooldown_mask(charge, display_ticks / float(effective_cooldown))
 
+static func item_texture_for_artifact(owner, art: ArtifactClass) -> Texture2D:
+	if art == null:
+		return null
+	var item_type := str(art.item_type).to_lower().strip_edges()
+	var texture_paths: Array = GridFactory.item_texture_candidates(item_type, str(art.visual_id), str(art.energy_type), str(art.grade))
+	for texture_path in texture_paths:
+		var cache_key := "%s|%s|%s" % [item_type, texture_path, _shape_cache_key(art.shape)]
+		if owner.drill_texture_cache.has(cache_key):
+			return owner.drill_texture_cache[cache_key]
+		var texture := drill_display_texture(LTLThemeScript.art_texture(texture_path), art.shape)
+		if texture != null:
+			owner.drill_texture_cache[cache_key] = texture
+			return texture
+	return null
+
 static func drill_texture_for_artifact(owner, art: ArtifactClass) -> Texture2D:
 	if art == null or str(art.item_type).to_lower() != "drill":
 		return null
-	var texture_path := GridFactory.drill_texture_path(str(art.energy_type), str(art.grade))
-	if texture_path.is_empty():
-		return null
-	var cache_key := "%s|%s" % [texture_path, _shape_cache_key(art.shape)]
-	if owner.drill_texture_cache.has(cache_key):
-		return owner.drill_texture_cache[cache_key]
-	var texture := drill_display_texture(LTLThemeScript.art_texture(texture_path), art.shape)
-	owner.drill_texture_cache[cache_key] = texture
-	return texture
+	return item_texture_for_artifact(owner, art)
 
 static func drill_display_texture(texture: Texture2D, shape: Array = []) -> Texture2D:
 	if texture == null:
@@ -227,17 +237,21 @@ static func clear_artifact_images(owner) -> void:
 		child.queue_free()
 
 static func apply_artifact_image_overlay(owner, art: ArtifactClass) -> void:
-	var texture := drill_texture_for_artifact(owner, art)
+	var texture := item_texture_for_artifact(owner, art)
 	if texture == null or owner.artifact_image_layer == null:
 		return
 	var rect := artifact_footprint_rect_in_layer(owner, art)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
 	var image := TextureRect.new()
-	image.name = "DrillImage_%s" % str(art.id)
+	image.name = artifact_image_node_name(art)
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	apply_item_image_placement(image, texture, rect)
 	owner.artifact_image_layer.add_child(image)
+
+static func artifact_image_node_name(art: ArtifactClass) -> String:
+	var prefix := "DrillImage" if art != null and str(art.item_type).to_lower() == "drill" else "ItemImage"
+	return "%s_%s" % [prefix, str(art.id) if art != null else "unknown"]
 
 static func apply_item_image_placement(image: TextureRect, texture: Texture2D, footprint_rect: Rect2, use_global_position: bool = false) -> void:
 	if image == null:
@@ -366,6 +380,18 @@ static func slot_drop_cue(owner, column: int, row: int) -> Panel:
 	if slot == null:
 		return null
 	return slot.get_node_or_null("DropCueOverlay") as Panel
+
+static func slot_influence_overlay(owner, column: int, row: int) -> Panel:
+	return BackpackInfluenceHighlighterScript.slot_influence_overlay(owner, column, row)
+
+static func refresh_influence_overlays(owner, inventory) -> void:
+	BackpackInfluenceHighlighterScript.refresh(owner, inventory)
+
+static func apply_ghost_influence_overlays(owner, artifact, column: int, row: int, inventory = null) -> void:
+	BackpackInfluenceHighlighterScript.refresh(owner, inventory, artifact, column, row)
+
+static func influence_feedback_cells_for(artifact, column: int, row: int, width: int = 8, height: int = 8) -> Array:
+	return BackpackInfluenceHighlighterScript.influence_cells_for(artifact, column, row, width, height)
 
 static func update_charge_animation(owner, delta: float) -> void:
 	for row in range(8):

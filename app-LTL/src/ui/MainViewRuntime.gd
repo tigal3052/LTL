@@ -116,6 +116,12 @@ func update_action_state(scene: Dictionary, show_victory_overlay: bool) -> void:
 	MainViewSceneRuntimeScript.update_action_state(self, scene, show_victory_overlay)
 func set_confirm_overlay_visible(val: bool) -> void:
 	MainViewFeedbackRuntimeScript.set_confirm_overlay_visible(self, val)
+func show_unclaimed_reward_confirmation() -> void:
+	MainViewFeedbackRuntimeScript.show_unclaimed_reward_confirmation(self)
+func show_discard_confirmation(artifact_name: String) -> void:
+	MainViewFeedbackRuntimeScript.show_discard_confirmation(self, artifact_name)
+func show_info_toast(message: String, duration_seconds: float = 5.0) -> void:
+	MainViewFeedbackRuntimeScript.show_info_toast(self, message, duration_seconds)
 func add_log(message: String) -> void:
 	MainViewFeedbackRuntimeScript.add_log(self, message)
 func update_discard_zone(label_text: String, is_active: bool) -> void:
@@ -134,6 +140,8 @@ func trigger_hit_particles(hit_pos: Vector2, status: String, color: String) -> v
 	MainViewFeedbackRuntimeScript.trigger_hit_particles(self, hit_pos, status, color)
 func trigger_damage_popups(events: Array) -> void:
 	MainViewFeedbackRuntimeScript.trigger_damage_popups(self, events)
+func trigger_obstacle_feedback(events: Array) -> void:
+	MainViewFeedbackRuntimeScript.trigger_obstacle_feedback(self, events)
 func trigger_screenshake(duration: float, magnitude: float) -> void:
 	MainViewFeedbackRuntimeScript.trigger_screenshake(self, duration, magnitude)
 func render_reward_tray(model: Dictionary) -> void:
@@ -303,6 +311,12 @@ func _process(delta: float) -> void:
 	MainViewChromeRuntimeScript.process(self, delta)
 func set_volume(val: float) -> void:
 	MainViewChromeRuntimeScript.set_volume(self, val)
+func _create_interaction_sfx_players() -> void:
+	MainViewChromeRuntimeScript.ensure_interaction_sfx_players(self)
+func play_interaction_sfx(category: String) -> void:
+	MainViewChromeRuntimeScript.play_interaction_sfx(self, category)
+func page_transition_sfx_category(page_id: String) -> String:
+	return MainViewChromeRuntimeScript.page_transition_sfx_category(self, page_id)
 func _create_tooltip_panel() -> void:
 	MainViewChromeRuntimeScript.create_tooltip_panel(self)
 func _create_narrative_toast() -> void:
@@ -313,6 +327,8 @@ func show_artifact_tooltip(art) -> void:
 	MainViewChromeRuntimeScript.show_artifact_tooltip(self, art)
 func show_reward_tooltip(reward: Dictionary, equipped_artifacts: Array) -> void:
 	MainViewChromeRuntimeScript.show_reward_tooltip(self, reward, equipped_artifacts)
+func show_fusion_tooltip(existing_artifact, incoming_artifact) -> void:
+	MainViewChromeRuntimeScript.show_fusion_tooltip(self, existing_artifact, incoming_artifact)
 func hide_artifact_tooltip() -> void:
 	MainViewChromeRuntimeScript.hide_artifact_tooltip(self)
 func _emit_start_combat_pressed() -> void:
@@ -327,3 +343,5 @@ func _flush_pending_backpack_pin_scene() -> void:
 	MainViewBackpackRuntimeScript.flush_pending_backpack_pin_scene(self)
 func _queue_backpack_artifact_image_refresh() -> void:
 	MainViewBackpackRuntimeScript.queue_artifact_image_refresh(self)
+func play_backpack_fusion_effect(artifact) -> void:
+	MainViewBackpackRuntimeScript.play_fusion_effect(self, artifact)

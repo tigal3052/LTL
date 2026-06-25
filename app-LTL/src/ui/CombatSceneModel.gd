@@ -90,6 +90,7 @@ func _create_hud(combat: Dictionary) -> Dictionary:
 		"terrainDebuffs": global_debuffs,
 		"terrainBuffs": global_buffs,
 		"purplePressure": _create_purple_pressure(global_debuffs, global_buffs),
+		"obstacleFeedbackEvents": _clone_array(battlefield.get("obstacleFeedbackEvents", [])),
 		"disabled": combat.get("disabled", false)
 	}
 

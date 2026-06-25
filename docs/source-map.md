@@ -4,20 +4,31 @@ This file is the live implementation map for AI agents. It records each current 
 
 ## Gate Scope
 
-- Generated/verified by `LTL-harness/tools/source-map-gate.ps1`.
-- Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, or when an entry has an empty/TODO-style responsibility.
-- Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/codex-worklog`, and `docs/comment-gates/backups`.
+- Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
+- Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
+- Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
+- Source fingerprint: 55063e6e83873d3eee1b5cb2bf9bc7930aa92d2288611c3da16c5109908cfff8
 
 ## File Map
 
+- `.agent-harness.json`
+  - Configures the project-specific bridge to the generic agent-harness, including worklog paths, token policy, validation commands, and manual checks.
 - `.cursor/hooks.json`
   - hooks is a project component with a tracked responsibility.
 - `.cursorrules`
   - .cursorrules is a project component with a tracked responsibility.
 - `.gitignore`
   - .gitignore is a project component with a tracked responsibility.
+- `.hermes/plans/2026-06-25_180357-ltl-holistic-design-specialization-plan.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-25_183126-ltl-page-by-page-design-specialization-v2.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-25_203828-ltl-page-by-page-design-specialization-v2-1-subagent-reviewed.ko.md`
+  - This document explains project design or implementation criteria.
 - `.vscode/settings.json`
   - settings is a project component with a tracked responsibility.
+- `AGENTS.md`
+  - Defines shared Hermes/Codex agent rules for summary-first context loading, harness usage, validation, and worklog closeout.
 - `app-LTL/project.godot`
   - project is the Godot project configuration file.
 - `app-LTL/prototype/.gdignore`
@@ -184,50 +195,6 @@ This file is the live implementation map for AI agents. It records each current 
   - replay runner preserves prototype validation output.
 - `app-LTL/README.md`
   - README explains project design or implementation criteria.
-- `app-LTL/resources/UI/backpack_1.png`
-  - backpack 1 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_1.png.import`
-  - backpack 1.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_2.png`
-  - backpack 2 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_2.png.import`
-  - backpack 2.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_3.png`
-  - backpack 3 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_3.png.import`
-  - backpack 3.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_4.png`
-  - backpack 4 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_4.png.import`
-  - backpack 4.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_5.png`
-  - backpack 5 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_5.png.import`
-  - backpack 5.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_6.png`
-  - backpack 6 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_6.png.import`
-  - backpack 6.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_7.png`
-  - backpack 7 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_7.png.import`
-  - backpack 7.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_8.png`
-  - backpack 8 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_8.png.import`
-  - backpack 8.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_9.png`
-  - backpack 9 is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/backpack_9.png.import`
-  - backpack 9.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/Log_Panel.png`
-  - Log Panel is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/Log_Panel.png.import`
-  - Log Panel.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/ItemBook.png`
-  - ItemBook is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/ItemBook.png.import`
-  - ItemBook.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/charactor/background.png`
   - Combat backdrop art for the battle-stage leviathan surface shell.
 - `app-LTL/resources/charactor/background.png.import`
@@ -236,10 +203,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Character support illustration used for warning and inventory-adjacent presentation.
 - `app-LTL/resources/charactor/charactor_backpack.png.import`
   - Godot import metadata for the backpack character illustration.
-- `app-LTL/resources/charactor/npc1.png`
-  - NPC portrait art used by the release page and narrative presentation surfaces.
-- `app-LTL/resources/charactor/npc1.png.import`
-  - Godot import metadata for the NPC portrait art resource.
 - `app-LTL/resources/charactor/charactor1.png`
   - Primary release character portrait art used across the explorer status panel.
 - `app-LTL/resources/charactor/charactor1.png.import`
@@ -248,6 +211,142 @@ This file is the live implementation map for AI agents. It records each current 
   - Character sprite sheet used for idle animation loops in combat and node-map presentation.
 - `app-LTL/resources/charactor/charactor1_ss.png.import`
   - Godot import metadata for the character sprite sheet.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_01.png`
+  - Alternate primary-character defeat frame 01 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_01.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 01.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_02.png`
+  - Alternate primary-character defeat frame 02 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_02.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 02.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_03.png`
+  - Alternate primary-character defeat frame 03 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_03.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 03.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_04.png`
+  - Alternate primary-character defeat frame 04 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_04.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 04.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_05.png`
+  - Alternate primary-character defeat frame 05 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_05.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 05.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_06.png`
+  - Alternate primary-character defeat frame 06 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_06.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 06.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_07.png`
+  - Alternate primary-character defeat frame 07 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_07.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 07.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_08.png`
+  - Alternate primary-character defeat frame 08 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_08.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 08.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_09.png`
+  - Alternate primary-character defeat frame 09 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_09.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 09.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_10.png`
+  - Alternate primary-character defeat frame 10 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_10.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 10.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_11.png`
+  - Alternate primary-character defeat frame 11 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_11.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 11.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_12.png`
+  - Alternate primary-character defeat frame 12 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_12.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 12.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_13.png`
+  - Alternate primary-character defeat frame 13 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_13.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 13.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_14.png`
+  - Alternate primary-character defeat frame 14 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_14.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 14.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_15.png`
+  - Alternate primary-character defeat frame 15 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_15.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 15.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_16.png`
+  - Alternate primary-character defeat frame 16 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_16.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 16.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_17.png`
+  - Alternate primary-character defeat frame 17 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_17.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 17.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_18.png`
+  - Alternate primary-character defeat frame 18 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_18.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 18.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_19.png`
+  - Alternate primary-character defeat frame 19 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_19.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 19.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_20.png`
+  - Alternate primary-character defeat frame 20 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_20.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 20.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_21.png`
+  - Alternate primary-character defeat frame 21 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_21.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 21.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_22.png`
+  - Alternate primary-character defeat frame 22 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_22.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 22.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_23.png`
+  - Alternate primary-character defeat frame 23 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_23.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 23.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_24.png`
+  - Alternate primary-character defeat frame 24 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_24.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 24.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_25.png`
+  - Alternate primary-character defeat frame 25 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_25.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 25.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_26.png`
+  - Alternate primary-character defeat frame 26 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_26.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 26.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_27.png`
+  - Alternate primary-character defeat frame 27 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_27.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 27.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_28.png`
+  - Alternate primary-character defeat frame 28 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_28.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 28.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_30.png`
+  - Alternate primary-character defeat frame 30 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_30.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 30.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_31.png`
+  - Alternate primary-character defeat frame 31 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_31.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 31.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_32.png`
+  - Alternate primary-character defeat frame 32 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_32.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 32.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_33.png`
+  - Alternate primary-character defeat frame 33 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_33.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 33.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_34.png`
+  - Alternate primary-character defeat frame 34 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_34.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 34.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_35.png`
+  - Alternate primary-character defeat frame 35 preserved for the defeat art set.
+- `app-LTL/resources/charactor/defeat/charactor1/defeat_35.png.import`
+  - Godot import metadata for alternate primary-character defeat frame 35.
 - `app-LTL/resources/charactor/defeat/defeat_01.png`
   - Defeat-page animation frame 01 for the primary failure sequence.
 - `app-LTL/resources/charactor/defeat/defeat_01.png.import`
@@ -392,142 +491,202 @@ This file is the live implementation map for AI agents. It records each current 
   - Packed defeat-page sprite sheet for the primary failure sequence.
 - `app-LTL/resources/charactor/defeat/defeat_sheet.png.import`
   - Godot import metadata for the packed defeat-page sprite sheet.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_01.png`
-  - Alternate primary-character defeat frame 01 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_01.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 01.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_02.png`
-  - Alternate primary-character defeat frame 02 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_02.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 02.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_03.png`
-  - Alternate primary-character defeat frame 03 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_03.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 03.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_04.png`
-  - Alternate primary-character defeat frame 04 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_04.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 04.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_05.png`
-  - Alternate primary-character defeat frame 05 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_05.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 05.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_06.png`
-  - Alternate primary-character defeat frame 06 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_06.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 06.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_07.png`
-  - Alternate primary-character defeat frame 07 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_07.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 07.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_08.png`
-  - Alternate primary-character defeat frame 08 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_08.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 08.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_09.png`
-  - Alternate primary-character defeat frame 09 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_09.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 09.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_10.png`
-  - Alternate primary-character defeat frame 10 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_10.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 10.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_11.png`
-  - Alternate primary-character defeat frame 11 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_11.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 11.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_12.png`
-  - Alternate primary-character defeat frame 12 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_12.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 12.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_13.png`
-  - Alternate primary-character defeat frame 13 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_13.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 13.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_14.png`
-  - Alternate primary-character defeat frame 14 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_14.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 14.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_15.png`
-  - Alternate primary-character defeat frame 15 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_15.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 15.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_16.png`
-  - Alternate primary-character defeat frame 16 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_16.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 16.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_17.png`
-  - Alternate primary-character defeat frame 17 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_17.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 17.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_18.png`
-  - Alternate primary-character defeat frame 18 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_18.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 18.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_19.png`
-  - Alternate primary-character defeat frame 19 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_19.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 19.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_20.png`
-  - Alternate primary-character defeat frame 20 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_20.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 20.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_21.png`
-  - Alternate primary-character defeat frame 21 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_21.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 21.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_22.png`
-  - Alternate primary-character defeat frame 22 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_22.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 22.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_23.png`
-  - Alternate primary-character defeat frame 23 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_23.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 23.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_24.png`
-  - Alternate primary-character defeat frame 24 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_24.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 24.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_25.png`
-  - Alternate primary-character defeat frame 25 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_25.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 25.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_26.png`
-  - Alternate primary-character defeat frame 26 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_26.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 26.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_27.png`
-  - Alternate primary-character defeat frame 27 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_27.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 27.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_28.png`
-  - Alternate primary-character defeat frame 28 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_28.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 28.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_30.png`
-  - Alternate primary-character defeat frame 30 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_30.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 30.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_31.png`
-  - Alternate primary-character defeat frame 31 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_31.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 31.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_32.png`
-  - Alternate primary-character defeat frame 32 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_32.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 32.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_33.png`
-  - Alternate primary-character defeat frame 33 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_33.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 33.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_34.png`
-  - Alternate primary-character defeat frame 34 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_34.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 34.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_35.png`
-  - Alternate primary-character defeat frame 35 preserved for the defeat art set.
-- `app-LTL/resources/charactor/defeat/charactor1/defeat_35.png.import`
-  - Godot import metadata for alternate primary-character defeat frame 35.
+- `app-LTL/resources/charactor/npc1.png`
+  - NPC portrait art used by the release page and narrative presentation surfaces.
+- `app-LTL/resources/charactor/npc1.png.import`
+  - Godot import metadata for the NPC portrait art resource.
+- `app-LTL/resources/items/becon/blue_becon_common.png`
+  - blue becon common is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_common.png.import`
+  - blue becon common.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_epic.png`
+  - blue becon epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_epic.png.import`
+  - blue becon epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_legendary.png`
+  - blue becon legendary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_legendary.png.import`
+  - blue becon legendary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_rare.png`
+  - blue becon rare is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_rare.png.import`
+  - blue becon rare.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_rare2.png`
+  - blue becon rare2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_rare2.png.import`
+  - blue becon rare2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_start.png`
+  - blue becon start is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/blue_becon_start.png.import`
+  - blue becon start.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_00.png`
+  - green becon 00 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_00.png.import`
+  - green becon 00.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_common.png`
+  - green becon common is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_common.png.import`
+  - green becon common.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_epic.png`
+  - green becon epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_epic.png.import`
+  - green becon epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_rare.png`
+  - green becon rare is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_rare.png.import`
+  - green becon rare.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_rare2.png`
+  - green becon rare2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_rare2.png.import`
+  - green becon rare2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_start.png`
+  - green becon start is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/green_becon_start.png.import`
+  - green becon start.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_00.png`
+  - purple becon 00 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_00.png.import`
+  - purple becon 00.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_common.png`
+  - purple becon common is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_common.png.import`
+  - purple becon common.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_epic.png`
+  - purple becon epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_epic.png.import`
+  - purple becon epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_rare.png`
+  - purple becon rare is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_rare.png.import`
+  - purple becon rare.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_start.png`
+  - purple becon start is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/purple_becon_start.png.import`
+  - purple becon start.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_00.png`
+  - red becon 00 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_00.png.import`
+  - red becon 00.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_common.png`
+  - red becon common is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_common.png.import`
+  - red becon common.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_epic.png`
+  - red becon epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_epic.png.import`
+  - red becon epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_epic2.png`
+  - red becon epic2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_epic2.png.import`
+  - red becon epic2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_legendary.png`
+  - red becon legendary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_legendary.png.import`
+  - red becon legendary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_rare.png`
+  - red becon rare is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_rare.png.import`
+  - red becon rare.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_start.png`
+  - red becon start is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/becon/red_becon_start.png.import`
+  - red becon start.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_common.png`
+  - Blue common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/blue_drill_common.png.import`
+  - Godot import metadata for blue common drill item art.
+- `app-LTL/resources/items/drill/blue_drill_epic.png`
+  - blue drill epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_epic.png.import`
+  - blue drill epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_epic2.png`
+  - blue drill epic2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_epic2.png.import`
+  - blue drill epic2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_legendary.png`
+  - blue drill legendary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_legendary.png.import`
+  - blue drill legendary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_legendary2.png`
+  - blue drill legendary2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_legendary2.png.import`
+  - blue drill legendary2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/blue_drill_rare.png`
+  - Blue rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/blue_drill_rare.png.import`
+  - Godot import metadata for blue rare drill item art.
+- `app-LTL/resources/items/drill/green_drill_common.png`
+  - Green common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/green_drill_common.png.import`
+  - Godot import metadata for green common drill item art.
+- `app-LTL/resources/items/drill/green_drill_epic.png`
+  - green drill epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_epic.png.import`
+  - green drill epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_epic2.png`
+  - green drill epic2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_epic2.png.import`
+  - green drill epic2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_legendary.png`
+  - green drill legendary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_legendary.png.import`
+  - green drill legendary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_legendary2.png`
+  - green drill legendary2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_legendary2.png.import`
+  - green drill legendary2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/green_drill_rare.png`
+  - Green rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/green_drill_rare.png.import`
+  - Godot import metadata for green rare drill item art.
+- `app-LTL/resources/items/drill/purple_drill_common.png`
+  - Purple common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/purple_drill_common.png.import`
+  - Godot import metadata for purple common drill item art.
+- `app-LTL/resources/items/drill/purple_drill_epic.png`
+  - purple drill epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_epic.png.import`
+  - purple drill epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_epic2.png`
+  - purple drill epic2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_epic2.png.import`
+  - purple drill epic2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_legendary.png`
+  - purple drill legendary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_legendary.png.import`
+  - purple drill legendary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_legendary2.png`
+  - purple drill legendary2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_legendary2.png.import`
+  - purple drill legendary2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/purple_drill_rare.png`
+  - Purple rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/purple_drill_rare.png.import`
+  - Godot import metadata for purple rare drill item art.
+- `app-LTL/resources/items/drill/red_drill_common.png`
+  - Red common drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/red_drill_common.png.import`
+  - Godot import metadata for red common drill item art.
+- `app-LTL/resources/items/drill/red_drill_epic.png`
+  - red drill epic is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_epic.png.import`
+  - red drill epic.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_epic2.png`
+  - red drill epic2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_epic2.png.import`
+  - red drill epic2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_legendary.png`
+  - red drill legendary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_legendary.png.import`
+  - red drill legendary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_legendary2.png`
+  - red drill legendary2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_legendary2.png.import`
+  - red drill legendary2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/items/drill/red_drill_rare.png`
+  - Red rare drill item art used by backpack and reward presentation.
+- `app-LTL/resources/items/drill/red_drill_rare.png.import`
+  - Godot import metadata for red rare drill item art.
 - `app-LTL/resources/Leviathan/Leviathan_drake.png`
   - Leviathan full-body art used for alternate roster selection and contract presentation.
 - `app-LTL/resources/Leviathan/Leviathan_drake.png.import`
@@ -580,6 +739,50 @@ This file is the live implementation map for AI agents. It records each current 
   - Tile-miss audio used for mismatch and failed-hit combat feedback.
 - `app-LTL/resources/sound/tile_miss.wav.import`
   - Godot import metadata for the tile-miss combat feedback audio.
+- `app-LTL/resources/UI/backpack_1.png`
+  - backpack 1 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_1.png.import`
+  - backpack 1.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_2.png`
+  - backpack 2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_2.png.import`
+  - backpack 2.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_3.png`
+  - backpack 3 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_3.png.import`
+  - backpack 3.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_4.png`
+  - backpack 4 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_4.png.import`
+  - backpack 4.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_5.png`
+  - backpack 5 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_5.png.import`
+  - backpack 5.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_6.png`
+  - backpack 6 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_6.png.import`
+  - backpack 6.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_7.png`
+  - backpack 7 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_7.png.import`
+  - backpack 7.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_8.png`
+  - backpack 8 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_8.png.import`
+  - backpack 8.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_9.png`
+  - backpack 9 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_9.png.import`
+  - backpack 9.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/ItemBook.png`
+  - ItemBook is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/ItemBook.png.import`
+  - ItemBook.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/Log_Panel.png`
+  - Log Panel is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/Log_Panel.png.import`
+  - Log Panel.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/miner/miner_45.png`
   - miner 45 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/miner/miner_45.png.import`
@@ -612,18 +815,34 @@ This file is the live implementation map for AI agents. It records each current 
   - blue tile is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/blue_tile.png.import`
   - blue tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/blue_tile_hazard.png`
+  - blue tile hazard is a UI art resource for blue-family hazard overlays.
+- `app-LTL/resources/UI/tile/blue_tile_hazard.png.import`
+  - blue tile hazard import stores Godot metadata for the blue hazard overlay texture.
 - `app-LTL/resources/UI/tile/green_tile.png`
   - green tile is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/green_tile.png.import`
   - green tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/green_tile_hazard.png`
+  - green tile hazard is a UI art resource for green-family hazard overlays.
+- `app-LTL/resources/UI/tile/green_tile_hazard.png.import`
+  - green tile hazard import stores Godot metadata for the green hazard overlay texture.
 - `app-LTL/resources/UI/tile/purple_tile.png`
   - purple tile is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/purple_tile.png.import`
   - purple tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/purple_tile_hazard.png`
+  - purple tile hazard is a UI art resource for purple-family hazard overlays.
+- `app-LTL/resources/UI/tile/purple_tile_hazard.png.import`
+  - purple tile hazard import stores Godot metadata for the purple hazard overlay texture.
 - `app-LTL/resources/UI/tile/red_tile.png`
   - red tile is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/red_tile.png.import`
   - red tile.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/tile/red_tile_hazard.png`
+  - red tile hazard is a UI art resource for red-family hazard overlays.
+- `app-LTL/resources/UI/tile/red_tile_hazard.png.import`
+  - red tile hazard import stores Godot metadata for the red hazard overlay texture.
 - `app-LTL/resources/UI/tile/tile_panel.png`
   - tile panel is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/tile_panel.png.import`
@@ -632,64 +851,54 @@ This file is the live implementation map for AI agents. It records each current 
   - tile panel nobg is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/tile_panel_nobg.png.import`
   - tile panel nobg.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/items/drill/blue_drill_common.png`
-  - Blue common drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/blue_drill_common.png.import`
-  - Godot import metadata for blue common drill item art.
-- `app-LTL/resources/items/drill/blue_drill_rare.png`
-  - Blue rare drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/blue_drill_rare.png.import`
-  - Godot import metadata for blue rare drill item art.
-- `app-LTL/resources/items/drill/green_drill_common.png`
-  - Green common drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/green_drill_common.png.import`
-  - Godot import metadata for green common drill item art.
-- `app-LTL/resources/items/drill/green_drill_rare.png`
-  - Green rare drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/green_drill_rare.png.import`
-  - Godot import metadata for green rare drill item art.
-- `app-LTL/resources/items/drill/purple_drill_common.png`
-  - Purple common drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/purple_drill_common.png.import`
-  - Godot import metadata for purple common drill item art.
-- `app-LTL/resources/items/drill/purple_drill_rare.png`
-  - Purple rare drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/purple_drill_rare.png.import`
-  - Godot import metadata for purple rare drill item art.
-- `app-LTL/resources/items/drill/red_drill_common.png`
-  - Red common drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/red_drill_common.png.import`
-  - Godot import metadata for red common drill item art.
-- `app-LTL/resources/items/drill/red_drill_rare.png`
-  - Red rare drill item art used by backpack and reward presentation.
-- `app-LTL/resources/items/drill/red_drill_rare.png.import`
-  - Godot import metadata for red rare drill item art.
-- `app-LTL/src/data/node-table.json`
-  - node table stores balance or progression data.
+- `app-LTL/src/balance/EnergyTempoBalance.gd`
+  - EnergyTempoBalance owns queue tempo constants, cooldown scaling, and terrain energy marker palette generation.
+- `app-LTL/src/controllers/MainControllerBootstrapFlow.gd`
+  - Owns main-scene `_ready` bootstrap, parent view readiness wait, signal wiring, initial backpack/settings render, first scene render, and shift timer setup.
+- `app-LTL/src/controllers/MainControllerCombatFlow.gd`
+  - Owns stateful combat hover/click, hold-fire, repair, pause overlay, terrain shift timer, disabled-tile release, queue recalculation flow, target projection, and combat input decisions.
+- `app-LTL/src/controllers/MainControllerDisplayText.gd`
+  - Converts artifact, rarity, color, passive, shop item, and toggle values into localized labels for controller log messages.
+- `app-LTL/src/controllers/MainControllerRenderFlow.gd`
+  - Owns scene decoration, page-id resolution, phase log side effects, narrative blocking state, battlefield disabled-state render handoff, and reward tray rendering.
+- `app-LTL/src/controllers/MainControllerRewardBackpackFlow.gd`
+  - Owns reward tray and backpack interaction flow, including artifact selection, placement, drag/drop, discard, tooltip, reward guide gating, reward claim side effects, and telemetry handoff.
+- `app-LTL/src/controllers/MainControllerRunFlow.gd`
+  - Owns run lifecycle transitions, including start/reset/retry, reward proceed gating, starter loadout reloads, character/leviathan roster loading, preview options, and selected-node start eligibility.
+- `app-LTL/src/controllers/MainControllerSupportFlow.gd`
+  - Owns shop-disabled handling, artifact codex opening/debug refresh, growth modifier application, shop purchase side effects, telemetry, accessibility normalization, and persistence handoff.
+- `app-LTL/src/controllers/run_flow/CharacterRosterLoader.gd`
+  - Character Roster Loader is a project component with a tracked responsibility.
+- `app-LTL/src/controllers/run_flow/LeviathanRosterLoader.gd`
+  - Leviathan Roster Loader is a project component with a tracked responsibility.
+- `app-LTL/src/controllers/run_flow/NodeSelectionGuards.gd`
+  - Node Selection Guards is a project component with a tracked responsibility.
 - `app-LTL/src/data/base-shop-table.json`
   - base shop table stores character, starter item, and leviathan scan unlock offers.
 - `app-LTL/src/data/character-table.json`
   - character table stores playable character unlock costs and gameplay modifiers.
 - `app-LTL/src/data/hazard-table.json`
   - hazard table stores warning, duration, counterplay, and telemetry rows for combat hazards.
+- `app-LTL/src/data/i18n/text-en.json`
+  - English UI text catalog for runtime page copy, node-map strings, and reward-board localization.
+- `app-LTL/src/data/i18n/text-ko.json`
+  - Korean UI text catalog for runtime page copy, node-map strings, and reward-board localization.
 - `app-LTL/src/data/leviathan-table.json`
   - leviathan table stores release boss list, stage counts, unlock conditions, and hazard biases.
 - `app-LTL/src/data/narrative-beats.json`
   - narrative beats table stores side-effect-free story triggers and localized text.
+- `app-LTL/src/data/node-table.json`
+  - node table stores balance or progression data.
 - `app-LTL/src/data/passive-tree.json`
   - passive tree table stores engine, survival, and extraction progression upgrades.
 - `app-LTL/src/data/progression-default.json`
   - progression default stores balance or progression data.
 - `app-LTL/src/data/release-resource-needs.json`
   - release resource needs table stores final-art paths and procedural fallback tags.
-- `app-LTL/src/data/story-scenes.json`
-  - story scenes table stores full VN-style story steps, return routes, portraits, and backgrounds.
 - `app-LTL/src/data/reward-table.json`
   - reward table stores balance or progression data.
-- `app-LTL/src/data/i18n/text-en.json`
-  - English UI text catalog for runtime page copy, node-map strings, and reward-board localization.
-- `app-LTL/src/data/i18n/text-ko.json`
-  - Korean UI text catalog for runtime page copy, node-map strings, and reward-board localization.
+- `app-LTL/src/data/story-scenes.json`
+  - story scenes table stores full VN-style story steps, return routes, portraits, and backgrounds.
 - `app-LTL/src/domain/FormalContracts.gd`
   - Validates required fields and duplicate ids for artifact, node, reward, leviathan, and progress data tables.
   - Merges game tuning defaults, including documented stage durability and stage health curves, and validates phase-specific requirements in public run snapshots.
@@ -704,20 +913,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Sends node-select, combat, reward, and completion phase snapshots to MainViewRuntime render contracts.
   - Reflects shop opening, passive purchases, and growth modifier application in run state and UI.
   - Opens the artifact codex by pairing reward-table data with run discovery history.
-- `app-LTL/src/controllers/MainControllerBootstrapFlow.gd`
-  - Owns main-scene `_ready` bootstrap, parent view readiness wait, signal wiring, initial backpack/settings render, first scene render, and shift timer setup.
-- `app-LTL/src/controllers/MainControllerCombatFlow.gd`
-  - Owns stateful combat hover/click, hold-fire, repair, pause overlay, terrain shift timer, disabled-tile release, queue recalculation flow, target projection, and combat input decisions.
-- `app-LTL/src/controllers/MainControllerDisplayText.gd`
-  - Converts artifact, rarity, color, passive, shop item, and toggle values into localized labels for controller log messages.
-- `app-LTL/src/controllers/MainControllerRewardBackpackFlow.gd`
-  - Owns reward tray and backpack interaction flow, including artifact selection, placement, drag/drop, discard, tooltip, reward guide gating, reward claim side effects, and telemetry handoff.
-- `app-LTL/src/controllers/MainControllerRenderFlow.gd`
-  - Owns scene decoration, page-id resolution, phase log side effects, narrative blocking state, battlefield disabled-state render handoff, and reward tray rendering.
-- `app-LTL/src/controllers/MainControllerRunFlow.gd`
-  - Owns run lifecycle transitions, including start/reset, reward proceed gating, starter loadout reloads, character/leviathan roster loading, preview options, and selected-node start eligibility.
-- `app-LTL/src/controllers/MainControllerSupportFlow.gd`
-  - Owns shop-disabled handling, artifact codex opening/debug refresh, growth modifier application, shop purchase side effects, telemetry, accessibility normalization, and persistence handoff.
 - `app-LTL/src/models/Artifact.gd`
   - Stores artifact id, rarity, energy type, shape, cooldown, and synergy state.
   - Restores and serializes artifact models from dictionary input.
@@ -735,20 +930,20 @@ This file is the live implementation map for AI agents. It records each current 
   - Places and removes artifacts while maintaining occupied grid coordinates.
   - Computes adjacent drill/beacon relationships and applies synergy reductions and pulse effects.
   - Provides inventory cooldown tick results and serialized snapshots.
-- `app-LTL/src/models/RunGrowthState.gd`
-  - Restores run growth resources, stage progress, and passive levels from dictionaries.
-  - Computes growth-derived values such as starting gold, cooldown modifiers, and damage bonuses.
-  - Handles gold and XP gain plus passive purchases.
-  - Persists release base unlocks for characters, starter items, and leviathan scans.
-  - Serializes growth state into persistable dictionaries.
 - `app-LTL/src/models/NarrativeBeat.gd`
   - Validates and normalizes release narrative beat dictionaries without mutating caller data.
 - `app-LTL/src/models/NarrativeHistory.gd`
   - Converts campaign progress into seen-beat lookups and records narrative seen ids separately.
-- `app-LTL/src/models/StoryScene.gd`
-  - Validates and normalizes full VN story scene dictionaries and nested dialogue steps.
+- `app-LTL/src/models/RunGrowthState.gd`
+  - Restores run growth resources, stage progress, and passive levels from dictionaries.
+  - Computes growth-derived values such as starting gold, cooldown modifiers, damage bonuses, and M8 result unlocks.
+  - Handles gold and XP gain plus passive purchases.
+  - Persists release base unlocks for characters, starter items, and leviathan scans.
+  - Serializes growth state into persistable dictionaries.
 - `app-LTL/src/models/StoryHistory.gd`
   - Converts campaign progress into seen-story lookups and records story scene ids separately.
+- `app-LTL/src/models/StoryScene.gd`
+  - Validates and normalizes full VN story scene dictionaries and nested dialogue steps.
 - `app-LTL/src/phases/BackpackOrganizePhase.gd`
   - Creates backpack-organize phase snapshots.
   - Preserves held artifact and pending reward state across phase transitions.
@@ -777,8 +972,6 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/process/HeadlessMiniRun.gd`
   - Builds initial seed, tuning, inventory, node table, and growth state for headless mini-runs.
   - Provides APIs for node selection, combat input, reward claiming, and inventory removal.
-  - Exposes current run state as snapshots for contract verification and UI preview.
-  - Loads and clones default node, inventory, and growth fixtures.
 - `app-LTL/src/process/MiniRunStageScript.gd`
   - Mini Run Stage Script coordinates headless process flow or input adaptation.
 - `app-LTL/src/process/NodeInputAdapter.gd`
@@ -791,54 +984,64 @@ This file is the live implementation map for AI agents. It records each current 
   - Builds final replay summaries and node table overrides.
 - `app-LTL/src/process/RunProgressionM0DesignNote.md`
   - Run Progression M0 Design Note coordinates headless process flow or input adaptation.
+- `app-LTL/src/process/VerticalSliceRunner.gd`
+  - Owns the fixed M8 ossuary_tortoise fixture, headless clear/defeat/retry orchestration, and telemetry category projection.
+  - Exposes current run state as snapshots for contract verification and UI preview.
+  - Loads and clones default node, inventory, and growth fixtures.
 - `app-LTL/src/README.md`
   - README explains project design or implementation criteria.
-- `app-LTL/src/scenes/pages/StageBackdropPage.gd`
-  - Provides the reusable full-bleed page-shell controller for page-specific backdrops and headings.
-- `app-LTL/src/scenes/pages/StageBackdropPage.tscn`
-  - Shared page-shell scene used by node-select, battle, reward, boss, and event page shells.
-- `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
-  - Renders the character selection page, starter-color buttons, and continue CTA.
-- `app-LTL/src/scenes/pages/CharacterSelectPage.tscn`
-  - Character selection page scene matching the M6 run-start wireframe intent.
-- `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`
-  - Projects starter loadout artifacts into localized character-select button and bag-detail copy.
-- `app-LTL/src/scenes/pages/character_select/CharacterSelectPaletteView.gd`
-  - Builds and styles starter palette buttons, tag chips, and selected-color palette states.
-- `app-LTL/src/scenes/pages/node_select/FutureMarkerArt.gd`
-  - Draws the dotted future-route marker art used by the node-select roadmap canvas.
-- `app-LTL/src/scenes/pages/node_select/GlyphIcon.gd`
-  - Draws node-select route glyph icons for start, repair, unknown, danger, harpoon, reef, and boss markers.
-- `app-LTL/src/scenes/pages/LeviathanSelectPage.gd`
-  - Renders the leviathan contract roster, hero board, target card, and looting-start CTA.
-- `app-LTL/src/scenes/pages/LeviathanSelectPage.tscn`
-  - Leviathan selection page scene matching the M6 leviathan-select wireframe.
-- `app-LTL/src/scenes/pages/OutcomePage.gd`
-  - Provides the shared outcome-page controller used by defeat and temporary clear pages.
-- `app-LTL/src/scenes/pages/OutcomePage.tscn`
-  - Shared outcome page scene for defeat and clear shells.
-- `app-LTL/src/scenes/pages/NodeSelectRuntimePage.gd`
-  - Applies the dedicated node-select runtime shell state for the crossroads board, hover card, staged route buttons, and selected Leviathan copy.
-- `app-LTL/src/scenes/pages/node_select/NodeSelectVisualFactory.gd`
-  - Builds node-select button visuals, route tags, palette treatments, generated textures, and reusable style boxes.
-- `app-LTL/src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd`
-  - Owns responsive node-select board, hero, route, and stage-detail sizing metrics.
-- `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapRenderer.gd`
-  - Renders roadmap segments, markers, future-route hints, and boss-path visual layers.
-- `app-LTL/src/scenes/pages/node_select/NodeSelectContentModel.gd`
-  - Projects node-select page copy, stage status, candidate card data, and route-history labels.
-- `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapComposer.gd`
-  - Composes roadmap topology, candidate rows, route state, and current-stage marker placement for the runtime page.
-- `app-LTL/src/scenes/pages/NodeSelectRuntimePage.tscn`
-  - Dedicated node-select runtime shell scene exposing the hero section, Leviathan board head, and roadmap canvas without the retired split map/backpack hosts.
+- `app-LTL/src/scenes/narrative/NarrativeToast.gd`
+  - Renders non-blocking narrative beat toast overlays from narrative read models.
 - `app-LTL/src/scenes/pages/BattlePage.tscn`
   - Normal combat page shell scene that preserves the existing battle UI layout.
 - `app-LTL/src/scenes/pages/BossBattlePage.tscn`
   - Boss combat page shell scene used when the selected route is a boss node.
-- `app-LTL/src/scenes/pages/RewardPage.tscn`
-  - Normal reward page shell scene matching the reward-claim wireframe.
 - `app-LTL/src/scenes/pages/BossRewardPage.tscn`
   - Boss reward page shell scene matching the boss-reward wireframe.
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectLoadoutText.gd`
+  - Projects starter loadout artifacts into localized character-select button and bag-detail copy.
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectPaletteView.gd`
+  - Builds and styles starter palette buttons, tag chips, and selected-color palette states.
+- `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
+  - Renders the character selection page, starter-color buttons, and continue CTA.
+- `app-LTL/src/scenes/pages/CharacterSelectPage.tscn`
+  - Character selection page scene matching the M6 run-start wireframe intent.
+- `app-LTL/src/scenes/pages/ClearPage.tscn`
+  - Temporary clear page scene with only clear copy and a return-to-character-select CTA.
+- `app-LTL/src/scenes/pages/DefeatPage.gd`
+  - Renders the defeat page state, failure copy, and same-seed/new-seed retry outcome actions.
+- `app-LTL/src/scenes/pages/DefeatPage.tscn`
+  - Defeat page scene matching the defeat wireframe and returning to character select.
+- `app-LTL/src/scenes/pages/EventNodePage.tscn`
+  - Event-node page shell scene matching the event-node wireframe.
+- `app-LTL/src/scenes/pages/LeviathanSelectPage.gd`
+  - Renders the leviathan contract roster, hero board, target card, and looting-start CTA.
+- `app-LTL/src/scenes/pages/LeviathanSelectPage.tscn`
+  - Leviathan selection page scene matching the M6 leviathan-select wireframe.
+- `app-LTL/src/scenes/pages/node_select/FutureMarkerArt.gd`
+  - Draws the dotted future-route marker art used by the node-select roadmap canvas.
+- `app-LTL/src/scenes/pages/node_select/GlyphIcon.gd`
+  - Draws node-select route glyph icons for start, repair, unknown, danger, harpoon, reef, and boss markers.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectContentModel.gd`
+  - Projects node-select page copy, stage status, candidate card data, and route-history labels.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd`
+  - Owns responsive node-select board, hero, route, and stage-detail sizing metrics.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapComposer.gd`
+  - Composes roadmap topology, candidate rows, route state, and current-stage marker placement for the runtime page.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapRenderer.gd`
+  - Renders roadmap segments, markers, future-route hints, and boss-path visual layers.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectVisualFactory.gd`
+  - Builds node-select button visuals, route tags, palette treatments, generated textures, and reusable style boxes.
+- `app-LTL/src/scenes/pages/NodeSelectRuntimePage.gd`
+  - Applies the dedicated node-select runtime shell state for the crossroads board, hover card, staged route buttons, and selected Leviathan copy.
+- `app-LTL/src/scenes/pages/NodeSelectRuntimePage.tscn`
+  - Dedicated node-select runtime shell scene exposing the hero section, Leviathan board head, and roadmap canvas without the retired split map/backpack hosts.
+- `app-LTL/src/scenes/pages/OutcomePage.gd`
+  - Provides the shared outcome-page controller used by defeat and temporary clear pages.
+- `app-LTL/src/scenes/pages/OutcomePage.tscn`
+  - Shared outcome page scene for defeat and clear shells.
+- `app-LTL/src/scenes/pages/RewardPage.tscn`
+  - Normal reward page shell scene matching the reward-claim wireframe.
 - `app-LTL/src/scenes/pages/shells/ActionBar.tscn`
   - Shared gameplay action-bar shell instanced by node-select, battle, and reward page scenes.
 - `app-LTL/src/scenes/pages/shells/BackpackEnginePanel.tscn`
@@ -851,38 +1054,50 @@ This file is the live implementation map for AI agents. It records each current 
   - Shared reward-tray shell that owns the reward board, workspace host, inspector, and discard/claim zones.
 - `app-LTL/src/scenes/pages/shells/SharedBackpack.tscn`
   - Shared backpack scene shell used for consistent backpack docking across runtime pages.
-- `app-LTL/src/scenes/narrative/NarrativeToast.gd`
-  - Renders non-blocking narrative beat toast overlays from narrative read models.
+- `app-LTL/src/scenes/pages/StageBackdropPage.gd`
+  - Provides the reusable full-bleed page-shell controller for page-specific backdrops and headings.
+- `app-LTL/src/scenes/pages/StageBackdropPage.tscn`
+  - Shared page-shell scene used by node-select, battle, reward, boss, and event page shells.
 - `app-LTL/src/scenes/pages/StoryScenePage.gd`
   - Renders one full VN story step and emits continue/skip requests without mutating game state.
 - `app-LTL/src/scenes/pages/StoryScenePage.tscn`
   - Story scene page shell with background, left/right portrait slots, dialogue panel, continue, and skip controls.
-- `app-LTL/src/scenes/pages/EventNodePage.tscn`
-  - Event-node page shell scene matching the event-node wireframe.
-- `app-LTL/src/scenes/pages/DefeatPage.gd`
-  - Renders the defeat page state, failure copy, and restart/escape outcome actions.
-- `app-LTL/src/scenes/pages/DefeatPage.tscn`
-  - Defeat page scene matching the defeat wireframe and returning to character select.
-- `app-LTL/src/scenes/pages/ClearPage.tscn`
-  - Temporary clear page scene with only clear copy and a return-to-character-select CTA.
 - `app-LTL/src/tools/FormalReplayRunner.gd`
   - Provides the list of formal replay fixture paths.
   - Runs each replay fixture through ReplayProcess and returns result lists.
+- `app-LTL/src/tools/ReplayBatchRunner.gd`
+  - Runs representative M8 seed batches through the vertical-slice runner and aggregates per-seed manifests.
+- `app-LTL/src/tools/TelemetryExport.gd`
+  - Builds and writes M8 session manifest, run summary, and categorized telemetry event artifacts.
+- `app-LTL/src/ui/ArtifactCodexArtResolver.gd`
+  - Resolves codex hero and thumbnail artwork descriptors from reward-table image contracts.
+  - Falls back to default and discovery-state artwork descriptors when authored art is unavailable.
+- `app-LTL/src/ui/ArtifactCodexPanelUI.gd`
+  - Renders the artifact codex panel, section filters, discovery rows, and debug visibility controls.
+  - Delegates book layout, card construction, fallback art, and shape-grid visuals to codex helpers.
 - `app-LTL/src/ui/ArtifactTooltipUI.gd`
   - Initializes artifact tooltip panel labels, theme, and sizing.
   - Renders TooltipReadModel results as rich text.
   - Clamps tooltip position inside viewport bounds.
+- `app-LTL/src/ui/audio/InteractionSfxProfile.gd`
+  - Interaction Sfx Profile owns Godot UI rendering and interaction behavior.
+- `app-LTL/src/ui/backpack/BackpackArtifactRenderer.gd`
+  - Renders backpack artifact overlays, image-backed drill overlays, drag ghost cells, drop feedback helpers, and cooldown masks.
+  - Provides transformed rectangle math for aligning artifact images inside the backpack layer.
+- `app-LTL/src/ui/backpack/BackpackFusionVFX.gd`
+  - Renders compact backpack fusion visual feedback without changing inventory rules.
+- `app-LTL/src/ui/backpack/BackpackInfluenceHighlighter.gd`
+  - Projects backpack item influence ranges into UI-only slot highlight overlays.
+- `app-LTL/src/ui/backpack/BackpackInfluenceToggleRuntime.gd`
+  - Backpack Influence Toggle Runtime owns Godot UI rendering and interaction behavior.
+- `app-LTL/src/ui/backpack/BackpackPinOverlayRuntime.gd`
+  - Owns combat pin visibility counts, corner specs, local canvas layout, retry scheduling, and removal VFX profiles for the backpack panel.
+  - Delegates shared pin sizing math to `BackpackPinLayoutPolicy.gd`.
 - `app-LTL/src/ui/BackpackUI.gd`
   - Creates backpack grid slots and the ghost preview container.
   - Delegates held artifact ghosts, inventory overlays, cooldown masks, and pin overlay runtime behavior to focused backpack helpers.
   - Applies valid and blocked drag/drop feedback using the live inventory placement rules.
   - Provides slot click/hover signals and visual state for discard interactions while keeping slot hover wobble disabled for readability.
-- `app-LTL/src/ui/backpack/BackpackArtifactRenderer.gd`
-  - Renders backpack artifact overlays, image-backed drill overlays, drag ghost cells, drop feedback helpers, and cooldown masks.
-  - Provides transformed rectangle math for aligning artifact images inside the backpack layer.
-- `app-LTL/src/ui/backpack/BackpackPinOverlayRuntime.gd`
-  - Owns combat pin visibility counts, corner specs, local canvas layout, retry scheduling, and removal VFX profiles for the backpack panel.
-  - Delegates shared pin sizing math to `BackpackPinLayoutPolicy.gd`.
 - `app-LTL/src/ui/BattlefieldUI.gd`
   - Renders combat time display and battlefield cell grid.
   - Rebuilds the grid when cell lists change and updates existing cells when structure matches.
@@ -892,20 +1107,30 @@ This file is the live implementation map for AI agents. It records each current 
   - Creates reward reveal timeline, shard, fountain, and light burst effects.
   - Renders silhouette reward previews and rarity colors.
   - Manages particle lifetime and draw loops.
+- `app-LTL/src/ui/BattleSidebarUI.gd`
+  - Builds the battle sidebar tab surface for explorer details and combat log presentation.
 - `app-LTL/src/ui/CellView.gd`
   - Manages input signals, hover state, and disabled state for a single battlefield cell.
   - Draws rock geometry, terrain colors, weakness colors, and active queue highlights.
   - Shows pressed and forbidden-hover feedback directly on battlefield cells.
   - Configures visual state from cell_data snapshots.
   - Provides color mapping by energy type.
+- `app-LTL/src/ui/codex/ArtifactCodexBookVisualFactory.gd`
+  - Builds artifact codex cards, artwork plates, fact chips, and shape-grid detail controls.
+  - Owns codex visual style helpers for cards, frames, rarity plates, section buttons, and mouse passthrough.
+- `app-LTL/src/ui/codex/ArtifactCodexLayoutPolicy.gd`
+  - Centralizes artifact codex book aspect, safe-area, page, grid, and viewport transform calculations.
+  - Keeps ratio-driven codex layout math deterministic for panel rendering and structural tests.
 - `app-LTL/src/ui/CombatSceneModel.gd`
   - Converts run snapshots into combat scene read models.
   - Calculates viewport layout and terrain cell presentation.
   - Builds HUD target panel, queue, global terrain debuff, and feedback data.
 - `app-LTL/src/ui/CombatScenePreviewController.gd`
   - Initializes a preview controller that combines headless mini-run and combat scene model.
-  - Provides start, aim, fire, hold-fire, repair, claim rewards, and reset preview APIs.
+  - Provides start, aim, fire, hold-fire, repair, claim rewards, reset preview APIs, and scene metadata projection.
   - Creates node table fixtures for preview use.
+- `app-LTL/src/ui/EnergyQueuePulseSlot.gd`
+  - Draws compact energy queue slot states with loaded, empty, disabled, and front-slot visuals.
 - `app-LTL/src/ui/GiantTimerUI.gd`
   - Renders the giant combat timer label and urgency style.
   - Updates timer copy for stage warning, timeout, and repair states.
@@ -915,68 +1140,52 @@ This file is the live implementation map for AI agents. It records each current 
   - Tracks local pointer position for mouse-follow glow and refreshes dynamic disabled states after UI rerenders.
   - Skips position tweens for Container-managed children and respects explicit opt-out metadata so grid and layout UIs keep their intended placement.
   - Applies Godot canvas-item shader parameters and tweens without mutating gameplay state.
+- `app-LTL/src/ui/ItemArtResolver.gd`
+  - Item Art Resolver owns Godot UI rendering and interaction behavior.
 - `app-LTL/src/ui/LogConsoleUI.gd`
   - Initializes system log panel scroll and list label structure.
   - Appends new log lines while preserving the maximum visible count.
   - Applies log colors and readability styles.
-- `app-LTL/src/ui/MainUI.gd`
-  - Serves as the formal main UI entry script by inheriting MainViewRuntime.
-- `app-LTL/src/ui/MainViewRuntime.gd`
-  - Serves as the compact main-view facade that preserves the controller-facing UI API and delegates feature-sized runtime responsibilities.
-- `app-LTL/src/ui/main_view/MainViewRuntimeState.gd`
-  - Holds inherited MainView node references, signals, state fields, page ids, and overlay z-index constants.
+- `app-LTL/src/ui/main_view/MainViewAppShellRuntime.gd`
+  - Owns app-shell safe viewport metrics, top-content backpack bounds, and shared backpack layout sync.
+- `app-LTL/src/ui/main_view/MainViewBackpackRuntime.gd`
+  - Owns page backpack setup/render/ghost forwarding plus shared backpack reparent scheduling and commit.
+- `app-LTL/src/ui/main_view/MainViewChromeRuntime.gd`
+  - Owns shell theming, interaction FX install, timer/reward overlay construction, per-frame chrome updates, and tooltips.
+- `app-LTL/src/ui/main_view/MainViewFeedbackRuntime.gd`
+  - Owns log forwarding, discard-zone state, combat global-position helpers, damage popups, beams, particles, and screenshake.
 - `app-LTL/src/ui/main_view/MainViewLifecycleRuntime.gd`
   - Owns MainView ready bootstrap, viewport-shell sync, wrapping text policies, and drag input dispatch.
-- `app-LTL/src/ui/main_view/MainViewRewardRuntime.gd`
-  - Owns reward tray rendering, floating reward-card layout, reward drag state, inspector rendering, and footprint display.
+- `app-LTL/src/ui/main_view/MainViewLocaleRuntime.gd`
+  - Owns locale text application, page bundle label updates, reward board copy, and header title resolution.
+- `app-LTL/src/ui/main_view/MainViewPageShellRuntime.gd`
+  - Owns page scene creation, page shell bundle capture, active page routing, and page-scene model projection.
+- `app-LTL/src/ui/main_view/MainViewPanelsRuntime.gd`
+  - Owns settings, shop, codex, popup-pause visibility, battle-pause propagation, and codex projection rerenders.
 - `app-LTL/src/ui/main_view/MainViewPresentationRuntime.gd`
   - Owns character presentation, reward/failure backdrops, character status projection, and sprite-frame lookup.
 - `app-LTL/src/ui/main_view/MainViewRewardLayoutRuntime.gd`
   - Owns reward board sizing, reward/backpack docking, node-select backpack dock state, and reward-zone scroll shells.
-- `app-LTL/src/ui/main_view/MainViewPageShellRuntime.gd`
-  - Owns page scene creation, page shell bundle capture, active page routing, and page-scene model projection.
-- `app-LTL/src/ui/main_view/MainViewAppShellRuntime.gd`
-  - Owns app-shell safe viewport metrics, top-content backpack bounds, and shared backpack layout sync.
+- `app-LTL/src/ui/main_view/MainViewRewardRuntime.gd`
+  - Owns reward tray rendering, floating reward-card layout, reward drag state, inspector rendering, and footprint display.
+- `app-LTL/src/ui/main_view/MainViewRuntimeState.gd`
+  - Holds inherited MainView node references, signals, state fields, page ids, and overlay z-index constants.
 - `app-LTL/src/ui/main_view/MainViewSceneRuntime.gd`
   - Owns scene snapshot rendering, action state projection, reward reveal VFX lifecycle, and node-select start gating.
-- `app-LTL/src/ui/main_view/MainViewPanelsRuntime.gd`
-  - Owns settings, shop, codex, popup-pause visibility, battle-pause propagation, and codex projection rerenders.
-- `app-LTL/src/ui/main_view/MainViewLocaleRuntime.gd`
-  - Owns locale text application, page bundle label updates, reward board copy, and header title resolution.
-- `app-LTL/src/ui/main_view/MainViewChromeRuntime.gd`
-  - Owns shell theming, interaction FX install, timer/reward overlay construction, per-frame chrome updates, and tooltips.
-- `app-LTL/src/ui/main_view/MainViewBackpackRuntime.gd`
-  - Owns page backpack setup/render/ghost forwarding plus shared backpack reparent scheduling and commit.
-- `app-LTL/src/ui/main_view/MainViewFeedbackRuntime.gd`
-  - Owns log forwarding, discard-zone state, combat global-position helpers, damage popups, beams, particles, and screenshake.
-- `app-LTL/src/ui/PageSceneRegistry.gd`
-  - Builds page-shell hosts, mounts meta versus gameplay page scenes, and toggles host visibility for the active page route.
+- `app-LTL/src/ui/MainUI.gd`
+  - Serves as the formal main UI entry script by inheriting MainViewRuntime.
+- `app-LTL/src/ui/MainViewRuntime.gd`
+  - Serves as the compact main-view facade that preserves the controller-facing UI API and delegates feature-sized runtime responsibilities.
 - `app-LTL/src/ui/PageSceneModelBuilder.gd`
   - Centralizes page-scene copy, inactive meta-page refresh projection, and wireframe model projection for gameplay, node-select, clear, and defeat page shells.
+- `app-LTL/src/ui/PageSceneRegistry.gd`
+  - Builds page-shell hosts, mounts meta versus gameplay page scenes, and toggles host visibility for the active page route.
+- `app-LTL/src/ui/PageShellHost.gd`
+  - Owns phase-first page-shell mounting and visible-page switching for gameplay and meta page scenes.
 - `app-LTL/src/ui/PopupOverlayHost.gd`
   - Centralizes popup and fullscreen overlay front-order plus pause-overlay visibility projection for MainViewRuntime.
-- `app-LTL/src/ui/RewardCardCloudHost.gd`
-  - Centralizes reward-card cloud button construction, floating layout, drag clamping, and manual-anchor persistence helpers for MainViewRuntime.
-- `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
-  - Centralizes shared backpack docking, host-specific layout sync, and deferred reparent follow-up helpers for MainViewRuntime.
-- `app-LTL/src/ui/RewardRevealOverlay.gd`
-  - Renders and controls the full-screen reward reveal ceremony overlay.
-  - Delegates reward reveal presentation, layout, and animation phase models to reward-reveal helper scripts while preserving the public overlay API.
-- `app-LTL/src/ui/reward_reveal/RewardRevealPresentationModel.gd`
-  - Projects reward reveal hero, reveal order, labels, rarity profiles, timing, and accent data from reward dictionaries.
-  - Keeps presentation data deterministic without mutating reward or run state.
-- `app-LTL/src/ui/reward_reveal/RewardRevealLayoutPolicy.gd`
-  - Calculates reward reveal safe-area, centered lid, card metrics, queue strip, and quantity slot layout.
-  - Preserves deterministic Rect2/Vector2 layout contracts for overlay tests and render helpers.
-- `app-LTL/src/ui/reward_reveal/RewardRevealAnimationModels.gd`
-  - Builds count tease, mined-lid motion, count burst, card reveal, and queue marker phase models.
-  - Centralizes reward reveal easing and segment calculations used by the overlay renderer.
-- `app-LTL/src/ui/reward_reveal/RewardRevealCeremonyRenderer.gd`
-  - Orchestrates reward reveal count tease, count lock, reveal queue, headline, progress, and reward card drawing.
-  - Keeps renderer-only draw calls outside the overlay state machine while preserving localized text and timing inputs.
-- `app-LTL/src/ui/reward_reveal/RewardRevealEffectRenderer.gd`
-  - Draws reward reveal lid, burst, sealed card, rarity burst, preview chamber, queue marker, and backdrop primitives.
-  - Owns effect-only drawing details without changing ceremony state or reward data.
+- `app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd`
+  - Centralizes safe-shell sizing, active-phase height budgets, top-content budget projection, and shared backpack width caps for MainViewRuntime.
 - `app-LTL/src/ui/presenters/BackpackGridFactory.gd`
   - Creates backpack border cells and inner slot UI nodes.
   - Calculates artifact style, edge masks, energy colors, and border slices.
@@ -990,79 +1199,83 @@ This file is the live implementation map for AI agents. It records each current 
   - Heartbeat Synth projects domain state into UI presentation contracts.
 - `app-LTL/src/ui/presenters/InteractionCuePresenter.gd`
   - Projects hover, press, disabled, and drag/drop states into pure visual cue dictionaries.
+- `app-LTL/src/ui/presenters/InteractionSfxSynth.gd`
+  - Synthesizes restrained UI, menu, and page-transition AudioStreamWAV cues for the interaction sound router.
 - `app-LTL/src/ui/presenters/PhaseLayoutPresenter.gd`
   - Determines visibility of primary UI regions for the current phase.
   - Projects victory overlay visibility plus map/backpack stretch ratios and timer/action layout state.
-- `app-LTL/src/ui/presenters/AppShellLayoutPolicy.gd`
-  - Centralizes safe-shell sizing, active-phase height budgets, top-content budget projection, and shared backpack width caps for MainViewRuntime.
 - `app-LTL/src/ui/presenters/RewardBoardLayoutPolicy.gd`
   - Centralizes reward-board width, height, zone-body, and docked-backpack sizing math for the extracted MainViewRuntime reward layout path.
 - `app-LTL/src/ui/presenters/RewardCeremonyPolicy.gd`
   - Defines reward ceremony step sequencing and interaction gate policy.
 - `app-LTL/src/ui/presenters/ShellButtonStyler.gd`
   - Applies shared shell button theme states, disabled text color, and minimum sizing.
-- `app-LTL/src/ui/read_models/HudReadModel.gd`
-  - Projects combat HUD snapshots into now, next, reserve, hazard, repair, and aim display state.
-  - Builds queue-match and feedback flags for status-panel presentation without mutating runtime state.
-- `app-LTL/src/ui/read_models/FailureReadModel.gd`
-  - Projects defeat, repair-lock, empty-queue, and victory overlay copy into UI-safe dictionaries.
-  - Keeps failure overlays localized and decoupled from the controller and scene tree.
-- `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`
-  - Projects node-select candidates into UI cards with title, body, and weakness labels.
-  - Converts candidate risk, reward, and weakness information into readable copy.
-- `app-LTL/src/ui/read_models/NarrativeReadModel.gd`
-  - Projects selected narrative beats into locale-specific story-surface models, including continue affordance and input-blocking metadata.
-- `app-LTL/src/ui/read_models/StorySceneReadModel.gd`
-  - Projects selected story scenes into locale-specific full VN page step models.
 - `app-LTL/src/ui/read_models/ArtifactCodexReadModel.gd`
   - Projects artifact catalog and discovery snapshots into codex-facing section data.
   - Builds debug-all and discovered-only artifact rows without exposing runtime-only state.
+- `app-LTL/src/ui/read_models/FailureReadModel.gd`
+  - Projects defeat, repair-lock, empty-queue, and victory overlay copy into UI-safe dictionaries.
+  - Keeps failure overlays localized and decoupled from the controller and scene tree.
+- `app-LTL/src/ui/read_models/HudReadModel.gd`
+  - Projects combat HUD snapshots into now, next, reserve, hazard, repair, and aim display state.
+  - Builds queue-match and feedback flags for status-panel presentation without mutating runtime state.
+- `app-LTL/src/ui/read_models/NarrativeReadModel.gd`
+  - Projects selected narrative beats into locale-specific story-surface models, including continue affordance and input-blocking metadata.
+- `app-LTL/src/ui/read_models/NodeSelectReadModel.gd`
+  - Projects node-select candidates into UI cards with title, body, and weakness labels.
+  - Converts candidate risk, reward, and weakness information into readable copy.
 - `app-LTL/src/ui/read_models/RewardReadModel.gd`
   - Converts a single reward into UI-facing summary data.
   - Builds reward tray, held reward, and discard zone display contracts.
+- `app-LTL/src/ui/read_models/StorySceneReadModel.gd`
+  - Projects selected story scenes into locale-specific full VN page step models.
 - `app-LTL/src/ui/read_models/TooltipReadModel.gd`
   - Normalizes artifact or reward dictionaries into tooltip data.
   - Builds artifact tooltip BBCode and reward comparison tooltip BBCode.
   - Finds same-color equipped drill comparison targets and builds compact stat lines.
   - Provides rarity, energy, and default-stat label helpers.
+- `app-LTL/src/ui/reward_reveal/RewardRevealAnimationModels.gd`
+  - Builds count tease, mined-lid motion, count burst, card reveal, and queue marker phase models.
+  - Centralizes reward reveal easing and segment calculations used by the overlay renderer.
+- `app-LTL/src/ui/reward_reveal/RewardRevealCeremonyRenderer.gd`
+  - Orchestrates reward reveal count tease, count lock, reveal queue, headline, progress, and reward card drawing.
+  - Keeps renderer-only draw calls outside the overlay state machine while preserving localized text and timing inputs.
+- `app-LTL/src/ui/reward_reveal/RewardRevealEffectRenderer.gd`
+  - Draws reward reveal lid, burst, sealed card, rarity burst, preview chamber, queue marker, and backdrop primitives.
+  - Owns effect-only drawing details without changing ceremony state or reward data.
+- `app-LTL/src/ui/reward_reveal/RewardRevealLayoutPolicy.gd`
+  - Calculates reward reveal safe-area, centered lid, card metrics, queue strip, and quantity slot layout.
+  - Preserves deterministic Rect2/Vector2 layout contracts for overlay tests and render helpers.
+- `app-LTL/src/ui/reward_reveal/RewardRevealPresentationModel.gd`
+  - Projects reward reveal hero, reveal order, labels, rarity profiles, timing, and accent data from reward dictionaries.
+  - Keeps presentation data deterministic without mutating reward or run state.
+- `app-LTL/src/ui/RewardCardCloudHost.gd`
+  - Centralizes reward-card cloud button construction, floating layout, drag clamping, and manual-anchor persistence helpers for MainViewRuntime.
+- `app-LTL/src/ui/RewardRevealOverlay.gd`
+  - Renders and controls the full-screen reward reveal ceremony overlay.
+  - Delegates reward reveal presentation, layout, and animation phase models to reward-reveal helper scripts while preserving the public overlay API.
 - `app-LTL/src/ui/SceneReadModel.gd`
   - Converts headless run snapshots into full scene display models.
   - Separates node candidates, combat snapshots, reward tray, and held state into UI-only structures.
   - Normalizes raw label values into locale-aware display labels.
-- `app-LTL/src/ui/PageShellHost.gd`
-  - Owns phase-first page-shell mounting and visible-page switching for gameplay and meta page scenes.
-- `app-LTL/src/ui/BattleSidebarUI.gd`
-  - Builds the battle sidebar tab surface for explorer details and combat log presentation.
-- `app-LTL/src/ui/EnergyQueuePulseSlot.gd`
-  - Draws compact energy queue slot states with loaded, empty, disabled, and front-slot visuals.
 - `app-LTL/src/ui/SettingsPanelUI.gd`
   - Builds shake, fullscreen, locale, and volume controls for the settings panel.
   - Renders current settings state into UI controls.
   - Emits locale and settings change signals to the external controller.
+- `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
+  - Centralizes shared backpack docking, host-specific layout sync, and deferred reparent follow-up helpers for MainViewRuntime.
 - `app-LTL/src/ui/ShopPanelUI.gd`
   - Creates the shop panel and passive purchase row UI.
   - Renders release base-shop rows for character, starter item, and leviathan scan unlocks.
   - Renders purchase buttons from gold, XP, and passive level state.
   - Calculates passive costs and emits purchase signals.
-- `app-LTL/src/ui/ArtifactCodexPanelUI.gd`
-  - Renders the artifact codex panel, section filters, discovery rows, and debug visibility controls.
-  - Delegates book layout, card construction, fallback art, and shape-grid visuals to codex helpers.
-- `app-LTL/src/ui/ArtifactCodexArtResolver.gd`
-  - Resolves codex hero and thumbnail artwork descriptors from reward-table image contracts.
-  - Falls back to default and discovery-state artwork descriptors when authored art is unavailable.
-- `app-LTL/src/ui/codex/ArtifactCodexLayoutPolicy.gd`
-  - Centralizes artifact codex book aspect, safe-area, page, grid, and viewport transform calculations.
-  - Keeps ratio-driven codex layout math deterministic for panel rendering and structural tests.
-- `app-LTL/src/ui/codex/ArtifactCodexBookVisualFactory.gd`
-  - Builds artifact codex cards, artwork plates, fact chips, and shape-grid detail controls.
-  - Owns codex visual style helpers for cards, frames, rarity plates, section buttons, and mouse passthrough.
+- `app-LTL/src/ui/status_panel/StatusPanelInfoCards.gd`
+  - Builds status-panel terrain copy, weakness cards, note chips, and metric card controls from node context.
+  - Normalizes weakness color data and resolves tile textures used by the status info panel.
 - `app-LTL/src/ui/StatusPanelUI.gd`
   - Renders combat target shield and health bars, extractor status, queue gems, and energy colors.
   - Clears stale queue gems so repeated rerenders do not inflate the status-column layout.
   - Builds repair, pin, terrain debuff, victory, repair overlay, and combat overlay display state.
-- `app-LTL/src/ui/status_panel/StatusPanelInfoCards.gd`
-  - Builds status-panel terrain copy, weakness cards, note chips, and metric card controls from node context.
-  - Normalizes weakness color data and resolves tile textures used by the status info panel.
 - `app-LTL/src/ui/TextCatalog.gd`
   - Provides locale state and translation key lookup.
   - Strips implementation tags and size noise from item names/descriptions for display.
@@ -1096,23 +1309,31 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/vocabulary/BackpackVocab.gd`
   - Provides the public vocabulary facade for picking artifacts up from inventory.
   - Provides facades for reward tray pickup, held placement, discard, rotate, and synergy recalculation.
-- `app-LTL/src/vocabulary/combat/RecalculateQueueColors.gd`
-  - Recalculate Queue Colors implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/combat/CombatObstacleDefinitions.gd`
+  - Builds stage-scaled obstacle dictionaries from spawn requests without selecting spawn cells or applying relic effects.
+- `app-LTL/src/vocabulary/combat/CombatObstacleFeedback.gd`
+  - Builds obstacle execution feedback events for combat UI rendering without changing obstacle effects.
 - `app-LTL/src/vocabulary/combat/CombatRelicHooks.gd`
   - Applies combat relic hooks for repair completion, obstacle execution prevention, obstacle-clear rewards, weakness-hit counters, and shot buff consumption.
 - `app-LTL/src/vocabulary/combat/CombatTerrainEffects.gd`
   - Owns color damage profiles and purple terrain buff/debuff stack mutation for combat vocabulary flows.
-- `app-LTL/src/vocabulary/combat/CombatObstacleDefinitions.gd`
-  - Builds stage-scaled obstacle dictionaries from spawn requests without selecting spawn cells or applying relic effects.
-- `app-LTL/src/vocabulary/combat/SpawnNewTileObstacles.gd`
-  - Spawn New Tile Obstacles implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/combat/RecalculateQueueColors.gd`
+  - Recalculate Queue Colors implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/combat/ShiftWeaknessMarkers.gd`
   - Shift Weakness Markers implements a focused domain vocabulary action.
+- `app-LTL/src/vocabulary/combat/SpawnNewTileObstacles.gd`
+  - Spawn New Tile Obstacles implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/CombatVocab.gd`
   - Prepares CombatSimulator instances from selected node results.
   - Applies queue consumption and delegates color damage profiles, relic hooks, obstacle definitions, and terrain effects to focused combat helpers.
   - Handles repair input, combat tick progression, battlefield shift orchestration, and inventory cooldown ticking.
   - Determines whether combat time has expired.
+- `app-LTL/src/vocabulary/narrative/BuildNarrativeTelemetry.gd`
+  - Builds stable narrative selected, shown, skipped, and history-updated telemetry payloads.
+- `app-LTL/src/vocabulary/narrative/MarkNarrativeSeen.gd`
+  - Returns copied campaign progress with narrative seen beat ids recorded once.
+- `app-LTL/src/vocabulary/narrative/SelectNarrativeBeat.gd`
+  - Selects the first valid side-effect-free narrative beat matching scene state and history, including entry-time combat and reward guide triggers.
 - `app-LTL/src/vocabulary/node/ApplyNodeModifiers.gd`
   - Applies selected node modifiers to combat snapshots.
   - Calculates modifier telemetry and returns node effect results.
@@ -1123,6 +1344,10 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/vocabulary/progression/ApplyGrowthModifiers.gd`
   - Applies growth state to inventory artifact cooldown and damage values.
   - Provides rarity-based default cooldown helpers.
+- `app-LTL/src/vocabulary/ReleaseContentVocab.gd`
+  - Loads M4-M9 release content tables into one deterministic bundle.
+  - Validates minimum coverage for nodes, leviathans, hazards, characters, passives, narrative, and resources.
+  - Projects deterministic hazard schedules plus base purchase, passive tree, and narrative read models.
 - `app-LTL/src/vocabulary/reward/ApplyRewardEffect.gd`
   - Applies selected rewards to growth state.
   - Calculates gold and XP payouts by rarity.
@@ -1134,12 +1359,15 @@ This file is the live implementation map for AI agents. It records each current 
   - Builds growth-state-changed telemetry payloads.
 - `app-LTL/src/vocabulary/reward/CodexDiscoveryState.gd`
   - Builds artifact codex discovery snapshots for starter discoveries and debug all-discovered views.
-- `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`
-  - Provides fallback reward catalog rows when the reward-table JSON cannot be loaded.
 - `app-LTL/src/vocabulary/reward/CreateArtifactFromReward.gd`
   - Creates Artifact models from reward dictionaries.
   - Converts reward rarity, type, energy, shape, cooldown, and damage values into artifact fields.
   - Provides shape and default stat helpers.
+- `app-LTL/src/vocabulary/reward/DefaultMockRewards.gd`
+  - Provides fallback reward catalog rows when the reward-table JSON cannot be loaded.
+- `app-LTL/src/vocabulary/reward/ItemFusion.gd`
+  - Encapsulates duplicate reward-item fusion for epic-and-below input artifacts.
+  - Advances fused item rarity, improves cooldown/damage/effect values, and replaces the matching inventory item atomically.
 - `app-LTL/src/vocabulary/reward/RewardCatalogOrder.gd`
   - Reward Catalog Order implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/RewardVocab.gd`
@@ -1147,20 +1375,18 @@ This file is the live implementation map for AI agents. It records each current 
   - Applies reward type mix and type-ratio weighting.
   - Handles reward table weight hashes and JSON loading.
   - Provides fallback and mock reward pools.
-- `app-LTL/src/vocabulary/ReleaseContentVocab.gd`
-  - Loads M4-M9 release content tables into one deterministic bundle.
-  - Validates minimum coverage for nodes, leviathans, hazards, characters, passives, narrative, and resources.
-  - Projects deterministic hazard schedules plus base purchase, passive tree, and narrative read models.
-- `app-LTL/src/vocabulary/narrative/BuildNarrativeTelemetry.gd`
-  - Builds stable narrative selected, shown, skipped, and history-updated telemetry payloads.
-- `app-LTL/src/vocabulary/narrative/MarkNarrativeSeen.gd`
-  - Returns copied campaign progress with narrative seen beat ids recorded once.
-- `app-LTL/src/vocabulary/narrative/SelectNarrativeBeat.gd`
-  - Selects the first valid side-effect-free narrative beat matching scene state and history, including entry-time combat and reward guide triggers.
 - `app-LTL/src/vocabulary/story/BuildStoryTelemetry.gd`
   - Builds stable story scene started, step-shown, skipped, and completed telemetry payloads.
 - `app-LTL/src/vocabulary/story/SelectStoryScene.gd`
   - Selects the first valid side-effect-free story scene matching safe page-transition state and story history.
+- `app-LTL/tests/combat_vocab/combat_vocab_core_suite.gd`
+  - combat vocab core suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/combat_vocab/combat_vocab_obstacle_suite.gd`
+  - combat vocab obstacle suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/combat_vocab/combat_vocab_spawn_suite.gd`
+  - combat vocab spawn suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/combat_vocab/combat_vocab_support.gd`
+  - combat vocab support verifies Godot contracts and regression behavior.
 - `app-LTL/tests/fixtures/input_logs/basic_clear.json`
   - basic clear verifies Godot contracts and regression behavior.
 - `app-LTL/tests/fixtures/input_logs/empty_queue_repair.json`
@@ -1172,12 +1398,20 @@ This file is the live implementation map for AI agents. It records each current 
   - Provides main scene instantiation smoke tests and fixture node table helpers.
 - `app-LTL/tests/m2_main_scene_contract.ps1`
   - m2 main scene contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_backpack_layout_contract.gd`
+  - run backpack layout contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_backpack_ui_compile_contract.gd`
   - run backpack ui compile contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_balance_and_fusion_contract.gd`
+  - Executes the focused starter balance, stage durability scaling, and duplicate item fusion contract runner.
+- `app-LTL/tests/run_battle_backpack_visual_width_contract.gd`
+  - run battle backpack visual width contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_battle_hud_layout_read_model_contract.gd`
   - Runs the focused battle HUD, phase layout, and shared backpack read-model contract suites.
 - `app-LTL/tests/run_battle_render_performance_contract.gd`
   - Verifies repeated battle renders do not refresh inactive meta page state on the tile-hit hot path.
+- `app-LTL/tests/run_character_select_cleanup_contract.gd`
+  - run character select cleanup contract verifies the simplified character-select shell copy and hover-detail behavior.
 - `app-LTL/tests/run_codex_pause_timing_contract.gd`
   - Verifies codex pause/resume preserves the steady battle terrain timer interval and saved remaining countdown.
 - `app-LTL/tests/run_combat_layout_containment_contract.gd`
@@ -1186,58 +1420,128 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the defeat-page shell copy, CTA flow, and return path stay aligned with the formal outcome-page contract.
 - `app-LTL/tests/run_i18n_localization_smoke.gd`
   - Verifies the formal text catalog can switch Korean and English output without breaking live UI copy lookup.
+- `app-LTL/tests/run_interaction_audio_runtime_contract.gd`
+  - run interaction audio runtime contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_interaction_sfx_contract.gd`
+  - Runs the focused interaction SFX contract suite and reports deterministic pass/fail output for sound routing work.
+- `app-LTL/tests/run_leviathan_select_visual_hold.gd`
+  - run leviathan select visual hold boots the live meta flow into leviathan select and keeps the real Godot window open for manual capture.
+- `app-LTL/tests/run_m6_visual_hold.gd`
+  - Boots the live M6 flow into a requested release page and keeps the real Godot window open for matrix capture.
+- `app-LTL/tests/run_m7_narrative_gating_contract.gd`
+  - Verifies M7 combat guide pause-before-action, reward guide block-before-selection, and English settings Apply & Close interactivity.
+- `app-LTL/tests/run_m8_telemetry_export.gd`
+  - Generates three M8 internal QA telemetry export sessions under the M8 evidence folder.
+- `app-LTL/tests/run_m8_vertical_slice_contract.gd`
+  - Verifies the live Main.tscn M8 defeat page same-seed and new-seed retry paths.
+- `app-LTL/tests/run_m8_visual_capture.gd`
+  - Captures live-renderer M8 evidence screenshots for node_select, battle, reward, and defeat.
 - `app-LTL/tests/run_main_layout_audit_contract.gd`
   - run main layout audit contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_main_start_flow_contract.gd`
   - Verifies the M6 page flow from character select through leviathan select, node select, combat, reward, boss clear, defeat, and return-to-character-select routes.
-- `app-LTL/tests/run_page_scene_mapping_contract.gd`
-  - Verifies each active page mockup, including the June 8 node-select crossroads shell, is backed by an instantiable Godot scene file.
 - `app-LTL/tests/run_main_viewport_probe.gd`
   - run main viewport probe verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_node_select_runtime_contract.gd`
   - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
 - `app-LTL/tests/run_node_select_start_gate_contract.gd`
   - Verifies node-select click-to-toggle selection, menu round-trip start readiness, and boss-stage mining-start gating.
-- `app-LTL/tests/run_m7_narrative_gating_contract.gd`
-  - Verifies M7 combat guide pause-before-action, reward guide block-before-selection, and English settings Apply & Close interactivity.
-- `app-LTL/tests/run_shared_backpack_visual_capture.gd`
-  - Captures shared backpack visual states used as manual evidence for docking and item art.
+- `app-LTL/tests/run_node_select_visual_capture.gd`
+  - run node select visual capture now fails fast so headless dummy-renderer runs cannot be mistaken for real node-select QA evidence.
+- `app-LTL/tests/run_node_select_visual_hold.gd`
+  - run node select visual hold boots the live meta flow into node select and keeps the real Godot window open for manual capture.
+- `app-LTL/tests/run_page_scene_mapping_contract.gd`
+  - Verifies each active page mockup, including the June 8 node-select crossroads shell, is backed by an instantiable Godot scene file.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
   - run pin miner layout probe verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_reward_board_layout_contract.gd`
+  - run reward board layout contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_ceremony_contract.gd`
   - run reward ceremony contract verifies Godot contracts and regression behavior.
-- `app-LTL/tests/run_reward_handoff_contract.gd`
-  - Verifies reward-ceremony completion hands the live reward page off to tray review with the shared backpack docked into the workspace host.
 - `app-LTL/tests/run_reward_claim_board_contract.gd`
   - Verifies reward-board deck, workspace, inspector, discard, and claim layout contracts under live selection changes.
+- `app-LTL/tests/run_reward_cleanup_layout_contract.gd`
+  - run reward cleanup layout contract verifies repeated combat queue rerenders do not accumulate stale gems and stretch gameplay layout.
+- `app-LTL/tests/run_reward_handoff_contract.gd`
+  - Verifies reward-ceremony completion hands the live reward page off to tray review with the shared backpack docked into the workspace host.
 - `app-LTL/tests/run_reward_inspector_stability_contract.gd`
   - Verifies reward-inspector rerenders do not resize the outer reward board during repeated card inspection.
 - `app-LTL/tests/run_reward_reveal_front_contract.gd`
   - run reward reveal front contract verifies Godot contracts and regression behavior.
-- `app-LTL/tests/run_reward_cleanup_layout_contract.gd`
-  - run reward cleanup layout contract verifies repeated combat queue rerenders do not accumulate stale gems and stretch gameplay layout.
+- `app-LTL/tests/run_reward_toggle_toast_visual_capture.gd`
+  - run reward toggle toast visual capture verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_settings_language_apply_contract.gd`
+  - Verifies repeated settings-language apply cycles and guards against duplicate locale-change events.
+- `app-LTL/tests/run_shared_backpack_visual_capture.gd`
+  - Captures shared backpack visual states used as manual evidence for docking and item art.
 - `app-LTL/tests/run_start_option_contract.gd`
   - run start option contract verifies Godot contracts and regression behavior.
-- `app-LTL/tests/run_test_ui_read_models.gd`
-  - run test ui read models verifies Godot contracts and regression behavior.
-- `app-LTL/tests/support/UiReadModelTestSuite.gd`
-  - Shared base suite for split UI read-model tests with common preload dependencies, assertion helpers, and reveal-cancel callbacks.
-- `app-LTL/tests/run_test_reward_contract.gd`
-  - run test reward contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_test_combat_vocab.gd`
+  - run test combat vocab executes focused combat vocabulary regression tests.
 - `app-LTL/tests/run_test_node_routing_contract.gd`
   - Executes the focused node-routing contract runner for the formal node-select and progression path surface.
+- `app-LTL/tests/run_test_reward_contract.gd`
+  - run test reward contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_test_ui_read_models.gd`
+  - run test ui read models verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_vertical_slice_flow_contract.gd`
+  - run vertical slice flow contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/support/UiReadModelTestSuite.gd`
+  - Shared base suite for split UI read-model tests with common preload dependencies, assertion helpers, and reveal-cancel callbacks.
+- `app-LTL/tests/test_backpack_vocab.gd`
+  - test backpack vocab verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_balance_and_fusion_contract.gd`
+  - Verifies starter items clear stage one within budget, Leviathan durability scales by stage, and duplicate rewards fuse generically.
+- `app-LTL/tests/test_combat_vocab.gd`
+  - test combat vocab verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_formal_replay_runner.gd`
+  - test formal replay runner verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_interaction_sfx_contract.gd`
+  - Verifies interaction SFX category inventory, combat-only thunder layering, shared volume behavior, and page transition gating.
+- `app-LTL/tests/test_narrative_contract.gd`
+  - Verifies pure narrative beat selection, seen-history updates, read models, telemetry, and side-effect boundaries.
+- `app-LTL/tests/test_node_routing_contract.gd`
+  - test node routing contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_release_content_contract.gd`
+  - test release content contract verifies M4-M9 release tables, deterministic hazards, base unlocks, passive branches, and resource manifest paths.
+- `app-LTL/tests/test_reward_claim_board_contract.gd`
+  - Verifies reward-board layout invariants and inspector-driven containment behavior at the focused test-file level.
+- `app-LTL/tests/test_reward_contract.gd`
+  - test reward contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_start_option_contract.gd`
+  - test start option contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/test_story_scene_contract.gd`
+  - Verifies full VN story scene selection, seen-history updates, read models, telemetry, and return-page boundaries.
+- `app-LTL/tests/test_ui_read_models.gd`
+  - Thin aggregator that preserves the public UI read-model test runner surface while delegating real coverage to smaller leaf suites.
+- `app-LTL/tests/test_vertical_slice_flow.gd`
+  - Verifies the M8 headless full clear, defeat, retry seed modes, reward reflection, and starter unlocks.
+- `app-LTL/tests/test_vertical_slice_replay_batch.gd`
+  - Verifies the M8 three-seed replay batch and telemetry manifest schema.
+- `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_influence_suite.gd`
+  - ui backpack influence suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_runtime_suite.gd`
+  - ui backpack runtime suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_shared_layout_suite.gd`
+  - ui backpack shared layout suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/ui_read_models/text_tooltip/ui_locale_catalog_suite.gd`
+  - ui locale catalog suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/ui_read_models/text_tooltip/ui_reward_tooltip_comparison_suite.gd`
+  - ui reward tooltip comparison suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/ui_read_models/text_tooltip/ui_tooltip_projection_suite.gd`
+  - ui tooltip projection suite verifies Godot contracts and regression behavior.
+- `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
+  - Covers the extracted app-shell layout policy for safe shell sizing, active-phase height budgets, top-content budget math, and reward backpack caps.
 - `app-LTL/tests/ui_read_models/ui_backpack_layout_suite.gd`
   - Covers shared backpack shell sizing, shared backpack hosts, and grid-layout contracts for the split UI read-model surface.
 - `app-LTL/tests/ui_read_models/ui_backpack_pin_vfx_suite.gd`
   - Verifies backpack pin count, atlas trim, anchor, visibility, and removal VFX contracts.
-- `app-LTL/tests/ui_read_models/ui_battlefield_hud_suite.gd`
-  - Covers battlefield layout, hazard presentation, miner pose mapping, and combat terrain read-model contracts.
 - `app-LTL/tests/ui_read_models/ui_battlefield_hud_status_suite.gd`
   - Covers battle HUD status panel scene structure, FIFO energy queue projection, node modifier metadata, and failure overlay contracts.
+- `app-LTL/tests/ui_read_models/ui_battlefield_hud_suite.gd`
+  - Covers battlefield layout, hazard presentation, miner pose mapping, and combat terrain read-model contracts.
 - `app-LTL/tests/ui_read_models/ui_codex_reward_board_suite.gd`
   - Covers codex panel projection, book layout, discovery state, and codex helper contracts.
-- `app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd`
-  - Covers node-select read-model projection plus reward tray, inspector, discard, and helper copy contracts.
 - `app-LTL/tests/ui_read_models/ui_defeat_visual_suite.gd`
   - Covers defeat-page model and scene-shell contracts plus nearby failure-overlay expectations.
 - `app-LTL/tests/ui_read_models/ui_interaction_controller_suite.gd`
@@ -1246,158 +1550,44 @@ This file is the live implementation map for AI agents. It records each current 
   - Covers drag feedback restoration, layout-safe interaction polish, hold-fire accessibility, combat click blocking, and VFX accessibility contracts.
 - `app-LTL/tests/ui_read_models/ui_main_controller_structure_suite.gd`
   - Covers MainController ownership split structure, helper wiring, line-budget checkpoints, and pure targeting/projection helper contracts.
-- `app-LTL/tests/ui_read_models/ui_app_shell_layout_policy_suite.gd`
-  - Covers the extracted app-shell layout policy for safe shell sizing, active-phase height budgets, top-content budget math, and reward backpack caps.
 - `app-LTL/tests/ui_read_models/ui_overlay_contract_suite.gd`
   - Covers fullscreen overlay API plus popup overlay helper front-order and pause-visibility contracts that sit outside the reward-reveal ceremony subset.
 - `app-LTL/tests/ui_read_models/ui_page_scene_model_builder_suite.gd`
   - Covers the extracted page-scene model builder for node-select copy and defeat wireframe projection contracts.
 - `app-LTL/tests/ui_read_models/ui_page_scene_registry_suite.gd`
   - Covers the extracted page-scene registry helper for host building, meta-versus-gameplay mounting, and active-page visibility toggling.
-- `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
-  - Covers the extracted reward-card cloud helper for drag-bound clamping and live-card manual-anchor retention.
-- `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
-  - Covers the extracted shared backpack host helper for reward docking and deferred node-select reparent follow-up.
 - `app-LTL/tests/ui_read_models/ui_phase_layout_suite.gd`
   - Covers phase-layout visibility, node-select shell policy, and top-content/backpack sizing contracts.
 - `app-LTL/tests/ui_read_models/ui_reward_board_layout_policy_suite.gd`
   - Covers the extracted reward-board layout policy math for board width, height targets, zone chrome subtraction, and docked backpack sizing caps.
+- `app-LTL/tests/ui_read_models/ui_reward_board_read_model_suite.gd`
+  - Covers node-select read-model projection plus reward tray, inspector, discard, and helper copy contracts.
+- `app-LTL/tests/ui_read_models/ui_reward_card_cloud_host_suite.gd`
+  - Covers the extracted reward-card cloud helper for drag-bound clamping and live-card manual-anchor retention.
 - `app-LTL/tests/ui_read_models/ui_reward_reveal_ceremony_suite.gd`
   - Covers reward-reveal ceremony sequencing, presentation gating, anticipation beats, and rarity reveal behavior.
 - `app-LTL/tests/ui_read_models/ui_reward_reveal_layout_suite.gd`
   - Covers reward-reveal safe-area, layout, and count-burst geometry contracts for the split suite surface.
+- `app-LTL/tests/ui_read_models/ui_shared_backpack_host_coordinator_suite.gd`
+  - Covers the extracted shared backpack host helper for reward docking and deferred node-select reparent follow-up.
 - `app-LTL/tests/ui_read_models/ui_text_tooltip_suite.gd`
   - Covers localized tooltip, text-catalog, roster, and basic reward read-model text projection contracts.
-- `app-LTL/tests/test_backpack_vocab.gd`
-  - test backpack vocab verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_combat_vocab.gd`
-  - test combat vocab verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_formal_replay_runner.gd`
-  - test formal replay runner verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_node_routing_contract.gd`
-  - test node routing contract verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_reward_claim_board_contract.gd`
-  - Verifies reward-board layout invariants and inspector-driven containment behavior at the focused test-file level.
-- `app-LTL/tests/test_start_option_contract.gd`
-  - test start option contract verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_reward_contract.gd`
-  - test reward contract verifies Godot contracts and regression behavior.
-- `app-LTL/tests/test_release_content_contract.gd`
-  - test release content contract verifies M4-M9 release tables, deterministic hazards, base unlocks, passive branches, and resource manifest paths.
-- `app-LTL/tests/test_narrative_contract.gd`
-  - Verifies pure narrative beat selection, seen-history updates, read models, telemetry, and side-effect boundaries.
-- `app-LTL/tests/test_story_scene_contract.gd`
-  - Verifies full VN story scene selection, seen-history updates, read models, telemetry, and return-page boundaries.
-- `app-LTL/tests/test_ui_read_models.gd`
-  - Thin aggregator that preserves the public UI read-model test runner surface while delegating real coverage to smaller leaf suites.
 - `design_review.md.resolved`
   - design review.md is a project component with a tracked responsibility.
+- `docs/agent-harness.md`
+  - Documents the two-layer generic/project harness integration and LTL worklog command usage.
+- `docs/agent-workflow-analysis.md`
+  - Summarizes observed Codex worklog strengths, weaknesses, token risks, and the adopted summary-first workflow.
 - `docs/architectural-gates/m2-refactoring-gate.md`
   - m2 refactoring gate documents project decisions, verification, or work history.
-- `docs/architectural-gates/runtime-size-gate.md`
-  - runtime size gate declares the hard caps that freeze active runtime owners near baseline and keep extracted runtime leaves within a few hundred lines.
 - `docs/architectural-gates/release-blocking-gate.md`
   - release blocking gate defines release-risk checks for removed assets, singleton node-map layout ownership, and other release-blocking regressions outside the dedicated runtime-size gate.
+- `docs/architectural-gates/runtime-size-gate.md`
+  - runtime size gate declares the hard caps that freeze active runtime owners near baseline and keep extracted runtime leaves within a few hundred lines.
 - `docs/architectural-gates/strict-refactor-gate.md`
   - strict refactor gate blocks regression in newly extracted pure presenter policies.
 - `docs/architectural-gates/warning-refactor-gate.md`
   - warning refactor gate keeps facade-entry drift and dynamic-control debt visible without claiming ownership of the large active runtime caps.
-- `docs/m6-manual-signoff-checklist.ko.md`
-  - Current Korean M6 sign-off checklist with automated status, manual QA steps, and plain-language pass criteria.
-- `docs/m6-known-issues.ko.md`
-  - Records the remaining M6 sign-off gaps and known evidence debts carried forward after user-accepted M6 closure.
-- `docs/m7-manual-signoff-checklist.ko.md`
-  - Records M7 narrative integration automatic checks, manual QA criteria, and remaining manual sign-off items.
-- `docs/evidence/shared-backpack-2026-06-16/reward_1280x720.png`
-  - Captured shared-backpack reward state evidence at the 1280x720 viewport.
-- `docs/evidence/shared-backpack-2026-06-16/reward_drop_1280x720.png`
-  - Captured shared-backpack reward drop state evidence at the 1280x720 viewport.
-- `docs/evidence/shared-backpack-2026-06-16/second_battle_1280x720.png`
-  - Captured shared-backpack second battle state evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/README.ko.md`
-  - Indexes the captured M6 screenshot matrix, capture command, viewport coverage, and manual sign-off notes.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1280x720.png`
-  - Captured live M6 battle page evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1440x900.png`
-  - Captured live M6 battle page evidence at the 1440x900 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1680x1050.png`
-  - Captured live M6 battle page evidence at the 1680x1050 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/battle_1920x1080.png`
-  - Captured live M6 battle page evidence at the 1920x1080 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1280x720.png`
-  - Captured live M6 character-select page evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1440x900.png`
-  - Captured live M6 character-select page evidence at the 1440x900 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1680x1050.png`
-  - Captured live M6 character-select page evidence at the 1680x1050 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/character_select_1920x1080.png`
-  - Captured live M6 character-select page evidence at the 1920x1080 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1280x720.png`
-  - Captured live M6 defeat page evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1440x900.png`
-  - Captured live M6 defeat page evidence at the 1440x900 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1680x1050.png`
-  - Captured live M6 defeat page evidence at the 1680x1050 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/defeat_1920x1080.png`
-  - Captured live M6 defeat page evidence at the 1920x1080 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1280x720.png`
-  - Captured live M6 leviathan-select page evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1440x900.png`
-  - Captured live M6 leviathan-select page evidence at the 1440x900 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1680x1050.png`
-  - Captured live M6 leviathan-select page evidence at the 1680x1050 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/leviathan_select_1920x1080.png`
-  - Captured live M6 leviathan-select page evidence at the 1920x1080 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1280x720.png`
-  - Captured live M6 node-select page evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1440x900.png`
-  - Captured live M6 node-select page evidence at the 1440x900 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1680x1050.png`
-  - Captured live M6 node-select page evidence at the 1680x1050 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/node_select_1920x1080.png`
-  - Captured live M6 node-select page evidence at the 1920x1080 viewport.
-- `docs/evidence/m7-narrative-story-surface-2026-06-16/node_select_1440x900.png`
-  - Captured live M7 narrative story surface evidence at the 1440x900 node-select viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1280x720.png`
-  - Captured live M6 reward page evidence at the 1280x720 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1440x900.png`
-  - Captured live M6 reward page evidence at the 1440x900 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1680x1050.png`
-  - Captured live M6 reward page evidence at the 1680x1050 viewport.
-- `docs/evidence/m6-screenshot-matrix/2026-06-15/reward_1920x1080.png`
-  - Captured live M6 reward page evidence at the 1920x1080 viewport.
-- `docs/request-ledgers/2026-06-02-refactor-harness-quality-gate.md`
-  - Records request constraints, mutable scope, refactor dispositions, verification notes, and artifact ledger expectations for this broad refactor.
-- `docs/request-ledgers/2026-06-07-page-contract-harness-hardening.md`
-  - Records request constraints, preserved runtime invariants, mutable harness scope, and verification obligations for the page-contract gate hardening pass.
-- `docs/request-ledgers/2026-06-07-character-select-layout-containment.md`
-  - Records request constraints, containment evidence, and verification obligations for the live character-select layout hardening follow-up.
-- `docs/request-ledgers/2026-06-08-test-suite-size-gate.md`
-  - Records the split-test refactor scope, preserved runner contracts, and verification obligations for the new test-size gate.
-- `docs/request-ledgers/2026-06-09-source-map-request-mapping.md`
-  - Records the harness review and integration scope for turning the live source map into a practical request-analysis input.
-- `docs/request-ledgers/2026-06-09-source-map-drift-cleanup.md`
-  - Records the focused cleanup scope and verification obligations for bringing the live source map back in sync with the current formal tree.
-- `docs/request-ledgers/2026-06-09-transition-safety-gate.md`
-  - Records the transition-safety gate request scope, preserved page-contract invariants, and blocking verification obligations.
-- `docs/request-ledgers/2026-06-11-m6-gate-fix-runtime-surgery.md`
-  - Records the two-phase scope, preserved runtime invariants, and verification obligations for the M6 gate-fix checkpoint plus runtime-separation surgery pass.
-- `docs/request-ledgers/2026-06-11-runtime-size-cap-enforcement.md`
-  - Records the scope, invariants, split units, and verification checklist for the 500-line runtime size gate hardening pass.
-- `docs/request-ledgers/2026-06-13-root-cause-anti-workaround-gate.md`
-  - Records the harness-hardening scope and verification obligations for blocking symptom-only workaround planning through root-cause proofs.
-- `docs/request-ledgers/2026-06-15-battle-render-performance-hotpath.md`
-  - Records the battle tile-hit stutter root cause, runtime performance proof, and harness high-frequency path rule changes.
-- `docs/request-ledgers/2026-06-15-main-controller-ownership-split.md`
-  - Records the main controller ownership split scope, preserved invariants, extraction units, and verification obligations.
-- `docs/request-ledgers/2026-06-15-feature-unit-lifecycle-harness.md`
-  - Records the harness methodology follow-up for enforcing design, implementation, and maintenance-stage feature-unit lifecycle planning.
-- `docs/request-ledgers/2026-06-16-m7-narrative-integration.md`
-  - Records the M7 narrative integration scope, source-map findings, verification proof, and request-analysis gate evidence.
-- `docs/release-resource-needs.md`
-  - release resource needs documents exact final-art and audio paths that can be populated after implementation.
-- `docs/release-visual-quality-upgrade-plan.md`
-  - release visual quality upgrade plan documents the staged roadmap, asset categories, and integration targets for bringing the UI to release-candidate quality.
 - `docs/comment-gates/2026-05-21-m0-m1-contract-comments.md`
   - 2026 05 21 m0 m1 contract comments documents project decisions, verification, or work history.
 - `docs/comment-gates/2026-05-22-m0-m1-contract-only.md`
@@ -1414,8 +1604,6 @@ This file is the live implementation map for AI agents. It records each current 
   - 2026 05 22 strict implementation positive documents project decisions, verification, or work history.
 - `docs/comment-gates/2026-05-26-m2-refactoring-implementation.md`
   - 2026 05 26 m2 refactoring implementation documents project decisions, verification, or work history.
-- `docs/external-ui-shader-sources.md`
-  - external ui shader sources documents GodotShaders and Godot CanvasItem references used for interaction polish.
 - `docs/comment-gates/2026-05-26-main-decoupling.md`
   - 2026 05 26 main decoupling documents project decisions, verification, or work history.
 - `docs/comment-gates/strict-gate-fixtures/header-only-negative.txt`
@@ -1424,22 +1612,16 @@ This file is the live implementation map for AI agents. It records each current 
   - implementation positive documents project decisions, verification, or work history.
 - `docs/comment-implementation-rules.md`
   - comment implementation rules documents project decisions, verification, or work history.
-- `docs/mockups/render-terrain-panel-before-after.ps1`
-  - render terrain panel before after documents project decisions, verification, or work history.
-- `docs/mockups/codex-book-approaches.html`
-  - codex book approaches documents project decisions, verification, or work history.
-- `docs/mockups/codex-book-hybrid.html`
-  - codex book hybrid documents project decisions, verification, or work history.
-- `docs/mockups/terrain-panel-before-after.html`
-  - terrain panel before after documents project decisions, verification, or work history.
-- `docs/mockups/terrain-panel-before-after-render.png`
-  - terrain panel before after render is a UI art resource or Godot import metadata file.
-- `docs/mockups/m6-run-start-wireframe.html`
-  - Release-wireframe mockup for the M6 run-start shell and onboarding composition.
-- `docs/mockups/m6-run-start-wireframe-cleanup-proposal.html`
-  - Comparison mockup that proposes the simplified run-start shell after copy and helper cleanup.
-- `docs/mockups/m6-run-start-wireframe-compare-2026-06-07.html`
-  - Review mockup that compares the June 7 run-start CTA direction against the prior wireframe shell.
+- `docs/external-ui-shader-sources.md`
+  - external ui shader sources documents GodotShaders and Godot CanvasItem references used for interaction polish.
+- `docs/interaction-sound-application-plan.md`
+  - Documents the reference-backed SFX event inventory, routing rules, and completion criteria for the interaction sound pass.
+- `docs/m6-known-issues.ko.md`
+  - Records the remaining M6 sign-off gaps and known evidence debts carried forward after user-accepted M6 closure.
+- `docs/m6-manual-signoff-checklist.ko.md`
+  - Current Korean M6 sign-off checklist with automated status, manual QA steps, and plain-language pass criteria.
+- `docs/m7-manual-signoff-checklist.ko.md`
+  - Records M7 narrative integration automatic checks, manual QA criteria, and remaining manual sign-off items.
 - `docs/mockups/2026-06-07-leviathan-cta-directions.html`
   - Review mockup that compares June 7 leviathan looting-start CTA direction options in a browser-ready layout.
 - `docs/mockups/2026-06-07-leviathan-cta-directions-9up.html`
@@ -1448,18 +1630,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Review mockup that contrasts the shortlisted third and sixth leviathan CTA directions side by side.
 - `docs/mockups/2026-06-08-node-select-crossroads-3up.html`
   - Review mockup that compares the three-up June 8 node-select crossroads redesign directions.
-- `docs/mockups/m6-node-select-run-flow-wireframe.html`
-  - Release-wireframe mockup for the M6 route-selection page and leviathan flow presentation.
-- `docs/mockups/m6-reward-claim-wireframe.html`
-  - Release-wireframe mockup for the M6 reward-claim page and backpack/inspect interaction.
-- `docs/mockups/m6-event-node-wireframe.html`
-  - Release-wireframe mockup for the M6 event-node page and large narrative art treatment.
-- `docs/mockups/m6-boss-reward-pick-wireframe.html`
-  - Release-wireframe mockup for the M6 boss reward pick page and finale reward framing.
-- `docs/mockups/m6-defeat-page-wireframe.html`
-  - Release-wireframe mockup for the M6 defeat page and restart/escape presentation.
-- `docs/mockups/m6-leviathan-select-wireframe.html`
-  - Release-wireframe mockup for the M6 leviathan selection and contract briefing page.
 - `docs/mockups/2026-06-12-battle-hud-queue-status-mockup.html`
   - Combined battle HUD queue and status-panel comparison artifact kept as an active design reference.
 - `docs/mockups/2026-06-12-battle-hud-queue-status-mockup-v2.html`
@@ -1470,72 +1640,46 @@ This file is the live implementation map for AI agents. It records each current 
   - Large-format review artifact for battle HUD energy queue directions and FIFO examples.
 - `docs/mockups/2026-06-13-battle-hud-info-panel-variants.html`
   - Large-format review artifact for battle HUD information-panel directions.
+- `docs/mockups/codex-book-approaches.html`
+  - codex book approaches documents project decisions, verification, or work history.
+- `docs/mockups/codex-book-hybrid.html`
+  - codex book hybrid documents project decisions, verification, or work history.
+- `docs/mockups/hazard-tile-approaches.html`
+  - hazard tile approaches mockup records visual comparison options for hazard tile treatment.
+- `docs/mockups/hazard-tile-state-matrix.html`
+  - hazard tile state matrix mockup records hazard tile visual states for review.
+- `docs/mockups/m6-boss-reward-pick-wireframe.html`
+  - Release-wireframe mockup for the M6 boss reward pick page and finale reward framing.
+- `docs/mockups/m6-defeat-page-wireframe.html`
+  - Release-wireframe mockup for the M6 defeat page and restart/escape presentation.
+- `docs/mockups/m6-event-node-wireframe.html`
+  - Release-wireframe mockup for the M6 event-node page and large narrative art treatment.
+- `docs/mockups/m6-leviathan-select-wireframe.html`
+  - Release-wireframe mockup for the M6 leviathan selection and contract briefing page.
+- `docs/mockups/m6-node-select-run-flow-wireframe.html`
+  - Release-wireframe mockup for the M6 route-selection page and leviathan flow presentation.
+- `docs/mockups/m6-reward-claim-wireframe.html`
+  - Release-wireframe mockup for the M6 reward-claim page and backpack/inspect interaction.
+- `docs/mockups/m6-run-start-wireframe.html`
+  - Release-wireframe mockup for the M6 run-start shell and onboarding composition.
+- `docs/mockups/m6-run-start-wireframe-cleanup-proposal.html`
+  - Comparison mockup that proposes the simplified run-start shell after copy and helper cleanup.
+- `docs/mockups/m6-run-start-wireframe-compare-2026-06-07.html`
+  - Review mockup that compares the June 7 run-start CTA direction against the prior wireframe shell.
+- `docs/mockups/render-terrain-panel-before-after.ps1`
+  - render terrain panel before after documents project decisions, verification, or work history.
+- `docs/mockups/terrain-panel-before-after.html`
+  - terrain panel before after documents project decisions, verification, or work history.
+- `docs/mockups/terrain-panel-before-after-render.png`
+  - terrain panel before after render is a UI art resource or Godot import metadata file.
+- `docs/release-resource-needs.md`
+  - release resource needs documents exact final-art and audio paths that can be populated after implementation.
+- `docs/release-visual-quality-upgrade-plan.md`
+  - release visual quality upgrade plan documents the staged roadmap, asset categories, and integration targets for bringing the UI to release-candidate quality.
 - `docs/source-map.md`
   - Live implementation map that records current directories, files, responsibilities, and harness request-triage lookup targets.
-- `docs/superpowers/plans/2026-05-20-m2-formal-combat-scene.md`
-  - 2026 05 20 m2 formal combat scene documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-21-execution-stage-gate.md`
-  - 2026 05 21 execution stage gate documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-28-m3-pre-refactor-logical-capsules.md`
-  - 2026 05 28 m3 pre refactor logical capsules documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-28-m3-reward-progression-contract-gap-plan.md`
-  - 2026 05 28 m3 reward progression contract gap plan documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-28-m4-node-routing-plan.md`
-  - 2026 05 28 m4 node routing plan documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-29-source-cleanup-deletion-plan.md`
-  - 2026 05 29 source cleanup deletion plan documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-31-request-analysis-execution-gates.md`
-  - 2026 05 31 request analysis execution gates documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-05-31-ui-layout-system-refactor-plan.md`
-  - 2026 05 31 ui layout system refactor plan documents project decisions, verification, or work history.
-- `docs/superpowers/plans/2026-06-01-backpack-pin-layout-vfx-implementation-plan.md`
-  - Records the backpack pin layout and VFX implementation plan.
-- `docs/superpowers/plans/2026-06-01-reward-ceremony-implementation-plan.md`
-  - Records the reward ceremony implementation plan and verification path.
-- `docs/superpowers/plans/2026-06-02-refactor-harness-quality-gate-plan.md`
-  - Records the refactor review and harness quality gate modification plan.
-- `docs/superpowers/plans/2026-06-03-artifact-codex-book-implementation-plan.md`
-  - Records the artifact codex book implementation plan and verification scope.
-- `docs/superpowers/plans/2026-06-03-m5-obstacle-relic-implementation-plan.md`
-  - Records the M5 obstacle and relic implementation plan, scope, and closure checks.
-- `docs/superpowers/plans/2026-06-03-m6-ui-ux-finalization-plan.md`
-  - Records the M6 UI and UX finalization plan and milestone sequencing.
-- `docs/superpowers/plans/2026-06-04-boss-aware-hazard-new-tile-spawn-plan.md`
-  - Records the boss-aware hazard new-tile spawn plan and verification scope.
-- `docs/superpowers/plans/2026-06-04-m6-ui-ux-finalization-refresh-plan.md`
-  - Records the refreshed M6 UI and UX finalization plan after auditing the live codebase and reference direction.
-- `docs/superpowers/plans/2026-06-04-relic-obstacle-runtime-alignment-plan.md`
-  - Records the relic obstacle runtime alignment plan for reward data, trigger vocabulary, and verification updates.
-- `docs/superpowers/plans/2026-06-05-phase-first-page-shell-wireframes-and-harness-plan.md`
-  - Records the M6 phase-first page shell wireframe rollout and harness-verification sequence.
-- `docs/superpowers/plans/2026-06-07-node-select-runtime-page-replacement-plan.md`
-  - Records the clean node-select runtime-page replacement plan, routing swap, verification sequence, and legacy deletion scope.
-- `docs/superpowers/plans/2026-06-07-leviathan-monument-condensed-implementation.md`
-  - Records the approved Monument Condensed leviathan CTA implementation sequence and verification notes.
-- `docs/superpowers/plans/2026-06-09-transition-safety-gate-implementation.md`
-  - Records the implementation plan for the transition-safety gate, its ledger wiring, and the expected verification sequence.
-- `docs/superpowers/plans/2026-06-11-runtime-owner-separation-plan.md`
-  - Records the active-runtime versus legacy-residue separation plan, extraction waves, and harness guardrails for future refactors.
-- `docs/superpowers/plans/2026-06-11-runtime-size-cap-enforcement-plan.md`
-  - Records the frozen debt semantics, immediate split tasks, and verification sequence for small runtime files.
-- `docs/superpowers/plans/2026-06-11-reward-cloud-and-runtime-responsibility-gate-implementation.md`
-  - Records the reward-card cloud extraction wave and the pre-edit runtime-owner responsibility gate hardening plan.
-- `docs/superpowers/plans/2026-06-11-debug-runtime-cleanup-separation-plan.md`
-  - Records the debug-runtime cleanup boundary, prototype preservation policy, generated-residue deletion set, and internal scene/script cleanup waves.
-- `docs/superpowers/plans/2026-06-11-scene-script-runtime-inventory-audit.md`
-  - Records the exhaustive Godot scene and GDScript runtime inventory audit, including runtime, test-only, prototype, and migration-required cleanup classes.
-- `docs/superpowers/plans/2026-06-12-character-select-starter-card-redesign.md`
-  - Records the structured starter-card redesign plan for the character-select prep column and its focused verification steps.
-- `docs/superpowers/plans/2026-06-13-m7-narrative-integration-replan.ko.md`
-  - Records the M7 narrative integration replan, scope boundaries, and verification expectations.
-- `docs/superpowers/plans/2026-06-14-battle-hud-runtime-implementation.md`
-  - Records the battle HUD runtime implementation sequence, layout contracts, and focused verification steps.
-- `docs/superpowers/plans/2026-06-15-runtime-size-preedit-enforcement.md`
-  - Records the runtime-size pre-edit enforcement plan, glob-cap owner coverage, and focused harness verification steps.
-- `docs/superpowers/plans/2026-06-15-main-controller-ownership-split.md`
-  - Records the implementation plan for moving controller ownership into MainController and extracting controller helper units.
-- `docs/superpowers/plans/2026-06-15-main-controller-500-line-split.md`
-  - Records the follow-up plan for reducing MainController to roughly 500 lines and consolidating tiny controller helpers.
+- `docs/source-map-gate-analysis.md`
+  - source map gate analysis documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-28-m4-node-routing-design.md`
   - 2026 05 28 m4 node routing design documents project decisions, verification, or work history.
 - `docs/superpowers/specs/2026-05-29-node-map-loadout-balance-design.md`
@@ -1548,8 +1692,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the 56-item drill/beacon pool expansion design, rarity balance, and verification scope.
 - `docs/superpowers/specs/2026-06-03-artifact-codex-book-design.ko.md`
   - Records the artifact codex book design decisions, UI contract, and visual direction.
+- `docs/superpowers/specs/2026-06-03-hazard-tile-visual-design.ko.md`
+  - hazard tile visual design spec records the Korean design decision for hazard tile presentation.
 - `docs/superpowers/specs/2026-06-03-m5-obstacle-relic-backpack-design.ko.md`
   - Records the M5 obstacle, relic, and backpack design rules and intended gameplay behavior.
+- `docs/superpowers/specs/2026-06-04-tmp-work-temp-consolidation-design.md`
+  - Records the temporary work and temp-file consolidation design decisions and guardrails.
 - `docs/superpowers/specs/2026-06-05-m6-wireframe-mockups-design.ko.md`
   - Records the M6 page-by-page wireframe mockup design direction and review criteria.
 - `docs/superpowers/specs/2026-06-05-page-contract-harness-audit-design.ko.md`
@@ -1564,8 +1712,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the June 9 transition-safety gate design and the contract expectations for safer page and phase handoffs.
 - `docs/superpowers/specs/2026-06-14-battle-hud-runtime-design.md`
   - Records the battle HUD runtime design direction, visual contract, and layout acceptance criteria.
-- `docs/superpowers/specs/2026-06-04-tmp-work-temp-consolidation-design.md`
-  - Records the temporary work and temp-file consolidation design decisions and guardrails.
+- `docs/templates/agent-worklog-template.md`
+  - Provides the shared compact worklog closeout template for Hermes, Codex, and other agents.
 - `LTL-harness/00_AGENTS.md`
   - 00 AGENTS defines the LTL harness agent rules, including request-analysis and source-map usage requirements.
 - `LTL-harness/docs/00_PRODUCT_SENSE.md`
@@ -1586,8 +1734,6 @@ This file is the live implementation map for AI agents. It records each current 
   - 09 DEPLOYMENT explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/10_OPERATIONS.md`
   - 10 OPERATIONS explains harness operating rules and implementation procedures.
-- `LTL-harness/docs/transition-safety-gate.md`
-  - Documents the transition-safety gate contract, including allowed page and phase handoff sequences plus failure semantics.
 - `LTL-harness/docs/11_exec-plans/01_active/01_P0_test_harness_and_logs.md`
   - 01 P0 test harness and logs defines scope and verification for an active milestone.
 - `LTL-harness/docs/11_exec-plans/01_active/02_P1_headless_core_loop.md`
@@ -1648,6 +1794,8 @@ This file is the live implementation map for AI agents. It records each current 
   - 11 M5 hazard hierarchy completed records the verified outputs, plan deviations, and remaining gaps for the closed milestone.
 - `LTL-harness/docs/11_exec-plans/02_completed/12_M6_ui_ux_finalization_completed.md`
   - 12 M6 ui ux finalization completed records the user-accepted closure state, verification evidence, and carried-forward manual QA gaps for the closed milestone.
+- `LTL-harness/docs/11_exec-plans/02_completed/13_M7_narrative_integration_completed.md`
+  - 13 M7 narrative integration completed records verified narrative/story outputs, M7 gates, and remaining manual QA gaps.
 - `LTL-harness/docs/12_product-specs/01_CORE_COMBAT.md`
   - 01 CORE COMBAT defines product rules and domain specifications.
 - `LTL-harness/docs/12_product-specs/02_INVENTORY_SYNERGY.md`
@@ -1688,6 +1836,10 @@ This file is the live implementation map for AI agents. It records each current 
   - phase gate examples explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/post-m0-godot-enforcement.md`
   - post m0 godot enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/qa/m8_known_issues.md`
+  - Records M8 blockers, non-blocking gaps, and the completion blocker policy.
+- `LTL-harness/docs/qa/m8_vertical_slice_report.md`
+  - Records M8 vertical-slice automated QA status, acceptance notes, and manual QA gaps.
 - `LTL-harness/docs/request-analysis-execution-gate.md`
   - Explains the source-map-first request analysis flow and the pre-edit lifecycle, runtime-performance, execution-responsibility, and pre-complete gates for broad refactors and large change sets.
 - `LTL-harness/docs/templates/backup-manifest-template.md`
@@ -1698,6 +1850,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Template for recording invariants, mutable scope, source-map findings, feature-unit lifecycle planning, runtime performance review, refactor/delete disposition, verification, and artifact ledger expectations.
 - `LTL-harness/docs/templates/request-execution-checklist-template.md`
   - Template for running request analysis before edits and before completion.
+- `LTL-harness/docs/transition-safety-gate.md`
+  - Documents the transition-safety gate contract, including allowed page and phase handoff sequences plus failure semantics.
+- `LTL-harness/docs/worklog-token-policy.md`
+  - Defines the LTL child-harness policy for using compact agent worklog summaries instead of raw transcript history as default context.
 - `LTL-harness/README.md`
   - README introduces the harness workflow, including source-map verification and source-map-driven request triage.
 - `LTL-harness/tools/architectural-gate.ps1`
@@ -1724,14 +1880,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Queries the live source map and prints request-scoped candidate files plus responsibility notes for faster source triage.
 - `LTL-harness/tools/request-source-map.tests.ps1`
   - Covers keyword, path-prefix, zero-match, and missing-filter scenarios for the request source-map helper.
-- `LTL-harness/tools/source-map-gate.ps1`
-  - source map gate is a harness validation gate or automation tool.
-- `LTL-harness/tools/source-map-gate.tests.ps1`
-  - source map gate.tests is a harness validation gate or automation tool.
 - `LTL-harness/tools/runtime-size-gate.ps1`
   - Enforces hard caps on the real active runtime owner files and on small extracted runtime leaf surfaces.
 - `LTL-harness/tools/runtime-size-gate.tests.ps1`
   - Covers exact-owner caps, glob-based leaf caps, override behavior, and missing-owner failures for the runtime-size gate.
+- `LTL-harness/tools/source-map-gate.ps1`
+  - source map gate is a harness validation gate or automation tool.
+- `LTL-harness/tools/source-map-gate.tests.ps1`
+  - source map gate.tests is a harness validation gate or automation tool.
 - `LTL-harness/tools/test-size-gate.ps1`
   - Enforces strict size caps on the split UI read-model suite surface and warns on untouched legacy oversized test files.
 - `LTL-harness/tools/test-size-gate.tests.ps1`
@@ -1740,18 +1896,24 @@ This file is the live implementation map for AI agents. It records each current 
   - Runs the blocking transition-safety verification that checks approved page and phase handoff paths before broader quality gates continue.
 - `LTL-harness/tools/transition-safety-gate.tests.ps1`
   - Covers the transition-safety gate success path and ledger/root failure scenarios.
+- `tools/agent-worklog.ps1`
+  - Wraps the generic worklog-token gate for LTL project paths and exposes inspect, token-report, summarize, validate, compact, and new-log modes.
 - `tools/apply-agent-harness-phase-gate.ps1`
   - apply agent harness phase gate runs local verification or workflow automation.
+- `tools/capture-m6-screenshot-matrix.ps1`
+  - Launches live Godot M6 page holds across viewport sizes and captures a repository screenshot evidence matrix.
+- `tools/capture-node-select-runtime.ps1`
+  - capture node select runtime launches the live Godot window, waits for the node-select hold script to settle, and writes the canonical QA screenshot artifact.
 - `tools/godot-runner.ps1`
   - Normalizes Godot log paths, prepares the local Godot temp environment, and exposes shared PowerShell runner helpers.
-- `tools/run-compile-check.ps1`
-  - Runs the fast local verification path, including source-map, test-size, runtime-size, page-contract, and Godot smoke checks.
-- `tools/invoke-godot.ps1`
-  - Provides the canonical local Godot CLI entry point that routes ad hoc logs into app-LTL/.tmp-godot-logs.
-- `tools/run-ltl-quality-gate.ps1`
-  - Runs the consolidated LTL source, harness, request-analysis, test-size, runtime-size, architecture, and Godot contract quality gate.
 - `tools/godot-runner.tests.ps1`
   - Verifies the local Godot runner helper path normalization and temporary environment setup behavior.
+- `tools/invoke-godot.ps1`
+  - Provides the canonical local Godot CLI entry point that routes ad hoc logs into app-LTL/.tmp-godot-logs.
+- `tools/run-compile-check.ps1`
+  - Runs the fast local verification path, including source-map, test-size, runtime-size, page-contract, and Godot smoke checks.
+- `tools/run-ltl-quality-gate.ps1`
+  - Runs the consolidated LTL source, harness, request-analysis, test-size, runtime-size, architecture, and Godot contract quality gate.
 - `tools/watch-compile.ps1`
   - watch compile runs local verification or workflow automation.
 - `구현기획서_Godot_TDD.md`
@@ -1760,48 +1922,4 @@ This file is the live implementation map for AI agents. It records each current 
   - Describes the v0.1 product plan and early design direction.
 - `기획서v0.2.md`
   - Describes the v0.2 product plan and updated design direction.
-- `app-LTL/resources/UI/tile/blue_tile_hazard.png`
-  - blue tile hazard is a UI art resource for blue-family hazard overlays.
-- `app-LTL/resources/UI/tile/blue_tile_hazard.png.import`
-  - blue tile hazard import stores Godot metadata for the blue hazard overlay texture.
-- `app-LTL/resources/UI/tile/green_tile_hazard.png`
-  - green tile hazard is a UI art resource for green-family hazard overlays.
-- `app-LTL/resources/UI/tile/green_tile_hazard.png.import`
-  - green tile hazard import stores Godot metadata for the green hazard overlay texture.
-- `app-LTL/resources/UI/tile/purple_tile_hazard.png`
-  - purple tile hazard is a UI art resource for purple-family hazard overlays.
-- `app-LTL/resources/UI/tile/purple_tile_hazard.png.import`
-  - purple tile hazard import stores Godot metadata for the purple hazard overlay texture.
-- `app-LTL/resources/UI/tile/red_tile_hazard.png`
-  - red tile hazard is a UI art resource for red-family hazard overlays.
-- `app-LTL/resources/UI/tile/red_tile_hazard.png.import`
-  - red tile hazard import stores Godot metadata for the red hazard overlay texture.
-- `app-LTL/src/balance/EnergyTempoBalance.gd`
-  - EnergyTempoBalance owns queue tempo constants, cooldown scaling, and terrain energy marker palette generation.
-- `app-LTL/tests/run_test_combat_vocab.gd`
-  - run test combat vocab executes focused combat vocabulary regression tests.
-- `app-LTL/tests/run_character_select_cleanup_contract.gd`
-  - run character select cleanup contract verifies the simplified character-select shell copy and hover-detail behavior.
-- `app-LTL/tests/run_node_select_visual_capture.gd`
-  - run node select visual capture now fails fast so headless dummy-renderer runs cannot be mistaken for real node-select QA evidence.
-- `app-LTL/tests/run_node_select_visual_hold.gd`
-  - run node select visual hold boots the live meta flow into node select and keeps the real Godot window open for manual capture.
-- `app-LTL/tests/run_leviathan_select_visual_hold.gd`
-  - run leviathan select visual hold boots the live meta flow into leviathan select and keeps the real Godot window open for manual capture.
-- `app-LTL/tests/run_m6_visual_hold.gd`
-  - Boots the live M6 flow into a requested release page and keeps the real Godot window open for matrix capture.
-- `app-LTL/tests/run_settings_language_apply_contract.gd`
-  - Verifies repeated settings-language apply cycles and guards against duplicate locale-change events.
-- `tools/capture-node-select-runtime.ps1`
-  - capture node select runtime launches the live Godot window, waits for the node-select hold script to settle, and writes the canonical QA screenshot artifact.
-- `tools/capture-m6-screenshot-matrix.ps1`
-  - Launches live Godot M6 page holds across viewport sizes and captures a repository screenshot evidence matrix.
-- `docs/mockups/hazard-tile-approaches.html`
-  - hazard tile approaches mockup records visual comparison options for hazard tile treatment.
-- `docs/mockups/hazard-tile-state-matrix.html`
-  - hazard tile state matrix mockup records hazard tile visual states for review.
-- `docs/superpowers/plans/2026-06-03-hazard-active-only-implementation-plan.md`
-  - hazard active only implementation plan records the planned hazard visual and behavior correction steps.
-- `docs/superpowers/specs/2026-06-03-hazard-tile-visual-design.ko.md`
-  - hazard tile visual design spec records the Korean design decision for hazard tile presentation.
 

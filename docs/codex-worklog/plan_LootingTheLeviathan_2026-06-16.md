@@ -5,61 +5,62 @@ Date: 2026-06-16
 
 ## Active Work
 
-Mark the current M7 implementation bundle complete, verify it, commit it, and
-push `codex/m4-m9-release-quality-implementation` to origin.
+Promote reusable process, methodology, gate, and testing improvements from the
+LTL-specific harness into the generic `D:\Programming\ex_workspace\agent-harness`
+without copying LTL-only project assumptions.
 
 ## Request Summary
 
-The user asked to mark the current M7 implementation complete, commit the
-current bundle, and push it to git. Earlier M7 implementation and follow-up
-work is already recorded in this dated plan; this active request is the final
-status/documentation handoff and git publish step for the current dirty tree.
+The user approved applying the prior comparison design. The task is to update
+the generic harness with general forms of the LTL harness practices: stronger
+request-analysis ledgers, source-map-based request triage, handoff/transition
+proofs, runtime-size and feature-unit lifecycle budgeting, runtime performance
+review, and resolution-proof completion evidence.
 
 ## Scope
 
-- Mark the M7 replan checklist as completed based on the already-recorded
-  implementation and verification evidence.
-- Keep manual M7 signoff items unchecked unless they require and receive fresh
-  human/player QA evidence.
-- Update today's worklog history/completion for this commit-and-push handoff.
-- Run the available compile/quality gates and record exact verification results
-  before committing.
-- Stage, commit, and push the current M7-related bundle on the active branch.
-- Mutable completion-status files:
-  `docs/superpowers/plans/2026-06-13-m7-narrative-integration-replan.ko.md`,
-  `docs/codex-worklog/plan_LootingTheLeviathan_2026-06-16.md`,
-  `docs/codex-worklog/history_LootingTheLeviathan_2026-06-16.md`, and
-  `docs/codex-worklog/complete_LootingTheLeviathan_2026-06-16.md`.
+- Update `D:\Programming\ex_workspace\agent-harness` documents, templates, gate
+  scripts, and self-tests only where they express project-agnostic harness rules.
+- Add or strengthen tests before changing gate implementation.
+- Keep LTL-specific Godot paths, app-LTL paths, page names, and success markers
+  out of generic defaults unless they are replaced by manifest or registry inputs.
+- Update LTL workspace worklog files to record this cross-harness task.
 
 ## Out Of Scope
 
-- Additional gameplay, UI, story, reward, narrative, or harness behavior changes.
-- Manual QA signoff without fresh human/player evidence.
-- PR creation, branch switching, merge, force push, reset, or discard.
+- Changes to `app-LTL/src/**`, `app-LTL/tests/**`, narrative data, gameplay UI,
+  or existing dirty M7 implementation files.
 - Reverting user or earlier agent changes in the current dirty tree.
+- Hard-coding LTL child-harness rules into the generic harness.
+- Git commit, push, branch switching, merge, force push, reset, or discard.
 
 ## Steps
 
-- Inspect the dirty tree and confirm the bundle is M7/follow-up related.
-- Update M7 completion/status docs with minimal edits.
-- Run `tools/run-compile-check.ps1`, `tools/run-ltl-quality-gate.ps1`, and
-  `git diff --check`.
-- Stage the intended bundle, create a git commit, and push the current branch.
-- Record the completion outcome and remaining unverified areas honestly.
+- Inspect current generic harness files and worklog state.
+- Write failing or strengthened self-tests for promoted generic gate behavior.
+- Implement the smallest generic scripts/templates/docs needed to satisfy those
+  tests and the approved design.
+- Update `docs/source-map.md` for added or changed generic harness files.
+- Run focused self-tests and source/request gates; record any blocker honestly.
 
 ## Expected Outputs
 
-- M7 plan/worklog documents no longer describe the already-completed
-  implementation as pending.
-- A new commit on `codex/m4-m9-release-quality-implementation`.
-- The active branch pushed to `origin/codex/m4-m9-release-quality-implementation`.
-- Manual signoff gaps remain visible rather than being silently checked off.
+- Generic request ledgers require source-map findings, root-cause review,
+  transition safety review, feature-unit lifecycle planning when relevant, and
+  resolution proof before completion.
+- Generic source-map triage helper, handoff-contract gate, and runtime-size gate
+  are available with project-configurable paths or registries.
+- Generic docs, templates, README, and source map explain how child harnesses
+  adopt the promoted practices.
+- LTL worklog records scope, changes, verification, and any residual gaps.
 
 ## Verification Method
 
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1 -RequestLedger docs/request-ledgers/2026-06-16-m7-narrative-integration.md`
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-ltl-quality-gate.ps1 -RequestLedger docs/request-ledgers/2026-06-16-m7-narrative-integration.md`
-- `git diff --check`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/request-analysis-gate.tests.ps1`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tools/source-map-gate.ps1 -Root D:\Programming\ex_workspace\agent-harness`
+- New generic gate self-tests introduced by this task.
+- `git diff --check` in the LTL workspace for worklog edits, plus direct file
+  inspection for the non-git generic harness.
 
 ## Plan Change Log
 
@@ -76,6 +77,8 @@ status/documentation handoff and git publish step for the current dirty tree.
   settings apply-and-close freeze.
 - 2026-06-16: Switched top-level active work to the user's current completion
   request: mark M7 complete, verify, commit, and push the branch.
+- 2026-06-16: Switched top-level active work to the user's approved request to
+  reflect LTL harness improvements back into the generic `agent-harness`.
 
 ## Active Work Update - M7 Narrative Start Prompt Follow-up
 
@@ -329,6 +332,45 @@ push it to git.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1 -RequestLedger docs/request-ledgers/2026-06-16-m7-narrative-integration.md`
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-ltl-quality-gate.ps1 -RequestLedger docs/request-ledgers/2026-06-16-m7-narrative-integration.md`
 - `git diff --check`
+
+## Active Work Update - Generic Harness Process Promotion Continued
+
+### Request summary
+
+The user approved applying the comparison design: promote generalizable LTL
+harness improvements into the generic `agent-harness`.
+
+### Scope
+
+- Modify only generic harness docs, templates, gate scripts, and self-tests, plus
+  worklog files.
+- Add or strengthen tests before gate implementation changes.
+- Keep LTL-specific paths, Godot runners, page names, and success markers out of
+  generic defaults.
+
+### Out of scope
+
+- LTL app source, tests, narrative data, UI files, or existing dirty M7 changes.
+- Git commit, push, reset, branch switching, or unrelated cleanup.
+
+### Steps
+
+- Add failing self-tests for strengthened generic request-analysis behavior.
+- Add generic request-source-map, handoff-contract, and runtime-size gate tests.
+- Implement generic scripts and docs with project-configurable inputs.
+- Run focused self-tests and source-map verification.
+
+### Expected outputs
+
+- Generic harness includes reusable gate and process content distilled from LTL.
+- Child harnesses can opt into project-specific handoff and runtime-size checks
+  by declaring registries and manifests.
+
+### Verification method
+
+- Generic gate self-tests in `D:\Programming\ex_workspace\agent-harness\tools`.
+- Generic source-map gate against `D:\Programming\ex_workspace\agent-harness`.
+- LTL `git diff --check` for worklog-only changes in this workspace.
 
 ## Active Work Update - Generic Harness Process Promotion
 

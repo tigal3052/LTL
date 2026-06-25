@@ -50,6 +50,7 @@ func get_scene() -> Dictionary:
 	scene["diagnostics"] = read_model.get("diagnostics", []).duplicate(true)
 	scene["stageIndex"] = read_model.get("stageIndex", -1)
 	scene["maxStages"] = read_model.get("maxStages", -1)
+	scene["leviathanId"] = snapshot.get("leviathanId", leviathan_id)
 	scene["runIndex"] = read_model.get("runIndex", -1)
 	scene["runCount"] = read_model.get("runCount", -1)
 	scene["runComplete"] = read_model.get("runComplete", false)
@@ -87,10 +88,6 @@ func hold_fire(cell_id: String, target_color: String = "red", repeat: int = 1) -
 	adapter.hold_fire(cell_id, target_color, repeat)
 	return get_scene()
 
-func repair() -> Dictionary:
-	adapter.request_repair()
-	return get_scene()
-
 func claim_rewards() -> Dictionary:
 	adapter.claim_rewards()
 	return get_scene()
@@ -109,6 +106,8 @@ func reset() -> Dictionary:
 		run_opts["tuning"] = init_options["tuning"]
 	if init_options.has("queueCapacity"):
 		run_opts["queueCapacity"] = init_options["queueCapacity"]
+	if init_options.has("growth"):
+		run_opts["growth"] = init_options["growth"].duplicate(true) if init_options["growth"] is Dictionary else {}
 	run = HeadlessMiniRunScript.new(run_opts)
 	adapter = CombatInputAdapterScript.new(run)
 	return get_scene()

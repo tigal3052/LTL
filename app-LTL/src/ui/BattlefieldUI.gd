@@ -75,7 +75,7 @@ func _process(delta: float) -> void:
 	if battle_backdrop == null or battle_pause_active:
 		return
 	backdrop_drift_time += delta
-	battle_backdrop.scale = Vector2.ONE * (1.015 + sin(backdrop_drift_time * 0.45) * 0.01)
+	battle_backdrop.scale = Vector2.ONE * 1.015
 	battle_backdrop.position.y = -6.0 + sin(backdrop_drift_time * 0.30) * 4.0
 
 func set_battle_pause_active(active: bool) -> void:
@@ -279,6 +279,10 @@ func play_miner_pose_for_cell(cell_id: String) -> void:
 func update_combat_time(time_left: float, time_limit: float, in_combat: bool) -> void:
 	if vfx_overlay != null:
 		vfx_overlay.update_combat_time(time_left, time_limit, in_combat)
+
+func trigger_obstacle_flash(family: String) -> void:
+	if vfx_overlay != null and vfx_overlay.has_method("trigger_obstacle_flash"):
+		vfx_overlay.trigger_obstacle_flash(family)
 
 func reward_lid_source_global_rect() -> Rect2:
 	if battlefield_grid != null and battlefield_grid.get_child_count() > 0:

@@ -65,7 +65,7 @@ static func validate_content_bundle(bundle: Dictionary) -> Dictionary:
 	_require_unique_ids(bundle.get("narrativeBeats", []), "narrativeBeats", errors)
 	_require_unique_ids(bundle.get("storyScenes", []), "storyScenes", errors)
 	_require_unique_ids(bundle.get("resourceNeeds", []), "resourceNeeds", errors)
-	_validate_required_fields(bundle.get("leviathans", []), "leviathans", ["id", "name", "stageCnt", "runCnt", "bossNodeId"], errors)
+	_validate_leviathan_fields(bundle.get("leviathans", []), errors)
 	_validate_required_fields(bundle.get("characters", []), "characters", ["id", "name", "costGold", "modifiers"], errors)
 	_validate_required_fields(bundle.get("hazards", []), "hazards", ["id", "warningTicks", "durationTicks", "pinDelta", "counterplay"], errors)
 	_validate_required_fields(bundle.get("baseShop", []), "baseShop", ["id", "type", "costGold", "unlockId"], errors)
@@ -195,6 +195,16 @@ static func _validate_required_fields(items: Array, table_name: String, fields: 
 		for field in fields:
 			if not item.has(str(field)):
 				errors.append("%s.%s missing %s" % [table_name, id, str(field)])
+
+# ?ㅽ뻾: validate Leviathan fields while accepting legacy and release-count aliases.
+static func _validate_leviathan_fields(items: Array, errors: Array[String]) -> void:
+	_validate_required_fields(items, "leviathans", ["id", "name", "bossNodeId"], errors)
+	for item in items:
+		var id := str(item.get("id", "<missing>"))
+		if not (item.has("stageCount") or item.has("stageCnt")):
+			errors.append("leviathans.%s missing stageCount/stageCnt" % id)
+		if not (item.has("runCount") or item.has("runCnt")):
+			errors.append("leviathans.%s missing runCount/runCnt" % id)
 
 # 실행: validate story scenes and nested VN step rows.
 static func _validate_story_scene_fields(items: Array, errors: Array[String]) -> void:

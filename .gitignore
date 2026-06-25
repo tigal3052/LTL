@@ -10,6 +10,7 @@ export_credentials.cfg
 *.log
 .tmp-*/
 .superpowers/
+.hermes/
 
 # Imported translations (automatically generated from CSV files)
 *.translation

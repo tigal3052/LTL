@@ -68,7 +68,8 @@ static func apply_reward_backpack_dock(
 ) -> void:
 	if backpack_container == null or reward_backpack_host == null or backpack_original_parent == null:
 		return
-	if not set_reward_workspace_title_state.is_null():
+	var touches_reward_backpack_host := dock_to_board or backpack_container.get_parent() == reward_backpack_host
+	if touches_reward_backpack_host and not set_reward_workspace_title_state.is_null():
 		set_reward_workspace_title_state.call(dock_to_board)
 	if dock_to_board:
 		if backpack_container.get_parent() != reward_backpack_host and not schedule_backpack_reparent.is_null():

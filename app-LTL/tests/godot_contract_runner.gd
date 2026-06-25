@@ -6,18 +6,20 @@
 #
 # 실행: define a SceneTree-based headless contract runner.
 extends SceneTree
-
 # 실행: list formal scripts that must exist before the suite can run.
 const REQUIRED_SCRIPTS := [
 	"res://src/domain/FormalContracts.gd",
 	"res://src/process/HeadlessMiniRun.gd",
 	"res://src/process/CombatInputAdapter.gd",
 	"res://src/process/ReplayProcess.gd",
+	"res://src/process/VerticalSliceRunner.gd",
 	"res://src/process/NodeInputAdapter.gd",
 	"res://src/ui/SceneReadModel.gd",
 	"res://src/ui/CombatSceneModel.gd",
 	"res://src/ui/CombatScenePreviewController.gd",
 	"res://src/tools/FormalReplayRunner.gd",
+	"res://src/tools/ReplayBatchRunner.gd",
+	"res://src/tools/TelemetryExport.gd",
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
 	"res://src/models/NarrativeBeat.gd",
@@ -121,6 +123,7 @@ const REQUIRED_SCRIPTS := [
 	"res://src/vocabulary/backpack/DiscardHeld.gd",
 	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
 	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
+	"res://src/vocabulary/reward/ItemFusion.gd",
 	"res://src/vocabulary/reward/RewardCatalogOrder.gd",
 	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
 	"res://src/vocabulary/reward/BuildRewardPreview.gd",
@@ -130,24 +133,26 @@ const REQUIRED_SCRIPTS := [
 	"res://src/vocabulary/combat/CombatRelicHooks.gd",
 	"res://src/vocabulary/combat/CombatTerrainEffects.gd",
 	"res://src/vocabulary/combat/CombatObstacleDefinitions.gd",
+	"res://src/vocabulary/combat/CombatObstacleFeedback.gd",
 	"res://src/vocabulary/combat/SpawnNewTileObstacles.gd",
 	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd",
 	"res://src/vocabulary/node/ApplyNodeModifiers.gd"
 ]
-
 # 실행: list formal scene resources that must exist for the M2 app entry path.
 const REQUIRED_SCENES := ["res://src/Main.tscn"]
-
 # 실행: list scripts that must retain contract and execution comments.
 const COMMENTED_SCRIPTS := [
 	"res://src/domain/FormalContracts.gd",
 	"res://src/process/HeadlessMiniRun.gd",
 	"res://src/process/CombatInputAdapter.gd",
 	"res://src/process/ReplayProcess.gd",
+	"res://src/process/VerticalSliceRunner.gd",
 	"res://src/ui/SceneReadModel.gd",
 	"res://src/ui/CombatSceneModel.gd",
 	"res://src/ui/CombatScenePreviewController.gd",
 	"res://src/tools/FormalReplayRunner.gd",
+	"res://src/tools/ReplayBatchRunner.gd",
+	"res://src/tools/TelemetryExport.gd",
 	"res://src/validation/RewardValidator.gd",
 	"res://src/models/RunGrowthState.gd",
 	"res://src/models/NarrativeBeat.gd",
@@ -232,6 +237,7 @@ const COMMENTED_SCRIPTS := [
 	"res://src/vocabulary/backpack/DiscardHeld.gd",
 	"res://src/vocabulary/backpack/RecalculateSynergy.gd",
 	"res://src/vocabulary/reward/CreateArtifactFromReward.gd",
+	"res://src/vocabulary/reward/ItemFusion.gd",
 	"res://src/vocabulary/reward/RewardCatalogOrder.gd",
 	"res://src/vocabulary/reward/ApplyRewardEffect.gd",
 	"res://src/vocabulary/reward/BuildRewardPreview.gd",
@@ -241,15 +247,14 @@ const COMMENTED_SCRIPTS := [
 	"res://src/vocabulary/combat/CombatRelicHooks.gd",
 	"res://src/vocabulary/combat/CombatTerrainEffects.gd",
 	"res://src/vocabulary/combat/CombatObstacleDefinitions.gd",
+	"res://src/vocabulary/combat/CombatObstacleFeedback.gd",
 	"res://src/vocabulary/combat/SpawnNewTileObstacles.gd",
 	"res://src/vocabulary/combat/ShiftWeaknessMarkers.gd",
 	"res://src/vocabulary/node/ApplyNodeModifiers.gd"
 ]
-
 # 실행: collect deterministic suite failure labels.
 var failures: Array[String] = []
 var smoke_only: bool = false
-
 # 실행: run script existence and compilation checks, comment checks, contract checks, and exit with suite status.
 func _init() -> void:
 	smoke_only = _is_smoke_only()
@@ -271,7 +276,6 @@ func _init() -> void:
 		for failure in failures:
 			push_error(failure)
 		quit(1)
-
 # 실행: verify each formal script still carries contract and execution markers.
 func _assert_comment_harness() -> void:
 	for script_path in COMMENTED_SCRIPTS:
@@ -282,7 +286,6 @@ func _assert_comment_harness() -> void:
 		var text := file.get_as_text()
 		_assert(text.contains("# 계약:") or text.contains("# 怨꾩빟:"), "missing contract header comment: %s" % script_path)
 		_assert(text.contains("# 실행:") or text.contains("# ?ㅽ뻾:"), "missing executable sentence comments: %s" % script_path)
-
 # 실행: load formal scripts and run validator, progression, adapter, read-model, and replay tests.
 func _run_contracts() -> void:
 	var FormalContractsScript = _load_script("res://src/domain/FormalContracts.gd")
@@ -303,6 +306,7 @@ func _run_contracts() -> void:
 	_test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, SceneReadModelScript.new(), CombatSceneModelScript.new(), CombatScenePreviewControllerScript)
 	_test_replay_paths(ReplayProcessScript.new(), FormalReplayRunnerScript.new())
 	_test_reward_and_progression_contracts()
+	_test_balance_and_fusion_contracts()
 	_test_backpack_vocab_contracts()
 	_test_combat_vocab_contracts()
 	_test_formal_replay_runner_contracts()
@@ -311,16 +315,15 @@ func _run_contracts() -> void:
 	_test_narrative_contracts()
 	_test_story_scene_contracts()
 	_test_release_content_contracts()
+	_test_m8_vertical_slice_contracts()
 	if not smoke_only:
 		_test_main_scene_instantiation()
-
 # ?ㅽ뻾: detect the smoke-only runner mode used by the compile wrapper.
 func _is_smoke_only() -> bool:
 	for arg in OS.get_cmdline_user_args():
 		if String(arg) == "--smoke-only":
 			return true
 	return false
-
 # 실행: verify validator failure surfaces for missing required fields.
 func _test_contract_validators(contracts) -> void:
 	var artifact_validation: Dictionary = contracts.validate_artifact_table({"artifacts": [{"name": "Pulse Drill", "shape": [[1]], "energyType": "red", "baseCooldownTicks": 4, "synergy": "pair", "keyword": "burst"}]})
@@ -332,7 +335,6 @@ func _test_contract_validators(contracts) -> void:
 	var progress_validation: Dictionary = contracts.validate_progress_state({})
 	_assert_eq(progress_validation["ok"], false, "progress validator rejects missing cleared ids")
 	_assert_eq(progress_validation["errors"][0]["path"], "clearedLeviathanIds", "progress validator reports cleared ids path")
-
 # 실행: verify node_select, combat, reward_loot, and next-stage transitions via logical capsules.
 func _test_headless_progression(HeadlessMiniRunScript) -> void:
 	var run = HeadlessMiniRunScript.new({"seed": 7, "maxStages": 2, "runCount": 1, "nodeTable": _node_table(), "tuning": {"stageScaling": {"baseHealth": 3.2}}})
@@ -348,7 +350,6 @@ func _test_headless_progression(HeadlessMiniRunScript) -> void:
 	var next_stage: Dictionary = run.claim_rewards()
 	_assert_eq(next_stage["phase"], "node_select", "reward claim advances to node_select")
 	_assert_eq(next_stage["stageIndex"], 1, "reward claim increments stage")
-
 # ?ㅽ뻾: verify the stage sentence exposes backpack organization as its own phase boundary.
 func _test_stage_sentence_and_backpack_phase() -> void:
 	var MiniRunStageScript = _load_script("res://src/process/MiniRunStageScript.gd")
@@ -374,7 +375,6 @@ func _test_stage_sentence_and_backpack_phase() -> void:
 	}
 	var next_state = BackpackOrganizePhaseScript.reduce(state, {"type": "finish_organize"})
 	_assert_eq(next_state["phase"], "node_select", "backpack organize finish enters node_select")
-
 # 실행: verify adapter normalization, combat layout projection, and preview-controller scene flow.
 func _test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScript, scene_read_model, combat_scene_model, CombatScenePreviewControllerScript) -> void:
 	var run = HeadlessMiniRunScript.new({"seed": 31, "maxStages": 1, "queueCapacity": 0, "nodeTable": _normal_only_table()})
@@ -416,7 +416,6 @@ func _test_adapter_and_read_models(HeadlessMiniRunScript, CombatInputAdapterScri
 	_assert(reward_scene["reward"]["pendingRewards"].size() >= 1, "preview controller exposes pending rewards")
 	var complete_scene: Dictionary = preview_controller.claim_rewards()
 	_assert_eq(complete_scene["phase"], "run_complete", "preview controller reaches run_complete")
-
 # 실행: verify direct replay payloads and formal fixture batch execution.
 func _test_replay_paths(replay_process, replay_runner) -> void:
 	var replay: Dictionary = replay_process.run_replay({"seed": 21, "maxStages": 1, "nodeTable": _node_table(), "inputLog": [{"type": "select_node", "index": 0}, {"type": "resolve", "outcome": "clear"}, {"type": "claim_rewards"}]})
@@ -426,7 +425,6 @@ func _test_replay_paths(replay_process, replay_runner) -> void:
 	_assert_eq(fixture_replay["summary"]["phase"], "run_complete", "prototype-style replay reaches run_complete")
 	var replay_report: Dictionary = replay_runner.run_all({"fixturePaths": ["res://tests/fixtures/input_logs/basic_clear.json", "res://tests/fixtures/input_logs/empty_queue_repair.json"]})
 	_assert_eq(replay_report["fixtureCount"], 2, "formal replay runner counts fixtures")
-
 # 실행: load and run reward and progression unit tests.
 func _test_reward_and_progression_contracts() -> void:
 	var TestRewardContractClass = load("res://tests/test_reward_contract.gd")
@@ -437,7 +435,18 @@ func _test_reward_and_progression_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Reward test failed: %s" % err)
-
+# 실행: load and run focused balance and fusion unit tests.
+func _test_balance_and_fusion_contracts() -> void:
+	var TestBalanceAndFusionClass = load("res://tests/test_balance_and_fusion_contract.gd")
+	_assert(TestBalanceAndFusionClass != null, "test balance and fusion contract loads")
+	if TestBalanceAndFusionClass == null:
+		return
+	var tester = TestBalanceAndFusionClass.new()
+	var test_res = tester.run_all_tests()
+	_assert(test_res["ok"], "balance and fusion contract tests passed")
+	if not test_res["ok"]:
+		for err in test_res["errors"]:
+			failures.append("Balance/fusion test failed: %s" % err)
 # ?ㅽ뻾: load and run backpack vocabulary unit tests.
 func _test_backpack_vocab_contracts() -> void:
 	var TestBackpackVocabClass = load("res://tests/test_backpack_vocab.gd")
@@ -450,7 +459,6 @@ func _test_backpack_vocab_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Backpack vocab test failed: %s" % err)
-
 # ?ㅽ뻾: load and run combat utility vocabulary unit tests.
 func _test_combat_vocab_contracts() -> void:
 	var TestCombatVocabClass = load("res://tests/test_combat_vocab.gd")
@@ -463,7 +471,6 @@ func _test_combat_vocab_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Combat vocab test failed: %s" % err)
-
 # 실행: load and run formal replay runner path unit tests.
 func _test_formal_replay_runner_contracts() -> void:
 	var TestFormalReplayRunnerClass = load("res://tests/test_formal_replay_runner.gd")
@@ -476,7 +483,6 @@ func _test_formal_replay_runner_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Formal replay runner test failed: %s" % err)
-
 # ?ㅽ뻾: load and run UI read model unit tests.
 func _test_node_routing_contracts() -> void:
 	var TestNodeRoutingClass = load("res://tests/test_node_routing_contract.gd")
@@ -489,7 +495,6 @@ func _test_node_routing_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Node routing test failed: %s" % err)
-
 # 실행: load and run UI read model unit tests.
 func _test_ui_read_model_contracts() -> void:
 	var TestUiReadModelsClass = load("res://tests/test_ui_read_models.gd")
@@ -502,7 +507,6 @@ func _test_ui_read_model_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("UI read model test failed: %s" % err)
-
 # 실행: load and run M4-M9 release content contract tests.
 func _test_release_content_contracts() -> void:
 	var TestReleaseContentClass = load("res://tests/test_release_content_contract.gd")
@@ -515,7 +519,19 @@ func _test_release_content_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Release content test failed: %s" % err)
-
+# 실행: load and run M8 vertical-slice runner, retry, replay-batch, and telemetry schema tests.
+func _test_m8_vertical_slice_contracts() -> void:
+	var TestVerticalSliceFlowClass = _load_script("res://tests/test_vertical_slice_flow.gd")
+	var TestVerticalSliceReplayBatchClass = _load_script("res://tests/test_vertical_slice_replay_batch.gd")
+	if TestVerticalSliceFlowClass == null or TestVerticalSliceReplayBatchClass == null:
+		return
+	for test_class in [TestVerticalSliceFlowClass, TestVerticalSliceReplayBatchClass]:
+		var tester = test_class.new()
+		var test_res = tester.run_all_tests()
+		_assert(test_res["ok"], "M8 vertical-slice contract tests passed")
+		if not test_res["ok"]:
+			for err in test_res["errors"]:
+				failures.append("M8 vertical slice test failed: %s" % err)
 # 실행: load and run M7 narrative projection/history unit tests.
 func _test_narrative_contracts() -> void:
 	var TestNarrativeClass = _load_script("res://tests/test_narrative_contract.gd")
@@ -527,7 +543,6 @@ func _test_narrative_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Narrative test failed: %s" % err)
-
 # 실행: load and run full VN story scene contract tests.
 func _test_story_scene_contracts() -> void:
 	var TestStorySceneClass = _load_script("res://tests/test_story_scene_contract.gd")
@@ -539,7 +554,6 @@ func _test_story_scene_contracts() -> void:
 	if not test_res["ok"]:
 		for err in test_res["errors"]:
 			failures.append("Story scene test failed: %s" % err)
-
 # 실행: verify that the main scene can load and instantiate without ready runtime errors.
 func _test_main_scene_instantiation() -> void:
 	var MainScene = load("res://src/Main.tscn")
@@ -551,33 +565,26 @@ func _test_main_scene_instantiation() -> void:
 			root.add_child(main_instance)
 			root.remove_child(main_instance)
 			main_instance.queue_free()
-
 # 실행: return a node table containing normal and elite nodes.
 func _node_table() -> Dictionary:
 	return {"nodes": [_normal_node(), _elite_node()]}
-
 # 실행: return a node table containing only the normal node.
 func _normal_only_table() -> Dictionary:
 	return {"nodes": [_normal_node()]}
-
 # 실행: return the required normal node fixture.
 func _normal_node() -> Dictionary:
 	return {"id": "normal", "label": "Normal Node", "nodeType": "normal", "riskTier": "safe", "weakness": ["red"], "pickWeight": 1, "shieldMul": 1, "healthMul": 1, "alwaysOffer": true, "rewardBias": "baseline", "recommendedBuildHint": "Any stable drill line", "difficultyModifier": 1.0, "rewardModifier": 1.0, "hazardModifier": 1.0}
-
 # 실행: return an elite node fixture used by negative validator tests.
 func _elite_node() -> Dictionary:
 	return {"id": "elite", "label": "Elite Node", "nodeType": "weakness_blue", "riskTier": "medium", "weakness": ["blue"], "pickWeight": 2, "shieldMul": 1.2, "healthMul": 1.3, "rewardBias": "blue_energy", "recommendedBuildHint": "Blue shield cracking", "difficultyModifier": 1.1, "rewardModifier": 1.15, "hazardModifier": 1.0}
-
 # 실행: append a failure label when a condition is false.
 func _assert(condition: bool, label: String) -> void:
 	if not condition:
 		failures.append(label)
-
 # 실행: append a deterministic equality failure label when values differ.
 func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])
-
 # 실행: load and validate a script resource before instantiating it.
 func _load_script(script_path: String):
 	var script = load(script_path)

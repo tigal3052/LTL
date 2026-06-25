@@ -51,6 +51,8 @@ static func create_page_scenes(view) -> void:
 		view.character_select_page.connect("continue_requested", func(): view.character_continue_pressed.emit())
 	if view.character_select_page != null and view.character_select_page.has_signal("settings_requested"):
 		view.character_select_page.connect("settings_requested", func(): view.settings_open_pressed.emit())
+	if view.character_select_page != null and view.character_select_page.has_signal("interaction_sfx_requested"):
+		view.character_select_page.connect("interaction_sfx_requested", func(category: String): view.play_interaction_sfx(category))
 	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("leviathan_selected"):
 		view.leviathan_select_page.connect("leviathan_selected", func(leviathan_id): view.leviathan_selected.emit(leviathan_id))
 	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("start_requested"):
@@ -59,6 +61,8 @@ static func create_page_scenes(view) -> void:
 		view.story_scene_page.connect("continue_requested", func(scene_id): view.story_continue_requested.emit(scene_id))
 	if view.story_scene_page != null and view.story_scene_page.has_signal("skip_requested"):
 		view.story_scene_page.connect("skip_requested", func(scene_id): view.story_skip_requested.emit(scene_id))
+	if view.story_scene_page != null and view.story_scene_page.has_signal("interaction_sfx_requested"):
+		view.story_scene_page.connect("interaction_sfx_requested", func(category: String): view.play_interaction_sfx(category))
 	if view.node_select_runtime_page != null and view.node_select_runtime_page.has_signal("node_selected"):
 		view.node_select_runtime_page.connect("node_selected", func(index): view.node_meta_clicked.emit(index))
 	if view.node_select_runtime_page != null and view.node_select_runtime_page.has_signal("settings_requested"):
@@ -69,10 +73,14 @@ static func create_page_scenes(view) -> void:
 		view.node_select_runtime_page.connect("codex_requested", func(): view.codex_open_pressed.emit())
 	if view.node_select_runtime_page != null and view.node_select_runtime_page.has_signal("start_color_selected"):
 		view.node_select_runtime_page.connect("start_color_selected", func(color): view.loadout_color_selected.emit(color))
-	for outcome_id in ["defeat", "clear"]:
-		var outcome_page: Node = view.page_scenes.get(outcome_id, null) as Node
-		if outcome_page != null and outcome_page.has_signal("return_requested"):
-			outcome_page.return_requested.connect(func(): view.return_to_character_select_pressed.emit())
+	var clear_page: Node = view.page_scenes.get("clear", null) as Node
+	if clear_page != null and clear_page.has_signal("return_requested"):
+		clear_page.return_requested.connect(func(): view.return_to_character_select_pressed.emit())
+	var defeat_page: Node = view.page_scenes.get("defeat", null) as Node
+	if defeat_page != null and defeat_page.has_signal("same_seed_retry_requested"):
+		defeat_page.same_seed_retry_requested.connect(func(): view.retry_same_seed_pressed.emit())
+	if defeat_page != null and defeat_page.has_signal("new_seed_retry_requested"):
+		defeat_page.new_seed_retry_requested.connect(func(): view.retry_new_seed_pressed.emit())
 	sync_page_scene_bounds(view)
 
 static func cache_node_select_runtime_hosts(view) -> void:
@@ -130,8 +138,6 @@ static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Di
 	bundle["actionBar"] = page_root.get_node_or_null(action_bar_path) as HBoxContainer
 	bundle["resetButton"] = page_root.get_node_or_null("%s/ResetButton" % action_bar_path) as Button
 	bundle["startButton"] = page_root.get_node_or_null("%s/StartButton" % action_bar_path) as Button
-	bundle["holdFireButton"] = page_root.get_node_or_null("%s/HoldFireButton" % action_bar_path) as Button
-	bundle["repairButton"] = page_root.get_node_or_null("%s/RepairButton" % action_bar_path) as Button
 	bundle["claimRewardsButton"] = page_root.get_node_or_null("%s/ClaimRewardsButton" % action_bar_path) as Button
 	if page_id == "node_select":
 		bundle["shopButton"] = page_root.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/ShopButton") as Button
@@ -183,10 +189,10 @@ static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Di
 			bundle["discardZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as PanelContainer
 			bundle["confirmZone"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone") as PanelContainer
 			bundle["discardCard"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard") as PanelContainer
-			bundle["claimCard"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard") as PanelContainer
-			bundle["discardLabel"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/DiscardCardBox/DiscardLabel") as Label
-			bundle["claimCardBody"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox/ClaimCardBody") as Label
-			bundle["claimInlineButton"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/Margin/ClaimCardBox/ClaimInlineButton") as Button
+			bundle["claimCard"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard") as Control
+			bundle["discardLabel"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardLabel") as Label
+			bundle["claimCardBody"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/ClaimCardBody") as Label
+			bundle["claimInlineButton"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/ClaimInlineButton") as Button
 	return bundle
 
 static func connect_page_shell_bundle_signals(view) -> void:
@@ -196,12 +202,6 @@ static func connect_page_shell_bundle_signals(view) -> void:
 		if reset_btn != null: reset_btn.pressed.connect(func(): view.reset_pressed.emit())
 		var start_btn := bundle.get("startButton", null) as Button
 		if start_btn != null: start_btn.pressed.connect(func(): view.call_deferred("_emit_start_combat_pressed"))
-		var hold_btn := bundle.get("holdFireButton", null) as Button
-		if hold_btn != null: hold_btn.pressed.connect(func(): view.hold_fire_pressed.emit())
-		var repair_btn := bundle.get("repairButton", null) as Button
-		if repair_btn != null:
-			repair_btn.pressed.connect(func(): view.repair_pressed.emit())
-			repair_btn.visible = false
 		var claim_btn := bundle.get("claimRewardsButton", null) as Button
 		if claim_btn != null: claim_btn.pressed.connect(func(): view.claim_rewards_pressed.emit())
 		var inline_btn := bundle.get("claimInlineButton", null) as Button
@@ -238,8 +238,6 @@ static func activate_action_bar_bundle(view, page_id: String) -> void:
 	view.action_bar = bundle.get("actionBar", null) as HBoxContainer
 	view.reset_button = bundle.get("resetButton", null) as Button
 	view.start_button = bundle.get("startButton", null) as Button
-	view.hold_fire_button = bundle.get("holdFireButton", null) as Button
-	view.repair_button = bundle.get("repairButton", null) as Button
 	view.claim_rewards_button = bundle.get("claimRewardsButton", null) as Button
 
 static func activate_surface_bundle(view, page_id: String) -> void:
@@ -308,7 +306,7 @@ static func assign_reward_bundle_refs(view, bundle: Dictionary) -> void:
 	view.discard_zone = bundle.get("discardZone", view.discard_zone) as PanelContainer
 	view.confirm_zone = bundle.get("confirmZone", view.confirm_zone) as PanelContainer
 	view.discard_card = bundle.get("discardCard", view.discard_card) as PanelContainer
-	view.claim_card = bundle.get("claimCard", view.claim_card) as PanelContainer
+	view.claim_card = bundle.get("claimCard", view.claim_card) as Control
 	view.discard_label = bundle.get("discardLabel", view.discard_label) as Label
 	view.claim_card_body = bundle.get("claimCardBody", view.claim_card_body) as Label
 	view.claim_inline_button = bundle.get("claimInlineButton", view.claim_inline_button) as Button
@@ -341,6 +339,9 @@ static func render_page_scene(view, scene: Dictionary) -> void:
 	var page_id := str(scene.get("pageId", ""))
 	view.active_page_id = page_id
 	var active_scene = PageSceneRegistryScript.activate_page(view.page_scenes, page_id, view.page_shell_host, view.meta_page_shell_host, META_PAGE_IDS)
+	var sfx_category: String = view.page_transition_sfx_category(page_id) if view.has_method("page_transition_sfx_category") else ""
+	if not sfx_category.is_empty() and view.has_method("play_interaction_sfx"):
+		view.play_interaction_sfx(sfx_category)
 	sync_page_scene_bounds(view)
 	if active_scene == null or not active_scene.has_method("apply_state"):
 		return

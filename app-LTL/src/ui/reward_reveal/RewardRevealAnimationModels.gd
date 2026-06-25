@@ -89,7 +89,12 @@ static func count_burst_animation_model(canvas_size: Vector2, progress: float, r
 	var clamped_progress := clampf(progress, 0.0, 1.0)
 	var compression_progress := ease_out(clampf(clamped_progress / 0.24, 0.0, 1.0))
 	var pop_progress := ease_out(segment(clamped_progress, 0.18, 0.62))
-	var orb_reveal_alpha := ease_out(clampf((clamped_progress - 0.30) / 0.58, 0.0, 1.0))
+	var base_orb_reveal_alpha := ease_out(clampf((clamped_progress - 0.30) / 0.58, 0.0, 1.0))
+	var extra_light_burst := reward_count >= 4
+	var extra_light_rise := ease_out(segment(clamped_progress, 0.54, 0.18))
+	var extra_light_fall := 1.0 - ease_out(segment(clamped_progress, 0.78, 0.18))
+	var extra_light_alpha := clampf(extra_light_rise * extra_light_fall, 0.0, 1.0) if extra_light_burst else 0.0
+	var orb_reveal_alpha := ease_out(segment(clamped_progress, 0.76, 0.24)) if extra_light_burst else base_orb_reveal_alpha
 	var door_travel := 0.0
 	var lid_lift := closed_lid_rect.size.y * lerpf(0.0, 3.20, pop_progress)
 	var half_width := closed_lid_rect.size.x * 0.5
@@ -108,6 +113,10 @@ static func count_burst_animation_model(canvas_size: Vector2, progress: float, r
 		"rightDoorRect": right_door_rect,
 		"seamCenter": closed_lid_rect.get_center() + Vector2(0.0, closed_lid_rect.size.y * 0.06),
 		"orbRevealAlpha": orb_reveal_alpha,
+		"countRevealAlpha": orb_reveal_alpha,
+		"extraLightBurst": extra_light_burst,
+		"extraLightBurstAlpha": extra_light_alpha,
+		"extraLightBurstStyle": "jackpot_open_then_light_then_count" if extra_light_burst else "none",
 		"orbRiseDistance": closed_lid_rect.size.y * lerpf(0.0, 2.8, orb_reveal_alpha),
 		"orbArcHeight": lerpf(closed_lid_rect.size.y * 0.20, closed_lid_rect.size.y * 1.30, orb_reveal_alpha),
 		"flashAlpha": clampf((clamped_progress - 0.08) / 0.22, 0.0, 1.0) * (1.0 - pop_progress * 0.18),

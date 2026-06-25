@@ -8,10 +8,12 @@ func run_all_tests() -> Dictionary:
 	test_codex_panel_exposes_split_page_scroll_structure()
 	test_codex_header_stays_inside_safe_spread_area()
 	test_codex_entry_cards_keep_decorative_layers_click_through()
+	test_codex_art_renderer_draws_resolved_item_pngs()
 	test_codex_header_controls_use_compact_button_heights()
 	test_codex_left_page_projects_shape_footprint_and_matrix()
 	test_main_view_panels_runtime_helper_exists()
 	test_main_view_codex_keeps_selected_entry_and_section_state()
+	test_codex_debug_checkbox_projection_marks_all_entries_discovered()
 	test_main_controller_can_force_codex_discovery_state()
 	test_main_controller_maps_starter_color_to_codex_discoveries()
 	return _result()
@@ -104,6 +106,27 @@ func test_codex_entry_cards_keep_decorative_layers_click_through() -> void:
 	button.free()
 	panel.free()
 
+func test_codex_art_renderer_draws_resolved_item_pngs() -> void:
+	var host := Control.new()
+	host.custom_minimum_size = Vector2(120.0, 120.0)
+	var panel = ArtifactCodexPanelUIScript.new()
+	panel._render_art_placeholder(host, {
+		"path": "res://resources/items/drill/blue_drill_epic.png",
+		"requestedPath": "res://resources/UI/codex/thumbs/drill_blue_epic.png",
+		"itemType": "drill",
+		"energyType": "blue",
+		"state": "discovered",
+		"iconKey": "drill_blue_epic"
+	}, "Azure Epic Drill", false)
+	var image := host.get_node_or_null("ResolvedArtTexture") as TextureRect
+	_assert(image != null, "codex art renderer uses the resolved item PNG instead of a placeholder")
+	if image != null:
+		_assert(image.texture != null, "codex resolved item PNG loads into the texture rect")
+		_assert_eq(int(image.stretch_mode), int(TextureRect.STRETCH_KEEP_ASPECT_CENTERED), "codex item art keeps centered aspect scaling")
+	_assert(host.get_node_or_null("PlaceholderPlate") == null, "codex resolved item PNG skips the placeholder plate")
+	panel.free()
+	host.free()
+
 func test_codex_header_controls_use_compact_button_heights() -> void:
 	var panel = ArtifactCodexPanelUIScript.new()
 	panel._ready()
@@ -149,6 +172,43 @@ func test_main_view_codex_keeps_selected_entry_and_section_state() -> void:
 	_assert(view.has_method("_on_codex_entry_selected"), "main view exposes codex entry-selection handler")
 	_assert(view.has_method("_on_codex_section_selected"), "main view exposes codex section-selection handler")
 	view.free()
+
+func test_codex_debug_checkbox_projection_marks_all_entries_discovered() -> void:
+	var reward_table := {
+		"rewards": [
+			{
+				"id": "reward_common_red_drill_a",
+				"rarity": "common",
+				"payload": {"item_type": "drill", "energy_type": "red", "shape": [[1]]},
+				"text": {
+					"name": {"en": "Red Drill"},
+					"description": {"en": "Found drill"}
+				},
+				"presentation": {"icon": "drill_red_common", "description": "Found drill"}
+			},
+			{
+				"id": "reward_rare_blue_drill_a",
+				"rarity": "rare",
+				"payload": {"item_type": "drill", "energy_type": "blue", "shape": [[1]]},
+				"text": {
+					"name": {"en": "Blue Drill"},
+					"description": {"en": "Hidden drill"}
+				},
+				"presentation": {"icon": "drill_blue_rare", "description": "Hidden drill"}
+			}
+		]
+	}
+	var growth_state := {"artifactDiscovery": ["reward_common_red_drill_a"]}
+	var normal_model: Dictionary = ArtifactCodexReadModelScript.project(reward_table, growth_state, false, "en")
+	var debug_model: Dictionary = ArtifactCodexReadModelScript.project(reward_table, growth_state, true, "en")
+
+	_assert_eq(int(normal_model.get("discoveredCount", 0)), 1, "normal codex only counts discovered entries")
+	_assert_eq(int(normal_model.get("visibleCount", 0)), 1, "normal codex only reveals discovered entries")
+	_assert_eq(int(debug_model.get("discoveredCount", 0)), 2, "debug checkbox projection activates every codex entry as discovered")
+	_assert_eq(int(debug_model.get("visibleCount", 0)), 2, "debug checkbox projection reveals every codex entry")
+	var debug_entries: Array = debug_model.get("entries", [])
+	for entry in debug_entries:
+		_assert(bool(entry.get("discovered", false)), "debug checkbox projection marks %s discovered" % str(entry.get("id", "")))
 
 func test_main_controller_can_force_codex_discovery_state() -> void:
 	_assert(MainControllerScript != null, "main controller loads for codex debug discovery helper")

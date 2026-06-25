@@ -33,7 +33,11 @@ static func connect_shared_backpack_signals(view) -> void:
 	if view._shared_backpack_signals_connected or view.backpack_ui == null:
 		return
 	view._shared_backpack_signals_connected = true
-	view.backpack_ui.slot_clicked.connect(func(coord): view.backpack_slot_clicked.emit(coord))
+	view.backpack_ui.slot_clicked.connect(func(coord):
+		if view.has_method("play_interaction_sfx"):
+			view.play_interaction_sfx("item_click")
+		view.backpack_slot_clicked.emit(coord)
+	)
 	view.backpack_ui.slot_hovered.connect(func(coord): view.backpack_slot_hovered.emit(coord))
 	view.backpack_ui.slot_unhovered.connect(func(coord): view.backpack_slot_unhovered.emit(coord))
 	view.backpack_ui.slot_drag_started.connect(func(coord):
@@ -56,6 +60,22 @@ static func queue_artifact_image_refresh(view) -> void:
 static func update_backpack_ghost(view, artifact) -> void:
 	if view.backpack_ui != null and view.backpack_ui.has_method("update_ghost_display"):
 		view.backpack_ui.update_ghost_display(artifact)
+
+static func play_fusion_effect(view, artifact) -> void:
+	if view == null:
+		return
+	if view.has_method("play_interaction_sfx"):
+		view.play_interaction_sfx("fusion_buildup")
+	if view.backpack_ui != null and view.backpack_ui.has_method("play_fusion_effect"):
+		view.backpack_ui.play_fusion_effect(artifact)
+	if view is Node and view.is_inside_tree():
+		var timer: SceneTreeTimer = (view as Node).get_tree().create_timer(0.30)
+		timer.timeout.connect(func():
+			if is_instance_valid(view) and view.has_method("play_interaction_sfx"):
+				view.play_interaction_sfx("fusion_complete")
+		)
+	elif view.has_method("play_interaction_sfx"):
+		view.play_interaction_sfx("fusion_complete")
 
 static func schedule_backpack_reparent(view, target_parent: Node, target_index: int = -1) -> void:
 	if view.backpack_container == null or target_parent == null:

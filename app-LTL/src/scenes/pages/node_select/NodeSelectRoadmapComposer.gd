@@ -10,6 +10,7 @@ extends RefCounted
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const NodeSelectLayoutPolicyScript = preload("res://src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd")
+const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 
 const ROUTE_RED := Color(0.82, 0.47, 0.40, 0.88)
 const ROUTE_GOLD := Color(0.90, 0.74, 0.43, 0.96)
@@ -189,6 +190,7 @@ static func create_route_button(page, index: int, candidate: Dictionary, center:
 	button.clip_contents = false
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.tooltip_text = page._candidate_tooltip(candidate)
+	button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "ui_toggle")
 	var size := 82.0 if selected else 74.0
 	center = page._clamp_canvas_point(center, size * 0.5, NodeSelectLayoutPolicyScript.HOTSPOT_TAG_DEPTH)
 	button.custom_minimum_size = Vector2(size, size)
@@ -235,6 +237,7 @@ static func add_hover_hotspot(page, node_name: String, center: Vector2, size: fl
 	hotspot.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	hotspot.flat = true
 	hotspot.clip_contents = false
+	hotspot.set_meta(InteractionFXScript.META_SFX_CATEGORY, "ui_toggle")
 	center = page._clamp_canvas_point(center, size * 0.5, NodeSelectLayoutPolicyScript.HOTSPOT_TAG_DEPTH if not preview else 44.0)
 	hotspot.custom_minimum_size = Vector2(size, size)
 	hotspot.size = Vector2(size, size)

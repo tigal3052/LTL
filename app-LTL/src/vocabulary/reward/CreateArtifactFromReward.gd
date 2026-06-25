@@ -16,8 +16,10 @@ static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dicti
 	if reward.is_empty():
 		return {"ok": false, "code": "missing_reward", "artifact": null}
 	var payload: Dictionary = reward.get("payload", {})
+	var presentation: Dictionary = reward.get("presentation", {})
 	var rarity := str(reward.get("rarity", "common")).to_lower()
 	var name := _display_artifact_name(str(reward.get("kind", "New Artifact")))
+	var catalog_id := str(reward.get("catalogId", reward.get("id", "")))
 	var item_type := str(payload.get("item_type", payload.get("itemType", "drill")))
 	if item_type.is_empty():
 		item_type = "drill"
@@ -40,13 +42,26 @@ static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dicti
 		"damage": float(payload.get("damage", default_damage)),
 		"grade": rarity,
 		"item_type": item_type,
+		"catalogId": catalog_id,
+		"fusionKey": _fusion_key_for(reward, payload, catalog_id, item_type),
+		"visualId": str(presentation.get("icon", "")),
 		"beacon_cooldown_mod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", _default_beacon_cooldown(rarity, item_type))))),
 		"beacon_damage_mod": float(payload.get("beacon_damage_mod", payload.get("beaconDamageMod", _default_beacon_damage(rarity, item_type)))),
 		"effect_schema": payload.get("effect_schema", payload.get("effectSchema", {})),
 		"text": reward.get("text", {}),
-		"keyword": str(reward.get("presentation", {}).get("description", ""))
+		"keyword": str(presentation.get("description", ""))
 	})
 	return {"ok": true, "code": "created", "artifact": artifact}
+
+# 실행: derive the stable duplicate identity used by reward item fusion.
+static func _fusion_key_for(reward: Dictionary, payload: Dictionary, catalog_id: String, item_type: String) -> String:
+	if not catalog_id.is_empty():
+		return catalog_id
+	return "%s|%s|%s" % [
+		str(reward.get("kind", "New Artifact")).to_lower(),
+		str(payload.get("energy_type", payload.get("energyType", ""))).to_lower(),
+		item_type.to_lower()
+	]
 
 # 실행: return default artifact shape when payload does not provide one.
 static func _default_shape(name: String, item_type: String) -> Array:

@@ -59,6 +59,8 @@ static func wire_reward_card_interactions(view, button: Button, index: int) -> v
 				state["pressed"] = false
 				state["dragging"] = false
 				if was_pressed and not was_dragging:
+					if view.has_method("play_interaction_sfx"):
+						view.play_interaction_sfx("item_click")
 					view.reward_meta_clicked.emit(index)
 		elif event is InputEventMouseMotion and bool(state.get("pressed", false)) and not bool(state.get("dragging", false)):
 			var press_pos: Vector2 = state.get("press_pos", Vector2.ZERO)
@@ -96,6 +98,8 @@ static func begin_reward_drag_tracking(view, index: int, button: Control, pointe
 	view._reward_drag_active = true
 	view._reward_drag_button = button
 	view._reward_drag_pointer_offset = pointer_offset
+	if view.has_method("play_interaction_sfx"):
+		view.play_interaction_sfx("drag_start")
 	if view._reward_drag_button != null:
 		view._reward_drag_button.z_index = 8
 		update_reward_drag_card_position(view)
@@ -127,6 +131,8 @@ static func commit_reward_card_manual_anchor(view, index: int) -> void:
 static func begin_backpack_drag_tracking(view, origin_coord: Vector2) -> void:
 	view._backpack_drag_origin = origin_coord
 	view._backpack_drag_active = true
+	if view.has_method("play_interaction_sfx"):
+		view.play_interaction_sfx("drag_start")
 
 static func end_backpack_drag_tracking(view) -> void:
 	view._backpack_drag_origin = Vector2(-1, -1)
@@ -138,36 +144,7 @@ static func render_reward_inspector(view, inspector: Dictionary) -> void:
 	view.reward_inspector_name.text = "" if empty else str(inspector.get("name", ""))
 	view.reward_inspector_summary.text = str(inspector.get("summary", ""))
 	view.reward_inspector_summary.visible = true
-	clear_dynamic_children(view.reward_inspector_facts)
-	for fact in inspector.get("facts", []):
-		if not (fact is Dictionary):
-			continue
-		var tile := PanelContainer.new()
-		tile.custom_minimum_size.y = REWARD_INSPECTOR_FACT_MIN_HEIGHT
-		tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tile.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.13, 0.16, 0.20, 0.96), Color(0.28, 0.34, 0.40, 1.0), 14, 1, 0.12))
-		var margin := MarginContainer.new()
-		margin.add_theme_constant_override("margin_left", 10)
-		margin.add_theme_constant_override("margin_top", 10)
-		margin.add_theme_constant_override("margin_right", 10)
-		margin.add_theme_constant_override("margin_bottom", 10)
-		tile.add_child(margin)
-		var box := VBoxContainer.new()
-		box.add_theme_constant_override("separation", 4)
-		margin.add_child(box)
-		var label := Label.new()
-		label.text = str(fact.get("label", ""))
-		label.add_theme_font_size_override("font_size", 10)
-		label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
-		box.add_child(label)
-		var value := Label.new()
-		value.text = str(fact.get("value", ""))
-		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		value.add_theme_font_size_override("font_size", 12)
-		value.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-		box.add_child(value)
-		view.reward_inspector_facts.add_child(tile)
+	render_reward_inspector_facts(view, inspector.get("facts", []))
 	view.reward_footprint_title.text = str(inspector.get("shapeTitle", ""))
 	var footprint_parts := PackedStringArray()
 	var footprint_text := str(inspector.get("shapeFootprintText", "")).strip_edges()
@@ -178,6 +155,61 @@ static func render_reward_inspector(view, inspector: Dictionary) -> void:
 		footprint_parts.append(cell_text)
 	view.reward_footprint_info.text = "\n".join(footprint_parts)
 	render_reward_footprint(view, inspector.get("shapeMatrix", []), str(inspector.get("shapeEnergyType", "")), str(inspector.get("shapeItemType", "")))
+
+static func render_reward_inspector_facts(view, facts: Array) -> void:
+	clear_dynamic_children(view.reward_inspector_facts)
+	view.reward_inspector_facts.columns = 1
+	var row := new_reward_fact_row()
+	for fact in facts:
+		if not (fact is Dictionary):
+			continue
+		var tile := build_reward_fact_tile(fact)
+		if int(fact.get("layoutColumns", 1)) >= 2:
+			if row.get_child_count() > 0:
+				view.reward_inspector_facts.add_child(row)
+				row = new_reward_fact_row()
+			view.reward_inspector_facts.add_child(tile)
+			continue
+		row.add_child(tile)
+		if row.get_child_count() >= 2:
+			view.reward_inspector_facts.add_child(row)
+			row = new_reward_fact_row()
+	if row.get_child_count() > 0:
+		view.reward_inspector_facts.add_child(row)
+
+static func new_reward_fact_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	return row
+
+static func build_reward_fact_tile(fact: Dictionary) -> PanelContainer:
+	var tile := PanelContainer.new()
+	tile.custom_minimum_size.y = REWARD_INSPECTOR_FACT_MIN_HEIGHT
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.13, 0.16, 0.20, 0.96), Color(0.28, 0.34, 0.40, 1.0), 14, 1, 0.12))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	tile.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	margin.add_child(box)
+	var label := Label.new()
+	label.text = str(fact.get("label", ""))
+	label.add_theme_font_size_override("font_size", 10)
+	label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
+	box.add_child(label)
+	var value := Label.new()
+	value.text = str(fact.get("value", ""))
+	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	value.add_theme_font_size_override("font_size", 12)
+	value.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	box.add_child(value)
+	return tile
 
 static func render_reward_footprint(view, shape_matrix: Array, energy_type: String, item_type: String) -> void:
 	clear_dynamic_children(view.reward_footprint_grid)

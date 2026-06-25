@@ -1,27 +1,25 @@
 extends RefCounted
-
 const RewardReadModelScript = preload("res://src/ui/read_models/RewardReadModel.gd")
 const ArtifactScript = preload("res://src/models/Artifact.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
-
 var failures: Array[String] = []
-
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	await test_reward_board_layout_stays_stable_across_live_click_alternation()
 	await test_reward_board_keeps_fixed_layout_with_verbose_reward_names()
 	await test_reward_workspace_reuses_live_backpack_panel()
 	await test_reward_workspace_uses_the_visible_workspace_shell_title()
+	await test_reward_influence_toggle_sits_on_workspace_title_row()
 	await test_reward_workspace_backpack_panel_fills_host_on_first_render()
 	await test_live_reward_workspace_keeps_existing_drill_centered_after_dock()
 	await test_shared_backpack_returns_to_second_battle_after_reward_claim()
 	await test_live_reward_drop_keeps_shared_backpack_visible_and_renders_artifact()
 	await test_reward_workspace_image_drill_sits_inside_slot_without_color_overlay()
+	await test_reward_inspector_is_opaque_and_layers_above_backpack_items()
 	await test_reward_workspace_image_drill_tracks_grid_position_changes()
-	await test_reward_board_bottom_row_hides_empty_helper_rows_and_scrollbars()
+	await test_reward_board_bottom_row_uses_icon_panel_and_plain_confirm_copy()
 	await test_reward_header_uses_selected_leviathan_name()
 	return {"ok": failures.is_empty(), "errors": failures}
-
 func test_reward_board_layout_stays_stable_across_live_click_alternation() -> void:
 	var main_instance = await _boot_live_reward_tray()
 	if main_instance == null:
@@ -54,7 +52,6 @@ func test_reward_board_layout_stays_stable_across_live_click_alternation() -> vo
 			_assert_reward_board_uses_visible_shell_width(backpack_metrics, "backpack inspect cycle %d" % cycle)
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_reward_board_keeps_fixed_layout_with_verbose_reward_names() -> void:
 	var rewards: Array = _verbose_reward_fixture()
 	var main_instance = await _instantiate_reward_board_surface(
@@ -84,7 +81,6 @@ func test_reward_board_keeps_fixed_layout_with_verbose_reward_names() -> void:
 		_assert_reward_board_uses_visible_shell_width(metrics, "verbose reward render %d" % index)
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_reward_workspace_reuses_live_backpack_panel() -> void:
 	var main_instance = await _instantiate_reward_board_surface(
 		_verbose_reward_fixture(),
@@ -104,7 +100,6 @@ func test_reward_workspace_reuses_live_backpack_panel() -> void:
 		_assert(host_rect.has_point(backpack_rect.end - Vector2.ONE), "shared backpack ends inside the reward workspace host")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_reward_workspace_uses_the_visible_workspace_shell_title() -> void:
 	var main_instance = await _instantiate_reward_board_surface(
 		_verbose_reward_fixture(),
@@ -127,7 +122,36 @@ func test_reward_workspace_uses_the_visible_workspace_shell_title() -> void:
 		_assert_eq(engine_title.visible, false, "reward workspace hides the inner backpack title so the docked panel does not show a second competing heading")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
+func test_reward_influence_toggle_sits_on_workspace_title_row() -> void:
+	var main_instance = await _instantiate_reward_board_surface(
+		_verbose_reward_fixture(),
+		RewardReadModelScript.project_tray(_verbose_reward_fixture())
+	)
+	if main_instance == null:
+		return
+	await _settle_frames(4)
+	var workspace_head = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead") as Control
+	var workspace_title = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle") as Control
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control if backpack_container != null else null
+	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as Control if backpack_panel != null else null
+	var toggle = backpack_panel.get_node_or_null("InfluencePreviewToggle") as Control if backpack_panel != null else null
+	_assert(workspace_head != null, "reward influence toggle contract finds the visible backpack title row")
+	_assert(workspace_title != null, "reward influence toggle contract finds the visible backpack title label")
+	_assert(grid != null, "reward influence toggle contract finds the backpack grid")
+	_assert(toggle != null, "reward influence toggle contract finds the influence range toggle")
+	if workspace_head != null and workspace_title != null and grid != null and toggle != null:
+		var head_rect: Rect2 = workspace_head.get_global_rect()
+		var title_rect: Rect2 = workspace_title.get_global_rect()
+		var grid_rect: Rect2 = grid.get_global_rect()
+		var toggle_rect: Rect2 = toggle.get_global_rect()
+		_assert(toggle.visible, "reward influence toggle is visible on the reward backpack panel")
+		_assert(absf(toggle_rect.get_center().y - title_rect.get_center().y) <= maxf(4.0, title_rect.size.y * 0.5), "reward influence toggle is aligned to the backpack title row, got %s beside title %s" % [str(toggle_rect), str(title_rect)])
+		_assert(toggle_rect.end.x <= head_rect.end.x + 1.0, "reward influence toggle stays inside the title row right edge, got %s inside %s" % [str(toggle_rect), str(head_rect)])
+		_assert(toggle_rect.position.x >= head_rect.position.x + head_rect.size.x * 0.60, "reward influence toggle is right-aligned on the backpack title row, got %s inside %s" % [str(toggle_rect), str(head_rect)])
+		_assert(toggle_rect.end.y <= grid_rect.position.y - 4.0, "reward influence toggle stays above the backpack grid instead of covering it, got %s above grid %s" % [str(toggle_rect), str(grid_rect)])
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
 func test_reward_workspace_backpack_panel_fills_host_on_first_render() -> void:
 	var main_instance = await _instantiate_reward_board_surface(
 		_verbose_reward_fixture(),
@@ -140,7 +164,6 @@ func test_reward_workspace_backpack_panel_fills_host_on_first_render() -> void:
 	_assert_reward_board_backpack_panel_uses_workspace_height(metrics, "reward tray initial render")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_live_reward_workspace_keeps_existing_drill_centered_after_dock() -> void:
 	var main_instance = await _boot_live_reward_tray()
 	if main_instance == null:
@@ -155,7 +178,6 @@ func test_live_reward_workspace_keeps_existing_drill_centered_after_dock() -> vo
 		_assert_live_starter_drill_centered(controller, backpack_panel, "live reward dock keeps the existing starter drill image centered without manual render")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_shared_backpack_returns_to_second_battle_after_reward_claim() -> void:
 	var main_instance = await _boot_live_reward_tray()
 	if main_instance == null:
@@ -198,7 +220,6 @@ func test_shared_backpack_returns_to_second_battle_after_reward_claim() -> void:
 		_assert_live_starter_drill_centered(controller, backpack_panel, "second battle keeps the starter drill image centered after returning from reward")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_live_reward_drop_keeps_shared_backpack_visible_and_renders_artifact() -> void:
 	var main_instance = await _boot_live_reward_tray()
 	if main_instance == null:
@@ -241,7 +262,6 @@ func test_live_reward_drop_keeps_shared_backpack_visible_and_renders_artifact() 
 		_assert_artifact_rendered_in_reward_backpack(backpack_panel, artifact, "reward drop renders the newly placed artifact on the reward backpack")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_reward_workspace_image_drill_sits_inside_slot_without_color_overlay() -> void:
 	var main_instance = await _boot_live_reward_tray()
 	if main_instance == null:
@@ -292,7 +312,38 @@ func test_reward_workspace_image_drill_sits_inside_slot_without_color_overlay() 
 			_assert(int(charge.z_index) > int(image_layer.z_index), "image-backed drill keeps cooldown overlay drawn above the item image layer")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
+func test_reward_inspector_is_opaque_and_layers_above_backpack_items() -> void:
+	var main_instance = await _instantiate_reward_board_surface(
+		_verbose_reward_fixture(),
+		RewardReadModelScript.project_tray(_verbose_reward_fixture())
+	)
+	if main_instance == null:
+		return
+	await _settle_frames(2)
+	var inspector_zone = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as PanelContainer
+	var workspace_zone = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone") as PanelContainer
+	var backpack_container = main_instance.get("backpack_container") as Control
+	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control if backpack_container != null else null
+	var backpack_grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as Control if backpack_panel != null else null
+	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control if backpack_panel != null else null
+	_assert(inspector_zone != null, "reward inspector layer contract exposes the inspector information panel")
+	_assert(workspace_zone != null, "reward inspector layer contract exposes the backpack workspace layout panel")
+	_assert(backpack_grid != null, "reward inspector layer contract exposes the base backpack grid layout")
+	_assert(image_layer != null, "reward inspector layer contract exposes the backpack item image layer")
+	if inspector_zone != null:
+		var inspector_style = inspector_zone.get_theme_stylebox("panel") as StyleBoxFlat
+		_assert(inspector_style != null, "reward inspector information panel uses a flat panel style")
+		if inspector_style != null:
+			_assert_close(inspector_style.bg_color.a, 1.0, 0.001, "reward inspector information panel is opaque")
+		if image_layer != null:
+			_assert(int(inspector_zone.z_index) > int(image_layer.z_index), "reward inspector information panel renders above backpack item images")
+	if image_layer != null:
+		if backpack_grid != null:
+			_assert(int(image_layer.z_index) > int(backpack_grid.z_index), "backpack item images render above the base backpack layout")
+		if workspace_zone != null:
+			_assert(int(image_layer.z_index) > int(workspace_zone.z_index), "backpack item images render above the reward workspace layout")
+	main_instance.queue_free()
+	await Engine.get_main_loop().process_frame
 func test_reward_workspace_image_drill_tracks_grid_position_changes() -> void:
 	var main_instance = await _boot_live_reward_tray()
 	if main_instance == null:
@@ -338,8 +389,7 @@ func test_reward_workspace_image_drill_tracks_grid_position_changes() -> void:
 		_assert_centers_close(image.get_global_rect(), slot.get_global_rect(), 1.0, "reward workspace drill image follows grid position-only layout drift")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
-func test_reward_board_bottom_row_hides_empty_helper_rows_and_scrollbars() -> void:
+func test_reward_board_bottom_row_uses_icon_panel_and_plain_confirm_copy() -> void:
 	var main_instance = await _instantiate_reward_board_surface(
 		_verbose_reward_fixture(),
 		RewardReadModelScript.project_tray(_verbose_reward_fixture())
@@ -349,31 +399,45 @@ func test_reward_board_bottom_row_hides_empty_helper_rows_and_scrollbars() -> vo
 	await _settle_frames(2)
 	var discard_hint = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
 	var confirm_hint = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
-	var discard_card_title = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/DiscardCardBox/DiscardCardTitle") as Label
-	var claim_card_title = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/Margin/ClaimCardBox/ClaimCardTitle") as Label
+	var workspace_hint = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneHint") as Label
 	var discard_scroll = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll") as ScrollContainer
 	var claim_scroll = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll") as ScrollContainer
+	var discard_card = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard") as Control
+	var discard_icon = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/TrashIconStage") as Control
+	var discard_label = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardLabel") as Label
+	var claim_card = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard") as Control
+	var claim_button = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/ClaimInlineButton") as Button
+	var claim_body = _reward_node(main_instance, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/ClaimCardBody") as Label
 	_assert(discard_hint != null, "reward tray discard zone exposes the optional hint label")
 	_assert(confirm_hint != null, "reward tray confirm zone exposes the optional hint label")
-	_assert(discard_card_title != null, "reward tray discard card exposes the optional inner title label")
-	_assert(claim_card_title != null, "reward tray confirm card exposes the optional inner title label")
+	_assert(workspace_hint != null, "reward tray workspace exposes the optional placement-area hint label")
 	_assert(discard_scroll != null, "reward tray discard zone installs a scroll shell")
 	_assert(claim_scroll != null, "reward tray confirm zone installs a scroll shell")
+	_assert(discard_card != null, "reward tray discard zone keeps an inner visual drop panel")
+	_assert(discard_icon != null, "reward tray discard inner panel shows a trash icon stage")
+	_assert(discard_label != null, "reward tray discard instruction label lives outside the inner drop panel")
+	_assert(claim_card != null, "reward tray confirm zone keeps plain inline content")
+	_assert(claim_button != null, "reward tray confirm inline button remains wired inside the confirm content")
+	_assert(claim_body != null, "reward tray confirm pending-copy label remains available")
 	if discard_hint != null:
 		_assert_eq(discard_hint.visible, false, "reward tray discard hint hides when helper copy is empty so no blank title row remains")
 	if confirm_hint != null:
 		_assert_eq(confirm_hint.visible, false, "reward tray confirm hint hides when helper copy is empty so no blank title row remains")
-	if discard_card_title != null:
-		_assert_eq(discard_card_title.visible, false, "reward tray discard card title hides when helper copy is empty so the label body sits at the top")
-	if claim_card_title != null:
-		_assert_eq(claim_card_title.visible, false, "reward tray confirm card title hides when helper copy is empty so the claim body sits at the top")
+	if workspace_hint != null:
+		_assert_eq(workspace_hint.visible, false, "reward tray workspace placement-area hint hides so it does not reserve vertical space")
+	if discard_label != null and discard_scroll != null:
+		_assert(discard_label.get_parent() != discard_card, "reward tray discard instruction no longer sits inside the inner drop panel")
+		_assert(discard_label.get_index() > discard_scroll.get_index(), "reward tray discard instruction appears below the inner drop panel")
+	if claim_card != null:
+		_assert(not (claim_card is PanelContainer), "reward tray confirm button and pending copy are not wrapped by the old brown panel")
+	if claim_button != null and claim_body != null:
+		_assert(claim_button.get_index() < claim_body.get_index(), "reward tray confirm pending copy appears below the confirm button")
 	if discard_scroll != null and discard_scroll.get_v_scroll_bar() != null:
 		_assert(not discard_scroll.get_v_scroll_bar().visible, "reward tray discard card avoids a vertical scrollbar once blank helper rows are removed")
 	if claim_scroll != null and claim_scroll.get_v_scroll_bar() != null:
-		_assert(not claim_scroll.get_v_scroll_bar().visible, "reward tray confirm card avoids a vertical scrollbar once blank helper rows are removed")
+		_assert(not claim_scroll.get_v_scroll_bar().visible, "reward tray confirm content avoids a vertical scrollbar once the brown wrapper is removed")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func test_reward_header_uses_selected_leviathan_name() -> void:
 	var MainScene = load("res://src/Main.tscn")
 	_assert(MainScene != null, "main scene loads for leviathan header title contract")
@@ -399,7 +463,6 @@ func test_reward_header_uses_selected_leviathan_name() -> void:
 			_assert_eq(title_label.text, expected_title, "main header uses the selected Leviathan name instead of the old static app title during reward flow")
 	main_instance.queue_free()
 	await Engine.get_main_loop().process_frame
-
 func _boot_live_reward_tray() -> Node:
 	var MainScene = load("res://src/Main.tscn")
 	_assert(MainScene != null, "main scene loads for live reward-board click contract")
@@ -444,13 +507,11 @@ func _boot_live_reward_tray() -> Node:
 	_assert_eq(str(main_instance.get("active_page_id")), "reward", "live reward flow remains on the reward page after ceremony completion")
 	_assert_eq(str(controller.get("reward_presentation_step")), "tray_review", "live reward flow advances to tray review before click checks")
 	return main_instance
-
 func _dismiss_visible_narrative(main_instance: Node) -> void:
 	var toast = main_instance.get("narrative_toast") as Control
 	if toast != null and toast.visible and toast.has_method("dismiss"):
 		toast.call("dismiss")
 	await _settle_frames(2)
-
 func _instantiate_reward_board_surface(rewards: Array, tray_model: Dictionary) -> Node:
 	var MainScene = load("res://src/Main.tscn")
 	_assert(MainScene != null, "main scene loads for reward-board surface contract")
@@ -466,7 +527,6 @@ func _instantiate_reward_board_surface(rewards: Array, tray_model: Dictionary) -
 	main_instance.render_reward_tray(tray_model)
 	await _settle_frames(2)
 	return main_instance
-
 func _advance_story_if_present(main_instance: Node, return_page_id: String) -> void:
 	if str(main_instance.get("active_page_id")) != "story_scene":
 		return
@@ -484,7 +544,6 @@ func _advance_story_if_present(main_instance: Node, return_page_id: String) -> v
 	story_page.continue_requested.emit(scene_id)
 	await _settle_frames(2)
 	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s during reward-board boot" % return_page_id)
-
 func _boot_to_node_select(main_instance: Node, color: String = "purple", leviathan_id: String = "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during reward-board boot")
@@ -506,7 +565,6 @@ func _boot_to_node_select(main_instance: Node, color: String = "purple", leviath
 	await _settle_frames(3)
 	_assert_eq(str(main_instance.get("active_page_id")), "node_select", "leviathan select advances to node select during reward-board boot")
 	return controller
-
 func _press_current_node(main_instance: Node, preferred_route_index: int, label: String) -> void:
 	var controller = main_instance.get_node_or_null("MainController")
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
@@ -530,7 +588,6 @@ func _press_current_node(main_instance: Node, preferred_route_index: int, label:
 	_assert(node_select_page.has_method("press_start_marker"), "node select page exposes fixed-start marker helper for %s" % label)
 	if node_select_page.has_method("press_start_marker"):
 		node_select_page.call("press_start_marker")
-
 func _finish_reward_ceremony(controller: Node, reward_reveal_overlay: Node) -> void:
 	var reward_count: int = max(1, int(Array(controller.get("local_rewards_list")).size()))
 	reward_reveal_overlay.set("current_step", "reveal_queue")
@@ -542,7 +599,6 @@ func _finish_reward_ceremony(controller: Node, reward_reveal_overlay: Node) -> v
 		await Engine.get_main_loop().process_frame
 		settle_frames += 1
 	await _settle_frames(2)
-
 func _reward_scene_fixture(rewards: Array) -> Dictionary:
 	return {
 		"phase": "reward_loot",
@@ -555,7 +611,6 @@ func _reward_scene_fixture(rewards: Array) -> Dictionary:
 		"stageIndex": 1,
 		"maxStages": 5
 	}
-
 func _verbose_reward_fixture() -> Array:
 	var long_name: String = "Catastrophically Verbose Resonance Fault Seal That Should Wrap Inside The Inspector Instead Of Resizing The Reward Board"
 	var long_copy: String = "Stabilizes linked drills, preserves reward cleanup timing, mirrors diagonal relay bonuses, and keeps the inspection panel readable even when the localized name is intentionally long for containment coverage."
@@ -597,7 +652,6 @@ func _verbose_reward_fixture() -> Array:
 			}
 		}
 	]
-
 func _reward_board_metrics(main_instance: Node) -> Dictionary:
 	var viewport_size: Vector2 = main_instance.get_viewport().get_visible_rect().size
 	var reward_panel = _reward_node(main_instance, "RewardPanel") as Control
@@ -634,7 +688,6 @@ func _reward_board_metrics(main_instance: Node) -> Dictionary:
 		"backpack_grid_width": backpack_grid.size.x if backpack_grid != null else -1.0,
 		"backpack_grid_height": backpack_grid.size.y if backpack_grid != null else -1.0
 	}
-
 func _assert_reward_board_metrics_close(expected: Dictionary, actual: Dictionary, label: String) -> void:
 	for key in [
 		"panel_x",
@@ -660,7 +713,6 @@ func _assert_reward_board_metrics_close(expected: Dictionary, actual: Dictionary
 		"backpack_grid_height"
 	]:
 		_assert_close(float(actual.get(key, -9999.0)), float(expected.get(key, -9999.0)), 3.0, "%s keeps %s stable" % [label, key])
-
 func _assert_reward_board_backpack_panel_uses_workspace_height(metrics: Dictionary, label: String) -> void:
 	var host_height: float = float(metrics.get("backpack_host_height", -1.0))
 	var panel_height: float = float(metrics.get("backpack_panel_height", -1.0))
@@ -670,9 +722,8 @@ func _assert_reward_board_backpack_panel_uses_workspace_height(metrics: Dictiona
 	_assert(grid_height > 0.0, "%s exposes a positive docked backpack grid height for backpack-fit checks" % label)
 	if host_height <= 0.0 or panel_height <= 0.0 or grid_height <= 0.0:
 		return
-	_assert(panel_height >= host_height * 0.74, "%s keeps the docked backpack panel tall enough to fill most of the workspace host (panel=%.2f host=%.2f)" % [label, panel_height, host_height])
-	_assert(grid_height >= host_height * 0.62, "%s keeps the docked backpack grid tall enough to read as the main workspace immediately on entry (grid=%.2f host=%.2f)" % [label, grid_height, host_height])
-
+	_assert(panel_height >= host_height * 0.82, "%s keeps the docked backpack panel tall enough to fill most of the workspace host (panel=%.2f host=%.2f)" % [label, panel_height, host_height])
+	_assert(grid_height >= host_height * 0.72, "%s keeps the docked backpack grid tall enough to read as the main workspace immediately on entry (grid=%.2f host=%.2f)" % [label, grid_height, host_height])
 func _assert_reward_board_inside_viewport(main_instance: Node, label: String) -> void:
 	var viewport: Rect2 = Rect2(Vector2.ZERO, main_instance.get_viewport().get_visible_rect().size)
 	for path in [
@@ -692,7 +743,6 @@ func _assert_reward_board_inside_viewport(main_instance: Node, label: String) ->
 		_assert(rect.position.y >= viewport.position.y - 0.5, "%s keeps %s inside viewport top edge" % [label, path])
 		_assert(rect.end.x <= viewport.end.x + 0.5, "%s keeps %s inside viewport right edge (rect=%s viewport=%s)" % [label, path, str(rect), str(viewport)])
 		_assert(rect.end.y <= viewport.end.y + 0.5, "%s keeps %s inside viewport bottom edge" % [label, path])
-
 func _assert_reward_board_uses_visible_shell_width(metrics: Dictionary, label: String) -> void:
 	var panel_x: float = float(metrics.get("panel_x", -1.0))
 	var panel_width: float = float(metrics.get("panel_width", -1.0))
@@ -701,7 +751,6 @@ func _assert_reward_board_uses_visible_shell_width(metrics: Dictionary, label: S
 	_assert(panel_x >= -0.5, "%s keeps the reward panel anchored within the viewport" % label)
 	_assert(grid_end_x <= panel_x + panel_width + 0.5, "%s keeps the reward grid inside the live reward panel width" % label)
 	_assert(grid_end_x <= viewport_width + 0.5, "%s keeps the reward grid inside the viewport width" % label)
-
 func _first_inventory_coord(inventory) -> Vector2:
 	if inventory == null:
 		return Vector2(-1, -1)
@@ -713,12 +762,10 @@ func _first_inventory_coord(inventory) -> Vector2:
 			if inventory.artifacts.has(slot_id):
 				return Vector2(column, row)
 	return Vector2(-1, -1)
-
 func _backpack_slot_for_artifact(backpack_panel: Control, artifact) -> Control:
 	if backpack_panel == null or artifact == null:
 		return null
 	return _backpack_slot_at(backpack_panel, int(artifact.x), int(artifact.y))
-
 func _backpack_slot_at(backpack_panel: Control, column: int, row: int) -> Control:
 	if backpack_panel == null:
 		return null
@@ -729,7 +776,6 @@ func _backpack_slot_at(backpack_panel: Control, column: int, row: int) -> Contro
 	if slot_idx < 0 or slot_idx >= grid.get_child_count():
 		return null
 	return grid.get_child(slot_idx) as Control
-
 func _assert_live_starter_drill_centered(controller: Node, backpack_panel: Control, label: String) -> void:
 	var inventory = controller.get("inventory") if controller != null else null
 	var drill = inventory.artifacts.get("starter_purple_drill", null) if inventory != null else null
@@ -746,7 +792,6 @@ func _assert_live_starter_drill_centered(controller: Node, backpack_panel: Contr
 	_assert(slot_rect.grow(1.0).has_point(image_rect.position), "%s keeps the starter drill image inside the slot top-left" % label)
 	_assert(slot_rect.grow(1.0).has_point(image_rect.end - Vector2.ONE), "%s keeps the starter drill image inside the slot bottom-right" % label)
 	_assert_centers_close(image_rect, slot_rect, 1.0, "%s keeps the starter drill image centered in its slot" % label)
-
 func _select_first_placeable_reward_drag(controller: Node) -> Dictionary:
 	var rewards: Array = Array(controller.get("local_rewards_list"))
 	for index in range(rewards.size()):
@@ -765,27 +810,14 @@ func _select_first_placeable_reward_drag(controller: Node) -> Dictionary:
 		controller.call("_on_reward_meta_drag_canceled_v2", index)
 		await _settle_frames(2)
 	return {}
-
 func _first_valid_reward_drop_coord(inventory, artifact) -> Vector2:
 	if inventory == null or artifact == null:
-		return Vector2(-1, -1)
-	if _duplicate_drill_blocked(inventory, artifact):
 		return Vector2(-1, -1)
 	for row in range(8):
 		for column in range(8):
 			if inventory.can_place_artifact(artifact, column, row):
 				return Vector2(column, row)
 	return Vector2(-1, -1)
-
-func _duplicate_drill_blocked(inventory, artifact) -> bool:
-	if inventory == null or artifact == null or str(artifact.item_type) != "drill":
-		return false
-	for art_id in inventory.artifacts:
-		var other = inventory.artifacts[art_id]
-		if other != null and str(other.item_type) == "drill" and str(other.energy_type) == str(artifact.energy_type) and str(other.id) != str(artifact.id):
-			return true
-	return false
-
 func _assert_artifact_rendered_in_reward_backpack(backpack_panel: Control, artifact, label: String) -> void:
 	var slot = _backpack_slot_for_artifact(backpack_panel, artifact) as Control
 	_assert(slot != null, "%s finds the placed artifact slot" % label)
@@ -793,6 +825,8 @@ func _assert_artifact_rendered_in_reward_backpack(backpack_panel: Control, artif
 		return
 	var image_layer = backpack_panel.get_node_or_null("ArtifactImageLayer") as Control if backpack_panel != null else null
 	var image = image_layer.get_node_or_null("DrillImage_%s" % str(artifact.id)) as TextureRect if image_layer != null else null
+	if image == null and image_layer != null:
+		image = image_layer.get_node_or_null("ItemImage_%s" % str(artifact.id)) as TextureRect
 	if image != null:
 		_assert_centers_close(image.get_global_rect(), _artifact_footprint_global_rect(backpack_panel, artifact), 1.0, "%s centers the image-backed artifact" % label)
 		return
@@ -800,7 +834,6 @@ func _assert_artifact_rendered_in_reward_backpack(backpack_panel: Control, artif
 	_assert(overlay != null, "%s finds the placed artifact overlay" % label)
 	if overlay != null:
 		_assert(not (overlay.get_theme_stylebox("panel") is StyleBoxEmpty), "%s draws the non-image artifact overlay" % label)
-
 func _artifact_footprint_global_rect(backpack_panel: Control, artifact) -> Rect2:
 	var rect := Rect2()
 	var initialized := false
@@ -817,28 +850,22 @@ func _artifact_footprint_global_rect(backpack_panel: Control, artifact) -> Rect2
 			rect = slot.get_global_rect() if not initialized else rect.merge(slot.get_global_rect())
 			initialized = true
 	return rect
-
 func _settle_frames(count: int) -> void:
 	for _index in range(count):
 		await Engine.get_main_loop().process_frame
-
 func _reward_node(main_instance: Node, path: String = "") -> Node:
 	if main_instance == null or not main_instance.has_method("bundle_node"):
 		return null
 	return main_instance.call("bundle_node", "reward", path)
-
 func _assert(condition: bool, label: String) -> void:
 	if not condition:
 		failures.append(label)
-
 func _assert_eq(actual: Variant, expected: Variant, label: String) -> void:
 	if actual != expected:
 		failures.append("%s: expected %s, got %s" % [label, str(expected), str(actual)])
-
 func _assert_close(actual: float, expected: float, tolerance: float, label: String) -> void:
 	if absf(actual - expected) > tolerance:
 		failures.append("%s: expected %.2f, got %.2f (tol=%.2f)" % [label, expected, actual, tolerance])
-
 func _assert_centers_close(actual: Rect2, expected: Rect2, tolerance: float, label: String) -> void:
 	var distance := actual.get_center().distance_to(expected.get_center())
 	if distance > tolerance:

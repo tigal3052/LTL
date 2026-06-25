@@ -5,6 +5,8 @@ const DEFAULT_STAGE_BACKDROP_PATH := "res://resources/charactor/background.png"
 const DEFAULT_CHARACTER_ART_PATH := "res://resources/charactor/charactor1.png"
 
 signal return_requested
+signal same_seed_retry_requested
+signal new_seed_retry_requested
 
 @export var default_eyebrow := ""
 @export var default_title := ""
@@ -32,9 +34,11 @@ signal return_requested
 @onready var failure_cause_label: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FailureCauseLabel
 @onready var failure_tip_label: Label = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FailureTipLabel
 @onready var retry_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RetryButton
+@onready var new_seed_retry_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/NewSeedRetryButton
 
 func _ready() -> void:
-	retry_button.pressed.connect(func() -> void: return_requested.emit())
+	retry_button.pressed.connect(func() -> void: same_seed_retry_requested.emit())
+	new_seed_retry_button.pressed.connect(func() -> void: new_seed_retry_requested.emit())
 	_apply_theme()
 	_apply({})
 
@@ -49,7 +53,9 @@ func _apply(state: Dictionary) -> void:
 	board_hint_label.text = str(state.get("pageBoardHint", default_board_hint))
 	failure_cause_label.text = str(state.get("pageCause", default_cause))
 	failure_tip_label.text = str(state.get("pageTip", default_tip))
-	retry_button.text = str(state.get("pageButtonText", default_button_text))
+	retry_button.text = str(state.get("pageRetrySameSeedText", state.get("pageButtonText", default_button_text)))
+	new_seed_retry_button.text = str(state.get("pageRetryNewSeedText", default_button_text))
+	new_seed_retry_button.visible = not new_seed_retry_button.text.is_empty()
 
 	hero_subtitle_label.visible = not hero_subtitle_label.text.is_empty()
 	board_title_label.visible = not board_title_label.text.is_empty()
@@ -102,14 +108,15 @@ func _apply_theme() -> void:
 	hero_stage_backdrop.self_modulate = Color(0.86, 0.88, 0.92, 0.58)
 	hero_stage_character.self_modulate = Color(1.0, 1.0, 1.0, 0.96)
 
-	retry_button.focus_mode = Control.FOCUS_NONE
-	retry_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	retry_button.add_theme_stylebox_override("normal", _retry_button_style(Color(0.11, 0.08, 0.10, 0.98), Color(0.28, 0.21, 0.21, 0.94), Color(0.0, 0.0, 0.0, 0.34)))
-	retry_button.add_theme_stylebox_override("hover", _retry_button_style(Color(0.14, 0.10, 0.12, 1.0), Color(0.98, 0.91, 0.91, 0.38), Color(0.0, 0.0, 0.0, 0.40)))
-	retry_button.add_theme_stylebox_override("pressed", _retry_button_style(Color(0.08, 0.06, 0.07, 0.98), Color(0.44, 0.30, 0.28, 0.94), Color(0.0, 0.0, 0.0, 0.28)))
-	retry_button.add_theme_stylebox_override("focus", _retry_button_style(Color(0.14, 0.10, 0.12, 1.0), Color(0.98, 0.91, 0.91, 0.38), Color(0.0, 0.0, 0.0, 0.40)))
-	retry_button.add_theme_font_size_override("font_size", 22)
-	retry_button.add_theme_color_override("font_color", Color(0.98, 0.95, 0.95, 1.0))
+	for button in [retry_button, new_seed_retry_button]:
+		button.focus_mode = Control.FOCUS_NONE
+		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		button.add_theme_stylebox_override("normal", _retry_button_style(Color(0.11, 0.08, 0.10, 0.98), Color(0.28, 0.21, 0.21, 0.94), Color(0.0, 0.0, 0.0, 0.34)))
+		button.add_theme_stylebox_override("hover", _retry_button_style(Color(0.14, 0.10, 0.12, 1.0), Color(0.98, 0.91, 0.91, 0.38), Color(0.0, 0.0, 0.0, 0.40)))
+		button.add_theme_stylebox_override("pressed", _retry_button_style(Color(0.08, 0.06, 0.07, 0.98), Color(0.44, 0.30, 0.28, 0.94), Color(0.0, 0.0, 0.0, 0.28)))
+		button.add_theme_stylebox_override("focus", _retry_button_style(Color(0.14, 0.10, 0.12, 1.0), Color(0.98, 0.91, 0.91, 0.38), Color(0.0, 0.0, 0.0, 0.40)))
+		button.add_theme_font_size_override("font_size", 22)
+		button.add_theme_color_override("font_color", Color(0.98, 0.95, 0.95, 1.0))
 
 func _retry_button_style(bg_color: Color, border_color: Color, shadow_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

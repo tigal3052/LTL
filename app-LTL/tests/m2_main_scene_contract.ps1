@@ -18,8 +18,6 @@ foreach ($requiredMethod in @(
     "func _render_battlefield",
     "func _on_reset_pressed",
     "func _on_start_pressed",
-    "func _on_hold_fire_pressed",
-    "func _on_repair_pressed",
     "func _on_claim_rewards_pressed"
 )) {
     if (-not $mainController.Contains($requiredMethod)) {

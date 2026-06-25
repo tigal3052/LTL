@@ -40,11 +40,7 @@ static func _config_for_stage(sim: CombatSimulator, family: String, stage_index:
 		stage_band = 2
 	elif stage_index >= 2:
 		stage_band = 1
-	var clear_progress := 2
-	if stage_index >= 4:
-		clear_progress = 3
-	if stage_index >= 8:
-		clear_progress = 4
+	var clear_progress := 2 if str(sim.hazard_snapshot.get("tier", "")) == "boss" else 1
 	match family:
 		"red":
 			var time_cuts := [200, 260, 340, 400]

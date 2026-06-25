@@ -2,6 +2,7 @@ extends Control
 
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 const CTA_BUTTON_HEIGHT_RATIO := 0.082
 const CTA_BUTTON_HEIGHT_MIN := 68.0
 const CTA_BUTTON_HEIGHT_MAX := 74.0
@@ -43,6 +44,7 @@ var _buttons: Dictionary = {}
 var _layout_sync_pending := false
 
 func _ready() -> void:
+	start_button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "battle_start")
 	start_button.pressed.connect(func() -> void: start_requested.emit())
 	resized.connect(_queue_layout_sync)
 	board_panel.resized.connect(_queue_layout_sync)

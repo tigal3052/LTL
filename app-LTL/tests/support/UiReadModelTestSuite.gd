@@ -33,6 +33,7 @@ const MainControllerRenderFlowScript = preload("res://src/controllers/MainContro
 const MainControllerSupportFlowScript = preload("res://src/controllers/MainControllerSupportFlow.gd")
 const MainControllerBootstrapFlowScript = preload("res://src/controllers/MainControllerBootstrapFlow.gd")
 const MainViewRuntimeScript = preload("res://src/ui/MainViewRuntime.gd")
+const MainViewChromeRuntimeScript = preload("res://src/ui/main_view/MainViewChromeRuntime.gd")
 
 var failures: Array[String] = []
 var reward_reveal_cancel_done_calls := 0

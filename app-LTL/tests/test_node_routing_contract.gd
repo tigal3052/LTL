@@ -10,6 +10,7 @@ extends RefCounted
 const HeadlessMiniRunScript = preload("res://src/process/HeadlessMiniRun.gd")
 const NodeVocabScript = preload("res://src/vocabulary/NodeVocab.gd")
 const FormalContractsScript = preload("res://src/domain/FormalContracts.gd")
+const ApplyNodeModifiersScript = preload("res://src/vocabulary/node/ApplyNodeModifiers.gd")
 const SceneReadModelScript = preload("res://src/ui/SceneReadModel.gd")
 const NodeSelectReadModelScript = preload("res://src/ui/read_models/NodeSelectReadModel.gd")
 
@@ -29,6 +30,7 @@ func run_all_tests() -> Dictionary:
 	test_stage_durability_curve_matches_documented_targets()
 	test_offered_candidates_share_documented_stage_durability()
 	test_mysterious_crevice_fixture_has_nonzero_combat_stats()
+	test_default_node_table_covers_single_and_pair_terrain_weaknesses()
 	test_node_validator_requires_route_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
 
@@ -84,10 +86,10 @@ func test_selected_node_uses_documented_durability_curve() -> void:
 		return
 	var combat: Dictionary = run.select_node(hazard_index)
 	_assert_eq(combat["phase"], "combat", "selected durability test enters combat")
-	_assert(absf(float(combat["combat"].get("shield", 0.0)) - 28.0) <= 0.05, "selected combat shield matches doubled stage one table")
-	_assert(absf(float(combat["combat"].get("health", 0.0)) - 36.0) <= 0.05, "selected combat health matches doubled stage one table")
-	_assert(absf(float(combat["combat"].get("maxShield", 0.0)) - 28.0) <= 0.05, "selected combat max shield matches doubled stage one table")
-	_assert(absf(float(combat["combat"].get("maxHealth", 0.0)) - 36.0) <= 0.05, "selected combat max health matches doubled stage one table")
+	_assert(absf(float(combat["combat"].get("shield", 0.0)) - 20.0) <= 0.05, "selected combat shield matches starter-friendly stage one table")
+	_assert(absf(float(combat["combat"].get("health", 0.0)) - 24.0) <= 0.05, "selected combat health matches starter-friendly stage one table")
+	_assert(absf(float(combat["combat"].get("maxShield", 0.0)) - 20.0) <= 0.05, "selected combat max shield matches starter-friendly stage one table")
+	_assert(absf(float(combat["combat"].get("maxHealth", 0.0)) - 24.0) <= 0.05, "selected combat max health matches starter-friendly stage one table")
 
 # 실행: verify cleared routes persist as history and future unexplored stages stay projected as unknown markers.
 func test_route_history_persists_selected_nodes_across_stage_advances() -> void:
@@ -165,9 +167,9 @@ func test_scene_read_model_projects_route_fields_without_pick_weights() -> void:
 
 # 실행: verify the five-stage durability curve follows the documented balance formula.
 func test_stage_durability_curve_matches_documented_targets() -> void:
-	var expected_totals := [64.0, 108.0, 156.0, 200.0, 240.0]
-	var expected_shields := [28.0, 46.0, 70.0, 94.0, 116.0]
-	var expected_health := [36.0, 62.0, 86.0, 106.0, 124.0]
+	var expected_totals := [44.0, 72.0, 108.0, 150.0, 196.0]
+	var expected_shields := [20.0, 30.0, 44.0, 58.0, 72.0]
+	var expected_health := [24.0, 42.0, 64.0, 92.0, 124.0]
 	for stage_index in range(expected_totals.size()):
 		var candidates := NodeVocabScript.generate_candidates(101, stage_index, _normal_only_table(), 1, {"maxStages": 5})
 		_assert(candidates.size() >= 1, "durability curve candidate exists for stage %d" % stage_index)
@@ -185,8 +187,8 @@ func test_offered_candidates_share_documented_stage_durability() -> void:
 	_assert(candidates.size() >= 3, "rich node table offers multiple candidates")
 	for candidate in candidates:
 		var combat: Dictionary = candidate.get("combat", {})
-		_assert(absf(float(combat.get("shield", 0.0)) - 28.0) <= 0.05, "candidate %s shield matches doubled stage one table" % str(candidate.get("id", "")))
-		_assert(absf(float(combat.get("health", 0.0)) - 36.0) <= 0.05, "candidate %s health matches doubled stage one table" % str(candidate.get("id", "")))
+		_assert(absf(float(combat.get("shield", 0.0)) - 20.0) <= 0.05, "candidate %s shield matches starter-friendly stage one table" % str(candidate.get("id", "")))
+		_assert(absf(float(combat.get("health", 0.0)) - 24.0) <= 0.05, "candidate %s health matches starter-friendly stage one table" % str(candidate.get("id", "")))
 
 # 실행: verify the mysterious crevice route cannot clear from zero health/shield.
 func test_mysterious_crevice_fixture_has_nonzero_combat_stats() -> void:
@@ -194,6 +196,35 @@ func test_mysterious_crevice_fixture_has_nonzero_combat_stats() -> void:
 	_assert(not node.is_empty(), "mysterious crevice exists")
 	_assert(float(node.get("shieldMul", 0.0)) > 0.0, "mysterious crevice shield multiplier is nonzero")
 	_assert(float(node.get("healthMul", 0.0)) > 0.0, "mysterious crevice health multiplier is nonzero")
+
+# 실행: verify the shipped node table covers all single and two-color terrain weakness cases.
+func test_default_node_table_covers_single_and_pair_terrain_weaknesses() -> void:
+	var table := _default_node_table_from_file()
+	var singles := {}
+	var pairs := {}
+	for node in table.get("nodes", []):
+		if not node is Dictionary:
+			continue
+		var weakness := _sorted_strings(node.get("weakness", []))
+		if weakness.size() == 1:
+			singles[str(weakness[0])] = true
+		elif weakness.size() == 2:
+			pairs[_combo_key(weakness)] = true
+		if weakness.size() >= 1 and weakness.size() <= 2:
+			var applied := ApplyNodeModifiersScript.apply(node, {})
+			var allowed := _sorted_strings(applied.get("combat", {}).get("hazard", {}).get("allowedFamilies", []))
+			_assert_eq(allowed, weakness, "node %s obstacle families match weakness colors" % str(node.get("id", "")))
+	for color in ["red", "blue", "purple", "green"]:
+		_assert(singles.has(color), "default node table includes a single %s terrain weakness" % color)
+	for combo in [
+		["red", "blue"],
+		["red", "purple"],
+		["red", "green"],
+		["blue", "purple"],
+		["blue", "green"],
+		["purple", "green"]
+	]:
+		_assert(pairs.has(_combo_key(combo)), "default node table includes mixed terrain weakness %s" % str(combo))
 
 # 실행: verify formal node validation rejects missing M4 route fields.
 func test_node_validator_requires_route_fields() -> void:
@@ -244,6 +275,30 @@ func _find_node(table: Dictionary, id: String) -> Dictionary:
 		if str(node.get("id", "")) == id:
 			return node
 	return {}
+
+# 실행: load the shipped node table for data-level routing checks.
+func _default_node_table_from_file() -> Dictionary:
+	var file := FileAccess.open("res://src/data/node-table.json", FileAccess.READ)
+	_assert(file != null, "default node table file opens")
+	if file == null:
+		return {"nodes": []}
+	var json := JSON.new()
+	var parse_result := json.parse(file.get_as_text())
+	_assert_eq(parse_result, OK, "default node table JSON parses")
+	var data = json.get_data()
+	return data if data is Dictionary else {"nodes": []}
+
+func _sorted_strings(value: Variant) -> Array:
+	var result := []
+	if value is Array:
+		for item in value:
+			result.append(str(item))
+	result.sort()
+	return result
+
+func _combo_key(value: Array) -> String:
+	var sorted := _sorted_strings(value)
+	return "|".join(sorted)
 
 # 실행: append a failure label when condition is false.
 func _assert(condition: bool, label: String) -> void:

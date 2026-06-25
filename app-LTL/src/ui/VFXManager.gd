@@ -115,6 +115,13 @@ func spawn_damage_popups(events: Array) -> void:
 			continue
 		_spawn_damage_popup(event, index)
 
+func spawn_obstacle_feedback(events: Array) -> void:
+	for index in range(events.size()):
+		var event = events[index]
+		if not event is Dictionary:
+			continue
+		_spawn_damage_popup(event, index)
+
 static func popup_palette_for_color(color_name: String) -> Dictionary:
 	match color_name:
 		"blue":
@@ -150,7 +157,8 @@ func _spawn_damage_popup(event: Dictionary, index: int) -> void:
 	if not origin is Vector2:
 		return
 	var amount := float(event.get("amount", 0.0))
-	if amount <= 0.0:
+	var text := str(event.get("text", ""))
+	if amount <= 0.0 and text.is_empty():
 		return
 	var channel := str(event.get("channel", "health"))
 	var prefix := str(event.get("prefix", "HP"))
@@ -162,7 +170,8 @@ func _spawn_damage_popup(event: Dictionary, index: int) -> void:
 	root.scale = Vector2.ONE * 0.96
 	root.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	add_child(root)
-	var text := "%s -%.1f" % [prefix, amount]
+	if text.is_empty():
+		text = "%s -%.1f" % [prefix, amount]
 	var font_size := int(palette.get("fontSize", 20)) + (1 if channel == "health" else 0)
 	var base_size: Vector2 = _damage_label_size(text, font_size)
 	var center_offset := Vector2(base_size.x * 0.5, base_size.y * 0.55)

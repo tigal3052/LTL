@@ -8,6 +8,7 @@ func run_all_tests() -> Dictionary:
 	test_reward_reveal_presentation_requires_confirm_and_sorted_reveal_queue()
 	test_reward_reveal_quantity_tease_uses_three_bands()
 	test_reward_reveal_count_tease_hides_exact_count_and_uses_band_preview()
+	test_reward_reveal_jackpot_count_burst_adds_light_before_count_reveal()
 	test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst()
 	test_reward_reveal_count_tease_auto_advances_to_count_lock()
 	return _result()
@@ -156,6 +157,29 @@ func test_reward_reveal_count_tease_hides_exact_count_and_uses_band_preview() ->
 	_assert_eq(str(one.get("countClueStyle", "")), "single_terrain_lid_charge", "count tease uses the terrain lid as the only visible clue")
 	_assert_eq(str(three.get("countClueStyle", "")), "single_terrain_lid_charge", "middle-band count tease still uses one charged terrain lid")
 	_assert_eq(str(five.get("countClueStyle", "")), "single_terrain_lid_charge", "jackpot-band count tease still uses one charged terrain lid")
+
+func test_reward_reveal_jackpot_count_burst_adds_light_before_count_reveal() -> void:
+	var RewardRevealOverlayScript = load("res://src/ui/RewardRevealOverlay.gd")
+	_assert(RewardRevealOverlayScript != null, "reward ceremony overlay script loads for jackpot count burst contract")
+	if RewardRevealOverlayScript == null:
+		return
+	var one_mid = RewardRevealOverlayScript.count_burst_animation_model(Vector2(1440.0, 900.0), 0.65, 1)
+	var three_mid = RewardRevealOverlayScript.count_burst_animation_model(Vector2(1440.0, 900.0), 0.65, 3)
+	var four_mid = RewardRevealOverlayScript.count_burst_animation_model(Vector2(1440.0, 900.0), 0.65, 4)
+	var five_mid = RewardRevealOverlayScript.count_burst_animation_model(Vector2(1440.0, 900.0), 0.65, 5)
+	var five_late = RewardRevealOverlayScript.count_burst_animation_model(Vector2(1440.0, 900.0), 0.95, 5)
+	_assert_eq(bool(one_mid.get("extraLightBurst", false)), false, "one reward keeps the existing count burst with no jackpot light add-on")
+	_assert_eq(bool(three_mid.get("extraLightBurst", false)), false, "three rewards keep the existing count burst with no jackpot light add-on")
+	_assert(float(one_mid.get("orbRevealAlpha", 0.0)) > 0.35, "one reward count reveal remains visible during the existing mid-burst timing")
+	_assert(float(three_mid.get("orbRevealAlpha", 0.0)) > 0.35, "three reward count reveal remains visible during the existing mid-burst timing")
+	_assert_eq(bool(four_mid.get("extraLightBurst", false)), true, "four rewards add a jackpot light burst after the lid opens")
+	_assert_eq(bool(five_mid.get("extraLightBurst", false)), true, "five rewards add a jackpot light burst after the lid opens")
+	_assert(float(four_mid.get("capPopProgress", 0.0)) > 0.70, "jackpot extra light starts after the existing lid-pop opening is already underway")
+	_assert(float(four_mid.get("extraLightBurstAlpha", 0.0)) > 0.20, "four reward jackpot burst emits additional light before count reveal")
+	_assert(float(five_mid.get("extraLightBurstAlpha", 0.0)) > 0.20, "five reward jackpot burst emits additional light before count reveal")
+	_assert(float(four_mid.get("countRevealAlpha", 1.0)) <= 0.05, "four reward exact count remains hidden during the added light burst")
+	_assert(float(five_mid.get("countRevealAlpha", 1.0)) <= 0.05, "five reward exact count remains hidden during the added light burst")
+	_assert(float(five_late.get("countRevealAlpha", 0.0)) > 0.60, "five reward exact count appears after the added light burst")
 
 func test_reward_reveal_mined_lid_pops_from_terrain_before_count_burst() -> void:
 	var RewardRevealOverlayScript = load("res://src/ui/RewardRevealOverlay.gd")

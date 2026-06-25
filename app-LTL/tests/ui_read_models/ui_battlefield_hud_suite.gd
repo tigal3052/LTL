@@ -9,11 +9,13 @@ func run_all_tests() -> Dictionary:
 	test_battlefield_layout_uses_top_left_header_miner_overlay()
 	test_cell_view_uses_tile_alpha_for_weakness_readability()
 	test_cell_view_uses_active_queue_color_for_tile_alpha_readability()
+	test_cell_view_keeps_empty_queue_terrain_tiles_semTransparent()
 	test_combat_scene_projects_all_energy_weakness_as_highlighted_tiles()
 	test_cell_view_projects_hazard_alpha_by_state()
 	test_cell_view_removes_colored_hazard_frame()
 	test_cell_view_maps_green_family_to_green_hazard_texture()
 	test_cell_view_expands_green_hazard_overlay_and_softens_fill()
+	test_obstacle_execution_feedback_flash_and_popup_api_exists()
 	test_hazard_model_uses_active_severity_for_live_obstacles()
 	test_hazard_model_stays_stable_without_live_obstacles()
 	test_battlefield_maps_columns_to_miner_pose_assets()
@@ -70,6 +72,10 @@ func test_cell_view_uses_active_queue_color_for_tile_alpha_readability() -> void
 	_assert(abs(float(CellViewScript.base_tile_alpha_for("purple", "purple", "purple")) - 1.0) < 0.01, "queue-matching tiles stay fully opaque")
 	_assert(abs(float(CellViewScript.base_tile_alpha_for("red", "red", "purple")) - 0.5) < 0.01, "nonmatching colored tiles fade when another queue color is active")
 	_assert(abs(float(CellViewScript.base_tile_alpha_for(null, "blue", "purple")) - 0.5) < 0.01, "nonmatching fallback obstacle tiles also fade against the active queue color")
+
+func test_cell_view_keeps_empty_queue_terrain_tiles_semTransparent() -> void:
+	_assert(abs(float(CellViewScript.base_tile_alpha_for("red", false, false)) - 0.5) < 0.01, "empty-queue overload keeps ordinary weakness tiles semi-transparent")
+	_assert(abs(float(CellViewScript.base_tile_alpha_for("purple", true, false)) - 0.5) < 0.01, "empty-queue overload also keeps all-energy weakness tiles semi-transparent")
 
 func test_combat_scene_projects_all_energy_weakness_as_highlighted_tiles() -> void:
 	var model = CombatSceneModelScript.new()
@@ -133,6 +139,21 @@ func test_cell_view_maps_green_family_to_green_hazard_texture() -> void:
 func test_cell_view_expands_green_hazard_overlay_and_softens_fill() -> void:
 	_assert(float(CellViewScript.hazard_texture_margin_for("green", "active")) > float(CellViewScript.hazard_texture_margin_for("red", "active")), "green hazards expand farther so the vine frame stays readable at combat scale")
 	_assert(float(CellViewScript.active_hazard_fill_alpha_for("green", 0.8)) < float(CellViewScript.active_hazard_fill_alpha_for("red", 0.8)), "green hazards keep a lighter active fill so the hazard artwork is not washed out")
+
+func test_obstacle_execution_feedback_flash_and_popup_api_exists() -> void:
+	var battlefield_vfx = BattlefieldVFXScript.new()
+	var battlefield_ui = BattlefieldUIScript.new()
+	var vfx_manager = VFXManagerScript.new()
+	_assert(battlefield_vfx.has_method("flash_color_for_family"), "battlefield VFX exposes obstacle execution flash colors")
+	_assert(battlefield_vfx.has_method("trigger_obstacle_flash"), "battlefield VFX exposes a short obstacle execution flash")
+	_assert(battlefield_ui.has_method("trigger_obstacle_flash"), "battlefield UI forwards obstacle execution flashes to the overlay")
+	_assert(vfx_manager.has_method("spawn_obstacle_feedback"), "VFX manager exposes obstacle feedback popup spawning")
+	if battlefield_vfx.has_method("flash_color_for_family"):
+		var red_flash: Color = battlefield_vfx.call("flash_color_for_family", "red")
+		var blue_flash: Color = battlefield_vfx.call("flash_color_for_family", "blue")
+		_assert(red_flash.g > 0.35 and red_flash.b < 0.35, "red obstacle execution uses an orange/yellow flash instead of another red warning")
+		_assert(blue_flash.b > blue_flash.r, "blue obstacle execution flash remains visibly blue")
+	battlefield_vfx.free()
 
 func test_hazard_model_uses_active_severity_for_live_obstacles() -> void:
 	var model = HazardModelScript.new()

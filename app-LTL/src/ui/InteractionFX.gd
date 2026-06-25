@@ -13,6 +13,8 @@ const META_INSTALLED := "_ltl_interaction_fx_installed"
 const META_ORIGINAL_POS := "_ltl_interaction_fx_original_pos"
 const META_ORIGINAL_SELF_MODULATE := "_ltl_interaction_fx_original_self_modulate"
 const META_SKIP := "_ltl_skip_interaction_fx"
+const META_SFX_CALLBACK := "_ltl_interaction_sfx_callback"
+const META_SFX_CATEGORY := "_ltl_interaction_sfx_category"
 
 const SHADER_CODE := """
 shader_type canvas_item;
@@ -43,18 +45,20 @@ void fragment() {
 """
 
 # 실행: install effects on every interactive descendant under a root node.
-static func install_tree(root: Node) -> void:
+static func install_tree(root: Node, sound_callback: Callable = Callable()) -> void:
 	if root == null:
 		return
 	if root is Control:
-		install_control(root)
+		install_control(root, sound_callback)
 	for child in root.get_children():
-		install_tree(child)
+		install_tree(child, sound_callback)
 
 # 실행: install effects on one control when it can receive mouse interaction.
-static func install_control(control: Control) -> void:
+static func install_control(control: Control, sound_callback: Callable = Callable()) -> void:
 	if control == null:
 		return
+	if not sound_callback.is_null():
+		control.set_meta(META_SFX_CALLBACK, sound_callback)
 	if bool(control.get_meta(META_SKIP, false)):
 		return
 	if bool(control.get_meta(META_INSTALLED, false)):
@@ -118,6 +122,7 @@ static func _handle_gui_input(control: Control, event: InputEvent) -> void:
 		if event.pressed:
 			_set_ripple(control, event.position)
 			_apply_state(control, true, true)
+			_play_press_sfx(control)
 		else:
 			_apply_state(control, control.get_global_rect().has_point(control.get_global_mouse_position()), false)
 
@@ -222,6 +227,39 @@ static func _is_interactive(control: Control) -> bool:
 	if control.get_signal_connection_list("mouse_entered").size() > 0 or control.get_signal_connection_list("gui_input").size() > 0:
 		return control.mouse_filter != Control.MOUSE_FILTER_IGNORE
 	return false
+
+static func _play_press_sfx(control: Control) -> void:
+	if control == null or _is_disabled(control):
+		return
+	var callback: Callable = control.get_meta(META_SFX_CALLBACK, Callable())
+	if callback.is_null():
+		return
+	callback.call(_sfx_category_for(control))
+
+static func _sfx_category_for(control: Control) -> String:
+	var explicit_category := str(control.get_meta(META_SFX_CATEGORY, "")).strip_edges()
+	if not explicit_category.is_empty():
+		return explicit_category
+	var name_text := str(control.name).to_lower()
+	if control is Button:
+		name_text += " " + str(control.text).to_lower()
+	if name_text.contains("settings"):
+		return "settings_open"
+	if name_text.contains("codex") or name_text.contains("artifact codex"):
+		return "codex_open"
+	if name_text.contains("palette_") or name_text.contains("starter set") or name_text.contains("start color"):
+		return "starter_set_select"
+	if control is BaseButton and bool(control.toggle_mode):
+		return "ui_toggle"
+	if name_text.contains("holdfire") or name_text.contains("hold fire") or name_text.contains("toggle"):
+		return "ui_toggle"
+	if name_text.contains("startbutton") or name_text.contains("start combat") or name_text.contains("battle start") or name_text.contains("looting start"):
+		return "battle_start"
+	if name_text.contains("cancel") or name_text.contains("close") or name_text.contains("discard") or name_text.contains("reset") or name_text.contains("skip") or name_text.contains("back"):
+		return "ui_cancel"
+	if name_text.contains("start") or name_text.contains("continue") or name_text.contains("claim") or name_text.contains("apply") or name_text.contains("confirm") or name_text.contains("select"):
+		return "ui_confirm"
+	return "ui_click"
 
 # 실행: detect disabled state for common interactive controls.
 static func _is_disabled(control: Control) -> bool:

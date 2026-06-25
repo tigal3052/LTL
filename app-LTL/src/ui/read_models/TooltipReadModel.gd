@@ -10,6 +10,7 @@ extends RefCounted
 
 const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const ItemFusionScript = preload("res://src/vocabulary/reward/ItemFusion.gd")
 
 # 실행: project tooltip-safe display data from artifact-like input.
 static func project(value: Variant) -> Dictionary:
@@ -29,6 +30,25 @@ static func project_reward_comparison(reward: Dictionary, equipped_artifacts: Ar
 	reward_data["comparison"] = equipped_data
 	reward_data["bbcode"] = _build_comparison_bbcode(reward_data, equipped_data, loc)
 	return reward_data
+
+static func project_fusion_preview(existing_artifact, incoming_artifact, locale := "") -> Dictionary:
+	var loc := locale if not locale.is_empty() else TextCatalogScript.locale()
+	var preview: Dictionary = ItemFusionScript.preview_duplicate_fusion(existing_artifact, incoming_artifact)
+	if not bool(preview.get("ok", false)):
+		return {"ok": false, "code": str(preview.get("code", "")), "bbcode": ""}
+	var before_data := _normalize(preview.get("before", null))
+	var after_data := _normalize(preview.get("after", null))
+	return {
+		"ok": true,
+		"code": "preview",
+		"name": str(after_data.get("name", "")),
+		"grade": str(after_data.get("grade", "")),
+		"itemType": str(after_data.get("itemType", "")),
+		"energyType": str(after_data.get("energyType", "")),
+		"tooltipVariant": "fusion",
+		"panelAlpha": 1.0,
+		"bbcode": _build_fusion_bbcode(before_data, after_data, loc)
+	}
 
 # 실행: normalize reward dictionaries and Artifact objects into one shape.
 static func _normalize(value: Variant) -> Dictionary:
@@ -120,17 +140,43 @@ static func _build_comparison_bbcode(reward_data: Dictionary, equipped_data: Dic
 	lines.append("[/table]")
 	return "\n".join(lines)
 
+static func _build_fusion_bbcode(before_data: Dictionary, after_data: Dictionary, locale: String) -> String:
+	var before_lines := _compact_lines(before_data, locale)
+	var after_lines := _compact_lines(after_data, locale)
+	var lines: Array[String] = []
+	lines.append("[table=2]")
+	lines.append("[cell][b][color=#e5c07b]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.fusion_before", [], locale), "\n".join(before_lines)])
+	lines.append("[cell][b][color=#98c379]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.fusion_after", [], locale), "\n".join(after_lines)])
+	lines.append("[/table]")
+	return "\n".join(lines)
+
 # 실행: turn normalized artifact data into compact comparison rows.
 static func _compact_lines(data: Dictionary, locale: String) -> Array[String]:
 	var item_type := str(data.get("itemType", "drill"))
 	var eff_cd := maxi(1, int(data.get("baseCooldownTicks", 1)) - int(data.get("synergyCooldownReduction", 0)))
-	return [
+	var rows: Array[String] = [
 		str(data.get("name", "")),
-		"%s / %s" % [_label("rarity", str(data.get("grade", "common")), locale), _label("item", item_type, locale)],
-		"%s: %s" % [TextCatalogScript.t("tooltip.energy", [], locale), _label("color", str(data.get("energyType", "")), locale)],
-		"%s: %d T" % [TextCatalogScript.t("tooltip.cooldown", [], locale), eff_cd],
-		"%s: %.1f" % [TextCatalogScript.t("tooltip.damage", [], locale), float(data.get("damage", 0.0))]
+		"%s / %s" % [_label("rarity", str(data.get("grade", "common")), locale), _label("item", item_type, locale)]
 	]
+	if item_type != "relic":
+		rows.append("%s: %s" % [TextCatalogScript.t("tooltip.energy", [], locale), _label("color", str(data.get("energyType", "")), locale)])
+	if item_type == "drill":
+		rows.append("%s: %d T" % [TextCatalogScript.t("tooltip.cooldown", [], locale), eff_cd])
+		rows.append("%s: %.1f" % [TextCatalogScript.t("tooltip.damage", [], locale), float(data.get("damage", 0.0))])
+	elif item_type == "beacon":
+		var cooldown_mod := int(data.get("beaconCooldownMod", 0))
+		var damage_mod := float(data.get("beaconDamageMod", 0.0))
+		rows.append("%s: %s%d T" % [TextCatalogScript.t("tooltip.cooldown", [], locale), "+" if cooldown_mod > 0 else "", cooldown_mod])
+		rows.append("%s: %s%.1f" % [TextCatalogScript.t("tooltip.damage", [], locale), "+" if damage_mod > 0.0 else "", damage_mod])
+	elif item_type == "relic":
+		var effect_schema: Dictionary = data.get("effectSchema", {})
+		var link_label := _relic_link_label(effect_schema, locale)
+		if not link_label.is_empty():
+			rows.append("%s: %s" % [TextCatalogScript.t("tooltip.relic_link", [], locale), link_label])
+		var summary := TextCatalogScript.effect_summary(effect_schema, locale)
+		if not summary.is_empty():
+			rows.append(summary)
+	return rows
 
 # 실행: find the currently equipped drill with the same energy color as the reward.
 static func _same_color_drill(equipped_artifacts: Array, energy_type: String) -> Dictionary:

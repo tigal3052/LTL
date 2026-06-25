@@ -12,8 +12,8 @@ extends RefCounted
 # 현재 테스트 및 데모 편의를 위해 8x8 최대 규격을 디폴트로 지정해둔 상태입니다.
 var width: int = 8
 var height: int = 8
-var grid: Array = [] # 2D array of String (artifact_id) or empty String
-var artifacts: Dictionary = {} # artifact_id -> Artifact instance
+var grid: Array = [] # 2D array of String (inventory artifact key) or empty String
+var artifacts: Dictionary = {} # inventory artifact key -> Artifact instance
 
 # 실행: initialize the backpack grid size.
 func _init(w: int = 8, h: int = 8) -> void:
@@ -28,12 +28,9 @@ func _init(w: int = 8, h: int = 8) -> void:
 
 # 실행: check if an artifact shape can fit at coordinates.
 func can_place_artifact(art: Artifact, x: int, y: int) -> bool:
-	if art.item_type == "drill":
-		for art_id in artifacts:
-			var other = artifacts[art_id]
-			if other.item_type == "drill" and other.energy_type == art.energy_type and other.id != art.id:
-				return false
-				
+	if art == null:
+		return false
+	var moving_key := _existing_key_for_artifact(art)
 	var shape := art.shape
 	var rows: int = shape.size()
 	var cols: int = shape[0].size() if rows > 0 else 0
@@ -44,7 +41,8 @@ func can_place_artifact(art: Artifact, x: int, y: int) -> bool:
 				var target_y := y + r
 				if target_x < 0 or target_x >= width or target_y < 0 or target_y >= height:
 					return false
-				if grid[target_y][target_x] != "" and grid[target_y][target_x] != art.id:
+				var occupant := str(grid[target_y][target_x])
+				if not occupant.is_empty() and occupant != moving_key:
 					return false
 	return true
 
@@ -52,11 +50,12 @@ func can_place_artifact(art: Artifact, x: int, y: int) -> bool:
 func place_artifact(art: Artifact, x: int, y: int) -> bool:
 	if not can_place_artifact(art, x, y):
 		return false
+	var art_key := _placement_key_for_artifact(art)
 	
 	# Clear old position from grid if already placed
 	for r in range(height):
 		for c in range(width):
-			if grid[r][c] == art.id:
+			if str(grid[r][c]) == art_key:
 				grid[r][c] = ""
 				
 	art.x = x
@@ -67,26 +66,84 @@ func place_artifact(art: Artifact, x: int, y: int) -> bool:
 	for r in range(rows):
 		for c in range(cols):
 			if shape[r][c] == 1:
-				grid[y + r][x + c] = art.id
-	artifacts[art.id] = art
+				grid[y + r][x + c] = art_key
+	artifacts[art_key] = art
 	calculate_synergies()
 	return true
 
 # 실행: remove an artifact from the backpack.
 func remove_artifact(art_id: String) -> bool:
-	if not artifacts.has(art_id):
+	var art_key := _resolve_artifact_key(art_id)
+	if art_key.is_empty():
 		return false
 	for r in range(height):
 		for c in range(width):
-			if grid[r][c] == art_id:
+			if str(grid[r][c]) == art_key:
 				grid[r][c] = ""
-	artifacts.erase(art_id)
+	artifacts.erase(art_key)
 	calculate_synergies()
 	return true
+
+func artifact_key(art: Artifact) -> String:
+	return _existing_key_for_artifact(art)
+
+func _existing_key_for_artifact(art: Artifact) -> String:
+	if art == null:
+		return ""
+	var declared_key := _declared_artifact_key(art)
+	if not declared_key.is_empty() and artifacts.has(declared_key) and artifacts[declared_key] == art:
+		return declared_key
+	for art_key in artifacts:
+		if artifacts[art_key] == art:
+			return str(art_key)
+	return ""
+
+func _placement_key_for_artifact(art: Artifact) -> String:
+	var existing_key := _existing_key_for_artifact(art)
+	if not existing_key.is_empty():
+		return existing_key
+	var preferred_key := _declared_artifact_key(art)
+	if preferred_key.is_empty():
+		preferred_key = "artifact"
+	if not artifacts.has(preferred_key):
+		return preferred_key
+	var base_key := str(art.id)
+	if base_key.is_empty():
+		base_key = "artifact"
+	var duplicate_index := 2
+	var duplicate_key := "%s#%d" % [base_key, duplicate_index]
+	while artifacts.has(duplicate_key):
+		duplicate_index += 1
+		duplicate_key = "%s#%d" % [base_key, duplicate_index]
+	art.instance_id = duplicate_key
+	return duplicate_key
+
+func _resolve_artifact_key(art_id: String) -> String:
+	if artifacts.has(art_id):
+		return art_id
+	for art_key in artifacts:
+		var art: Artifact = artifacts[art_key]
+		if art != null and str(art.id) == art_id:
+			return str(art_key)
+	return ""
+
+func _artifact_key_for_comparison(art: Artifact) -> String:
+	var existing_key := _existing_key_for_artifact(art)
+	if not existing_key.is_empty():
+		return existing_key
+	return _declared_artifact_key(art)
+
+func _declared_artifact_key(art: Artifact) -> String:
+	if art == null:
+		return ""
+	if not str(art.instance_id).is_empty():
+		return str(art.instance_id)
+	return str(art.id)
 
 # 실행: get drills adjacent to the specified artifact.
 func get_adjacent_drills(art: Artifact) -> Array:
 	var adjacent_drills := []
+	var art_key := _artifact_key_for_comparison(art)
 	var occupied_cells := []
 	var shape := art.shape
 	var rows: int = shape.size()
@@ -111,7 +168,7 @@ func get_adjacent_drills(art: Artifact) -> Array:
 					
 	for nb in neighbors:
 		var nb_id := str(grid[nb.y][nb.x])
-		if not nb_id.is_empty() and nb_id != art.id:
+		if not nb_id.is_empty() and nb_id != art_key:
 			var nb_art = artifacts[nb_id]
 			if nb_art and nb_art.item_type == "drill":
 				if not nb_art in adjacent_drills:
@@ -153,9 +210,10 @@ func get_relic_linked_artifacts(relic: Artifact) -> Array:
 		]
 	var linked: Array = []
 	var linked_ids := {}
+	var relic_key := _artifact_key_for_comparison(relic)
 	for cell in _collect_relic_target_cells(relic, offsets):
 		var art_id := str(grid[cell.y][cell.x])
-		if art_id.is_empty() or art_id == relic.id or linked_ids.has(art_id):
+		if art_id.is_empty() or art_id == relic_key or linked_ids.has(art_id):
 			continue
 		linked_ids[art_id] = true
 		linked.append(artifacts[art_id])
@@ -208,7 +266,7 @@ func calculate_synergies() -> void:
 					for nb in neighbors:
 						if nb.x >= 0 and nb.x < width and nb.y >= 0 and nb.y < height:
 							var nb_id := str(grid[nb.y][nb.x])
-							if not nb_id.is_empty() and nb_id != art.id:
+							if not nb_id.is_empty() and nb_id != art_id:
 								var nb_art: Artifact = artifacts[nb_id]
 								if nb_art and nb_art.item_type == "drill" and nb_art.energy_type == art.energy_type:
 									if not nb_id in adjacent_matches:

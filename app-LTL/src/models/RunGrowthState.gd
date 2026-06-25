@@ -128,3 +128,25 @@ func purchase_base_item(item_id: String, bundle: Dictionary = {}) -> bool:
 		return false
 	from_dict(result.get("state", {}))
 	return true
+
+# ??쎈뻬: unlock one starter item without duplicating it in serialized growth state.
+func unlock_starter_item(item_id: String) -> void:
+	if item_id.is_empty():
+		return
+	if not unlocked_starter_items.has(item_id):
+		unlocked_starter_items.append(item_id)
+
+# ??쎈뻬: apply the locked M8 result unlock policy without adding characters or widening progression scope.
+static func apply_m8_result_unlocks(growth_data: Dictionary, result: Dictionary) -> Dictionary:
+	var growth := RunGrowthState.new(growth_data)
+	var failed := bool(result.get("failed", false))
+	if failed:
+		growth.unlock_starter_item("starter_repair_kit")
+		var run_mods := growth.run_modifiers.duplicate(true)
+		run_mods["m8FailureCount"] = int(run_mods.get("m8FailureCount", 0)) + 1
+		growth.run_modifiers = run_mods
+		return growth.to_dict()
+	if str(result.get("leviathanId", "")) == "ossuary_tortoise" and bool(result.get("runComplete", false)):
+		growth.unlock_starter_item("starter_drill_blue")
+		growth.unlock_starter_item("starter_beacon_blue")
+	return growth.to_dict()

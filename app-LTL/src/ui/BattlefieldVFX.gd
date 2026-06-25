@@ -14,6 +14,9 @@ var time_limit := 0.0
 var in_combat := false
 var pulse_time := 0.0
 var battle_pause_active := false
+var obstacle_flash_timer := 0.0
+var obstacle_flash_duration := 0.46
+var obstacle_flash_color := Color(1.0, 0.68, 0.18, 1.0)
 
 # 실행: update battlefield combat timer state.
 func update_combat_time(left: float, limit: float, active: bool) -> void:
@@ -26,13 +29,35 @@ func set_battle_pause_active(active: bool) -> void:
 	battle_pause_active = active
 	queue_redraw()
 
+func trigger_obstacle_flash(family: String) -> void:
+	obstacle_flash_color = flash_color_for_family(family)
+	obstacle_flash_timer = obstacle_flash_duration
+	queue_redraw()
+
+func flash_color_for_family(family: String) -> Color:
+	match family:
+		"blue":
+			return Color(0.26, 0.58, 1.0, 1.0)
+		"purple":
+			return Color(0.74, 0.36, 1.0, 1.0)
+		"green":
+			return Color(0.34, 0.95, 0.42, 1.0)
+		_:
+			return Color(1.0, 0.68, 0.18, 1.0)
+
 func _process(delta: float) -> void:
-	if in_combat and not battle_pause_active:
+	if battle_pause_active:
+		return
+	if obstacle_flash_timer > 0.0:
+		obstacle_flash_timer = maxf(0.0, obstacle_flash_timer - delta)
+		queue_redraw()
+	if in_combat:
 		pulse_time += delta
 		queue_redraw()
 
 func _draw() -> void:
 	_draw_combat_border()
+	_draw_obstacle_flash_border()
 
 # 실행: draw the remaining combat timer border around the battlefield panel.
 func _draw_combat_border() -> void:
@@ -58,3 +83,13 @@ func _draw_combat_border() -> void:
 		var distance: float = min(remaining, lengths[index])
 		draw_line(points[index], points[index] + directions[index] * distance, color, line_width)
 		remaining -= distance
+
+func _draw_obstacle_flash_border() -> void:
+	if obstacle_flash_timer <= 0.0:
+		return
+	var ratio := clampf(obstacle_flash_timer / maxf(0.001, obstacle_flash_duration), 0.0, 1.0)
+	var pulse: float = 0.45 + 0.55 * abs(sin((1.0 - ratio) * PI * 5.0))
+	var color := Color(obstacle_flash_color.r, obstacle_flash_color.g, obstacle_flash_color.b, ratio * pulse)
+	var inset := 3.0
+	var rect := Rect2(Vector2(inset, inset), Vector2(maxf(0.0, size.x - inset * 2.0), maxf(0.0, size.y - inset * 2.0)))
+	draw_rect(rect, color, false, 5.0 + 2.0 * pulse)

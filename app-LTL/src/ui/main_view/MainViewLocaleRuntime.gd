@@ -25,9 +25,16 @@ static func apply_locale(view) -> void:
 			set_bundle_label_text(bundle, "BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", "")
 		if bundle.get("rewardPanel", null) != null:
 			_apply_reward_bundle_locale(bundle)
-	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningLabel", TextCatalogScript.t("confirm.unclaimed.title"))
-	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/DescriptionLabel", TextCatalogScript.t("confirm.unclaimed.desc"))
-	view.confirm_proceed_button.text = TextCatalogScript.t("action.proceed")
+	var confirm_title := TextCatalogScript.t("confirm.unclaimed.title")
+	var confirm_desc := TextCatalogScript.t("confirm.unclaimed.desc")
+	if str(view.confirm_overlay_mode) == "discard":
+		confirm_title = TextCatalogScript.t("confirm.discard.title")
+		confirm_desc = TextCatalogScript.t("confirm.discard.desc", [str(view.confirm_overlay_subject)])
+	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningTitle", confirm_title)
+	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningLabel", confirm_title)
+	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningDescription", confirm_desc)
+	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/DescriptionLabel", confirm_desc)
+	view.confirm_proceed_button.text = TextCatalogScript.t("action.confirm" if str(view.confirm_overlay_mode) == "discard" else "action.proceed")
 	view.confirm_cancel_button.text = TextCatalogScript.t("action.cancel")
 	view.settings_open_button.text = TextCatalogScript.t("action.settings")
 	_apply_action_bar_locale(view)
@@ -84,15 +91,13 @@ static func _apply_reward_bundle_locale(bundle: Dictionary) -> void:
 	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.rewards_zone.title"))
 	set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.rewards_zone.hint"))
 	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("panel.backpack"))
-	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.workspace_zone.hint"))
+	set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.workspace_zone.hint"))
 	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.inspector_zone.title"))
 	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.inspector_zone.hint"))
 	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.discard_zone.title"))
 	set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.discard_zone.hint"))
-	set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCardScroll/DiscardCard/Margin/DiscardCardBox/DiscardCardTitle", TextCatalogScript.t("reward.board.discard_card_title"))
 	set_bundle_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneTitle", TextCatalogScript.t("reward.board.confirm_zone.title"))
 	set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead/ZoneHint", TextCatalogScript.t("reward.board.confirm_zone.hint"))
-	set_bundle_optional_label_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCardScroll/ClaimCard/Margin/ClaimCardBox/ClaimCardTitle", TextCatalogScript.t("reward.board.claim_card_title"))
 	set_bundle_rich_text(bundle, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/WorkspaceNote", TextCatalogScript.t("reward.board.workspace_note"))
 
 static func _apply_action_bar_locale(view) -> void:
@@ -102,17 +107,11 @@ static func _apply_action_bar_locale(view) -> void:
 			continue
 		var reset_btn := bundle.get("resetButton", null) as Button
 		var start_btn := bundle.get("startButton", null) as Button
-		var hold_btn := bundle.get("holdFireButton", null) as Button
-		var repair_btn := bundle.get("repairButton", null) as Button
 		var claim_btn := bundle.get("claimRewardsButton", null) as Button
 		if reset_btn != null:
 			reset_btn.text = TextCatalogScript.t("action.reset")
 		if start_btn != null:
 			start_btn.text = TextCatalogScript.t("action.start")
-		if hold_btn != null:
-			hold_btn.text = TextCatalogScript.t("action.hold_fire")
-		if repair_btn != null:
-			repair_btn.text = TextCatalogScript.t("action.repair")
 		if claim_btn != null:
 			claim_btn.text = TextCatalogScript.t("action.claim_rewards")
 		_apply_optional_action_buttons(bundle)

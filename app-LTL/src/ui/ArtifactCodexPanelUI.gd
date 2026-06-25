@@ -407,7 +407,8 @@ func _render_left_page(left_page_model: Dictionary) -> void:
 	_render_art_placeholder(hero_art_host, hero_art, str(left_page_model.get("title", "")), true)
 	var requested_path := str(hero_art.get("requestedPath", ""))
 	var resolved_path := str(hero_art.get("path", ""))
-	if not requested_path.is_empty() and requested_path != resolved_path:
+	var resolved_source := str(hero_art.get("source", ""))
+	if not requested_path.is_empty() and requested_path != resolved_path and resolved_source in ["fallback", "missing"]:
 		illustration_hint_label.text = "%s (%s)" % [
 			str(left_page_model.get("missingArtText", TextCatalogScript.t("codex.missing_art"))),
 			str(hero_art.get("iconKey", ""))

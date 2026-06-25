@@ -62,6 +62,12 @@ static func resolved_top_content_height(row_height: float, min_row_height: float
 		return row_height
 	return maxf(0.0, min_row_height)
 
+static func bounded_top_content_height(row_height: float, min_row_height: float, safe_height: float) -> float:
+	var resolved_height := resolved_top_content_height(row_height, min_row_height)
+	if safe_height <= 0.0:
+		return resolved_height
+	return minf(resolved_height, safe_height)
+
 static func top_content_grid_extent_for_height(target_height: float) -> float:
 	return maxf(maxf(0.0, target_height), MIN_TOP_CONTENT_GRID_EXTENT)
 

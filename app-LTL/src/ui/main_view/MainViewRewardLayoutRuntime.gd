@@ -7,9 +7,9 @@ const RewardBoardLayoutPolicyScript = preload("res://src/ui/presenters/RewardBoa
 const SharedBackpackHostCoordinatorScript = preload("res://src/ui/SharedBackpackHostCoordinator.gd")
 
 const NODE_SELECT_MAP_MIN_WIDTH := 460.0
-const REWARD_BOARD_TOP_ZONE_MIN_HEIGHT := 280.0
-const REWARD_BOARD_BOTTOM_ROW_MIN_HEIGHT := 132.0
-const REWARD_BOARD_BOTTOM_ROW_RATIO := 0.22
+const REWARD_BOARD_TOP_ZONE_MIN_HEIGHT := 320.0
+const REWARD_BOARD_BOTTOM_ROW_MIN_HEIGHT := 82.0
+const REWARD_BOARD_BOTTOM_ROW_RATIO := 0.10
 
 static func apply_node_select_backpack_dock(view, dock: String, map_ratio: float, backpack_ratio: float) -> void:
 	SharedBackpackHostCoordinatorScript.apply_node_select_backpack_dock(
@@ -129,12 +129,12 @@ static func sync_reward_board_layout(view) -> void:
 	if view.reward_workspace_note != null:
 		view.reward_workspace_note.visible = false
 	if view.reward_workspace_box != null:
-		set_theme_constant_override_if_changed(view.reward_workspace_box, "separation", 12)
+		set_theme_constant_override_if_changed(view.reward_workspace_box, "separation", 8)
 	if view.reward_workspace_margin != null:
-		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_left", 14)
-		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_top", 14)
-		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_right", 14)
-		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_bottom", 14)
+		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_left", 12)
+		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_top", 12)
+		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_right", 12)
+		set_theme_constant_override_if_changed(view.reward_workspace_margin, "margin_bottom", 12)
 	var grid_width: float = reward_board_available_width(view)
 	var grid_height: float = view.reward_grid.size.y
 	if grid_width <= 1.0 or grid_height <= 1.0:
@@ -149,16 +149,16 @@ static func sync_reward_board_layout(view) -> void:
 	var rewards_body_height: float = reward_zone_body_target_height(view.reward_rewards_zone, rewards_body, top_zone_height, 220.0)
 	var inspector_body: Control = view.reward_inspector_scroll if view.reward_inspector_scroll != null else view.reward_inspector_stage
 	var inspector_body_height: float = reward_zone_body_target_height(view.reward_inspector_zone, inspector_body, top_zone_height, 220.0)
-	var discard_body_height: float = reward_zone_body_target_height(view.discard_zone, view.discard_card, bottom_row_height, 72.0)
-	var claim_body_height: float = reward_zone_body_target_height(view.confirm_zone, view.claim_card, bottom_row_height, 72.0)
+	var discard_body_height: float = reward_zone_body_target_height(view.discard_zone, view.discard_card, bottom_row_height, 34.0)
+	var claim_body_height: float = reward_zone_body_target_height(view.confirm_zone, view.claim_card, bottom_row_height, 34.0)
 	top_zone_height = maxf(top_zone_height, maxf(view.reward_rewards_zone.get_combined_minimum_size().y, maxf(view.reward_workspace_zone.get_combined_minimum_size().y, view.reward_inspector_zone.get_combined_minimum_size().y)))
 	bottom_row_height = maxf(bottom_row_height, view.reward_bottom_row.get_combined_minimum_size().y)
 	top_zone_height = maxf(REWARD_BOARD_TOP_ZONE_MIN_HEIGHT, visible_board_height - bottom_row_height - float(view.reward_board.get_theme_constant("separation")))
 	rewards_body_height = reward_zone_body_target_height(view.reward_rewards_zone, rewards_body, top_zone_height, 220.0)
 	workspace_body_height = reward_zone_body_target_height(view.reward_workspace_zone, view.reward_backpack_host, top_zone_height, 220.0)
 	inspector_body_height = reward_zone_body_target_height(view.reward_inspector_zone, inspector_body, top_zone_height, 220.0)
-	discard_body_height = reward_zone_body_target_height(view.discard_zone, view.discard_card, bottom_row_height, 72.0)
-	claim_body_height = reward_zone_body_target_height(view.confirm_zone, view.claim_card, bottom_row_height, 72.0)
+	discard_body_height = reward_zone_body_target_height(view.discard_zone, view.discard_card, bottom_row_height, 34.0)
+	claim_body_height = reward_zone_body_target_height(view.confirm_zone, view.claim_card, bottom_row_height, 34.0)
 	set_custom_minimum_width_if_changed(view.reward_board, grid_width)
 	set_custom_minimum_width_if_changed(view.reward_grid, grid_width)
 	set_custom_minimum_height_if_changed(view.reward_board, top_zone_height + bottom_row_height + float(view.reward_board.get_theme_constant("separation")))
@@ -198,7 +198,7 @@ static func sync_reward_board_layout(view) -> void:
 	var host_height: float = maxf(0.0, view.reward_workspace_zone.size.y - 4.0)
 	var desired_panel: Vector2 = reward_backpack_panel_dimensions_for_host(view, Vector2(maxf(0.0, grid_width), maxf(0.0, host_height)))
 	var gap: float = float(view.reward_grid.get_theme_constant("separation"))
-	var min_side_width: float = clampf(grid_width * 0.19, 188.0, 280.0)
+	var min_side_width: float = clampf(grid_width * 0.17, 168.0, 260.0)
 	var desired_middle_width: float = clampf(desired_panel.x + 8.0, 320.0, maxf(320.0, grid_width - gap * 2.0))
 	var max_middle_width: float = maxf(320.0, grid_width - gap * 2.0 - min_side_width * 2.0)
 	if max_middle_width > 0.0:
@@ -301,11 +301,26 @@ static func set_reward_workspace_title_state(view, dock_to_board: bool) -> void:
 		view.reward_workspace_head.visible = dock_to_board
 	if view.reward_workspace_title != null and dock_to_board:
 		view.reward_workspace_title.text = TextCatalogScript.t("panel.backpack")
+	apply_reward_backpack_padding_for_workspace(view, dock_to_board)
 	if view.backpack_ui == null:
 		return
+	if view.backpack_ui.has_method("set_influence_preview_toggle_anchor"):
+		view.backpack_ui.set_influence_preview_toggle_anchor(view.reward_workspace_title if dock_to_board else null)
 	var backpack_engine_title: Control = view.backpack_ui.get_node_or_null("Margin/EngineBox/EngineTitle") as Control
 	if backpack_engine_title != null:
 		backpack_engine_title.visible = not dock_to_board
+
+static func apply_reward_backpack_padding_for_workspace(view, dock_to_board: bool) -> void:
+	if view.backpack_ui == null:
+		return
+	var margin: MarginContainer = view.backpack_ui.get_node_or_null("Margin") as MarginContainer
+	if margin == null:
+		return
+	var padding := 10 if dock_to_board else 16
+	set_theme_constant_override_if_changed(margin, "margin_left", padding)
+	set_theme_constant_override_if_changed(margin, "margin_top", padding)
+	set_theme_constant_override_if_changed(margin, "margin_right", padding)
+	set_theme_constant_override_if_changed(margin, "margin_bottom", padding)
 
 static func reward_backpack_panel_visible_height_cap(view) -> float:
 	if view.reward_panel == null or view.reward_panel_margin == null or view.reward_box == null or view.reward_board_head == null or view.reward_board == null or view.reward_bottom_row == null:

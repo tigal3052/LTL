@@ -1,4 +1,4 @@
-# LTL 워크플로우 진입점 (00_AGENTS.md)
+﻿# LTL 워크플로우 진입점 (00_AGENTS.md)
 
 Looting The Leviathan의 프로젝트 하네스입니다. 모든 에이전트와 구현자는 Prototype-First history를 참고하되, 현재 구현은 Test-Driven Development와 재현 가능한 로그 기반 검증을 바탕으로 정식 경로에만 반영합니다.
 
@@ -283,3 +283,18 @@ app-LTL/
 - Opening a popup overlay must also move it to the front of its sibling order; do not rely on default tree insertion order or a root panel's visibility alone.
 - This rule applies even when the popup shares the same scene tree as gameplay HUD nodes. Ownership by the main screen is not enough without an explicit front-order contract.
 - Verification for popup-menu changes must include a focused runtime/layout check that opens the overlay during combat and proves no gameplay CanvasItem renders above it.
+
+## Worklog Token Policy Addendum
+
+- Before reading raw worklog history, inspect `docs/agent-worklog/INDEX.md` and `docs/agent-worklog/COMPACT.md`.
+- Use `tools/agent-worklog.ps1 -Mode token-report` before broad historical scans.
+- Use `tools/agent-worklog.ps1 -Mode summarize-worklogs` after raw worklogs change.
+- Hermes should not create a full duplicate raw transcript tree by default; write concise shared agent summaries with a mandatory `Compact Summary` section.
+- Keep Codex raw logs in `docs/codex-worklog/` as evidence and open them only when the compact layer links to a relevant detail.
+
+
+## Source Map Freshness
+
+- Validate source-map coverage/freshness with `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/source-map-gate.ps1 -Root .`.
+- After source/resource/test/harness/doc changes that are in source-map scope, refresh with `powershell -NoProfile -ExecutionPolicy Bypass -File LTL-harness/tools/source-map-gate.ps1 -Root . -Refresh`.
+- The gate records a source fingerprint, so already-mapped files changing without source-map refresh now fail validation.

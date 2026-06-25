@@ -15,9 +15,6 @@ static func place(inventory: InventoryModel, held: Artifact, x: int, y: int, pen
 		return _failure("missing_inventory", inventory, held, next_pending)
 	if held == null:
 		return _failure("missing_held", inventory, held, next_pending)
-	var duplicate_color := _has_duplicate_drill_color(inventory, held)
-	if duplicate_color:
-		return _failure("duplicate_drill_color", inventory, held, next_pending)
 	if not inventory.can_place_artifact(held, x, y):
 		return _failure("cannot_place", inventory, held, next_pending)
 	inventory.place_artifact(held, x, y)
@@ -26,15 +23,6 @@ static func place(inventory: InventoryModel, held: Artifact, x: int, y: int, pen
 	return {"ok": true, "code": "placed", "inventory": inventory, "held": null, "pendingRewards": next_pending}
 
 # 실행: detect the single-drill-per-color guard before placement.
-static func _has_duplicate_drill_color(inventory: InventoryModel, held: Artifact) -> bool:
-	if held.item_type != "drill":
-		return false
-	for art_id in inventory.artifacts:
-		var art: Artifact = inventory.artifacts[art_id]
-		if art.item_type == "drill" and art.energy_type == held.energy_type and art.id != held.id:
-			return true
-	return false
-
 # 실행: build a consistent failure result.
 static func _failure(code: String, inventory: InventoryModel, held: Artifact, pending_rewards: Array) -> Dictionary:
 	return {"ok": false, "code": code, "inventory": inventory, "held": held, "pendingRewards": pending_rewards}

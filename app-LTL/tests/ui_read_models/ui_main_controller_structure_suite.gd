@@ -14,6 +14,7 @@ func run_all_tests() -> Dictionary:
 	test_main_controller_bootstrap_flow_split_contract()
 	test_main_controller_uses_terrain_shift_interval()
 	test_main_controller_syncs_combat_ticks_to_shift_interval()
+	test_cell_click_does_not_restart_or_accelerate_terrain_shift_timer()
 	test_main_controller_prefers_clicked_cell_color_for_targeting()
 	test_main_controller_scene_projection_reads_queue_and_target()
 	test_main_controller_starter_loadout_positions_are_adjacent()
@@ -129,14 +130,22 @@ func test_main_controller_uses_terrain_shift_interval() -> void:
 	_assert(MainControllerScript != null, "main controller loads")
 	if MainControllerScript == null:
 		return
-	_assert_eq(float(MainControllerScript.TERRAIN_SHIFT_SECONDS), 1.5, "terrain marker shift interval is 1.5 seconds")
+	_assert_eq(float(MainControllerScript.TERRAIN_SHIFT_SECONDS), 2.0, "terrain marker shift interval is 2 seconds")
 
 func test_main_controller_syncs_combat_ticks_to_shift_interval() -> void:
 	var MainControllerScript = load("res://src/MainController.gd")
 	_assert(MainControllerScript != null, "main controller loads for shift tick sync")
 	if MainControllerScript == null:
 		return
-	_assert_eq(int(MainControllerScript.TERRAIN_SHIFT_TICKS), 30, "1.5 second shift advances 30 combat ticks")
+	_assert_eq(int(MainControllerScript.TERRAIN_SHIFT_TICKS), 40, "2 second shift advances 40 combat ticks")
+
+func test_cell_click_does_not_restart_or_accelerate_terrain_shift_timer() -> void:
+	var text := FileAccess.get_file_as_string("res://src/controllers/MainControllerCombatFlow.gd")
+	var click_body := _function_body(text, "static func on_cell_clicked")
+	_assert(not click_body.is_empty(), "combat flow exposes on_cell_clicked body for timer coupling review")
+	_assert(not click_body.contains("shift_timer"), "cell clicks do not touch the terrain shift timer")
+	_assert(not click_body.contains("TERRAIN_SHIFT_SECONDS"), "cell clicks do not restart the terrain shift interval")
+	_assert(not click_body.contains("on_shift_timer_timeout"), "cell clicks do not force an immediate terrain shift")
 
 func test_main_controller_prefers_clicked_cell_color_for_targeting() -> void:
 	_assert_eq(MainControllerCombatFlowScript.resolve_target_color_for_interaction("blue", "red"), "blue", "click targeting uses the clicked tile color instead of the active queue color")
@@ -178,3 +187,12 @@ func test_main_controller_starter_loadout_positions_are_adjacent() -> void:
 	_assert_eq(positions.size(), 2, "starter loadout exposes two positions")
 	var delta: Vector2 = positions[0] - positions[1]
 	_assert_eq(int(abs(delta.x) + abs(delta.y)), 1, "starter drill and beacon begin orthogonally adjacent")
+
+func _function_body(text: String, signature: String) -> String:
+	var start := text.find(signature)
+	if start < 0:
+		return ""
+	var next := text.find("\nstatic func ", start + signature.length())
+	if next < 0:
+		next = text.length()
+	return text.substr(start, next - start)

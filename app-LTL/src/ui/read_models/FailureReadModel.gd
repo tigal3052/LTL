@@ -24,7 +24,8 @@ static func project(scene: Dictionary) -> Dictionary:
 				last_node if not last_node.is_empty() else fallback_node
 			]),
 			"tip": TextCatalogScript.t("failure.run_failed.tip"),
-			"showResetHint": true
+			"showResetHint": true,
+			"retryOptions": _retry_options()
 		}
 	if feedback_status == "repair_blocked":
 		return {
@@ -59,5 +60,12 @@ static func project(scene: Dictionary) -> Dictionary:
 		"title": "",
 		"cause": "",
 		"tip": "",
-		"showResetHint": false
+		"showResetHint": false,
+		"retryOptions": []
 	}
+
+static func _retry_options() -> Array:
+	return [
+		{"id": "same_seed", "label": TextCatalogScript.t("action.retry_same_seed"), "seedPolicy": "same"},
+		{"id": "new_seed", "label": TextCatalogScript.t("action.retry_new_seed"), "seedPolicy": "new"}
+	]

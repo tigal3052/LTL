@@ -63,7 +63,7 @@
 				"beacon_damage_mod": 0.1
 			},
 			"presentation": {
-				"icon": "beacon_red_common",
+				"icon": "beacon_red_start",
 				"description": "Training beacon for burst damage and overheat risk.",
 				"badge": "common red beacon"
 			},
@@ -83,6 +83,53 @@
 				"description": {
 					"ko": "진홍 히트 포스트 · 일반 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
 					"en": "Training beacon for burst damage and overheat risk. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_red_drill_2",
+			"kind": "Crimson Spark Relay",
+			"rarity": "common",
+			"weight": 44,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 90,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"beacon_cooldown_mod": -14,
+				"beacon_damage_mod": 0.35
+			},
+			"presentation": {
+				"icon": "beacon_red_common",
+				"description": "Common red beacon that turns spark pressure into faster burst setup.",
+				"badge": "common red beacon"
+			},
+			"tags": [
+				"common",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"tempo",
+				"beacon",
+				"pulse"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 스파크 릴레이",
+					"en": "Crimson Spark Relay"
+				},
+				"description": {
+					"ko": "진홍 스파크 릴레이 · 일반 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Common red beacon that turns spark pressure into faster burst setup. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
 				}
 			}
 		},
@@ -149,7 +196,7 @@
 				"beacon_damage_mod": 0.1
 			},
 			"presentation": {
-				"icon": "beacon_blue_common",
+				"icon": "beacon_blue_start",
 				"description": "Training beacon for shield control and cooldown stability.",
 				"badge": "common blue beacon"
 			},
@@ -235,7 +282,7 @@
 				"beacon_damage_mod": 0.2
 			},
 			"presentation": {
-				"icon": "beacon_purple_common",
+				"icon": "beacon_purple_start",
 				"description": "Training beacon for resonance copies and terrain debuffs.",
 				"badge": "common purple beacon"
 			},
@@ -255,6 +302,52 @@
 				"description": {
 					"ko": "보랏빛 에코 포스트 · 일반 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
 					"en": "Training beacon for resonance copies and terrain debuffs. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_purple_drill_2",
+			"kind": "Violet Veil Relay",
+			"rarity": "common",
+			"weight": 44,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 102,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"beacon_cooldown_mod": -12,
+				"beacon_damage_mod": 0.3
+			},
+			"presentation": {
+				"icon": "beacon_purple_common",
+				"description": "Common purple beacon that turns veil marks into cleaner echo setup.",
+				"badge": "common purple beacon"
+			},
+			"tags": [
+				"common",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"beacon",
+				"mark"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 베일 릴레이",
+					"en": "Violet Veil Relay"
+				},
+				"description": {
+					"ko": "보랏빛 베일 릴레이 · 일반 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Common purple beacon that turns veil marks into cleaner echo setup. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
 				}
 			}
 		},
@@ -321,7 +414,7 @@
 				"beacon_damage_mod": 0.1
 			},
 			"presentation": {
-				"icon": "beacon_green_common",
+				"icon": "beacon_green_start",
 				"description": "Training beacon for repair support and long-fight growth.",
 				"badge": "common green beacon"
 			},
@@ -659,58 +752,6 @@
 			}
 		},
 		{
-			"id": "reward_rare_red_drill_2",
-			"kind": "Crimson Spark Relay",
-			"rarity": "rare",
-			"weight": 44,
-			"payload": {
-				"item_type": "beacon",
-				"energy_type": "red",
-				"shape": [
-					[
-						1,
-						1
-					],
-					[
-						1,
-						0
-					]
-				],
-				"base_cooldown_ticks": 90,
-				"damage": 0,
-				"synergy": {
-					"type": "same_color",
-					"value": 2
-				},
-				"beacon_cooldown_mod": -14,
-				"beacon_damage_mod": 0.35
-			},
-			"presentation": {
-				"icon": "beacon_red_rare",
-				"description": "Rare red beacon that turns spark pressure into faster burst setup.",
-				"badge": "rare red beacon"
-			},
-			"tags": [
-				"rare",
-				"red_energy",
-				"burst",
-				"risk_reward",
-				"tempo",
-				"beacon",
-				"pulse"
-			],
-			"text": {
-				"name": {
-					"ko": "진홍 스파크 릴레이",
-					"en": "Crimson Spark Relay"
-				},
-				"description": {
-					"ko": "진홍 스파크 릴레이 · 희귀 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
-					"en": "Rare red beacon that turns spark pressure into faster burst setup. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
-				}
-			}
-		},
-		{
 			"id": "reward_rare_red_beacon_3",
 			"kind": "Crimson Venting Beacon",
 			"rarity": "rare",
@@ -868,7 +909,7 @@
 				"beacon_damage_mod": 0.25
 			},
 			"presentation": {
-				"icon": "beacon_blue_rare",
+				"icon": "beacon_blue_rare2",
 				"description": "Blue beacon that smooths adjacent blue drill cooldowns.",
 				"badge": "rare blue beacon"
 			},
@@ -979,59 +1020,6 @@
 			}
 		},
 		{
-			"id": "reward_rare_purple_drill_2",
-			"kind": "Violet Veil Relay",
-			"rarity": "rare",
-			"weight": 44,
-			"payload": {
-				"item_type": "beacon",
-				"energy_type": "purple",
-				"shape": [
-					[
-						1,
-						1,
-						0
-					],
-					[
-						0,
-						1,
-						1
-					]
-				],
-				"base_cooldown_ticks": 102,
-				"damage": 0,
-				"synergy": {
-					"type": "same_color",
-					"value": 2
-				},
-				"beacon_cooldown_mod": -12,
-				"beacon_damage_mod": 0.3
-			},
-			"presentation": {
-				"icon": "beacon_purple_rare",
-				"description": "Rare purple beacon that turns veil marks into cleaner echo setup.",
-				"badge": "rare purple beacon"
-			},
-			"tags": [
-				"rare",
-				"purple_energy",
-				"resonance",
-				"terrain_debuff",
-				"beacon",
-				"mark"
-			],
-			"text": {
-				"name": {
-					"ko": "보랏빛 베일 릴레이",
-					"en": "Violet Veil Relay"
-				},
-				"description": {
-					"ko": "보랏빛 베일 릴레이 · 희귀 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
-					"en": "Rare purple beacon that turns veil marks into cleaner echo setup. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
-				}
-			}
-		},
-		{
 			"id": "reward_rare_green_drill_1",
 			"kind": "Verdant Moss Bore",
 			"rarity": "rare",
@@ -1102,7 +1090,7 @@
 				"beacon_damage_mod": 0.35
 			},
 			"presentation": {
-				"icon": "beacon_green_rare",
+				"icon": "beacon_green_rare2",
 				"description": "Green beacon that feeds nearby green drill sustain.",
 				"badge": "rare green beacon"
 			},
@@ -1488,7 +1476,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_red_epic",
+				"icon": "drill_red_epic2",
 				"description": "Hero red drill that rewards repeated red firing.",
 				"badge": "epic red drill"
 			},
@@ -1605,7 +1593,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "beacon_red_epic",
+				"icon": "beacon_red_epic2",
 				"description": "Hero red beacon that accelerates burst at a risk cost.",
 				"badge": "epic red beacon"
 			},
@@ -1702,13 +1690,11 @@
 				"shape": [
 					[
 						1,
-						1,
-						1
+						0
 					],
 					[
-						0,
 						1,
-						0
+						1
 					]
 				],
 				"base_cooldown_ticks": 82,
@@ -1733,7 +1719,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_blue_epic",
+				"icon": "drill_blue_epic2",
 				"description": "Hero blue drill converting stability into pressure.",
 				"badge": "epic blue drill"
 			},
@@ -1884,13 +1870,12 @@
 				"energy_type": "purple",
 				"shape": [
 					[
-						1,
-						1,
-						0
+						1
 					],
 					[
-						0,
-						1,
+						1
+					],
+					[
 						1
 					]
 				],
@@ -1977,7 +1962,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_purple_epic",
+				"icon": "drill_purple_epic2",
 				"description": "Hero purple drill that rewrites terrain pressure.",
 				"badge": "epic purple drill"
 			},
@@ -2133,7 +2118,7 @@
 					],
 					[
 						1,
-						1
+						0
 					]
 				],
 				"base_cooldown_ticks": 94,
@@ -2158,7 +2143,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_green_epic",
+				"icon": "drill_green_epic2",
 				"description": "Hero green drill that grows into long fights.",
 				"badge": "epic green drill"
 			},
@@ -2910,7 +2895,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_purple_legendary",
+				"icon": "drill_purple_legendary2",
 				"description": "Legendary purple drill for controlled duplication.",
 				"badge": "legendary purple drill"
 			},
@@ -3105,7 +3090,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_green_legendary",
+				"icon": "drill_green_legendary2",
 				"description": "Legendary green drill that converts recovery into pressure.",
 				"badge": "legendary green drill"
 			},
@@ -3327,19 +3312,14 @@
 				"energy_type": "red",
 				"shape": [
 					[
-						0,
+						1,
 						1,
 						0
 					],
 					[
-						1,
+						0,
 						1,
 						1
-					],
-					[
-						0,
-						1,
-						0
 					]
 				],
 				"base_cooldown_ticks": 66,
@@ -3367,7 +3347,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_red_mythic",
+				"icon": "drill_red_legendary2",
 				"description": "Mythic red drill that defines a high-risk burst build.",
 				"badge": "mythic red drill"
 			},
@@ -3466,19 +3446,14 @@
 				"energy_type": "blue",
 				"shape": [
 					[
-						0,
+						1,
 						1,
 						0
 					],
 					[
-						1,
+						0,
 						1,
 						1
-					],
-					[
-						0,
-						1,
-						0
 					]
 				],
 				"base_cooldown_ticks": 62,
@@ -3503,7 +3478,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_blue_mythic",
+				"icon": "drill_blue_legendary2",
 				"description": "Mythic blue drill for shield-control engines.",
 				"badge": "mythic blue drill"
 			},
@@ -3598,12 +3573,12 @@
 					[
 						1,
 						1,
-						0
+						1
 					],
 					[
 						0,
 						1,
-						1
+						0
 					]
 				],
 				"base_cooldown_ticks": 74,
@@ -3630,7 +3605,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_purple_mythic",
+				"icon": "drill_purple_legendary",
 				"description": "Mythic purple drill for capped echo chains.",
 				"badge": "mythic purple drill"
 			},
@@ -3730,11 +3705,6 @@
 				"energy_type": "green",
 				"shape": [
 					[
-						0,
-						1,
-						0
-					],
-					[
 						1,
 						1,
 						1
@@ -3774,7 +3744,7 @@
 				}
 			},
 			"presentation": {
-				"icon": "drill_green_mythic",
+				"icon": "drill_green_legendary",
 				"description": "Mythic green drill for long-fight growth builds.",
 				"badge": "mythic green drill"
 			},

@@ -12,6 +12,7 @@ const NodeSelectLayoutPolicyScript = preload("res://src/scenes/pages/node_select
 const NodeSelectRoadmapComposerScript = preload("res://src/scenes/pages/node_select/NodeSelectRoadmapComposer.gd")
 const NodeSelectRoadmapRendererScript = preload("res://src/scenes/pages/node_select/NodeSelectRoadmapRenderer.gd")
 const NodeSelectVisualFactoryScript = preload("res://src/scenes/pages/node_select/NodeSelectVisualFactory.gd")
+const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 
 const BOARD_BG := Color(0.11, 0.08, 0.06, 0.98)
 const BOARD_BORDER := Color(0.48, 0.34, 0.22, 0.82)
@@ -61,6 +62,7 @@ var _core_texture_cache: Dictionary = {}
 var _spot_texture_cache: Dictionary = {}
 
 func _ready() -> void:
+	start_button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "battle_start")
 	_apply_theme()
 	_wire_toolbar_actions()
 	_apply_action_copy()

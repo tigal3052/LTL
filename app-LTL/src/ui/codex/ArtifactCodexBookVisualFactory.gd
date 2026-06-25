@@ -9,6 +9,7 @@ class_name ArtifactCodexBookVisualFactory
 extends RefCounted
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const TILE_TEXTURE = preload("res://resources/UI/tile/tile_panel_nobg.png")
 const PIN_TEXTURE = preload("res://resources/UI/pin/pin_1.png")
 
@@ -94,11 +95,15 @@ static func build_entry_card(entry: Dictionary, selected: bool, entry_pressed: C
 static func render_art_placeholder(host: Control, descriptor: Dictionary, label_text: String, large: bool) -> void:
 	clear_children(host)
 	host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var requested_path := str(descriptor.get("requestedPath", ""))
 	var resolved_path := str(descriptor.get("path", ""))
-	if not requested_path.is_empty() and requested_path == resolved_path and ResourceLoader.exists(resolved_path):
+	var texture := LTLThemeScript.art_texture(resolved_path)
+	var source := str(descriptor.get("source", ""))
+	if str(descriptor.get("state", "")) != "locked" and source != "fallback" and texture != null:
 		var texture_rect := TextureRect.new()
-		texture_rect.texture = load(resolved_path)
+		texture_rect.name = "ResolvedArtTexture"
+		texture_rect.texture = texture
+		texture_rect.set_meta("resolved_art_path", resolved_path)
+		texture_rect.set_meta("resolved_art_source", source)
 		texture_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

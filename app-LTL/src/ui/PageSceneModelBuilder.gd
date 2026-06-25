@@ -90,6 +90,16 @@ static func _defeat_page_model(scene: Dictionary, selected_leviathan: Dictionary
 	var selected_character: Dictionary = scene.get("selectedCharacter", {})
 	var fallback_target := str(selected_leviathan.get("name", TextCatalogScript.t("failure.run_failed.target_default")))
 	var fallback_node := str(scene.get("lastNodeLabel", TextCatalogScript.t("failure.run_failed.node_default")))
+	var retry_options: Array = failure_model.get("retryOptions", [])
+	var same_seed_label := TextCatalogScript.t("action.retry_same_seed")
+	var new_seed_label := TextCatalogScript.t("action.retry_new_seed")
+	for option in retry_options:
+		if not (option is Dictionary):
+			continue
+		if str(option.get("id", "")) == "same_seed":
+			same_seed_label = str(option.get("label", same_seed_label))
+		elif str(option.get("id", "")) == "new_seed":
+			new_seed_label = str(option.get("label", new_seed_label))
 	return {
 		"pageEyebrow": TextCatalogScript.t("main.page.badge.defeat"),
 		"pageTitle": str(failure_model.get("title", TextCatalogScript.t("main.page.title.defeat"))),
@@ -103,6 +113,9 @@ static func _defeat_page_model(scene: Dictionary, selected_leviathan: Dictionary
 		]))),
 		"pageTip": str(failure_model.get("tip", TextCatalogScript.t("failure.run_failed.tip"))),
 		"pageButtonText": TextCatalogScript.t("action.retry"),
+		"pageRetrySameSeedText": same_seed_label,
+		"pageRetryNewSeedText": new_seed_label,
+		"pageRetryOptions": retry_options.duplicate(true),
 		"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_golem.png")),
 		"pageCharacterArtPath": str(selected_character.get("portraitPath", character_portrait_path)),
 		"pageStageBackdropPath": "res://resources/charactor/background.png"

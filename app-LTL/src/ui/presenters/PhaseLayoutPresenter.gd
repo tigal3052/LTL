@@ -29,6 +29,7 @@ static func project(scene: Dictionary, _show_victory_overlay: bool) -> Dictionar
 	var combat_page := page_id in ["battle", "boss_battle"]
 	var reward_page := page_id in ["reward", "boss_reward"]
 	var allow_start_color_selection := RewardCeremonyPolicyScript.allow_start_color_selection(scene)
+	var backpack_influence_toggle_visible := reward_page and not reward_ceremony_active
 	return {
 		"phaseText": TextCatalogScript.t("phase.label", [phase_label]),
 		"stageText": "" if meta_page else TextCatalogScript.t("stage.label", [int(scene.get("stageIndex", 0)) + 1, maxi(1, int(scene.get("maxStages", 1)))]),
@@ -39,6 +40,7 @@ static func project(scene: Dictionary, _show_victory_overlay: bool) -> Dictionar
 		"topContentVisible": combat_page or reward_ceremony_active,
 		"backpackVisible": combat_page or reward_ceremony_active,
 		"backpackCooldownVisible": phase == "combat" and combat_page,
+		"backpackInfluenceToggleVisible": backpack_influence_toggle_visible,
 		"sidebarsVisible": combat_page or reward_ceremony_active,
 		"leftColumnTopStretchRatio": 0.0,
 		"backpackTopStretchRatio": 0.0,

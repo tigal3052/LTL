@@ -15,6 +15,8 @@ static func discard(inventory: InventoryModel, held: Artifact, options: Dictiona
 	var guard_last := bool(options.get("guardLastArtifact", false))
 	if guard_last and inventory != null and inventory.artifacts.size() <= 1:
 		return {"ok": false, "code": "last_artifact_guard", "inventory": inventory, "held": held}
-	if inventory != null and inventory.artifacts.has(held.id):
-		inventory.remove_artifact(held.id)
+	if inventory != null:
+		var held_key := inventory.artifact_key(held) if inventory.has_method("artifact_key") else str(held.id)
+		if not held_key.is_empty():
+			inventory.remove_artifact(held_key)
 	return {"ok": true, "code": "discarded", "inventory": inventory, "held": null}

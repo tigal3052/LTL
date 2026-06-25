@@ -25,7 +25,8 @@ func run_all_tests() -> Dictionary:
 	test_pick_up_from_inventory_removes_grid_artifact()
 	test_pick_up_from_reward_tray_returns_held_without_mutating_inventory()
 	test_place_held_rejects_collision_and_out_of_bounds()
-	test_place_held_rejects_duplicate_drill_color()
+	test_place_held_allows_duplicate_drill_color_on_different_cells()
+	test_place_held_allows_same_artifact_id_instances_on_different_cells()
 	test_place_reward_removes_reward_only_after_success()
 	test_starter_loadout_contains_one_drill_and_matching_beacon()
 	test_starter_loadout_colors_are_compact_one_drill_one_beacon()
@@ -71,12 +72,30 @@ func test_place_held_rejects_collision_and_out_of_bounds() -> void:
 	_assert_eq(out_of_bounds.get("ok", true), false, "place rejects out of bounds")
 
 # 실행: verify duplicate drill energy color guard.
-func test_place_held_rejects_duplicate_drill_color() -> void:
+func test_place_held_allows_duplicate_drill_color_on_different_cells() -> void:
 	var inv = InventoryScript.new(4, 4)
 	inv.place_artifact(_artifact("red_a", "red", [[1]]), 0, 0)
 	var result = PlaceHeldScript.place(inv, _artifact("red_b", "red", [[1]]), 1, 0, [], -1)
-	_assert_eq(result.get("ok", true), false, "place rejects duplicate drill color")
-	_assert_eq(result.get("code", ""), "duplicate_drill_color", "place reports duplicate drill color")
+	_assert_eq(result.get("ok", false), true, "place allows duplicate drill color on a different cell")
+	_assert_eq(result.get("code", ""), "placed", "place reports successful duplicate drill placement")
+	_assert_eq(inv.artifacts.size(), 2, "duplicate drill color remains as a separate backpack item")
+
+# 실행: verify reward copies with the same definition id keep separate placed instances.
+func test_place_held_allows_same_artifact_id_instances_on_different_cells() -> void:
+	var inv = InventoryScript.new(4, 4)
+	var existing = _relic("repeat_relic")
+	var incoming = _relic("repeat_relic")
+	_assert_eq(inv.place_artifact(existing, 0, 0), true, "place existing same-id relic before duplicate")
+	var result = PlaceHeldScript.place(inv, incoming, 2, 0, [], -1)
+	_assert_eq(result.get("ok", false), true, "place allows a newly acquired same-id relic on a different cell")
+	_assert_eq(inv.artifacts.size(), 2, "same-id relic copies remain as separate backpack instances")
+	var existing_key := str(inv.grid[0][0])
+	var incoming_key := str(inv.grid[0][2])
+	_assert(not existing_key.is_empty(), "same-id duplicate placement keeps the existing relic grid cell occupied")
+	_assert(not incoming_key.is_empty(), "same-id duplicate placement occupies the new relic grid cell")
+	_assert(existing_key != incoming_key, "same-id duplicate placement uses separate inventory keys")
+	_assert_eq(inv.artifacts.get(existing_key, null), existing, "existing same-id relic remains in inventory")
+	_assert_eq(inv.artifacts.get(incoming_key, null), incoming, "incoming same-id relic is added as a second instance")
 
 # 실행: verify reward is removed from pending list only after successful placement.
 func test_place_reward_removes_reward_only_after_success() -> void:
@@ -280,6 +299,9 @@ func test_rotate_held_changes_shape() -> void:
 # 실행: create a deterministic artifact fixture.
 func _artifact(id: String, energy: String, shape: Array) -> Artifact:
 	return ArtifactScript.new({"id": id, "name": id, "shape": shape, "energyType": energy, "item_type": "drill", "baseCooldownTicks": 10})
+
+func _relic(id: String) -> Artifact:
+	return ArtifactScript.new({"id": id, "name": id, "shape": [[1]], "energyType": "", "item_type": "relic", "effect_schema": {"link_mode": "diagonal_1"}})
 
 # 실행: create a deterministic pending reward fixture.
 func _reward(id: String) -> Dictionary:

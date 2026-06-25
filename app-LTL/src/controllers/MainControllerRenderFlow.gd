@@ -28,6 +28,9 @@ static func render_scene(controller, scene: Dictionary) -> void:
 	scene = controller.current_scene
 	if str(scene.get("phase", "")) == "run_complete" and not bool(scene.get("failed", false)):
 		controller.campaign_progress = scene.get("progress", controller.campaign_progress).duplicate(true)
+	var scene_growth_value: Variant = scene.get("growth", {})
+	if str(scene.get("phase", "")) == "run_complete" and controller.growth_state != null and scene_growth_value is Dictionary:
+		controller.growth_state.from_dict(scene_growth_value)
 	controller._sync_battle_pause_from_overlay_visibility()
 	var phase := str(scene.get("phase", "unknown"))
 	if phase != controller.prev_phase:

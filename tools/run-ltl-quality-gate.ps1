@@ -11,7 +11,8 @@ param(
   [string]$ArtifactLedger = "docs/artifact-ledgers/ltl-quality-gate-latest.md",
   [switch]$SkipRequestAnalysisGate,
   [switch]$SkipArchitecturalGate,
-  [switch]$SkipGodotContracts
+  [switch]$SkipGodotContracts,
+  [switch]$SkipVisualContracts
 )
 
 $ErrorActionPreference = "Stop"
@@ -56,6 +57,22 @@ function Invoke-GodotScript($Name, $Script, $ExpectedMarker) {
     "--script", $Script,
     "--quit"
   ) $ExpectedMarker
+  Add-ArtifactEntry $Name $logPath $ExpectedMarker
+}
+
+function Invoke-GodotWindowedScript($Name, $Script, $ExpectedMarker, [string[]]$ScriptArgs = @()) {
+  $logName = ($Name.ToLowerInvariant() -replace "[^a-z0-9_.-]+", "-").Trim("-") + ".log"
+  $logPath = "app-LTL/.tmp-godot-logs/$logName"
+  $arguments = @(
+    "--path", "app-LTL",
+    "--log-file", "res://.tmp-godot-logs/$logName",
+    "--script", $Script
+  )
+  if ($ScriptArgs.Count -gt 0) {
+    $arguments += @("--")
+    $arguments += $ScriptArgs
+  }
+  Invoke-NativeStep $Name $GodotPath $arguments $ExpectedMarker
   Add-ArtifactEntry $Name $logPath $ExpectedMarker
 }
 
@@ -220,6 +237,16 @@ try {
 
   if (-not $SkipGodotContracts) {
     Invoke-GodotScript "reward ceremony contracts" "tests/run_reward_ceremony_contract.gd" "REWARD_CEREMONY_CONTRACT_OK"
+    if (-not $SkipVisualContracts) {
+      Invoke-GodotWindowedScript "battle backpack visual width contract" "tests/run_battle_backpack_visual_width_contract.gd" "BATTLE_BACKPACK_VISUAL_WIDTH_CONTRACT_OK" @(
+        "--viewport=1440x932",
+        "--frames=180",
+        "--settle=0",
+        "--save-every=30",
+        "--interval=0.0167",
+        "--output-dir=res://.tmp-visual-probe/battle-backpack-visual-width"
+      )
+    }
     Invoke-GodotScript "full Godot contracts" "tests/godot_contract_runner.gd" "GODOT_CONTRACTS_OK"
   }
 }

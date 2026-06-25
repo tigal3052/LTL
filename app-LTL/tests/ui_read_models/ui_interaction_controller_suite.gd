@@ -148,8 +148,8 @@ func test_backpack_drop_feedback_uses_real_placement_rules() -> void:
 	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, held, 7, 7), false, "out of bounds shape blocks dragged artifact")
 	var same_color_drill = ArtifactScript.new({"id": "held_red", "name": "Held Red", "shape": [[1]], "energyType": "red", "item_type": "drill"})
 	var other_color_drill = ArtifactScript.new({"id": "held_blue_drill", "name": "Held Blue Drill", "shape": [[1]], "energyType": "blue", "item_type": "drill"})
-	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, same_color_drill, 2, 2), false, "same-color drill duplicate blocks dragged drill")
-	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, other_color_drill, 2, 2), true, "different-color drill remains placeable under the existing duplicate policy")
+	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, same_color_drill, 2, 2), true, "same-color drill duplicate is placeable when it does not overlap the origin")
+	_assert_eq(BackpackUIScript.can_drop_artifact(inventory, other_color_drill, 2, 2), true, "different-color drill remains placeable")
 
 func test_backpack_drop_feedback_targets_current_footprint_only() -> void:
 	var held = ArtifactScript.new({"id": "held_shape", "name": "Held Shape", "shape": [[1, 1], [0, 1]], "energyType": "green", "item_type": "beacon"})

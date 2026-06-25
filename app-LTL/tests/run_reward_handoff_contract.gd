@@ -123,6 +123,7 @@ func _boot_to_node_select(main_instance: Node, color := "purple", leviathan_id :
 		character_page.continue_requested.emit()
 	await process_frame
 	await process_frame
+	await _advance_story_if_present(main_instance, "leviathan_select")
 	_assert_eq(str(main_instance.get("active_page_id")), "leviathan_select", "character select advances to leviathan select during reward handoff boot")
 	var leviathan_page = main_instance.get("leviathan_select_page")
 	_assert(leviathan_page != null, "leviathan select page exists during reward handoff boot")
@@ -135,6 +136,22 @@ func _boot_to_node_select(main_instance: Node, color := "purple", leviathan_id :
 	_assert_eq(str(main_instance.get("active_page_id")), "node_select", "leviathan select advances to node select during reward handoff boot")
 	_assert_eq(str(controller.get("current_scene").get("phase", "")), "node_select", "reward handoff boot lands in node select")
 	return controller
+
+func _advance_story_if_present(main_instance: Node, return_page_id: String) -> void:
+	if str(main_instance.get("active_page_id")) != "story_scene":
+		return
+	var controller = main_instance.get_node_or_null("MainController")
+	var story_page = main_instance.get("story_scene_page")
+	if controller == null or story_page == null:
+		return
+	var story: Dictionary = controller.get("active_story_scene")
+	var scene_id := str(story.get("id", ""))
+	story_page.continue_requested.emit(scene_id)
+	await process_frame
+	story_page.continue_requested.emit(scene_id)
+	await process_frame
+	await process_frame
+	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s during reward handoff boot" % return_page_id)
 
 func _confirm_reward_reveal_handoff(controller: Node, reward_reveal_overlay: Node) -> void:
 	var reward_count: int = max(1, int(Array(controller.get("local_rewards_list")).size()))

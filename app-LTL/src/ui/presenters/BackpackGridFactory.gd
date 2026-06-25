@@ -8,7 +8,9 @@
 class_name BackpackGridFactory
 extends RefCounted
 
-const DRILL_ITEM_ROOT := "res://resources/items/drill"
+const ItemArtResolverScript = preload("res://src/ui/ItemArtResolver.gd")
+const DRILL_ITEM_ROOT := ItemArtResolverScript.DRILL_ITEM_ROOT
+const BEACON_ITEM_ROOT := ItemArtResolverScript.BEACON_ITEM_ROOT
 
 # 실행: build a border texture cell.
 static func border_cell(texture: Texture2D) -> TextureRect:
@@ -31,6 +33,13 @@ static func inner_slot(texture: Texture2D) -> Panel:
 	var bg_style := StyleBoxTexture.new()
 	bg_style.texture = texture
 	slot.add_theme_stylebox_override("panel", bg_style)
+	var influence := Panel.new()
+	influence.name = "InfluenceOverlay"
+	influence.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	influence.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	influence.z_index = 1
+	influence.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	slot.add_child(influence)
 	var overlay := Panel.new()
 	overlay.name = "Overlay"
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -55,15 +64,23 @@ static func inner_slot(texture: Texture2D) -> Panel:
 	return slot
 
 static func drill_texture_path(energy_type: String, grade: String) -> String:
-	var color := energy_type.to_lower().strip_edges()
-	var art_grade := grade.to_lower().strip_edges()
-	if art_grade == "basic":
-		art_grade = "common"
-	if color.is_empty() or not art_grade in ["common", "rare"]:
-		return ""
-	return "%s/%s_drill_%s.png" % [DRILL_ITEM_ROOT, color, art_grade]
+	return ItemArtResolverScript.drill_texture_path(energy_type, grade)
 
-# 실행: produce a filled artifact overlay style.
+# Resolve an artifact visual id to a backpack drill item image path.
+static func drill_texture_path_for_visual_id(visual_id: String) -> String:
+	return ItemArtResolverScript.drill_texture_path_for_visual_id(visual_id)
+
+static func beacon_texture_path(energy_type: String, grade: String) -> String:
+	return ItemArtResolverScript.beacon_texture_path(energy_type, grade)
+
+# Resolve an artifact visual id to a backpack beacon item image path.
+static func beacon_texture_path_for_visual_id(visual_id: String) -> String:
+	return ItemArtResolverScript.beacon_texture_path_for_visual_id(visual_id)
+
+static func item_texture_candidates(item_type: String, visual_id: String, energy_type: String, grade: String) -> Array:
+	return ItemArtResolverScript.item_texture_candidates(item_type, visual_id, energy_type, grade)
+
+# Produce a filled artifact overlay style.
 static func artifact_style(energy_type: String, alpha: float, edges := {}) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = energy_color(energy_type, alpha)
@@ -87,6 +104,16 @@ static func drop_cue_style(valid: bool, edges := {}) -> StyleBoxFlat:
 	return style
 
 # 실행: return which sides of a shape cell are on the artifact perimeter.
+static func influence_range_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(1.0, 0.82, 0.16, 0.18)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = Color(1.0, 0.90, 0.25, 0.36)
+	return style
+
 static func artifact_edge_mask(shape: Array, row: int, column: int) -> Dictionary:
 	return {
 		"left": not _shape_filled(shape, row, column - 1),

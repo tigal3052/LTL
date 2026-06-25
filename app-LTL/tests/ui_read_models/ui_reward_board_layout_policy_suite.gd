@@ -1,13 +1,17 @@
 extends "res://tests/support/UiReadModelTestSuite.gd"
 
+const BackpackPinLayoutPolicyScript = preload("res://src/ui/presenters/BackpackPinLayoutPolicy.gd")
+
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_reward_board_layout_policy_script_exists()
 	test_main_view_reward_layout_runtime_helper_exists()
 	test_reward_board_available_width_keeps_chrome_cushion()
 	test_reward_board_layout_targets_preserve_bottom_row_minimum()
+	test_reward_board_runtime_uses_compact_bottom_row_budget()
 	test_reward_zone_body_target_height_subtracts_zone_chrome()
 	test_reward_backpack_panel_dimensions_respect_height_cap()
+	test_reward_backpack_panel_dimensions_keep_square_grid_extent()
 	return _result()
 
 func test_reward_board_layout_policy_script_exists() -> void:
@@ -45,6 +49,16 @@ func test_reward_board_layout_targets_preserve_bottom_row_minimum() -> void:
 	_assert_eq(int(layout.get("bottomRowHeight", 0)), 160, "reward board layout keeps the bottom-row minimum when the board height is tight")
 	_assert_eq(int(layout.get("topZoneHeight", 0)), 280, "reward board layout keeps the top-zone minimum when the board height is tight")
 
+func test_reward_board_runtime_uses_compact_bottom_row_budget() -> void:
+	var helper_path := "res://src/ui/main_view/MainViewRewardLayoutRuntime.gd"
+	var HelperScript = load(helper_path)
+	if HelperScript == null:
+		_assert(false, "MainView reward layout helper loads for compact bottom-row budget")
+		return
+	_assert(float(HelperScript.REWARD_BOARD_TOP_ZONE_MIN_HEIGHT) >= 320.0, "reward board top zones reserve more height after the lower band is compressed")
+	_assert(float(HelperScript.REWARD_BOARD_BOTTOM_ROW_MIN_HEIGHT) <= 84.0, "reward board bottom row minimum is compact enough to return height to the upper panels")
+	_assert(float(HelperScript.REWARD_BOARD_BOTTOM_ROW_RATIO) <= 0.12, "reward board bottom row ratio keeps the lower discard/claim zones visually secondary")
+
 func test_reward_zone_body_target_height_subtracts_zone_chrome() -> void:
 	var script = load("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
 	if script == null:
@@ -62,6 +76,19 @@ func test_reward_backpack_panel_dimensions_respect_height_cap() -> void:
 	var dims: Vector2 = script.backpack_panel_dimensions_for_host(host_size, 32.0, 56.0, 250.0)
 	_assert(dims.x <= host_size.x + 0.01, "reward backpack panel width stays inside the host width cap")
 	_assert(dims.y <= 250.0 + 0.01, "reward backpack panel height respects the visible height cap")
+
+func test_reward_backpack_panel_dimensions_keep_square_grid_extent() -> void:
+	var script = load("res://src/ui/presenters/RewardBoardLayoutPolicy.gd")
+	if script == null:
+		_assert(false, "reward board layout policy helper loads for backpack grid aspect")
+		return
+	var grid_extent := 224.0
+	var margin_width := 32.0
+	var chrome_height := 56.0
+	var dims: Vector2 = script.backpack_panel_dimensions_for_grid_extent(grid_extent, margin_width, chrome_height)
+	var projected_grid_width := dims.x - BackpackPinLayoutPolicyScript.extra_width_for_grid_extent(grid_extent) - margin_width
+	var projected_grid_height := dims.y - chrome_height
+	_assert_close(projected_grid_width, projected_grid_height, 0.01, "reward backpack sizing keeps the 8x8 grid square while resizing")
 
 func _source_line_count(path: String) -> int:
 	var file := FileAccess.open(path, FileAccess.READ)

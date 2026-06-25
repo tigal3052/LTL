@@ -52,6 +52,7 @@ var obstacle_spawn_backlog: Dictionary = {}
 var obstacle_shift_count: int = 0
 var purple_damage_reduction_ratio: float = 0.0
 var paused_obstacle_ticks: int = 0
+var obstacle_feedback_events: Array = []
 var relic_runtime: Dictionary = {}
 
 var summary_shots_fired: int = 0
@@ -115,6 +116,7 @@ func _init(choice: Dictionary, tuning: Dictionary, q_capacity: int) -> void:
 	obstacle_shift_count = int(combat_data.get("obstacleShiftCount", 0))
 	purple_damage_reduction_ratio = float(combat_data.get("purpleDamageReductionRatio", 0.0))
 	paused_obstacle_ticks = int(combat_data.get("pausedObstacleTicks", 0))
+	obstacle_feedback_events = combat_data.get("obstacleFeedbackEvents", []).duplicate(true)
 	relic_runtime = combat_data.get("relicRuntime", {}).duplicate(true)
 
 	summary_shots_fired = 0
@@ -172,7 +174,8 @@ func to_dict() -> Dictionary:
 			"obstacleSpawnBacklog": obstacle_spawn_backlog.duplicate(true),
 			"obstacleShiftCount": obstacle_shift_count,
 			"purpleDamageReductionRatio": purple_damage_reduction_ratio,
-			"pausedObstacleTicks": paused_obstacle_ticks
+			"pausedObstacleTicks": paused_obstacle_ticks,
+			"obstacleFeedbackEvents": obstacle_feedback_events.duplicate(true)
 		},
 		"relicRuntime": relic_runtime.duplicate(true),
 		"summary": {

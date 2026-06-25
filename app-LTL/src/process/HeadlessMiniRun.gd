@@ -24,19 +24,22 @@ func _init(options: Dictionary = {}) -> void:
 	var node_table: Dictionary = options.get("nodeTable", _default_node_table())
 	var tuning: Dictionary = contracts.create_game_tuning(options.get("tuning", {}))
 	var start_color := str(options.get("startColor", "red"))
+	var run_index := int(options.get("runIndex", 0))
 	tuning["maxStages"] = max_stages
+	var initial_candidate_tuning := tuning.duplicate(true)
+	initial_candidate_tuning["difficultyStageIndex"] = run_index * max_stages
 	
 	state = {
 		"seed": seed_val,
 		"stageIndex": 0,
 		"maxStages": max_stages,
 		"leviathanId": str(options.get("leviathanId", "training_leviathan")),
-		"runIndex": int(options.get("runIndex", 0)),
+		"runIndex": run_index,
 		"runCount": run_count,
 		"inventory": options.get("inventory", _default_inventory(start_color)),
 		"progress": options.get("progress", {"clearedLeviathanIds": []}).duplicate(true),
 		"phase": "node_select",
-		"candidates": NodeVocab.generate_candidates(seed_val, 0, node_table, int(options.get("candidateCount", 5)), tuning),
+		"candidates": NodeVocab.generate_candidates(seed_val, 0, node_table, int(options.get("candidateCount", 5)), initial_candidate_tuning),
 		"combat": null,
 		"pendingRewards": [],
 		"held": null,

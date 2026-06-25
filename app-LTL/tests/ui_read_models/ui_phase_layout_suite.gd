@@ -17,6 +17,7 @@ func run_all_tests() -> Dictionary:
 	test_top_content_backpack_width_tracks_full_row_height()
 	test_top_content_backpack_width_ignores_available_space_clamp()
 	test_top_content_backpack_height_uses_single_row_source()
+	test_top_content_backpack_safe_height_does_not_force_growth()
 	test_top_content_backpack_width_uses_slot_scaled_pin_overhang()
 	return _result()
 
@@ -213,6 +214,30 @@ func test_top_content_backpack_height_uses_single_row_source() -> void:
 		float(MainViewRuntimeScript.resolved_top_content_backpack_height(0.0, 420.0, 760.0)),
 		420.0,
 		"shared top-content backpack height falls back to the row minimum height when the live row has not been laid out yet"
+	)
+
+func test_top_content_backpack_safe_height_does_not_force_growth() -> void:
+	var BackpackPinLayoutPolicyScript = load("res://src/ui/presenters/BackpackPinLayoutPolicy.gd")
+	_assert(BackpackPinLayoutPolicyScript != null, "backpack pin layout policy loads for stable top-content height bounds")
+	if BackpackPinLayoutPolicyScript == null:
+		return
+	_assert(BackpackPinLayoutPolicyScript.has_method("bounded_top_content_height"), "pin policy exposes a bounded top-content height helper")
+	if not BackpackPinLayoutPolicyScript.has_method("bounded_top_content_height"):
+		return
+	_assert_eq(
+		float(BackpackPinLayoutPolicyScript.bounded_top_content_height(360.0, 420.0, 520.0)),
+		360.0,
+		"a larger safe height does not force the current backpack row to grow and start a width feedback loop"
+	)
+	_assert_eq(
+		float(BackpackPinLayoutPolicyScript.bounded_top_content_height(640.0, 420.0, 520.0)),
+		520.0,
+		"a smaller safe height still caps oversized backpack rows"
+	)
+	_assert_eq(
+		float(BackpackPinLayoutPolicyScript.bounded_top_content_height(0.0, 420.0, 520.0)),
+		420.0,
+		"unlaid-out rows still fall back to the minimum backpack row height"
 	)
 
 func test_top_content_backpack_width_uses_slot_scaled_pin_overhang() -> void:

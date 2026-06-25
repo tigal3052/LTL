@@ -13,6 +13,7 @@ const SpawnNewTileObstaclesScript = preload("res://src/vocabulary/combat/SpawnNe
 const CombatRelicHooksScript = preload("res://src/vocabulary/combat/CombatRelicHooks.gd")
 const CombatTerrainEffectsScript = preload("res://src/vocabulary/combat/CombatTerrainEffects.gd")
 const CombatObstacleDefinitionsScript = preload("res://src/vocabulary/combat/CombatObstacleDefinitions.gd")
+const CombatObstacleFeedbackScript = preload("res://src/vocabulary/combat/CombatObstacleFeedback.gd")
 
 const OBSTACLE_AFTERGLOW_TICKS := 12
 
@@ -192,6 +193,7 @@ static func elapsed_ticks_check(sim: CombatSimulator) -> bool:
 
 # 실행: resolve obstacle failures for every obstacle whose host tile exits the battlefield.
 static func resolve_obstacle_shift_exit(sim: CombatSimulator, exiting_obstacle_ids: Array, inventory: InventoryModel = null) -> void:
+	CombatObstacleFeedbackScript.clear(sim)
 	if exiting_obstacle_ids.is_empty():
 		return
 	var exiting := {}
@@ -291,8 +293,7 @@ static func _apply_obstacle_hit(sim: CombatSimulator, target_cell_id: String, en
 			continue
 		if str(obstacle.get("cellId", "")) != target_cell_id:
 			continue
-		var required_color := str(obstacle.get("requiredColor", obstacle.get("family", "")))
-		var progress_delta := 2 if energy_color == required_color else 1
+		var progress_delta := 1
 		for relic in CombatRelicHooksScript.linked_relics_for_artifact(inventory, source_drill, "obstacle_progress_bonus"):
 			if CombatRelicHooksScript.consume_once(sim, relic.id):
 				progress_delta += int(relic.effect_schema.get("value", 1))
@@ -319,6 +320,7 @@ static func _resolve_obstacle_clear(obstacle: Dictionary) -> void:
 # 실행: apply the family-specific fail consequence when an uncleared obstacle leaves the screen.
 static func _resolve_obstacle_fail(sim: CombatSimulator, obstacle: Dictionary) -> void:
 	var family := str(obstacle.get("family", ""))
+	var feedback_before := CombatObstacleFeedbackScript.snapshot(sim)
 	match family:
 		"red":
 			sim.time_limit_ticks = maxi(sim.elapsed_ticks + 20, sim.time_limit_ticks - int(obstacle.get("timeCutTicks", 200)))
@@ -330,6 +332,7 @@ static func _resolve_obstacle_fail(sim: CombatSimulator, obstacle: Dictionary) -
 			pass
 	if sim.obstacle_miss_debt.has(family):
 		sim.obstacle_miss_debt[family] = int(sim.obstacle_miss_debt.get(family, 0)) + 1
+	CombatObstacleFeedbackScript.record_failure(sim, obstacle, feedback_before)
 	elapsed_ticks_check(sim)
 
 # 실행: remove one weakened-terrain stack, or refresh purple damage reduction when nothing is left to cleanse.

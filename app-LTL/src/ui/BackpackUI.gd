@@ -18,7 +18,8 @@ const BackpackPinLayoutPolicyScript = preload("res://src/ui/presenters/BackpackP
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 const BackpackPinOverlayRuntimeScript = preload("res://src/ui/backpack/BackpackPinOverlayRuntime.gd")
 const BackpackArtifactRendererScript = preload("res://src/ui/backpack/BackpackArtifactRenderer.gd")
-
+const BackpackFusionVFXScript = preload("res://src/ui/backpack/BackpackFusionVFX.gd")
+const BackpackInfluenceToggleRuntimeScript = preload("res://src/ui/backpack/BackpackInfluenceToggleRuntime.gd")
 @onready var backpack_margin: MarginContainer = $Margin
 @onready var backpack_grid_mock: GridContainer = $Margin/EngineBox/GridMock
 var ghost_container: GridContainer
@@ -42,6 +43,10 @@ var pin_layout_retry_budget: int = 0
 var pin_layout_queued: bool = false
 var pin_live_layout_retry_budget: int = 0
 var battle_pause_active: bool = false
+var influence_preview_enabled: bool = true
+var influence_preview_toggle_visible: bool = false
+var influence_preview_toggle_button: CheckButton
+var influence_preview_toggle_anchor_control: Control
 
 # 실행: setup ghost container.
 func _ready() -> void:
@@ -49,13 +54,16 @@ func _ready() -> void:
 	_setup_ghost_container()
 	_setup_artifact_image_layer()
 	_setup_pin_overlays()
+	_setup_influence_preview_toggle()
 	resized.connect(func():
 		_queue_artifact_image_refresh()
 		_queue_pin_layout()
+		call_deferred("_position_influence_preview_toggle")
 	)
 	backpack_grid_mock.resized.connect(func():
 		_queue_artifact_image_refresh()
 		_queue_pin_layout()
+		call_deferred("_position_influence_preview_toggle")
 	)
 	_prime_pin_layout_settle()
 
@@ -106,11 +114,16 @@ func _setup_artifact_image_layer() -> void:
 func _setup_pin_overlays() -> void:
 	BackpackPinOverlayRuntimeScript.setup(self)
 
+func _setup_influence_preview_toggle() -> void:
+	BackpackInfluenceToggleRuntimeScript.setup(self)
+
 func _apply_grid_shell_layout_policy() -> void:
 	BackpackPinOverlayRuntimeScript.apply_grid_shell_layout_policy(self)
 
 func _process(_delta: float) -> void:
 	BackpackArtifactRendererScript.refresh_artifact_images_if_layout_changed(self)
+	if influence_preview_toggle_button != null and influence_preview_toggle_button.visible:
+		_position_influence_preview_toggle()
 	if battle_pause_active:
 		return
 	if held_artifact:
@@ -144,10 +157,10 @@ func update_ghost_display(art: ArtifactClass) -> void:
 		return
 	var shape = held_artifact.shape
 	var slot_size := _ghost_slot_size()
-	var drill_texture := _drill_texture_for_artifact(held_artifact)
-	if drill_texture != null:
+	var item_texture := _item_texture_for_artifact(held_artifact)
+	if item_texture != null:
 		var ghost_rect := Rect2(ghost_global_position_for_cursor(get_global_mouse_position(), shape, slot_size), _ghost_footprint(shape, slot_size))
-		BackpackArtifactRendererScript.apply_item_image_placement(ghost_texture_rect, drill_texture, ghost_rect, true)
+		BackpackArtifactRendererScript.apply_item_image_placement(ghost_texture_rect, item_texture, ghost_rect, true)
 		ghost_texture_rect.visible = true
 		_update_drag_slot_feedback()
 		return
@@ -164,6 +177,9 @@ func update_ghost_display(art: ArtifactClass) -> void:
 func render_backpack_items(inventory) -> void:
 	BackpackArtifactRendererScript.render_items(self, inventory)
 
+func play_fusion_effect(art: ArtifactClass) -> void:
+	BackpackFusionVFXScript.play(self, art)
+
 func set_cooldown_visuals_enabled(enabled: bool) -> void:
 	if cooldown_visuals_enabled == enabled:
 		return
@@ -172,6 +188,28 @@ func set_cooldown_visuals_enabled(enabled: bool) -> void:
 		render_backpack_items(current_inventory)
 
 # 실행: load backpack border textures.
+func set_influence_preview_enabled(enabled: bool) -> void:
+	if influence_preview_enabled == enabled:
+		return
+	influence_preview_enabled = enabled
+	if influence_preview_toggle_button != null and influence_preview_toggle_button.button_pressed != enabled:
+		influence_preview_toggle_button.button_pressed = enabled
+	if backpack_grid_mock != null:
+		_update_drag_slot_feedback()
+
+func get_influence_preview_enabled() -> bool:
+	return influence_preview_enabled
+func set_influence_preview_toggle_visible(visible: bool) -> void:
+	influence_preview_toggle_visible = visible
+	if influence_preview_toggle_button != null:
+		influence_preview_toggle_button.visible = visible
+		call_deferred("_position_influence_preview_toggle")
+func set_influence_preview_toggle_anchor(anchor_control: Control) -> void:
+	influence_preview_toggle_anchor_control = anchor_control
+	call_deferred("_position_influence_preview_toggle")
+func _position_influence_preview_toggle() -> void:
+	BackpackInfluenceToggleRuntimeScript.position(self)
+
 func update_pin_overlays(scene: Dictionary) -> void:
 	BackpackPinOverlayRuntimeScript.update(self, scene)
 
@@ -280,12 +318,14 @@ func _install_slot_interactions() -> void:
 
 # ?ㅽ뻾: mark visible drop slots while an artifact is being dragged.
 func _update_drag_slot_feedback() -> void:
+	BackpackArtifactRendererScript.refresh_influence_overlays(self, current_inventory)
 	_clear_drop_cue_overlays()
 	if held_artifact == null:
 		return
 	var origin := slot_coord_at_global_pos(get_global_mouse_position())
 	if origin.x < 0 or origin.y < 0:
 		return
+	BackpackArtifactRendererScript.apply_ghost_influence_overlays(self, held_artifact, int(origin.x), int(origin.y), current_inventory)
 	var valid := can_drop_artifact(current_inventory, held_artifact, int(origin.x), int(origin.y))
 	for cell in drop_feedback_cells_for(held_artifact, int(origin.x), int(origin.y)):
 		var column := int((cell as Vector2).x)
@@ -321,6 +361,9 @@ static func can_drop_artifact(inventory, artifact, column: int, row: int) -> boo
 static func drop_feedback_cells_for(artifact, column: int, row: int) -> Array:
 	return BackpackArtifactRendererScript.drop_feedback_cells_for(artifact, column, row)
 
+static func influence_feedback_cells_for(artifact, column: int, row: int) -> Array:
+	return BackpackArtifactRendererScript.influence_feedback_cells_for(artifact, column, row)
+
 static func slot_hover_fx_enabled() -> bool:
 	return BackpackArtifactRendererScript.slot_hover_fx_enabled()
 
@@ -345,8 +388,8 @@ func _clear_overlays() -> void:
 func _apply_artifact_overlay(column: int, row: int, art: ArtifactClass, shape: Array, shape_row: int, shape_column: int) -> void:
 	BackpackArtifactRendererScript.apply_artifact_overlay(self, column, row, art, shape, shape_row, shape_column)
 
-func _drill_texture_for_artifact(art: ArtifactClass) -> Texture2D:
-	return BackpackArtifactRendererScript.drill_texture_for_artifact(self, art)
+func _item_texture_for_artifact(art: ArtifactClass) -> Texture2D:
+	return BackpackArtifactRendererScript.item_texture_for_artifact(self, art)
 
 func _clear_artifact_images() -> void:
 	BackpackArtifactRendererScript.clear_artifact_images(self)
@@ -384,6 +427,9 @@ func _slot_drop_cue(column: int, row: int) -> Panel:
 	return BackpackArtifactRendererScript.slot_drop_cue(self, column, row)
 
 # 실행: drain visible cooldown masks every frame between backend snapshots.
+func _slot_influence_overlay(column: int, row: int) -> Panel:
+	return BackpackArtifactRendererScript.slot_influence_overlay(self, column, row)
+
 func _update_charge_animation(delta: float) -> void:
 	BackpackArtifactRendererScript.update_charge_animation(self, delta)
 

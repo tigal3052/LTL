@@ -27,7 +27,8 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 		push_error("node table must include a normal node")
 		return []
 
-	var stage_combat := _compute_stage_combat_params(stage_index, tuning)
+	var difficulty_stage_index := int(tuning.get("difficultyStageIndex", stage_index))
+	var stage_combat := _compute_stage_combat_params(difficulty_stage_index, tuning)
 
 	var rng = RandomNumberGenerator.new()
 	rng.seed = seed_val + stage_index * 1337
@@ -74,6 +75,7 @@ static func generate_candidates(seed_val: int, stage_index: int, node_table: Dic
 				"timeLimitTicks": stage_combat["timeLimitTicks"],
 				"weakness": node.get("weakness", []).duplicate(true)
 			}
+		candidate["combat"]["difficultyStageIndex"] = difficulty_stage_index
 		candidate["telemetry"] = {
 			"event": "node_choices_offered",
 			"candidate_ids": _candidate_ids(selected),
@@ -139,8 +141,8 @@ static func _compute_stage_combat_params(stage_index: int, tuning: Dictionary) -
 			"timeLimitTicks": base_time_limit
 		}
 
-	var tuned_totals: Array = scaling.get("stageDurabilityTotals", [64.0, 108.0, 156.0, 200.0, 240.0])
-	var tuned_health: Array = scaling.get("stageHealthTotals", [36.0, 62.0, 86.0, 106.0, 124.0])
+	var tuned_totals: Array = scaling.get("stageDurabilityTotals", [44.0, 72.0, 108.0, 150.0, 196.0])
+	var tuned_health: Array = scaling.get("stageHealthTotals", [24.0, 42.0, 64.0, 92.0, 124.0])
 	var curve_base := float(scaling.get("durabilityBase", 30.0))
 	var curve_growth := float(scaling.get("durabilityGrowth", 1.43))
 	var total := curve_base * pow(curve_growth, float(stage_index))

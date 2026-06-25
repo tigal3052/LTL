@@ -64,10 +64,22 @@ static func draw_count_burst_animation(host: Control, presentation: Dictionary, 
 	var cap_offset: Vector2 = animation.get("lidCapOffset", Vector2.ZERO)
 	var cap_rotation := deg_to_rad(float(animation.get("lidCapRotationDegrees", 0.0)))
 	var impact_progress := float(animation.get("impactRingProgress", 0.0))
+	var extra_light_alpha := float(animation.get("extraLightBurstAlpha", 0.0)) * alpha
 	host.draw_circle(center, minf(max_effect_radius * 0.78, closed_lid_rect.size.x * 0.62), Color(accent.r, accent.g, accent.b, (0.10 + flash_alpha * 0.28) * alpha))
 	host.draw_circle(center, minf(max_effect_radius * 0.54, closed_lid_rect.size.x * 0.40), Color(1.0, 0.95, 0.78, (0.04 + flash_alpha * 0.20) * alpha))
 	if flash_alpha > 0.0:
 		host.draw_rect(Rect2(Vector2.ZERO, canvas_size), Color(1.0, 0.95, 0.78, flash_alpha * 0.08))
+	if extra_light_alpha > 0.0:
+		host.draw_rect(Rect2(Vector2.ZERO, canvas_size), Color(1.0, 0.96, 0.78, extra_light_alpha * 0.14))
+		host.draw_circle(center, minf(max_effect_radius * 0.88, closed_lid_rect.size.x * 0.72), Color(1.0, 0.92, 0.50, extra_light_alpha * 0.34))
+		host.draw_circle(center, minf(max_effect_radius * 0.58, closed_lid_rect.size.x * 0.48), Color(1.0, 1.0, 0.90, extra_light_alpha * 0.30))
+		for beam in range(14):
+			var beam_angle := (TAU / 14.0) * float(beam)
+			var inner := closed_lid_rect.size.y * 0.35
+			var outer := minf(max_effect_radius * 0.96, closed_lid_rect.size.x * 0.68)
+			var start := center + Vector2(cos(beam_angle), sin(beam_angle) * 0.58) * inner
+			var end := center + Vector2(cos(beam_angle), sin(beam_angle) * 0.58) * outer
+			host.draw_line(start, end, Color(1.0, 0.96, 0.76, extra_light_alpha * 0.58), 5.0)
 	host.draw_rect(Rect2(Vector2(closed_lid_rect.position.x, closed_lid_rect.position.y + closed_lid_rect.size.y - 4.0), Vector2(closed_lid_rect.size.x, 4.0)), Color(0.24, 0.19, 0.12, 0.42 * alpha))
 	for wave in range(3):
 		var wave_t := clampf(impact_progress - float(wave) * 0.14, 0.0, 1.0)
@@ -119,7 +131,8 @@ static func draw_count_burst_animation(host: Control, presentation: Dictionary, 
 		var count_text := str(burst.get("burstText", "x%d" % token_count))
 		var font_size := 44
 		var text_size := font.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size)
-		var text_alpha := clampf((orb_reveal_alpha - 0.32) / 0.40, 0.0, 1.0) * alpha
+		var count_reveal_alpha := float(animation.get("countRevealAlpha", orb_reveal_alpha))
+		var text_alpha := clampf((count_reveal_alpha - 0.32) / 0.40, 0.0, 1.0) * alpha
 		host.draw_string(font, Vector2(center.x - text_size.x * 0.5, center.y + 112.0), count_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color(1.0, 0.95, 0.72, text_alpha))
 
 static func draw_queue_card_marker(host: Control, rect: Rect2, accent: Color, glow_strength: float, open_amount: float, sealed: bool, alpha: float) -> void:

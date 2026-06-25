@@ -124,7 +124,7 @@ static func _project_artifact_inspector(artifact: Variant) -> Dictionary:
 		TextCatalogScript.t("reward.board.inspector.backpack_source")
 	)
 
-static func _project_inspector_model(tooltip_data: Dictionary, raw_shape: Variant, source_label: String) -> Dictionary:
+static func _project_inspector_model(tooltip_data: Dictionary, raw_shape: Variant, _source_label: String) -> Dictionary:
 	var shape_matrix := _normalized_shape(raw_shape)
 	var shape_width := _shape_width(shape_matrix)
 	var shape_height := shape_matrix.size()
@@ -134,14 +134,14 @@ static func _project_inspector_model(tooltip_data: Dictionary, raw_shape: Varian
 	var grade := str(tooltip_data.get("grade", "common")).to_lower()
 	var item_type := str(tooltip_data.get("itemType", "drill")).to_lower()
 	var energy_type := str(tooltip_data.get("energyType", "")).to_lower()
-	var energy_value := effect_summary if energy_type.is_empty() else TextCatalogScript.color_label(energy_type)
+	var energy_value := TextCatalogScript.t("reward.board.fact.energy.none") if energy_type.is_empty() else TextCatalogScript.color_label(energy_type)
 	var summary := str(tooltip_data.get("keyword", "")).strip_edges()
 	if summary.is_empty():
 		summary = effect_summary.strip_edges()
 	if summary.is_empty():
 		summary = _primary_stat_line(tooltip_data).strip_edges()
 	if energy_value.is_empty():
-		energy_value = TextCatalogScript.item_label(item_type)
+		energy_value = TextCatalogScript.t("reward.board.fact.energy.none")
 	return {
 		"empty": false,
 		"kicker": TextCatalogScript.t("reward.board.inspector.kicker"),
@@ -158,11 +158,8 @@ static func _project_inspector_model(tooltip_data: Dictionary, raw_shape: Varian
 			},
 			{
 				"label": TextCatalogScript.t("reward.board.fact.effect"),
-				"value": _primary_stat_line(tooltip_data)
-			},
-			{
-				"label": TextCatalogScript.t("reward.board.fact.source"),
-				"value": source_label
+				"value": _primary_stat_line(tooltip_data),
+				"layoutColumns": 2
 			}
 		],
 		"shapeTitle": TextCatalogScript.t("reward.board.shape_title"),
@@ -190,11 +187,8 @@ static func _empty_inspector_model() -> Dictionary:
 			},
 			{
 				"label": TextCatalogScript.t("reward.board.fact.effect"),
-				"value": ""
-			},
-			{
-				"label": TextCatalogScript.t("reward.board.fact.source"),
-				"value": ""
+				"value": "",
+				"layoutColumns": 2
 			}
 		],
 		"shapeTitle": TextCatalogScript.t("reward.board.shape_title"),

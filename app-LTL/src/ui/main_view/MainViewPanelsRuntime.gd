@@ -102,7 +102,10 @@ static func create_shop_panel(view) -> void:
 	view.shop_panel = ShopPanelUIScript.new()
 	view.shop_panel.buy_passive.connect(func(passive_id, cost): view.buy_passive.emit(passive_id, cost))
 	view.shop_panel.buy_base_item.connect(func(item_id): view.buy_base_item.emit(item_id))
-	view.shop_panel.visibility_changed.connect(func(): view._promote_popup_overlay_when_visible(view.shop_panel))
+	view.shop_panel.visibility_changed.connect(func():
+		view._promote_popup_overlay_when_visible(view.shop_panel)
+		_play_menu_visibility_sfx(view, view.shop_panel)
+	)
 	view.add_child(view.shop_panel)
 
 static func create_artifact_codex_panel(view) -> void:
@@ -113,6 +116,7 @@ static func create_artifact_codex_panel(view) -> void:
 	view.codex_panel.visibility_changed.connect(func():
 		view._promote_popup_overlay_when_visible(view.codex_panel)
 		view._emit_combat_overlay_pause_visibility_changed()
+		_play_menu_visibility_sfx(view, view.codex_panel)
 	)
 	view.add_child(view.codex_panel)
 
@@ -163,3 +167,11 @@ static func rerender_current_codex(view) -> void:
 	if view.current_codex_reward_table.is_empty():
 		return
 	render_artifact_codex(view, view.current_codex_reward_table, view.current_codex_growth_state, view.current_codex_debug_all)
+
+static func _play_menu_visibility_sfx(view, overlay: Control) -> void:
+	if view == null or overlay == null or not view.has_method("play_interaction_sfx"):
+		return
+	if overlay == view.codex_panel:
+		view.play_interaction_sfx("codex_open" if overlay.visible else "codex_close")
+		return
+	view.play_interaction_sfx("menu_open" if overlay.visible else "menu_close")

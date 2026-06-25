@@ -63,8 +63,6 @@ func _assert_character_select_cleanup(main_scene: PackedScene) -> void:
 	var settings_button := character_page.get_node_or_null("SettingsButton") as Button
 	var settings_panel := main_instance.get("settings_panel") as Control
 	var action_bar := main_instance.get("action_bar") as Control
-	var hold_fire_button := main_instance.get("hold_fire_button") as Button
-	var repair_button := main_instance.get("repair_button") as Button
 	var claim_rewards_button := main_instance.get("claim_rewards_button") as Button
 	var board_head := character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead") as Control
 	var selector_zone_head := character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/ZoneHead") as Control
@@ -99,8 +97,6 @@ func _assert_character_select_cleanup(main_scene: PackedScene) -> void:
 
 	_assert(title != null, "character select title exists for cleanup contract")
 	_assert(action_bar != null, "main shell action bar exists after main scene instantiation")
-	_assert(hold_fire_button != null, "main shell hold-fire button exists after main scene instantiation")
-	_assert(repair_button != null, "main shell repair button exists after main scene instantiation")
 	_assert(claim_rewards_button != null, "main shell claim-rewards button exists after main scene instantiation")
 	_assert(main_instance.get_node_or_null("RootMargin/AppShell/ActionBar") == null, "main scene no longer owns the legacy action bar directly during character select cleanup")
 	_assert_eq(title.text if title != null else "", "캐릭터 선택", "character select title uses the cleaned heading copy")

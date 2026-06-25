@@ -115,6 +115,8 @@ static func on_cell_clicked(controller, cell_id: String, color_name: String) -> 
 		return
 	controller._clear_floating_tooltip()
 	if not can_accept_combat_click(controller.current_scene, cell_id, controller.disabled_tiles):
+		if controller.view != null and controller.view.has_method("play_interaction_sfx"):
+			controller.view.play_interaction_sfx("ui_cancel")
 		return
 	var active_color = active_queue_color(controller.current_scene)
 	var target_color = resolve_target_color_for_interaction(color_name, active_color)
@@ -161,6 +163,8 @@ static func on_cell_clicked(controller, cell_id: String, color_name: String) -> 
 	controller.view.trigger_resonance_beam(start_pos, hit_pos, active_color)
 	controller.view.trigger_hit_particles(hit_pos, status, active_color)
 	controller.view.trigger_damage_popups(popup_events)
+	if controller.view.has_method("play_interaction_sfx"):
+		controller.view.play_interaction_sfx(_sfx_category_for_combat_result(status, health_damage))
 	var shake_feedback: Dictionary = CombatFeedbackPresenterScript.project_screenshake(status)
 	controller.view.trigger_screenshake(float(shake_feedback.get("duration", 0.08)), float(shake_feedback.get("magnitude", 1.0)))
 	controller.disabled_tiles.append(cell_id)
@@ -183,6 +187,13 @@ static func trigger_hold_fire(controller) -> void:
 		return
 	await controller.get_tree().create_timer(0.1).timeout
 	trigger_hold_fire(controller)
+
+static func _sfx_category_for_combat_result(status: String, health_damage: float) -> String:
+	if status != "match":
+		return "combat_miss"
+	if health_damage > 0.0:
+		return "combat_strong_hit"
+	return "combat_hit"
 
 # ?ㅽ뻾: remember a cell cooldown before it can accept another click.
 static func schedule_disabled_tile_release(controller, cell_id: String, duration: float) -> void:
@@ -213,27 +224,7 @@ static func tick_disabled_tile_release_queue(controller, delta: float) -> void:
 		controller._render_scene(controller.current_scene)
 
 # ?ㅽ뻾: trigger a burst-style hold fire simulation.
-static func on_hold_fire_pressed(controller) -> void:
-	if controller.battle_pause_active:
-		return
-	var target := current_target(controller.current_scene)
-	controller.current_scene = controller.preview_controller.hold_fire(
-		str(target.get("cellId", "r0c0")),
-		resolve_target_color_for_interaction(
-			str(target.get("color", "")),
-			active_queue_color(controller.current_scene)
-		),
-		hold_fire_burst_count(controller.accessibility_state)
-	)
-	controller._render_scene(controller.current_scene)
-
 # ?ㅽ뻾: request repair on heated core.
-static func on_repair_pressed(controller) -> void:
-	if controller.battle_pause_active:
-		return
-	controller.current_scene = controller.preview_controller.repair()
-	controller._render_scene(controller.current_scene)
-
 # ?ㅽ뻾: cycle active item colors to fill queue.
 static func recalculate_queue_colors(controller) -> void:
 	var run_state = controller.preview_controller.run.state if controller.preview_controller and controller.preview_controller.run else null
@@ -320,6 +311,7 @@ static func on_shift_timer_timeout(controller) -> void:
 	controller.view.render_backpack(controller.inventory)
 	controller.current_scene = controller.preview_controller.get_scene()
 	controller._render_scene(controller.current_scene)
+	trigger_obstacle_feedback(controller, controller.current_scene)
 
 # ?ㅽ뻾: initialize weakness markers for a fresh combat scene.
 static func ensure_combat_terrain_markers(controller) -> void:
@@ -341,3 +333,10 @@ static func ensure_combat_terrain_markers(controller) -> void:
 		controller.weakness_shift_step
 	)
 	controller.current_scene = controller.preview_controller.get_scene()
+
+static func trigger_obstacle_feedback(controller, scene: Dictionary) -> void:
+	var hud: Dictionary = scene.get("hud", {}) if scene.get("hud", {}) is Dictionary else {}
+	var events: Array = hud.get("obstacleFeedbackEvents", []) if hud.get("obstacleFeedbackEvents", []) is Array else []
+	if events.is_empty() or controller.view == null or not controller.view.has_method("trigger_obstacle_feedback"):
+		return
+	controller.view.trigger_obstacle_feedback(events)

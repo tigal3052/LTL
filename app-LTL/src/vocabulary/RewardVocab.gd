@@ -76,7 +76,7 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 
 	var rolled_rewards = []
 	for i in range(count):
-		var rolled_rarity := rolled_rarities[i]
+		var rolled_rarity: String = rolled_rarities[i]
 		var matched_items := _rarity_candidates(reward_pool, rolled_rarity)
 
 		# Fallback if no items found in the matching rarity tier
