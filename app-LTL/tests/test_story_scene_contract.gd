@@ -8,10 +8,9 @@ const BuildStoryTelemetryScript = preload("res://src/vocabulary/story/BuildStory
 
 var failures: Array[String] = []
 
-# 실행: run focused contracts for VN story scene selection, progress, projection, and telemetry.
 func run_all_tests() -> Dictionary:
 	failures.clear()
-	test_intro_story_selects_after_character_confirm()
+	test_intro_story_selects_before_character_select()
 	test_seen_once_story_does_not_repeat()
 	test_mark_seen_updates_story_history_only()
 	test_story_selection_does_not_mutate_scene()
@@ -19,15 +18,15 @@ func run_all_tests() -> Dictionary:
 	test_story_telemetry_payloads_have_required_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
 
-# 실행: verify the first story triggers at the safe meta transition after character selection.
-func test_intro_story_selects_after_character_confirm() -> void:
-	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "leviathan_select", "phase": "node_select"}, _scenes(), {})
-	_assert_eq(str(scene.get("id", "")), "intro_contract_vn", "intro VN story selects on leviathan select entry")
-	_assert_eq(str(scene.get("returnPageId", "")), "leviathan_select", "intro VN returns to leviathan selection")
+# 실행: verify the first story triggers before the player reaches character selection.
+func test_intro_story_selects_before_character_select() -> void:
+	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "character_select", "phase": "node_select"}, _scenes(), {})
+	_assert_eq(str(scene.get("id", "")), "intro_contract_vn", "intro VN story selects before character select entry")
+	_assert_eq(str(scene.get("returnPageId", "")), "character_select", "intro VN returns to character selection")
 
 # 실행: verify shown-once story scenes honor storySeenSceneIds history.
 func test_seen_once_story_does_not_repeat() -> void:
-	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "leviathan_select", "phase": "node_select"}, _scenes(), {"intro_contract_vn": true})
+	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "character_select", "phase": "node_select"}, _scenes(), {"intro_contract_vn": true})
 	_assert_eq(scene.is_empty(), true, "seen shown-once story scene does not repeat")
 
 # 실행: verify story progress stays separate from narrative beat history and cleared ids.
@@ -41,7 +40,7 @@ func test_mark_seen_updates_story_history_only() -> void:
 
 # 실행: verify story selection is a pure projection over the scene snapshot.
 func test_story_selection_does_not_mutate_scene() -> void:
-	var state := {"pageId": "leviathan_select", "phase": "node_select", "progress": {}}
+	var state := {"pageId": "character_select", "phase": "node_select", "progress": {}}
 	var before := state.duplicate(true)
 	var scene: Dictionary = SelectStorySceneScript.select(state, _scenes(), {})
 	_assert(not scene.is_empty(), "story scene selected for purity test")
@@ -49,18 +48,18 @@ func test_story_selection_does_not_mutate_scene() -> void:
 
 # 실행: verify read-model exposes a localized VN step and routing facts.
 func test_story_read_model_projects_first_step_and_return_page() -> void:
-	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "leviathan_select", "phase": "node_select"}, _scenes(), {})
+	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "character_select", "phase": "node_select"}, _scenes(), {})
 	var model: Dictionary = StorySceneReadModelScript.project(scene, 0, "en")
 	_assert_eq(bool(model.get("visible", false)), true, "story read model visible for selected scene")
 	_assert_eq(str(model.get("sceneId", "")), "intro_contract_vn", "story read model exposes scene id")
-	_assert_eq(str(model.get("returnPageId", "")), "leviathan_select", "story read model exposes return page")
+	_assert_eq(str(model.get("returnPageId", "")), "character_select", "story read model exposes return page")
 	_assert(str(model.get("text", "")).contains("contract"), "story read model projects English text")
 	_assert(not str(model.get("portraitPath", "")).is_empty(), "story read model exposes portrait path")
 	_assert(not str(model.get("backgroundPath", "")).is_empty(), "story read model exposes background path")
 
 # 실행: verify story telemetry uses stable event names and required fields.
 func test_story_telemetry_payloads_have_required_fields() -> void:
-	var started: Dictionary = BuildStoryTelemetryScript.build_started("intro_contract_vn", "leviathan_select", 2)
+	var started: Dictionary = BuildStoryTelemetryScript.build_started("intro_contract_vn", "character_select", 2)
 	_assert_eq(str(started.get("event", "")), "story_scene_started", "story started telemetry event name")
 	for key in ["scene_id", "return_page_id", "step_count"]:
 		_assert(started.has(key), "story started telemetry has %s" % key)

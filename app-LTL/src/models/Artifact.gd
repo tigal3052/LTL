@@ -28,6 +28,8 @@ var catalog_id: String = ""
 var fusion_key: String = ""
 var instance_id: String = ""
 var visual_id: String = ""
+var roll_quality: int = -1
+var stat_roll: Dictionary = {}
 var beacon_cooldown_mod: int = 0
 var beacon_damage_mod: float = 0.0
 var effect_schema: Dictionary = {}
@@ -68,6 +70,9 @@ func _init(data: Dictionary) -> void:
 	fusion_key = str(data.get("fusionKey", data.get("fusion_key", "")))
 	instance_id = str(data.get("instanceId", data.get("instance_id", "")))
 	visual_id = str(data.get("visualId", data.get("visual_id", "")))
+	roll_quality = int(data.get("rollQuality", data.get("roll_quality", -1)))
+	var roll_data = data.get("statRoll", data.get("stat_roll", {}))
+	stat_roll = roll_data.duplicate(true) if roll_data is Dictionary else {}
 	beacon_cooldown_mod = int(data.get("beacon_cooldown_mod", data.get("beaconCooldownMod", 0)))
 	beacon_damage_mod = float(data.get("beacon_damage_mod", data.get("beaconDamageMod", 0.0)))
 	var schema = data.get("effect_schema", data.get("effectSchema", {}))
@@ -153,6 +158,10 @@ func to_dict() -> Dictionary:
 		"instanceId": instance_id,
 		"visualId": visual_id,
 		"visual_id": visual_id,
+		"rollQuality": roll_quality,
+		"roll_quality": roll_quality,
+		"statRoll": stat_roll.duplicate(true),
+		"stat_roll": stat_roll.duplicate(true),
 		"native_base_cooldown_ticks": native_base_cooldown_ticks,
 		"beacon_cooldown_mod": beacon_cooldown_mod,
 		"beacon_damage_mod": beacon_damage_mod,

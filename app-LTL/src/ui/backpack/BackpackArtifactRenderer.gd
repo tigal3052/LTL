@@ -10,15 +10,13 @@ extends RefCounted
 
 const ArtifactClass = preload("res://src/models/Artifact.gd")
 const GridFactory = preload("res://src/ui/presenters/BackpackGridFactory.gd")
-const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 const BackpackInfluenceHighlighterScript = preload("res://src/ui/backpack/BackpackInfluenceHighlighter.gd")
+const BackpackArtifactImagePlacementScript = preload("res://src/ui/backpack/BackpackArtifactImagePlacement.gd")
 const VISUAL_COOLDOWN_TICKS_PER_SECOND := 20.0
 const SLOT_HOVER_FX_ENABLED := false
 const SLOT_GRID_SEPARATION := 2
 const ARTIFACT_FILL_ALPHA := 0.32
 const GHOST_FALLBACK_CELL_SIZE := Vector2(24, 24)
-const DRILL_VISIBLE_ALPHA_THRESHOLD := 0.02
-const DRILL_VISIBLE_PADDING_RATIO := 0.03
 const ARTIFACT_IMAGE_REFRESH_RETRY_FRAMES := 8
 
 static func render_items(owner, inventory) -> void:
@@ -131,19 +129,11 @@ static func apply_artifact_overlay(owner, column: int, row: int, art: ArtifactCl
 		apply_cooldown_mask(charge, display_ticks / float(effective_cooldown))
 
 static func item_texture_for_artifact(owner, art: ArtifactClass) -> Texture2D:
-	if art == null:
-		return null
-	var item_type := str(art.item_type).to_lower().strip_edges()
-	var texture_paths: Array = GridFactory.item_texture_candidates(item_type, str(art.visual_id), str(art.energy_type), str(art.grade))
-	for texture_path in texture_paths:
-		var cache_key := "%s|%s|%s" % [item_type, texture_path, _shape_cache_key(art.shape)]
-		if owner.drill_texture_cache.has(cache_key):
-			return owner.drill_texture_cache[cache_key]
-		var texture := drill_display_texture(LTLThemeScript.art_texture(texture_path), art.shape)
-		if texture != null:
-			owner.drill_texture_cache[cache_key] = texture
-			return texture
-	return null
+	return BackpackArtifactImagePlacementScript.display_texture_for_artifact(owner, art)
+
+static func oriented_display_texture(texture: Texture2D, shape: Array = [], rotation_degrees: int = 0) -> Texture2D:
+	var rotated := _rotated_texture(texture, rotation_degrees)
+	return drill_display_texture(rotated, shape)
 
 static func drill_texture_for_artifact(owner, art: ArtifactClass) -> Texture2D:
 	if art == null or str(art.item_type).to_lower() != "drill":
@@ -151,66 +141,44 @@ static func drill_texture_for_artifact(owner, art: ArtifactClass) -> Texture2D:
 	return item_texture_for_artifact(owner, art)
 
 static func drill_display_texture(texture: Texture2D, shape: Array = []) -> Texture2D:
+	return BackpackArtifactImagePlacementScript.drill_display_texture(texture, shape)
+
+static func _rotated_texture(texture: Texture2D, rotation_degrees: int) -> Texture2D:
 	if texture == null:
 		return null
-	var image := texture.get_image()
-	if image == null or image.is_empty():
+	var rotation := _normalized_rotation(rotation_degrees)
+	if rotation == 0:
 		return texture
-	var region := _visible_alpha_region(image, DRILL_VISIBLE_ALPHA_THRESHOLD)
-	if region.size.x <= 0 or region.size.y <= 0:
+	var source := texture.get_image()
+	if source == null or source.is_empty():
 		return texture
-	var display_region := _centered_display_region(image, region, _shape_aspect(shape, float(texture.get_width()) / float(texture.get_height())))
-	if display_region.size.x >= float(texture.get_width()) * 0.98 and display_region.size.y >= float(texture.get_height()) * 0.98:
-		return texture
-	var atlas := AtlasTexture.new()
-	atlas.atlas = texture
-	atlas.region = display_region
-	return atlas
+	source = source.duplicate()
+	source.convert(Image.FORMAT_RGBA8)
+	var source_width := source.get_width()
+	var source_height := source.get_height()
+	var output_size := Vector2i(source_height, source_width) if rotation in [90, 270] else Vector2i(source_width, source_height)
+	var output := Image.create(output_size.x, output_size.y, false, Image.FORMAT_RGBA8)
+	for y in range(source_height):
+		for x in range(source_width):
+			var target := _rotated_pixel_position(x, y, source_width, source_height, rotation)
+			output.set_pixel(target.x, target.y, source.get_pixel(x, y))
+	return ImageTexture.create_from_image(output)
 
-static func _centered_display_region(image: Image, visible_region: Rect2i, target_aspect: float) -> Rect2:
-	var padding := maxi(2, int(round(maxf(float(visible_region.size.x), float(visible_region.size.y)) * DRILL_VISIBLE_PADDING_RATIO)))
-	var left := float(maxi(0, visible_region.position.x - padding))
-	var top := float(maxi(0, visible_region.position.y - padding))
-	var right := float(mini(image.get_width(), visible_region.position.x + visible_region.size.x + padding))
-	var bottom := float(mini(image.get_height(), visible_region.position.y + visible_region.size.y + padding))
-	var center := Vector2(float(image.get_width()), float(image.get_height())) * 0.5
-	var aspect := maxf(0.01, target_aspect)
-	var half_width := maxf(center.x - left, right - center.x)
-	var half_height := maxf(center.y - top, bottom - center.y)
-	if half_width / maxf(1.0, half_height) < aspect:
-		half_width = half_height * aspect
-	else:
-		half_height = half_width / aspect
-	var max_half_width := minf(center.x, float(image.get_width()) - center.x)
-	var max_half_height := minf(center.y, float(image.get_height()) - center.y)
-	if half_width > max_half_width:
-		half_width = max_half_width
-		half_height = minf(max_half_height, half_width / aspect)
-	if half_height > max_half_height:
-		half_height = max_half_height
-		half_width = minf(max_half_width, half_height * aspect)
-	return Rect2(center - Vector2(half_width, half_height), Vector2(half_width * 2.0, half_height * 2.0))
+static func _rotated_pixel_position(x: int, y: int, width: int, height: int, rotation: int) -> Vector2i:
+	match rotation:
+		90:
+			return Vector2i(height - 1 - y, x)
+		180:
+			return Vector2i(width - 1 - x, height - 1 - y)
+		270:
+			return Vector2i(y, width - 1 - x)
+	return Vector2i(x, y)
 
-static func _shape_aspect(shape: Array, fallback: float) -> float:
-	var rows := maxi(1, shape.size())
-	var columns := 0
-	for row in shape:
-		if row is Array:
-			var row_cells: Array = row
-			columns = maxi(columns, row_cells.size())
-	if columns <= 0:
-		return fallback
-	return float(columns) / float(rows)
-
-static func _shape_cache_key(shape: Array) -> String:
-	var parts: Array[String] = []
-	for row in shape:
-		if row is Array:
-			var row_parts: Array[String] = []
-			for cell in row:
-				row_parts.append(str(int(cell)))
-			parts.append(",".join(row_parts))
-	return ";".join(parts)
+static func _normalized_rotation(rotation_degrees: int) -> int:
+	var rotation := rotation_degrees % 360
+	if rotation < 0:
+		rotation += 360
+	return int(round(float(rotation) / 90.0)) * 90 % 360
 
 static func _visible_alpha_region(image: Image, alpha_threshold: float) -> Rect2i:
 	var min_x := image.get_width()
@@ -246,7 +214,7 @@ static func apply_artifact_image_overlay(owner, art: ArtifactClass) -> void:
 	var image := TextureRect.new()
 	image.name = artifact_image_node_name(art)
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	apply_item_image_placement(image, texture, rect)
+	apply_oriented_item_image_placement(image, texture, rect, int(art.rotation))
 	owner.artifact_image_layer.add_child(image)
 
 static func artifact_image_node_name(art: ArtifactClass) -> String:
@@ -254,17 +222,13 @@ static func artifact_image_node_name(art: ArtifactClass) -> String:
 	return "%s_%s" % [prefix, str(art.id) if art != null else "unknown"]
 
 static func apply_item_image_placement(image: TextureRect, texture: Texture2D, footprint_rect: Rect2, use_global_position: bool = false) -> void:
-	if image == null:
-		return
-	image.texture = texture
-	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	image.size = footprint_rect.size
-	if use_global_position:
-		image.global_position = footprint_rect.position
-	else:
-		image.position = footprint_rect.position
+	BackpackArtifactImagePlacementScript.apply_item_image_placement(image, texture, footprint_rect, use_global_position)
+
+static func apply_oriented_item_image_placement(image: TextureRect, texture: Texture2D, footprint_rect: Rect2, rotation_degrees: int, use_global_position: bool = false) -> void:
+	BackpackArtifactImagePlacementScript.apply_oriented_item_image_placement(image, texture, footprint_rect, rotation_degrees, use_global_position)
+
+static func reset_item_image_transform(image: TextureRect) -> void:
+	BackpackArtifactImagePlacementScript.reset_item_image_transform(image)
 
 static func artifact_footprint_rect_in_layer(owner, art: ArtifactClass) -> Rect2:
 	var rect := Rect2()

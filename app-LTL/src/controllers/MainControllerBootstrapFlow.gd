@@ -47,6 +47,8 @@ static func ready(controller) -> void:
 	)
 	controller.current_scene = controller.preview_controller.reset()
 	controller._recalculate_queue_colors()
+	if controller.has_method("_open_story_scene_for_page"):
+		controller._open_story_scene_for_page("character_select")
 	controller._render_scene(controller.current_scene)
 	controller._setup_shift_timer()
 	controller.set_process(true)

@@ -14,6 +14,14 @@ function Resolve-FullPath($Path) {
   return [System.IO.Path]::GetFullPath($Path).TrimEnd("\", "/")
 }
 
+function Read-Utf8Text([string]$Path) {
+  return [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+}
+
+function Read-Utf8Lines([string]$Path) {
+  return [System.IO.File]::ReadAllLines($Path, [System.Text.Encoding]::UTF8)
+}
+
 function Get-Property($Text, $Key) {
   $escapedKey = [regex]::Escape($Key)
   $pattern = "(?m)^\s*$escapedKey\s*:\s*(.+?)\s*$"
@@ -65,7 +73,7 @@ function Convert-GlobToRegex($Pattern) {
 }
 
 function Get-LineCount($FullPath) {
-  return (Get-Content -LiteralPath $FullPath).Count
+  return (@(Read-Utf8Lines $FullPath)).Count
 }
 
 $resolvedRoot = Resolve-FullPath $Root
@@ -82,7 +90,7 @@ if (-not (Test-Path -LiteralPath $resolvedManifest)) {
   Fail "Manifest file not found: $ManifestPath"
 }
 
-$manifestText = Get-Content -LiteralPath $resolvedManifest -Raw
+$manifestText = Read-Utf8Text $resolvedManifest
 $approval = Get-Property $manifestText "approval"
 if ($approval -ne "approved") {
   Fail "Manifest approval status is not 'approved' (got '$approval')"

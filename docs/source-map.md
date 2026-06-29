@@ -7,7 +7,7 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: 55063e6e83873d3eee1b5cb2bf9bc7930aa92d2288611c3da16c5109908cfff8
+- Source fingerprint: db4b372cd76fd4b6c5d986b128a6b05017f3ec0d85ae8e09a8ea461b71cc8a00
 
 ## File Map
 
@@ -24,6 +24,26 @@ This file is the live implementation map for AI agents. It records each current 
 - `.hermes/plans/2026-06-25_183126-ltl-page-by-page-design-specialization-v2.ko.md`
   - This document explains project design or implementation criteria.
 - `.hermes/plans/2026-06-25_203828-ltl-page-by-page-design-specialization-v2-1-subagent-reviewed.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-26_110018-ltl-verdant-ruins-sky-nature-design-pivot-v3.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-26_110716-ltl-verdant-ruins-sky-nature-design-pivot-v3-1-cross-reviewed.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-26_143737-ltl-reward-reveal-dopamine-ceremony-v3-2.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-26_164135-ltl-reward-reveal-stitch-prompt-and-implementation-v3-2-1.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-26_165529-ltl-reward-reveal-timeout-recovery-v3-3.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-29_103043-core-001-implementation-task-breakdown.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-29_163803-ltl-shared-worklog-unification-plan.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-29-core-001-alpha-baseline-plan.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/ltl-google-stitch-page-prompts.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/ltl-reward-reveal-ceremony-ux-vfx-sfx-plan.ko.md`
   - This document explains project design or implementation criteria.
 - `.vscode/settings.json`
   - settings is a project component with a tracked responsibility.
@@ -1081,6 +1101,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Clamps tooltip position inside viewport bounds.
 - `app-LTL/src/ui/audio/InteractionSfxProfile.gd`
   - Interaction Sfx Profile owns Godot UI rendering and interaction behavior.
+- `app-LTL/src/ui/backpack/BackpackArtifactImagePlacement.gd`
+  - Backpack Artifact Image Placement owns Godot UI rendering and interaction behavior.
 - `app-LTL/src/ui/backpack/BackpackArtifactRenderer.gd`
   - Renders backpack artifact overlays, image-backed drill overlays, drag ghost cells, drop feedback helpers, and cooldown masks.
   - Provides transformed rectangle math for aligning artifact images inside the backpack layer.
@@ -1317,6 +1339,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Applies combat relic hooks for repair completion, obstacle execution prevention, obstacle-clear rewards, weakness-hit counters, and shot buff consumption.
 - `app-LTL/src/vocabulary/combat/CombatTerrainEffects.gd`
   - Owns color damage profiles and purple terrain buff/debuff stack mutation for combat vocabulary flows.
+- `app-LTL/src/vocabulary/combat/EnergyToken.gd`
+  - Energy Token implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/combat/RecalculateQueueColors.gd`
   - Recalculate Queue Colors implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/combat/ShiftWeaknessMarkers.gd`
@@ -1368,6 +1392,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/vocabulary/reward/ItemFusion.gd`
   - Encapsulates duplicate reward-item fusion for epic-and-below input artifacts.
   - Advances fused item rarity, improves cooldown/damage/effect values, and replaces the matching inventory item atomically.
+- `app-LTL/src/vocabulary/reward/ItemStatRoller.gd`
+  - Item Stat Roller implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/reward/RewardCatalogOrder.gd`
   - Reward Catalog Order implements a focused domain vocabulary action.
 - `app-LTL/src/vocabulary/RewardVocab.gd`
@@ -1400,6 +1426,8 @@ This file is the live implementation map for AI agents. It records each current 
   - m2 main scene contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_backpack_layout_contract.gd`
   - run backpack layout contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_backpack_rotation_performance_contract.gd`
+  - run backpack rotation performance contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_backpack_ui_compile_contract.gd`
   - run backpack ui compile contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_balance_and_fusion_contract.gd`
@@ -1672,6 +1700,10 @@ This file is the live implementation map for AI agents. It records each current 
   - terrain panel before after documents project decisions, verification, or work history.
 - `docs/mockups/terrain-panel-before-after-render.png`
   - terrain panel before after render is a UI art resource or Godot import metadata file.
+- `docs/project-goals/final-goal.html`
+  - Defines the LTL north-star final goal, core fun pillars, decision checks, current state, and evidence sources that future work must preserve.
+- `docs/project-goals/work-objectives.html`
+  - Maintains the live machine-readable objective backlog with priority, status, area, and update-log metadata for future LTL work.
 - `docs/release-resource-needs.md`
   - release resource needs documents exact final-art and audio paths that can be populated after implementation.
 - `docs/release-visual-quality-upgrade-plan.md`
@@ -1712,6 +1744,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Records the June 9 transition-safety gate design and the contract expectations for safer page and phase handoffs.
 - `docs/superpowers/specs/2026-06-14-battle-hud-runtime-design.md`
   - Records the battle HUD runtime design direction, visual contract, and layout acceptance criteria.
+- `docs/templates/agent-active-worklog-template.md`
+  - agent active worklog template documents project decisions, verification, or work history.
 - `docs/templates/agent-worklog-template.md`
   - Provides the shared compact worklog closeout template for Hermes, Codex, and other agents.
 - `LTL-harness/00_AGENTS.md`
@@ -1910,6 +1944,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the local Godot runner helper path normalization and temporary environment setup behavior.
 - `tools/invoke-godot.ps1`
   - Provides the canonical local Godot CLI entry point that routes ad hoc logs into app-LTL/.tmp-godot-logs.
+- `tools/project-objectives.ps1`
+  - Wraps the generic agent-harness project-objective gate for LTL-specific final-goal and work-objective inspection, validation, listing, and status updates.
 - `tools/run-compile-check.ps1`
   - Runs the fast local verification path, including source-map, test-size, runtime-size, page-contract, and Godot smoke checks.
 - `tools/run-ltl-quality-gate.ps1`
@@ -1922,4 +1958,3 @@ This file is the live implementation map for AI agents. It records each current 
   - Describes the v0.1 product plan and early design direction.
 - `기획서v0.2.md`
   - Describes the v0.2 product plan and updated design direction.
-

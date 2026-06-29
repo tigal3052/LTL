@@ -116,6 +116,7 @@ func _boot_to_node_select(main_instance: Node, color := "purple", leviathan_id :
 	_assert(controller != null, "main controller exists during reward handoff boot")
 	if controller == null:
 		return null
+	await _advance_story_if_present(main_instance, "character_select")
 	var character_page = main_instance.get("character_select_page")
 	_assert(character_page != null, "character select page exists during reward handoff boot")
 	if character_page != null:

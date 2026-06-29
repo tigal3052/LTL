@@ -60,6 +60,7 @@ func _advance_story_if_present(main_instance: Node, return_page_id: String) -> v
 	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s" % return_page_id)
 
 func _boot_to_node_select(main_instance: Node, color := "blue", leviathan_id := "storm_wyvern") -> Node:
+	await _advance_story_if_present(main_instance, "character_select")
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during page-flow boot")
 	if controller == null:
@@ -106,7 +107,6 @@ func _boot_to_node_select(main_instance: Node, color := "blue", leviathan_id := 
 		character_page.continue_requested.emit()
 	await process_frame
 	await process_frame
-	await _advance_story_if_present(main_instance, "leviathan_select")
 	_assert_eq(str(main_instance.get("active_page_id")), "leviathan_select", "character select advances to leviathan select")
 	if header != null:
 		_assert_eq(header.visible, false, "leviathan select keeps the legacy shell header hidden")
@@ -234,7 +234,7 @@ func _assert_meta_to_combat_to_reward_to_node_flow(MainScene: PackedScene) -> vo
 	root.add_child(main_instance)
 	await process_frame
 	await process_frame
-	_assert_eq(str(main_instance.get("active_page_id")), "character_select", "main scene starts on character select page")
+	_assert_eq(str(main_instance.get("active_page_id")), "story_scene", "main scene starts on intro story scene page")
 
 	var controller = await _boot_to_node_select(main_instance)
 	if controller == null:

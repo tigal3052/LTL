@@ -7,6 +7,7 @@
 # 실행: define the InventoryModel class identity.
 class_name InventoryModel
 extends RefCounted
+const EnergyTokenScript = preload("res://src/vocabulary/combat/EnergyToken.gd")
 # 실행: store backpack dimensions and placed artifacts.
 # 8x8은 백팩의 '최대 규격'입니다. 게임 초반엔 2x2와 같이 작은 크기로 시작하며,
 # 현재 테스트 및 데모 편의를 위해 8x8 최대 규격을 디폴트로 지정해둔 상태입니다.
@@ -14,6 +15,8 @@ var width: int = 8
 var height: int = 8
 var grid: Array = [] # 2D array of String (inventory artifact key) or empty String
 var artifacts: Dictionary = {} # inventory artifact key -> Artifact instance
+var energy_queue_charge_progress: float = 0.0
+var energy_queue_rotation_index: int = 0
 
 # 실행: initialize the backpack grid size.
 func _init(w: int = 8, h: int = 8) -> void:
@@ -69,6 +72,7 @@ func place_artifact(art: Artifact, x: int, y: int) -> bool:
 				grid[y + r][x + c] = art_key
 	artifacts[art_key] = art
 	calculate_synergies()
+	_reset_energy_queue_state()
 	return true
 
 # 실행: remove an artifact from the backpack.
@@ -82,6 +86,7 @@ func remove_artifact(art_id: String) -> bool:
 				grid[r][c] = ""
 	artifacts.erase(art_key)
 	calculate_synergies()
+	_reset_energy_queue_state()
 	return true
 
 func artifact_key(art: Artifact) -> String:
@@ -275,14 +280,6 @@ func calculate_synergies() -> void:
 		art.synergy_cooldown_reduction = adjacent_matches.size() * synergy_val
 
 	for art_id in artifacts:
-		var beacon: Artifact = artifacts[art_id]
-		if beacon.item_type != "beacon" or is_zero_approx(beacon.beacon_damage_mod):
-			continue
-		for drill in get_adjacent_drills(beacon):
-			if drill.energy_type == beacon.energy_type:
-				drill.damage = maxf(0.0, drill.damage + beacon.beacon_damage_mod)
-
-	for art_id in artifacts:
 		var relic: Artifact = artifacts[art_id]
 		if relic.item_type != "relic":
 			continue
@@ -299,23 +296,41 @@ func calculate_synergies() -> void:
 
 	# Beacon cooldown effects are applied during tick(), not as permanent stat modifiers.
 
-# 실행: progress tick for all artifacts and return generated energies color Array.
+# 실행: progress tick for all artifacts and return generated energy tokens.
 func tick() -> Array:
 	var generated: Array = []
+	var frozen_drill_keys := {}
 	for art_id in artifacts:
 		var art: Artifact = artifacts[art_id]
 		if art.item_type == "beacon":
 			if art.tick_beacon():
 				_apply_beacon_pulse(art)
-		else:
-			var energy = art.tick()
-			if energy != null:
-				generated.append({
-					"color": str(energy),
-					"source_artifact_id": art.id,
-					"source_item_type": art.item_type
-				})
+		elif art.item_type == "drill" and art.freeze_ticks > 0:
+			frozen_drill_keys[str(art_id)] = true
+			art.freeze_ticks -= 1
+	var active_drills: Array = EnergyTokenScript.active_drill_records(self)
+	if active_drills.is_empty():
+		return generated
+	var available_drills: Array = []
+	for record in active_drills:
+		if not frozen_drill_keys.has(str(record.get("artifact_key", ""))):
+			available_drills.append(record)
+	if available_drills.is_empty():
+		return generated
+	var average_cooldown: float = EnergyTokenScript.average_cooldown(available_drills)
+	if average_cooldown <= 0:
+		return generated
+	energy_queue_charge_progress += 1.0
+	while energy_queue_charge_progress >= average_cooldown:
+		energy_queue_charge_progress -= average_cooldown
+		var drill_record: Dictionary = available_drills[energy_queue_rotation_index % available_drills.size()]
+		generated.append(EnergyTokenScript.build_token(self, drill_record.get("artifact", null), str(drill_record.get("artifact_key", ""))))
+		energy_queue_rotation_index += 1
 	return generated
+
+func _reset_energy_queue_state() -> void:
+	energy_queue_charge_progress = 0.0
+	energy_queue_rotation_index = 0
 
 # 실행: apply a charged beacon pulse to adjacent drills by reducing their current cooldown.
 func _apply_beacon_pulse(beacon: Artifact) -> void:
@@ -370,5 +385,7 @@ func to_dict() -> Dictionary:
 		"width": width,
 		"height": height,
 		"grid": grid.duplicate(true),
-		"artifacts": snapshot_artifacts
+		"artifacts": snapshot_artifacts,
+		"energyQueueChargeProgress": energy_queue_charge_progress,
+		"energyQueueRotationIndex": energy_queue_rotation_index
 	}

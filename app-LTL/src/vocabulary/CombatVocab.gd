@@ -14,6 +14,7 @@ const CombatRelicHooksScript = preload("res://src/vocabulary/combat/CombatRelicH
 const CombatTerrainEffectsScript = preload("res://src/vocabulary/combat/CombatTerrainEffects.gd")
 const CombatObstacleDefinitionsScript = preload("res://src/vocabulary/combat/CombatObstacleDefinitions.gd")
 const CombatObstacleFeedbackScript = preload("res://src/vocabulary/combat/CombatObstacleFeedback.gd")
+const EnergyTokenScript = preload("res://src/vocabulary/combat/EnergyToken.gd")
 
 const OBSTACLE_AFTERGLOW_TICKS := 12
 
@@ -56,9 +57,13 @@ static func fire_shot(sim: CombatSimulator, target_color: Variant, target_cell_i
 		base_shield += stack_bonus
 		base_hp += stack_bonus
 
-	var damage_multiplier := 1.0
-	if source_drill != null:
-		damage_multiplier = source_drill.damage
+	var damage_multiplier := EnergyTokenScript.damage_for_token(queue_item, source_drill)
+	if not (queue_item is Dictionary) and source_drill != null:
+		var inferred_source_id := source_artifact_id
+		if inventory != null and inventory.has_method("artifact_key"):
+			inferred_source_id = str(inventory.artifact_key(source_drill))
+		var inferred_token := EnergyTokenScript.build_token(inventory, source_drill, inferred_source_id)
+		damage_multiplier = EnergyTokenScript.damage_for_token(inferred_token, source_drill)
 	damage_multiplier *= CombatRelicHooksScript.consume_shot_buff_multiplier(sim, source_artifact_id, source_drill)
 	base_shield *= damage_multiplier
 	base_hp *= damage_multiplier
@@ -402,23 +407,11 @@ static func _queue_item_color(item: Variant) -> String:
 
 # 실행: extract the source artifact identifier from a structured queue token when present.
 static func _queue_item_source_artifact_id(item: Variant) -> String:
-	if item is Dictionary:
-		return str(item.get("source_artifact_id", ""))
-	return ""
+	return EnergyTokenScript.source_id(item)
 
 # 실행: normalize generated queue items so combat always sees the same token shape.
 static func _normalize_queue_item(item: Variant) -> Dictionary:
-	if item is Dictionary:
-		var token: Dictionary = item.duplicate(true)
-		token["color"] = str(token.get("color", token.get("energy", "")))
-		token["source_artifact_id"] = str(token.get("source_artifact_id", ""))
-		token["source_item_type"] = str(token.get("source_item_type", token.get("item_type", "drill")))
-		return token
-	return {
-		"color": str(item),
-		"source_artifact_id": "",
-		"source_item_type": "drill"
-	}
+	return EnergyTokenScript.normalize(item)
 
 # 실행: resolve the drill that produced the current queue item, falling back to the first matching-color drill.
 static func _find_source_drill(inventory: InventoryModel, source_artifact_id: String, energy_color: String) -> Artifact:
@@ -428,6 +421,12 @@ static func _find_source_drill(inventory: InventoryModel, source_artifact_id: St
 		var exact = inventory.artifacts[source_artifact_id]
 		if exact is Artifact and exact.item_type == "drill":
 			return exact
+	if not source_artifact_id.is_empty():
+		for art_id in inventory.artifacts:
+			var exact_by_id = inventory.artifacts[art_id]
+			if exact_by_id is Artifact and exact_by_id.item_type == "drill":
+				if str(exact_by_id.id) == source_artifact_id or str(exact_by_id.instance_id) == source_artifact_id:
+					return exact_by_id
 	for art_id in inventory.artifacts:
 		var art = inventory.artifacts[art_id]
 		if art.energy_type == energy_color and art.item_type == "drill":

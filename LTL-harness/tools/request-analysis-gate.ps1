@@ -21,6 +21,14 @@ function Resolve-FullPath($Path) {
   return [System.IO.Path]::GetFullPath($Path)
 }
 
+function Read-Utf8Text([string]$Path) {
+  return [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+}
+
+function Read-Utf8Lines([string]$Path) {
+  return [System.IO.File]::ReadAllLines($Path, [System.Text.Encoding]::UTF8)
+}
+
 function Get-SectionBodies($Text) {
   $sections = @{}
   $currentName = $null
@@ -118,7 +126,7 @@ function Get-CandidateLineCount($RepoRoot, $RelativePath) {
   if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
     return 0
   }
-  return (Get-Content -LiteralPath $fullPath).Count
+  return (@(Read-Utf8Lines $fullPath)).Count
 }
 
 function Get-RuntimeSizeMonitoredPaths($RepoRoot, [string[]]$CandidatePaths = @()) {
@@ -126,7 +134,7 @@ function Get-RuntimeSizeMonitoredPaths($RepoRoot, [string[]]$CandidatePaths = @(
   if (-not (Test-Path -LiteralPath $manifestPath)) {
     return @()
   }
-  $manifestText = Get-Content -LiteralPath $manifestPath -Raw
+  $manifestText = Read-Utf8Text $manifestPath
   $paths = New-Object System.Collections.Generic.List[string]
   foreach ($field in @('legacy_debt_path_caps', 'strict_path_caps')) {
     foreach ($pathRule in (Get-CapRules $manifestText $field)) {
@@ -311,7 +319,7 @@ if (-not (Test-Path -LiteralPath $ledgerPath)) {
   Fail "Ledger file not found: $Ledger"
 }
 
-$ledgerText = Get-Content -LiteralPath $ledgerPath -Raw
+$ledgerText = Read-Utf8Text $ledgerPath
 $sections = Get-SectionBodies $ledgerText
 
 Require-Section $sections "Request Summary"

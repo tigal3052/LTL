@@ -83,6 +83,7 @@ func run_all_tests() -> Dictionary:
 	test_stage_health_scaling_starts_easy_and_rises_each_stage()
 	test_second_run_stage_one_continues_leviathan_difficulty_curve()
 	test_duplicate_common_reward_only_fuses_on_exact_grid_overlap()
+	test_fusion_uses_both_material_roll_values_without_extra_randomness()
 	test_same_name_same_grade_drills_can_be_placed_separately()
 	test_invalid_placement_requests_five_second_toast()
 	test_discard_requires_confirmation_before_reward_deletion()
@@ -185,6 +186,23 @@ func test_duplicate_common_reward_only_fuses_on_exact_grid_overlap() -> void:
 	_assert_eq(inventory.artifacts.size(), 1, "fusion consumes two duplicate drills into one artifact")
 	_assert_eq(int(fused.x), 0, "fused drill remains at the overlapped grid x")
 	_assert_eq(int(fused.y), 0, "fused drill remains at the overlapped grid y")
+
+func test_fusion_uses_both_material_roll_values_without_extra_randomness() -> void:
+	var fusion_script = _load_item_fusion_script()
+	if fusion_script == null:
+		return
+	var base := _rolled_drill("base_roll", 2.0, 100, 20)
+	var incoming_low := _rolled_drill("incoming_low", 1.0, 120, 10)
+	var incoming_high := _rolled_drill("incoming_high", 5.0, 70, 90)
+	var low_material_fused = fusion_script.fuse_pair(base, incoming_low)
+	var high_material_fused = fusion_script.fuse_pair(base, incoming_high)
+	var high_material_repeat = fusion_script.fuse_pair(base, incoming_high)
+	_assert(float(high_material_fused.damage) > float(low_material_fused.damage), "higher incoming roll contributes to fused damage")
+	_assert(int(high_material_fused.base_cooldown_ticks) < int(low_material_fused.base_cooldown_ticks), "higher incoming roll contributes to fused cooldown")
+	_assert_eq(float(high_material_repeat.damage), float(high_material_fused.damage), "fusion repeats deterministically without a new random damage roll")
+	_assert_eq(int(high_material_repeat.base_cooldown_ticks), int(high_material_fused.base_cooldown_ticks), "fusion repeats deterministically without a new random cooldown roll")
+	_assert_eq(int(low_material_fused.to_dict().get("rollQuality", -1)), 20, "low material does not add rescue progress over the base roll quality")
+	_assert_eq(int(high_material_fused.to_dict().get("rollQuality", -1)), 90, "high material quality is preserved when it supplies the better fused values")
 
 # 실행: verify duplicate beacon rewards use the same fusion API and improve beacon stats.
 func test_same_name_same_grade_drills_can_be_placed_separately() -> void:
@@ -371,6 +389,23 @@ func _normal_only_node_table() -> Dictionary:
 	}
 
 # 실행: create a small reward dictionary with a stable catalog identity.
+func _rolled_drill(id: String, damage: float, cooldown: int, roll_quality: int) -> Artifact:
+	return ArtifactScript.new({
+		"id": id,
+		"name": "Roll Probe",
+		"shape": [[1]],
+		"energyType": "red",
+		"item_type": "drill",
+		"grade": "common",
+		"catalogId": "roll_probe",
+		"fusionKey": "roll_probe",
+		"baseCooldownTicks": cooldown,
+		"nativeBaseCooldownTicks": cooldown,
+		"damage": damage,
+		"rollQuality": roll_quality,
+		"statRoll": {"quality": roll_quality}
+	})
+
 func _reward_fixture(catalog_id: String, kind: String, rarity: String, item_type: String, color: String) -> Dictionary:
 	return {
 		"rewardId": "%s_offer" % catalog_id,

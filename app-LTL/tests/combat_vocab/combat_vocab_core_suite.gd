@@ -6,6 +6,11 @@ func run_all_tests() -> Dictionary:
 	test_combat_vocab_extracts_relic_hooks_and_caps_owner()
 	test_queue_colors_cycle_active_drill_colors()
 	test_queue_items_keep_dictionary_shape_when_inventory_generates_energy()
+	test_queue_tokens_keep_same_color_drill_instances_and_average_cooldown()
+	test_queue_average_cooldown_keeps_fractional_arithmetic_value()
+	test_inventory_generation_uses_average_cooldown_sorted_rotation()
+	test_beacon_marks_tokens_without_permanent_drill_damage_mutation()
+	test_combat_uses_energy_token_damage_and_source_instance()
 	test_shift_markers_moves_right_and_inserts_seeded_left_column()
 	test_shift_markers_changes_left_column_with_step()
 	test_shift_markers_uses_seeded_random_left_column_without_diagonal_pattern()
@@ -85,6 +90,111 @@ func test_queue_items_keep_dictionary_shape_when_inventory_generates_energy() ->
 	if queue_item is Dictionary:
 		_assert_eq(str(queue_item.get("color", "")), "red", "queue token stores energy color")
 		_assert_eq(str(queue_item.get("source_artifact_id", "")), "red_cycle", "queue token stores source artifact id")
+
+func test_queue_tokens_keep_same_color_drill_instances_and_average_cooldown() -> void:
+	var inv := InventoryScript.new(5, 5)
+	inv.place_artifact(_tuned_drill("red_slow", "red", 30, 1.2), 0, 0)
+	inv.place_artifact(_tuned_drill("red_fast", "red", 10, 2.4), 2, 0)
+	inv.place_artifact(_tuned_drill("blue_mid", "blue", 20, 1.8), 0, 2)
+	var result = RecalculateQueueColorsScript.recalculate(inv, 6)
+	_assert_eq(bool(result.get("ok", false)), true, "queue token calculation succeeds")
+	_assert_eq(int(result.get("average_cooldown_ticks", 0)), 20, "queue reports arithmetic average cooldown")
+	var items: Array = result.get("items", [])
+	_assert_eq(items.size(), 6, "queue fills requested loaded token count")
+	var expected_sources := ["red_fast", "blue_mid", "red_slow", "red_fast", "blue_mid", "red_slow"]
+	var expected_damage := {"red_fast": 2.4, "blue_mid": 1.8, "red_slow": 1.2}
+	for i in range(items.size()):
+		var item: Dictionary = items[i]
+		var source_id := str(item.get("source_drill_instance_id", item.get("source_artifact_id", "")))
+		_assert_eq(source_id, expected_sources[i], "queue token order follows effective cooldown sort at index %d" % i)
+		_assert_eq(str(item.get("color", "")), "blue" if source_id == "blue_mid" else "red", "queue token keeps drill color at index %d" % i)
+		_assert(absf(float(item.get("damage", 0.0)) - float(expected_damage[source_id])) <= 0.001, "same-color token keeps per-drill damage at index %d" % i)
+		_assert(item.has("attack_style"), "queue token carries attack style at index %d" % i)
+		_assert(item.has("modifiers"), "queue token carries modifiers dictionary at index %d" % i)
+		_assert(item.has("buff_source_ids"), "queue token carries buff source ids at index %d" % i)
+
+func test_queue_average_cooldown_keeps_fractional_arithmetic_value() -> void:
+	var inv := InventoryScript.new(4, 4)
+	inv.place_artifact(_tuned_drill("red_ten", "red", 10, 1.0), 0, 0)
+	inv.place_artifact(_tuned_drill("blue_eleven", "blue", 11, 1.0), 2, 0)
+	var result = RecalculateQueueColorsScript.recalculate(inv, 2)
+	_assert(absf(float(result.get("average_cooldown_ticks", 0.0)) - 10.5) <= 0.001, "queue reports fractional arithmetic average cooldown")
+
+func test_inventory_generation_uses_average_cooldown_sorted_rotation() -> void:
+	var inv := InventoryScript.new(5, 5)
+	inv.place_artifact(_tuned_drill("red_slow", "red", 30, 1.2), 0, 0)
+	inv.place_artifact(_tuned_drill("red_fast", "red", 10, 2.4), 2, 0)
+	inv.place_artifact(_tuned_drill("blue_mid", "blue", 20, 1.8), 0, 2)
+	for _i in range(19):
+		_assert_eq(inv.tick().size(), 0, "average cooldown does not generate before tick 20")
+	var first: Array = inv.tick()
+	_assert_eq(first.size(), 1, "average cooldown generates on tick 20")
+	if not first.is_empty():
+		_assert_eq(str(first[0].get("source_drill_instance_id", first[0].get("source_artifact_id", ""))), "red_fast", "first generated token uses fastest drill")
+	for _i in range(19):
+		_assert_eq(inv.tick().size(), 0, "second token waits another average cooldown interval")
+	var second: Array = inv.tick()
+	_assert_eq(second.size(), 1, "second token generates on the next average interval")
+	if not second.is_empty():
+		_assert_eq(str(second[0].get("source_drill_instance_id", second[0].get("source_artifact_id", ""))), "blue_mid", "second generated token follows sorted drill rotation")
+
+func test_beacon_marks_tokens_without_permanent_drill_damage_mutation() -> void:
+	var inv := InventoryScript.new(4, 4)
+	var drill := _tuned_drill("red_base", "red", 1, 1.0)
+	var beacon := ArtifactScript.new({
+		"id": "red_damage_beacon",
+		"name": "Red Damage Beacon",
+		"shape": [[1]],
+		"energyType": "red",
+		"item_type": "beacon",
+		"baseCooldownTicks": 99,
+		"beaconDamageMod": 0.75
+	})
+	inv.place_artifact(drill, 0, 0)
+	inv.place_artifact(beacon, 1, 0)
+	_assert(absf(float(drill.damage) - 1.0) <= 0.001, "beacon placement does not mutate drill damage")
+	var generated: Array = inv.tick()
+	_assert(absf(float(drill.damage) - 1.0) <= 0.001, "beacon token generation still leaves drill damage unchanged")
+	_assert_eq(generated.size(), 1, "single drill produces one token")
+	if not generated.is_empty():
+		var token: Dictionary = generated[0]
+		_assert(absf(float(token.get("damage", 0.0)) - 1.75) <= 0.001, "beacon damage is stamped on token damage")
+		var modifiers: Dictionary = token.get("modifiers", {})
+		_assert(absf(float(modifiers.get("beacon_damage_bonus", 0.0)) - 0.75) <= 0.001, "token records beacon damage modifier")
+		var buff_source_ids: Array = token.get("buff_source_ids", [])
+		_assert(buff_source_ids.has("red_damage_beacon"), "token records beacon source id")
+
+func test_combat_uses_energy_token_damage_and_source_instance() -> void:
+	var inv := InventoryScript.new(4, 4)
+	var source_drill := _tuned_drill("red_source", "red", 10, 1.0)
+	inv.place_artifact(source_drill, 0, 0)
+	var sim := _sim_with_queue("red", 0.0, 20.0)
+	sim.queue.clear()
+	sim.queue.append({
+		"color": "red",
+		"source_artifact_id": "red_source",
+		"source_drill_instance_id": "red_source",
+		"source_item_type": "drill",
+		"damage": 4.0,
+		"attack_style": "red",
+		"modifiers": {},
+		"buff_source_ids": []
+	})
+	CombatVocabScript.fire_shot(sim, "red", "r0c0", {}, inv)
+	_assert(20.0 - sim.health > 6.0, "combat damage uses token damage rather than mutable source drill damage")
+
+func _tuned_drill(id: String, energy: String, cooldown: int, damage: float) -> Artifact:
+	return ArtifactScript.new({
+		"id": id,
+		"name": id,
+		"shape": [[1]],
+		"energyType": energy,
+		"item_type": "drill",
+		"baseCooldownTicks": cooldown,
+		"nativeBaseCooldownTicks": cooldown,
+		"currentCooldown": cooldown,
+		"damage": damage
+	})
 # 실행: verify marker shift drops right edge and adds deterministic left column.
 # 실행: verify marker shift drops right edge and adds deterministic left column.
 func test_shift_markers_moves_right_and_inserts_seeded_left_column() -> void:

@@ -10,7 +10,7 @@ var failures: Array[String] = []
 
 func run_all_tests() -> Dictionary:
 	failures.clear()
-	test_intro_contract_selects_only_first_node_select()
+	test_intro_contract_does_not_own_first_node_select_anymore()
 	test_seen_once_beat_does_not_repeat()
 	test_mark_seen_updates_progress_only()
 	test_failure_and_clear_match_run_complete_scene()
@@ -20,11 +20,11 @@ func run_all_tests() -> Dictionary:
 	test_narrative_telemetry_payloads_have_required_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
 
-func test_intro_contract_selects_only_first_node_select() -> void:
+func test_intro_contract_does_not_own_first_node_select_anymore() -> void:
 	var beat: Dictionary = SelectNarrativeBeatScript.select({"phase": "node_select", "stageIndex": 0}, _beats(), {})
-	_assert_eq(str(beat.get("id", "")), "intro_contract", "intro contract selected on first node select")
+	_assert_eq(beat.is_empty(), true, "intro contract no longer selects on first node select")
 	var later: Dictionary = SelectNarrativeBeatScript.select({"phase": "node_select", "stageIndex": 1}, _beats(), {})
-	_assert_eq(later.is_empty(), true, "intro contract does not select on later stages")
+	_assert_eq(later.is_empty(), true, "intro contract stays absent on later stages too")
 
 func test_seen_once_beat_does_not_repeat() -> void:
 	var beat: Dictionary = SelectNarrativeBeatScript.select({"phase": "node_select", "stageIndex": 0}, _beats(), {"intro_contract": true})
@@ -47,11 +47,11 @@ func test_narrative_projection_does_not_change_domain_snapshot() -> void:
 	var state := {"phase": "node_select", "stageIndex": 0, "candidates": [{"id": "normal"}], "progress": {}}
 	var before := state.duplicate(true)
 	var beat: Dictionary = SelectNarrativeBeatScript.select(state, _beats(), {})
-	_assert(not beat.is_empty(), "narrative beat selected for invariance test")
+	_assert_eq(beat.is_empty(), true, "retired intro contract is not selected for invariance test")
 	_assert_eq(state, before, "narrative selection does not mutate state")
 
 func test_narrative_read_model_projects_locale_text() -> void:
-	var beat: Dictionary = SelectNarrativeBeatScript.select({"phase": "node_select", "stageIndex": 0}, _beats(), {})
+	var beat: Dictionary = _beat_by_id("intro_contract")
 	var model: Dictionary = NarrativeReadModelScript.project(beat, "en")
 	_assert_eq(bool(model.get("visible", false)), true, "narrative read model is visible for selected beat")
 	_assert_eq(str(model.get("beatId", "")), "intro_contract", "narrative read model exposes beat id")
@@ -59,7 +59,7 @@ func test_narrative_read_model_projects_locale_text() -> void:
 
 # 실행: verify toast-specific metadata reaches the read model without changing narrative selection.
 func test_narrative_read_model_projects_toast_visual_metadata() -> void:
-	var beat: Dictionary = SelectNarrativeBeatScript.select({"phase": "node_select", "stageIndex": 0}, _beats(), {})
+	var beat: Dictionary = _beat_by_id("intro_contract")
 	var model: Dictionary = NarrativeReadModelScript.project(beat, "ko")
 	_assert_eq(str(model.get("anchorPreset", "")), "bottom_center", "narrative read model exposes anchor preset")
 	_assert_eq(str(model.get("toastVariant", "")), "operation_log", "narrative read model exposes toast variant")
@@ -75,6 +75,13 @@ func test_narrative_telemetry_payloads_have_required_fields() -> void:
 
 func _beats() -> Array:
 	return ReleaseContentVocabScript.load_content_bundle().get("narrativeBeats", [])
+
+func _beat_by_id(beat_id: String) -> Dictionary:
+	for beat_value in _beats():
+		var beat: Dictionary = beat_value if beat_value is Dictionary else {}
+		if str(beat.get("id", "")) == beat_id:
+			return beat.duplicate(true)
+	return {}
 
 func _assert(condition: bool, label: String) -> void:
 	if not condition:

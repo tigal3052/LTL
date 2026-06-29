@@ -26,6 +26,8 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 			for art_dict in inv_data["artifacts"]:
 				var art = ArtifactScript.new(art_dict)
 				inv.place_artifact(art, art.x, art.y)
+		inv.energy_queue_charge_progress = float(inv_data.get("energyQueueChargeProgress", 0.0))
+		inv.energy_queue_rotation_index = int(inv_data.get("energyQueueRotationIndex", 0))
 				
 	var combat_dict: Dictionary = next_state.get("combat", {})
 	if combat_dict.is_empty():

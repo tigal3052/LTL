@@ -3,15 +3,22 @@
 ## Source
 
 - Project: `D:/Programming/ex_workspace/LootingTheLeviathan`
+- Historical raw Codex analysis date: `2026-06-24`
+- Shared-layer decision update: `2026-06-29`
 - Raw Codex worklogs: `docs/codex-worklog/`
-- Analysis date: `2026-06-24`
-- Files analyzed: `97` markdown logs
-- Approximate raw text size: `2658389` characters (~664598 tokens by the harness estimate)
-- Log kind counts: `{'complete': 32, 'history': 33, 'plan': 32}`
+- Shared worklog layer: `docs/agent-worklog/`
+- Historical raw-log sample: `97` markdown logs, `2658389` characters (~`664598` estimated tokens), kind counts `{'complete': 32, 'history': 33, 'plan': 32}`
 
 ## Executive Summary
 
-The existing Codex worklog practice is valuable because it records plan/history/complete evidence for many development sessions. The main weakness is not absence of history; it is context cost and retrieval friction. Several `history_*` files are very large, so future agents should not read the whole raw directory by default. The improved workflow keeps raw logs as evidence and introduces `docs/agent-worklog/INDEX.md` plus `COMPACT.md` as the default summary-first context layer.
+The Codex worklog practice is valuable because it preserves plan/history/complete evidence across many sessions. The main weakness is not lack of history; it is context cost and retrieval friction. Several `history_*` files are too large to load by default, and the old compact layer did not clearly represent current live work or non-Codex shared closeouts.
+
+The updated decision is to keep `docs/codex-worklog/` as raw evidence while formalizing `docs/agent-worklog/` as the neutral shared layer:
+
+- `ACTIVE.md` for live in-progress state
+- `INDEX.md` for summary-first discovery
+- `COMPACT.md` for concise recent patterns
+- `YYYY-MM-DD-<agent>-<slug>.md` for shared closeout/handoff records
 
 ## Observed Strengths
 
@@ -20,6 +27,7 @@ The existing Codex worklog practice is valuable because it records plan/history/
 - The project already has strong harness culture: request ledgers, source maps, quality gates, artifact ledgers, Godot runner wrappers, and LTL-specific gate scripts.
 - Verification evidence is frequently named explicitly with expected markers such as `*_OK`.
 - The generic `agent-harness` already contains reusable gates for source maps, request analysis, handoff contracts, runtime size, and test size.
+- Shared Hermes closeouts already exist under `docs/agent-worklog/*.md`, so the neutral layer is not hypothetical; it already has real artifacts.
 
 ## Observed Weaknesses / Risk Patterns
 
@@ -33,42 +41,48 @@ The existing Codex worklog practice is valuable because it records plan/history/
   - `history_LootingTheLeviathan_2026-06-07.md`: 155804 chars (~38951 tokens)
   - `history_LootingTheLeviathan_2026-06-02.md`: 102742 chars (~25686 tokens)
 - Raw logs are better evidence than default context; reading all of them in each Hermes turn would waste tokens and bury the active signal.
-- Codex-specific directory naming can make Hermes unsure whether to write a parallel log, reuse the Codex log, or create a neutral summary layer.
-- Some verification remains environment-dependent because Godot/windowed checks cannot always run headlessly.
-- Worklog value depends on closeout quality; missing compact summaries force future agents to reopen raw logs.
+- The prior compact layer did not define a canonical live in-progress file, so “what is active right now?” still required session memory or manual inspection.
+- Cursor/VSCode-local histories exist, but they are not versioned, not project-local, and not suitable as the canonical shared collaboration surface.
+- Worklog value depends on closeout quality; missing compact summaries or missing raw references force future agents to reopen large evidence files.
 
 ## Recommended Workflow Changes
 
 1. Keep `docs/codex-worklog/` as immutable historical raw evidence.
-2. Add `docs/agent-worklog/` as the shared compact summary layer for Hermes, Codex, and other agents.
-3. Make `docs/agent-worklog/INDEX.md` the first file agents read for past-work context.
-4. Open raw logs only when the index or compact summary identifies a relevant date/task.
-5. End non-trivial Hermes work with a compact summary rather than a full transcript dump.
-6. Use `tools/agent-worklog.ps1 -Mode token-report` before scanning broad worklog history.
-7. Use `tools/agent-worklog.ps1 -Mode summarize-worklogs` after raw logs are added or changed.
+2. Use `docs/agent-worklog/ACTIVE.md` as the shared live handoff file for all agents.
+3. Make `docs/agent-worklog/INDEX.md` the first historical discovery file after `ACTIVE.md`.
+4. Use `docs/agent-worklog/COMPACT.md` plus shared closeouts as default context before raw logs.
+5. End non-trivial Hermes/Cursor/VSCode agent work with a shared closeout rather than a parallel raw transcript silo.
+6. Keep source-specific raw evidence linked through `raw_refs` instead of duplicating it.
+7. Route future Codex/Cursor automation through a project-local wrapper so LTL-specific policy stays in-repo.
 
 ## Harness Requirements
 
-- Project-local wrapper: `tools/agent-worklog.ps1`.
-- Project config: `.agent-harness.json`.
-- Generic reusable implementation: `../agent-harness/tools/worklog-token-gate.ps1`.
-- Summary outputs: `docs/agent-worklog/INDEX.md`, `docs/agent-worklog/COMPACT.md`.
-- Template: `docs/templates/agent-worklog-template.md`.
+- Project-local wrapper: `tools/agent-worklog.ps1`
+- Project config: `.agent-harness.json`
+- Generic reusable implementation: `../agent-harness/tools/worklog-token-gate.ps1`
+- Shared live status file: `docs/agent-worklog/ACTIVE.md`
+- Shared summary outputs: `docs/agent-worklog/INDEX.md`, `docs/agent-worklog/COMPACT.md`
+- Shared closeout template: `docs/templates/agent-worklog-template.md`
+- Shared active template: `docs/templates/agent-active-worklog-template.md`
 
-## Hermes Worklog Decision
+## Confirmed Decisions
 
-Use compact shared agent worklogs instead of a full parallel `docs/hermes-worklog/` raw transcript directory. This avoids duplicating Codex-style raw logs and optimizes token use. If a future Hermes session needs raw evidence, create a concise `docs/agent-worklog/YYYY-MM-DD-hermes-<task>.md` with a mandatory `Compact Summary` section.
+- `docs/codex-worklog/` remains the raw evidence owner for Codex automation.
+- `docs/agent-worklog/` is the neutral shared collaboration layer for Hermes, Codex, Cursor, and plain VSCode workflows.
+- The canonical shared read order is `ACTIVE.md -> INDEX.md -> COMPACT.md -> relevant shared closeout -> raw evidence on demand`.
+- Future source-specific hooks should bridge into the project-local shared layer; they should not make IDE-local AppData or workspace-root scratch docs the canonical source of truth.
+- VSCode/Cursor AppData history is for backfill or forensics only, not for the canonical live worklog.
 
-## Open Questions
+## Deferred Rollout Items
 
-- Whether future Codex automation should also write directly into `docs/agent-worklog/` or continue writing raw files under `docs/codex-worklog/` and rely on summarization.
-- Which Godot validation commands should become required vs. optional in `.agent-harness.json` after machine-specific runner stability is confirmed.
+- Extend the generic summarizer so `INDEX.md` / `COMPACT.md` ingest `ACTIVE.md` and shared closeouts directly, not only raw Codex files.
+- Add dedicated start/update/finish shared-worklog commands to the project-local wrapper once the shared contract is stable.
+- Decide later whether shared-layer freshness/staleness checks should become hard gates.
+- Decide later whether any Godot validation commands should move from optional to required after runner stability improves.
 
 ## Verification Notes
 
-- `tools/agent-worklog.ps1 -Mode inspect` passed and counted 97 raw Codex worklogs.
-- `tools/agent-worklog.ps1 -Mode token-report` passed and estimated 666645 raw-log tokens; largest raw logs exceed 50000 estimated tokens.
-- `tools/agent-worklog.ps1 -Mode summarize-worklogs` generated `docs/agent-worklog/INDEX.md` and `docs/agent-worklog/COMPACT.md`.
-- `tools/agent-worklog.ps1 -Mode validate` passed after summary generation.
-- `tools/agent-worklog.ps1 -Mode new-log -Task "Harness smoke test" -Agent hermes -DryRun` produced the expected compact closeout template.
-- Full `LTL-harness/tools/source-map-gate.ps1 -Root .` currently fails on pre-existing stale mapped files unrelated to the new worklog-token integration. New files added by this pass are present and mapped; the stale source-map cleanup should be handled as a separate request.
+- `tools/agent-worklog.ps1` is currently a thin wrapper around `../agent-harness/tools/worklog-token-gate.ps1`.
+- The current generic gate generates `INDEX.md`, `COMPACT.md`, and `new-log` templates from `docs/codex-worklog/` only.
+- Existing shared Hermes closeouts are already present under `docs/agent-worklog/*.md`.
+- The shared-layer contract above is based on direct inspection of `.agent-harness.json`, `tools/agent-worklog.ps1`, `../agent-harness/tools/worklog-token-gate.ps1`, `docs/templates/agent-worklog-template.md`, and current `docs/agent-worklog/` files.

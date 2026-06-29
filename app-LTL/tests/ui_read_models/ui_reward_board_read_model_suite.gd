@@ -6,6 +6,7 @@ func run_all_tests() -> Dictionary:
 	test_node_select_projects_candidates()
 	test_node_select_omits_baseline_reward_noise()
 	test_reward_tray_projects_lines_and_discard_zone()
+	test_reward_tray_inspector_uses_rolled_reward_payload_stats()
 	test_reward_tray_empty_inspector_reserves_stable_shell()
 	test_reward_tray_backpack_inspector_localizes_starter_loadout_artifact()
 	test_reward_tray_backpack_inspector_falls_back_to_primary_stats_when_description_is_missing()
@@ -55,6 +56,32 @@ func test_reward_tray_projects_lines_and_discard_zone() -> void:
 	_assert_eq(str(inspector.get("name", "")), str(first_card.get("name", "")), "reward tray inspector uses the selected reward title")
 	_assert_eq(model["discardActive"], true, "reward tray discard active when held")
 	_assert(str(model["discardText"]).contains(str(first_card.get("name", ""))), "reward tray discard text uses the selected reward name")
+
+func test_reward_tray_inspector_uses_rolled_reward_payload_stats() -> void:
+	TextCatalogScript.set_locale("en")
+	var rewards := [{
+		"kind": "Rolled Ruby Drill",
+		"rarity": "rare",
+		"qty": 1,
+		"payload": {
+			"item_type": "drill",
+			"energy_type": "red",
+			"shape": [[1]],
+			"base_cooldown_ticks": 64,
+			"damage": 7.7,
+			"roll_quality": 92,
+			"stat_roll": {"quality": 92, "base_damage": 6.8, "base_cooldown_ticks": 72}
+		},
+		"text": {"name": {"en": "Rolled Ruby Drill", "ko": "Rolled Ruby Drill"}, "description": {"en": "", "ko": ""}},
+		"presentation": {"description": ""}
+	}]
+	var model = RewardReadModelScript.project_tray(rewards, -1, null, false, 0, null)
+	var inspector: Dictionary = model.get("inspector", {})
+	var effect_fact := _fact_by_label(inspector.get("facts", []), TextCatalogScript.t("reward.board.fact.effect"))
+	var effect_value := str(effect_fact.get("value", ""))
+	_assert(effect_value.contains("32"), "reward inspector cooldown comes from the rolled payload after tempo scaling")
+	_assert(effect_value.contains("7.7"), "reward inspector damage comes from the rolled payload")
+	TextCatalogScript.set_locale("ko")
 
 func test_reward_tray_empty_inspector_reserves_stable_shell() -> void:
 	var rewards := [{

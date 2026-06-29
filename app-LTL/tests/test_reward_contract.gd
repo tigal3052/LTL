@@ -13,6 +13,10 @@ const RewardLootPhaseScript = preload("res://src/phases/RewardLootPhase.gd")
 const CreateArtifactFromRewardScript = preload("res://src/vocabulary/reward/CreateArtifactFromReward.gd")
 const ApplyRewardEffectScript = preload("res://src/vocabulary/reward/ApplyRewardEffect.gd")
 const ApplyGrowthModifiersScript = preload("res://src/vocabulary/progression/ApplyGrowthModifiers.gd")
+const EnergyTokenScript = preload("res://src/vocabulary/combat/EnergyToken.gd")
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+const InventoryModelScript = preload("res://src/models/InventoryModel.gd")
+const ArtifactScript = preload("res://src/models/Artifact.gd")
 const ArtifactCodexReadModelScript = preload("res://src/ui/read_models/ArtifactCodexReadModel.gd")
 const ArtifactCodexArtResolverScript = preload("res://src/ui/ArtifactCodexArtResolver.gd")
 var failures: Array[String] = []
@@ -24,6 +28,12 @@ func run_all_tests() -> Dictionary:
 	test_reward_database_cross_validation()
 	test_reward_count_tuning()
 	test_reward_offer_metadata_and_preview()
+	test_reward_roll_assigns_seeded_stat_variance_metadata()
+	test_item_stat_roller_uses_wider_low_rarity_spans()
+	test_item_stat_roller_makes_high_quality_rolls_rare()
+	test_item_stat_roller_applies_to_drills_and_beacons()
+	test_rolled_reward_materializes_matching_artifact_and_combat_stats()
+	test_rolled_beacon_materializes_and_buffs_combat_token()
 	test_reward_pool_has_drills_and_beacons_per_rolled_rarity()
 	test_reward_table_has_balanced_expanded_artifact_pool()
 	test_reward_table_includes_launch_relic_slice()
@@ -36,6 +46,7 @@ func run_all_tests() -> Dictionary:
 	test_epic_plus_rewards_define_special_effect_schema()
 	test_reward_type_mix_does_not_inject_cross_rarity_beacons()
 	test_reward_type_ratio_prefers_beacons()
+	test_reward_type_helpers_accept_camel_case_item_type()
 	test_reward_roll_can_offer_mythic()
 	test_reward_read_model_hides_private_offer_metadata()
 	test_reward_telemetry_payloads()
@@ -72,6 +83,12 @@ func _load_reward_catalog_order_script():
 	var order_script = load("res://src/vocabulary/reward/RewardCatalogOrder.gd")
 	_assert(order_script != null, "reward catalog order helper loads dynamically")
 	return order_script
+
+func _load_item_stat_roller_script():
+	var roller_script = load("res://src/vocabulary/reward/ItemStatRoller.gd")
+	_assert(roller_script != null, "ItemStatRoller reward stat roll helper exists")
+	return roller_script
+
 func _assert(condition: bool, msg: String) -> void:
 	if not condition:
 		failures.append(msg)
@@ -205,6 +222,183 @@ func test_reward_offer_metadata_and_preview() -> void:
 	_assert(str(roll1[0].get("offer_weights_hash", "")).length() >= 8, "offer weights hash is present")
 	_assert(roll1[0].has("next_combat_modifier_preview"), "reward includes next combat modifier preview")
 	_assert(roll1[0].get("next_combat_modifier_preview", {}) is Dictionary, "reward preview is dictionary")
+
+func test_reward_roll_assigns_seeded_stat_variance_metadata() -> void:
+	var roll1 = RewardVocabScript.roll_stage_rewards(4242, 2, ["red"], {})
+	var roll2 = RewardVocabScript.roll_stage_rewards(4242, 2, ["red"], {})
+	var checked_metadata := false
+	for i in range(roll1.size()):
+		var payload: Dictionary = roll1[i].get("payload", {})
+		var item_type := str(payload.get("item_type", "drill")).to_lower()
+		if item_type == "relic":
+			continue
+		checked_metadata = true
+		_assert(payload.has("roll_quality"), "rolled artifact payload stores roll quality")
+		_assert(payload.get("stat_roll", {}) is Dictionary, "rolled artifact payload stores stat roll dictionary")
+		_assert_eq(payload.get("roll_quality", -1), roll2[i].get("payload", {}).get("roll_quality", -2), "same seed keeps roll quality deterministic")
+		_assert_eq(payload.get("stat_roll", {}), roll2[i].get("payload", {}).get("stat_roll", {}), "same seed keeps stat roll deterministic")
+		break
+	_assert(checked_metadata, "sample reward roll includes at least one non-relic artifact")
+	var seen_quality_by_catalog := {}
+	var found_same_catalog_variant := false
+	for seed_val in range(4200, 4300):
+		var rewards = RewardVocabScript.roll_stage_rewards(seed_val, 2, ["red"], {})
+		for reward in rewards:
+			var payload: Dictionary = reward.get("payload", {})
+			if str(payload.get("item_type", "drill")).to_lower() == "relic":
+				continue
+			var catalog_id := str(reward.get("catalogId", reward.get("catalog_id", reward.get("id", ""))))
+			var quality := int(payload.get("roll_quality", -1))
+			if quality < 0:
+				continue
+			if seen_quality_by_catalog.has(catalog_id) and int(seen_quality_by_catalog[catalog_id]) != quality:
+				found_same_catalog_variant = true
+				break
+			seen_quality_by_catalog[catalog_id] = quality
+		if found_same_catalog_variant:
+			break
+	_assert(found_same_catalog_variant, "same catalog item can appear with different seeded stat rolls")
+
+func test_item_stat_roller_uses_wider_low_rarity_spans() -> void:
+	var roller_script = _load_item_stat_roller_script()
+	if roller_script == null:
+		return
+	var base_payload := {"item_type": "drill", "damage": 10.0, "base_cooldown_ticks": 100}
+	var common: Dictionary = roller_script.roll_payload(base_payload, 1001, 0, "span_probe", "common")
+	var rare: Dictionary = roller_script.roll_payload(base_payload, 1001, 0, "span_probe", "rare")
+	var epic: Dictionary = roller_script.roll_payload(base_payload, 1001, 0, "span_probe", "epic")
+	var legendary: Dictionary = roller_script.roll_payload(base_payload, 1001, 0, "span_probe", "legendary")
+	var mythic: Dictionary = roller_script.roll_payload(base_payload, 1001, 0, "span_probe", "mythic")
+	var common_span := float(common.get("stat_roll", {}).get("range", 0.0))
+	var rare_span := float(rare.get("stat_roll", {}).get("range", 0.0))
+	var epic_span := float(epic.get("stat_roll", {}).get("range", 0.0))
+	var legendary_span := float(legendary.get("stat_roll", {}).get("range", 0.0))
+	var mythic_span := float(mythic.get("stat_roll", {}).get("range", 0.0))
+	_assert(common_span > rare_span, "common stat rolls have wider variance than rare")
+	_assert(rare_span > epic_span, "rare stat rolls have wider variance than epic")
+	_assert(epic_span > legendary_span, "epic stat rolls have wider variance than legendary")
+	_assert(legendary_span > mythic_span, "legendary stat rolls have wider variance than mythic")
+
+func test_item_stat_roller_makes_high_quality_rolls_rare() -> void:
+	var roller_script = _load_item_stat_roller_script()
+	if roller_script == null:
+		return
+	var low_quality_count := 0
+	var high_quality_count := 0
+	for seed_val in range(1, 801):
+		var rolled: Dictionary = roller_script.roll_payload(
+			{"item_type": "drill", "damage": 10.0, "base_cooldown_ticks": 100},
+			seed_val,
+			0,
+			"quality_probe",
+			"common"
+		)
+		var quality := int(rolled.get("roll_quality", -1))
+		if quality <= 40:
+			low_quality_count += 1
+		if quality >= 90:
+			high_quality_count += 1
+	_assert(high_quality_count > 0, "high-quality rolls still exist")
+	_assert(low_quality_count >= high_quality_count * 5, "high-quality stat rolls are substantially rarer than low rolls")
+
+func test_item_stat_roller_applies_to_drills_and_beacons() -> void:
+	var roller_script = _load_item_stat_roller_script()
+	if roller_script == null:
+		return
+	var drill: Dictionary = roller_script.apply_quality(
+		{"item_type": "drill", "damage": 10.0, "base_cooldown_ticks": 100},
+		100,
+		"common",
+		123,
+		"drill_probe",
+		0
+	)
+	var beacon: Dictionary = roller_script.apply_quality(
+		{"item_type": "beacon", "beacon_damage_mod": 0.5, "beacon_cooldown_mod": -10, "energy_type": "blue"},
+		100,
+		"common",
+		456,
+		"beacon_probe",
+		0
+	)
+	_assert(float(drill.get("damage", 0.0)) > 10.0, "drill damage rolls upward at high quality")
+	_assert(int(drill.get("base_cooldown_ticks", 999)) < 100, "drill cooldown rolls faster at high quality")
+	_assert(float(beacon.get("beacon_damage_mod", 0.0)) > 0.5, "beacon damage modifier rolls upward at high quality")
+	_assert(int(beacon.get("beacon_cooldown_mod", 0)) < -10, "beacon cooldown modifier rolls stronger at high quality")
+
+func test_rolled_reward_materializes_matching_artifact_and_combat_stats() -> void:
+	var roller_script = _load_item_stat_roller_script()
+	if roller_script == null:
+		return
+	var rolled_payload: Dictionary = roller_script.apply_quality(
+		{"item_type": "drill", "energy_type": "red", "shape": [[1]], "damage": 10.0, "base_cooldown_ticks": 100},
+		100,
+		"common",
+		777,
+		"materialize_probe",
+		0
+	)
+	var reward := {
+		"rewardId": "materialize_probe_offer",
+		"catalogId": "materialize_probe",
+		"kind": "Materialize Probe",
+		"rarity": "common",
+		"payload": rolled_payload,
+		"presentation": {"description": ""}
+	}
+	var result: Dictionary = CreateArtifactFromRewardScript.create(reward)
+	_assert(bool(result.get("ok", false)), "rolled reward materializes into an artifact")
+	var artifact = result.get("artifact", null)
+	if artifact == null:
+		return
+	_assert_eq(float(artifact.damage), float(rolled_payload.get("damage", 0.0)), "artifact damage matches rolled reward payload")
+	_assert_eq(int(artifact.native_base_cooldown_ticks), EnergyTempoBalanceScript.native_cooldown_ticks(int(rolled_payload.get("base_cooldown_ticks", 0))), "artifact native cooldown matches rolled reward payload after tempo scaling")
+	var inventory = InventoryModelScript.new(2, 2)
+	_assert(inventory.place_artifact(artifact, 0, 0), "rolled artifact can be placed for combat token projection")
+	var token: Dictionary = EnergyTokenScript.build_token(inventory, artifact, "materialize_probe_slot")
+	_assert_eq(float(token.get("damage", 0.0)), float(artifact.damage), "combat energy token damage matches the rolled artifact damage")
+
+func test_rolled_beacon_materializes_and_buffs_combat_token() -> void:
+	var roller_script = _load_item_stat_roller_script()
+	if roller_script == null:
+		return
+	var beacon_payload: Dictionary = roller_script.apply_quality(
+		{"item_type": "beacon", "energy_type": "red", "shape": [[1]], "beacon_damage_mod": 0.5, "beacon_cooldown_mod": -4},
+		100,
+		"common",
+		778,
+		"beacon_materialize_probe",
+		0
+	)
+	var beacon_reward := {
+		"rewardId": "beacon_materialize_probe_offer",
+		"catalogId": "beacon_materialize_probe",
+		"kind": "Beacon Materialize Probe",
+		"rarity": "common",
+		"payload": beacon_payload,
+		"presentation": {"description": ""}
+	}
+	var beacon_result: Dictionary = CreateArtifactFromRewardScript.create(beacon_reward)
+	_assert(bool(beacon_result.get("ok", false)), "rolled beacon reward materializes into an artifact")
+	var beacon = beacon_result.get("artifact", null)
+	if beacon == null:
+		return
+	var drill = ArtifactScript.new({
+		"id": "beacon_probe_drill",
+		"name": "Beacon Probe Drill",
+		"shape": [[1]],
+		"energyType": "red",
+		"item_type": "drill",
+		"damage": 3.0,
+		"baseCooldownTicks": 40,
+		"nativeBaseCooldownTicks": 40
+	})
+	var inventory = InventoryModelScript.new(2, 1)
+	_assert(inventory.place_artifact(drill, 0, 0), "probe drill can be placed beside rolled beacon")
+	_assert(inventory.place_artifact(beacon, 1, 0), "rolled beacon can be placed beside probe drill")
+	var token: Dictionary = EnergyTokenScript.build_token(inventory, drill, "beacon_probe_drill_slot")
+	_assert_eq(float(token.get("damage", 0.0)), float(drill.damage) + float(beacon.beacon_damage_mod), "combat energy token damage includes rolled beacon damage modifier")
+	_assert_eq(int(token.get("modifiers", {}).get("beacon_cooldown_mod", 0)), int(beacon.beacon_cooldown_mod), "combat energy token records rolled beacon cooldown modifier")
 # 실행: verify reward type weighting favors beacons at roughly 40:60 drill/beacon.
 func test_reward_pool_has_drills_and_beacons_per_rolled_rarity() -> void:
 	var table := _load_reward_table_fixture()
@@ -491,6 +685,13 @@ func test_reward_type_ratio_prefers_beacons() -> void:
 	_assert(beacon_count > drill_count, "beacon rewards outnumber drill rewards")
 	_assert(relic_count > 0, "relic rewards appear in rolled offers")
 	_assert(beacon_share >= 0.50 and beacon_share <= 0.70, "beacon share remains near 60%%, got %.3f" % beacon_share)
+
+func test_reward_type_helpers_accept_camel_case_item_type() -> void:
+	_assert(
+		RewardVocabScript._rolled_rewards_have_type([{"payload": {"itemType": "relic"}}], "relic"),
+		"rolled reward type helper recognizes camelCase itemType payloads"
+	)
+
 func test_reward_roll_can_offer_mythic() -> void:
 	var found_mythic := false
 	for s in range(1, 800):

@@ -34,7 +34,8 @@ function Write-TestFile($Root, $RelativePath, $LineCount, $Prefix = "# line") {
   $dir = Split-Path -Parent $path
   New-Item -ItemType Directory -Force -Path $dir | Out-Null
   $lines = for ($i = 1; $i -le $LineCount; $i++) { "$Prefix $i" }
-  Set-Content -LiteralPath $path -Value $lines -Encoding UTF8
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($path, (($lines -join [Environment]::NewLine) + [Environment]::NewLine), $utf8NoBom)
 }
 
 function Write-Manifest($Root, $PathCaps, $GlobCaps, $LegacyDebtCaps = "") {
@@ -59,7 +60,8 @@ function Write-Manifest($Root, $PathCaps, $GlobCaps, $LegacyDebtCaps = "") {
   if (-not [string]::IsNullOrWhiteSpace($LegacyDebtCaps)) {
     $lines += "legacy_debt_path_caps: $LegacyDebtCaps"
   }
-  Set-Content -LiteralPath $manifestPath -Encoding UTF8 -Value $lines
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($manifestPath, (($lines -join [Environment]::NewLine) + [Environment]::NewLine), $utf8NoBom)
 }
 
 function Invoke-RuntimeSizeGate($Root) {

@@ -3,12 +3,40 @@
   "generic_harness_root": "../agent-harness",
   "worklog_dirs": {
     "codex": "docs/codex-worklog",
-    "summary": "docs/agent-worklog"
+    "summary": "docs/agent-worklog",
+    "active": "docs/agent-worklog/ACTIVE.md"
+  },
+  "worklog_policy": {
+    "shared_read_order": [
+      "docs/agent-worklog/ACTIVE.md",
+      "docs/agent-worklog/INDEX.md",
+      "docs/agent-worklog/COMPACT.md"
+    ],
+    "shared_closeout_glob": "docs/agent-worklog/*.md",
+    "shared_closeout_excludes": [
+      "INDEX.md",
+      "COMPACT.md",
+      "ACTIVE.md"
+    ],
+    "raw_sources": [
+      "codex"
+    ],
+    "shared_sources": [
+      "hermes",
+      "codex",
+      "cursor",
+      "vscode"
+    ]
   },
   "token_policy": {
     "raw_log_default": "avoid",
     "summary_first": true,
     "large_log_token_threshold": 8000
+  },
+  "project_objectives": {
+    "final_goal_html": "docs/project-goals/final-goal.html",
+    "work_objectives_html": "docs/project-goals/work-objectives.html",
+    "read_before_work": true
   },
   "validation_commands": [
     {
@@ -20,9 +48,16 @@
       "name": "ltl consolidated quality gate",
       "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-ltl-quality-gate.ps1 -SkipGodotContracts -SkipVisualContracts",
       "required": false
+    },
+    {
+      "name": "project objective gate",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/project-objectives.ps1 -Mode validate",
+      "required": true
     }
   ],
   "manual_checks": [
+    "Before non-trivial work, read docs/project-goals/final-goal.html and docs/project-goals/work-objectives.html.",
+    "Tie non-trivial work to at least one objective id and update status only with validation or manual proof notes.",
     "For gameplay/UI changes, record the exact Godot scene or flow and observed result.",
     "For visual changes, attach or link screenshots under docs/evidence/ when available.",
     "If Godot cannot run, record the reason and the smallest alternative verification."

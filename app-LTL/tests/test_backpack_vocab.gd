@@ -166,10 +166,10 @@ func test_beacon_tick_reduces_adjacent_drill_cooldown_when_charged() -> void:
 	_assert_eq(inv.place_artifact(beacon, 3, 2), true, "place adjacent beacon")
 	var first_tick := inv.tick()
 	_assert_eq(first_tick.size(), 0, "first beacon tick does not emit energy")
-	_assert_eq(drill.current_cooldown, 7, "first tick only advances drill cooldown normally")
+	_assert_eq(drill.current_cooldown, 8, "average queue charge no longer decrements per-drill cooldown")
 	var second_tick := inv.tick()
 	_assert_eq(second_tick.size(), 0, "beacon tick still does not emit energy")
-	_assert_eq(drill.current_cooldown, 3, "charged beacon reduces adjacent drill cooldown after its own cooldown fills")
+	_assert_eq(drill.current_cooldown, 5, "charged beacon pulse still affects the legacy drill cooldown readout")
 
 # 실행: verify beacon pulses affect the actual energy queue timing, not only tooltip stats.
 func test_beacon_pulse_generates_energy_earlier_than_base_drill_cooldown() -> void:
@@ -181,12 +181,15 @@ func test_beacon_pulse_generates_energy_earlier_than_base_drill_cooldown() -> vo
 	inv.place_artifact(drill, 2, 2)
 	inv.place_artifact(beacon, 3, 2)
 	var generated_at := -1
+	var generated_token := {}
 	for tick_index in range(1, 11):
 		var generated := inv.tick()
 		for token in generated:
 			if token is Dictionary and str(token.get("color", "")) == "red" and generated_at < 0:
 				generated_at = tick_index
-	_assert(generated_at > 0 and generated_at < 10, "adjacent beacon causes drill energy before base cooldown")
+				generated_token = token
+	_assert_eq(generated_at, 10, "beacon cooldown modifier does not shorten the average drill queue charge")
+	_assert_eq(int(generated_token.get("modifiers", {}).get("beacon_cooldown_mod", 0)), -4, "generated token records beacon cooldown modifier")
 
 # 실행: verify discard refuses to remove the final artifact when guarded.
 func test_positive_beacon_cooldown_mod_delays_adjacent_drill() -> void:
@@ -206,7 +209,15 @@ func test_beacon_damage_mod_increases_adjacent_same_color_drill_damage() -> void
 	var beacon = ArtifactScript.new({"id": "blue_beacon_damage", "name": "Blue Damage Beacon", "shape": [[1]], "energyType": "blue", "item_type": "beacon", "baseCooldownTicks": 3, "beaconCooldownMod": -1, "beaconDamageMod": 0.5})
 	inv.place_artifact(drill, 2, 2)
 	inv.place_artifact(beacon, 3, 2)
-	_assert_eq(float(drill.damage), 2.5, "same-color adjacent beacon damage modifier applies to drill damage")
+	_assert_eq(float(drill.damage), 2.0, "same-color adjacent beacon does not mutate drill damage")
+	var generated: Array = []
+	for _tick_index in range(10):
+		generated = inv.tick()
+	_assert_eq(generated.size(), 1, "drill emits a token after its average cooldown")
+	if not generated.is_empty():
+		var token: Dictionary = generated[0]
+		_assert_eq(float(token.get("damage", 0.0)), 2.5, "same-color adjacent beacon damage modifier applies to token damage")
+		_assert_eq(float(token.get("modifiers", {}).get("beacon_damage_bonus", 0.0)), 0.5, "token records beacon damage bonus")
 
 func test_relics_do_not_generate_queue_energy_when_their_cooldown_fills() -> void:
 	var inv := InventoryScript.new(6, 6)
@@ -225,6 +236,7 @@ func test_relics_do_not_generate_queue_energy_when_their_cooldown_fills() -> voi
 func test_inventory_tick_returns_structured_queue_tokens_for_drills() -> void:
 	var inv := InventoryScript.new(4, 4)
 	var drill = _artifact("red_a", "red", [[1]])
+	drill.base_cooldown_ticks = 1
 	drill.current_cooldown = 1
 	_assert_eq(inv.place_artifact(drill, 0, 0), true, "place drill before ticking")
 	var generated := inv.tick()
@@ -233,7 +245,10 @@ func test_inventory_tick_returns_structured_queue_tokens_for_drills() -> void:
 	var token = generated[0] if generated[0] is Dictionary else {}
 	_assert_eq(str(token.get("color", "")), "red", "queue token keeps drill color")
 	_assert_eq(str(token.get("source_artifact_id", "")), "red_a", "queue token keeps source artifact id")
+	_assert_eq(str(token.get("source_drill_instance_id", "")), "red_a", "queue token keeps source drill instance id")
 	_assert_eq(str(token.get("source_item_type", "")), "drill", "queue token keeps source item type")
+	_assert(token.has("damage"), "queue token keeps source damage")
+	_assert(token.get("modifiers", {}) is Dictionary, "queue token keeps modifier dictionary")
 
 func test_relic_diagonal_links_ignore_orthogonal_neighbors() -> void:
 	var inv := InventoryScript.new(6, 6)

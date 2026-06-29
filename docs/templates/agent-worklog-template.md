@@ -2,8 +2,11 @@
 
 ## Agent
 
-- agent: <hermes|codex|other>
-- source: <tui|cli|gateway|ide>
+- agent: <hermes|codex|cursor|vscode|other>
+- source: <tui|cli|cursor|vscode|gateway|other>
+- work_unit_id: <source-date-slug-or-session>
+- objective_ids: <comma-separated ids or none>
+- status_at_closeout: <done|partial|blocked|handoff>
 
 ## Goal
 
@@ -11,8 +14,13 @@
 
 ## Context Read
 
+- `docs/agent-worklog/ACTIVE.md`
 - `docs/agent-worklog/INDEX.md`
-- <specific raw Codex/Hermes log only if needed>
+- <specific shared closeout or raw evidence only if needed>
+
+## Raw Refs
+
+- `<docs/codex-worklog/...>` or `none`
 
 ## Files Changed
 

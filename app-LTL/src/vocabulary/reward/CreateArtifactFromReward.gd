@@ -45,6 +45,8 @@ static func create(reward: Dictionary, growth_state: RefCounted = null) -> Dicti
 		"catalogId": catalog_id,
 		"fusionKey": _fusion_key_for(reward, payload, catalog_id, item_type),
 		"visualId": str(presentation.get("icon", "")),
+		"rollQuality": int(payload.get("roll_quality", payload.get("rollQuality", -1))),
+		"statRoll": payload.get("stat_roll", payload.get("statRoll", {})),
 		"beacon_cooldown_mod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", _default_beacon_cooldown(rarity, item_type))))),
 		"beacon_damage_mod": float(payload.get("beacon_damage_mod", payload.get("beaconDamageMod", _default_beacon_damage(rarity, item_type)))),
 		"effect_schema": payload.get("effect_schema", payload.get("effectSchema", {})),

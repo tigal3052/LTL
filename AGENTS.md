@@ -2,13 +2,27 @@
 
 ## Context Loading
 
+- Before non-trivial work, read `docs/project-goals/final-goal.html` for the project north star.
+- Before choosing scope or claiming completion, read `docs/project-goals/work-objectives.html` and tie the work to at least one objective id.
 - Start with `docs/agent-worklog/INDEX.md` and `docs/agent-worklog/COMPACT.md` for historical context.
 - Do not read every raw file in `docs/codex-worklog/` unless the current task requires raw evidence.
 - Use `docs/source-map.md` to locate owners before broad edits.
 
+## Project Goals / Objectives
+
+- Final goal SoT: `docs/project-goals/final-goal.html`.
+- Live objective backlog: `docs/project-goals/work-objectives.html`.
+- Objective wrapper: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/project-objectives.ps1 -Mode inspect`.
+- Objective validation: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/project-objectives.ps1 -Mode validate`.
+- Objective listing: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/project-objectives.ps1 -Mode list`.
+- If a task reveals missing granularity, add or refine an objective rather than burying it only in a worklog.
+- Mark an objective `completed` only after a test, harness gate, or explicit manual proof is recorded in that objective's log.
+- Completion reports and compact worklogs should cite relevant objective ids.
+
 ## Harness
 
 - Worklog/token wrapper: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-worklog.ps1 -Mode inspect`.
+- Goal/objective wrapper: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/project-objectives.ps1 -Mode inspect`.
 - Token report: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-worklog.ps1 -Mode token-report`.
 - Refresh summaries: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-worklog.ps1 -Mode summarize-worklogs`.
 - Fast quality path when available: `powershell -NoProfile -ExecutionPolicy Bypass -File tools/run-compile-check.ps1`.

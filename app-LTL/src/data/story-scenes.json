@@ -2,8 +2,8 @@
   "scenes": [
     {
       "id": "intro_contract_vn",
-      "trigger": "after_character_confirm",
-      "returnPageId": "leviathan_select",
+      "trigger": "before_character_select",
+      "returnPageId": "character_select",
       "shownOnce": true,
       "sideEffectFree": true,
       "steps": [

@@ -33,7 +33,8 @@ function Write-TestFile($RelativePath, $Content) {
   $path = Join-Path $testRoot $RelativePath
   $dir = Split-Path -Parent $path
   New-Item -ItemType Directory -Force -Path $dir | Out-Null
-  Set-Content -LiteralPath $path -Value $Content -Encoding UTF8
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($path, $Content, $utf8NoBom)
   return $path
 }
 

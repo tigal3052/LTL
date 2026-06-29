@@ -21,6 +21,7 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	await process_frame
+	_assert_eq(str(main_instance.get("active_page_id")), "story_scene", "main scene starts on intro story scene before character select")
 	var controller = await _boot_to_node_select(main_instance, "purple", "ossuary_tortoise")
 	if controller == null:
 		main_instance.queue_free()
@@ -40,7 +41,7 @@ func _run() -> void:
 
 	_assert_eq(int(controller.get("selected_node_index")), -1, "node select starts without an implicit selected node")
 	_assert_eq(bool(start_button.disabled), true, "mining start is disabled before a current node click")
-	await _assert_intro_narrative_story_surface(main_instance)
+	await _assert_no_intro_narrative_story_surface(main_instance)
 	_assert(node_select_page.has_method("press_start_marker"), "node-select page exposes fixed-start marker automation")
 	if node_select_page.has_method("press_start_marker"):
 		node_select_page.call("press_start_marker")
@@ -132,6 +133,7 @@ func _run() -> void:
 	_finish()
 
 func _boot_to_node_select(main_instance: Node, color: String, leviathan_id: String) -> Node:
+	await _advance_story_if_present(main_instance, "character_select")
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists for node-select start gate")
 	if controller == null:
@@ -153,6 +155,25 @@ func _boot_to_node_select(main_instance: Node, color: String, leviathan_id: Stri
 	await process_frame
 	_assert_eq(str(main_instance.get("active_page_id")), "node_select", "leviathan start reaches node-select page")
 	return controller
+
+func _advance_story_if_present(main_instance: Node, return_page_id: String) -> void:
+	if str(main_instance.get("active_page_id")) != "story_scene":
+		return
+	var controller = main_instance.get_node_or_null("MainController")
+	var story_page = main_instance.get("story_scene_page")
+	_assert(story_page != null, "story scene page exists for intro-to-character handoff")
+	_assert(controller != null, "main controller exists for intro-to-character handoff")
+	if story_page == null or controller == null:
+		return
+	var story: Dictionary = controller.get("active_story_scene")
+	var scene_id := str(story.get("id", ""))
+	_assert(scene_id != "", "story scene exposes an active scene id before character select")
+	story_page.continue_requested.emit(scene_id)
+	await process_frame
+	story_page.continue_requested.emit(scene_id)
+	await process_frame
+	await process_frame
+	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s before node-select boot" % return_page_id)
 
 func _assert_shop_disabled_on_node_select(main_instance: Node, node_select_page: Node, start_button: Button) -> void:
 	var shop_button = node_select_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/ShopButton") as Button
@@ -202,45 +223,14 @@ func _node_select_page(main_instance: Node) -> Node:
 	var page_scenes: Dictionary = main_instance.get("page_scenes")
 	return page_scenes.get("node_select", null)
 
-func _assert_intro_narrative_story_surface(main_instance: Node) -> void:
+func _assert_no_intro_narrative_story_surface(main_instance: Node) -> void:
 	var toast = main_instance.get("narrative_toast") as Control
-	_assert(toast != null, "intro narrative story surface exists on first node select")
-	if toast == null:
-		return
-	_assert_eq(toast.visible, true, "intro narrative story surface is visible on first node select")
-	var visual_area = toast.get_node_or_null("StoryFrame/VisualArea") as Control
-	var dialog_panel = toast.get_node_or_null("StoryFrame/DialogPanel") as Control
-	var body_label = toast.get_node_or_null("StoryFrame/DialogPanel/DialogMargin/DialogBox/BodyLabel") as Label
-	var continue_prompt = toast.get_node_or_null("StoryFrame/DialogPanel/DialogMargin/DialogBox/PromptRow/ContinuePrompt") as Label
-	var continue_icon = toast.get_node_or_null("StoryFrame/DialogPanel/DialogMargin/DialogBox/PromptRow/ContinueIcon") as Label
-	_assert(visual_area != null, "intro narrative story surface exposes an upper visual area")
-	_assert(dialog_panel != null, "intro narrative story surface exposes a lower dialogue area")
-	_assert(body_label != null, "intro narrative dialogue area exposes body text")
-	_assert(continue_prompt != null, "intro narrative exposes a visible continue prompt")
-	_assert(continue_icon != null, "intro narrative exposes a visible continue icon")
-	_assert(toast.get_global_rect().size.x >= 640.0, "intro narrative story surface has readable screen width")
-	_assert(toast.get_global_rect().size.y >= 300.0, "intro narrative story surface has readable screen height")
-	_assert(toast.get_global_rect().size.x <= 1100.0, "intro narrative story surface does not cover the full screen width")
-	_assert(toast.get_global_rect().size.y <= 560.0, "intro narrative story surface does not cover the full screen height")
-	if visual_area != null:
-		_assert(visual_area.get_global_rect().size.y >= 100.0, "intro narrative visual area has visible height")
-	if dialog_panel != null:
-		_assert(dialog_panel.get_global_rect().size.y >= 120.0, "intro narrative dialogue area has visible height")
-	if body_label != null:
-		_assert(str(body_label.text).contains("채집") or str(body_label.text).contains("collect"), "intro narrative explains collection framing")
-	if continue_prompt != null:
-		_assert(str(continue_prompt.text).contains("클릭") or str(continue_prompt.text).to_lower().contains("click"), "intro narrative prompt tells the player to click or continue")
-	if continue_icon != null:
-		_assert(not str(continue_icon.text).strip_edges().is_empty(), "intro narrative continue icon is visible")
-	var click := InputEventMouseButton.new()
-	click.button_index = MOUSE_BUTTON_LEFT
-	click.pressed = true
-	_assert(toast.has_method("consume_continue_input"), "intro narrative exposes click/continue input handling")
-	if toast.has_method("consume_continue_input"):
-		var consumed := bool(toast.call("consume_continue_input", click))
-		await process_frame
-		_assert_eq(consumed, true, "intro narrative click input is consumed as continue")
-		_assert_eq(toast.visible, false, "intro narrative story surface hides after click")
+	if toast != null:
+		_assert_eq(toast.visible, false, "node select does not show the retired intro narrative toast")
+	var controller = main_instance.get_node_or_null("MainController")
+	_assert(controller != null, "main controller exists for retired intro-toast verification")
+	if controller != null and controller.has_method("_narrative_input_block_active"):
+		_assert_eq(bool(controller.call("_narrative_input_block_active")), false, "node select start gate is not blocked by a retired intro toast")
 
 func _assert(condition: bool, label: String) -> void:
 	if not condition:

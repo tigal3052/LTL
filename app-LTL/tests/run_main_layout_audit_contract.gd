@@ -97,7 +97,12 @@ func _instantiate_main(MainScene: PackedScene) -> Node:
 	await process_frame
 	await process_frame
 	await process_frame
+	if str(main_instance.get("active_page_id")) == "story_scene":
+		await _advance_story_if_present(main_instance, "character_select")
+		await process_frame
+		await process_frame
 	return main_instance
+
 func _boot_to_node_select(main_instance: Node, color := "red", leviathan_id := "filed_lizard") -> Node:
 	var controller = main_instance.get_node_or_null("MainController")
 	_assert(controller != null, "main controller exists during layout-flow boot")

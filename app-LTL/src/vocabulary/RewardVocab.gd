@@ -16,6 +16,7 @@ class_name RewardVocab
 extends RefCounted
 const BuildRewardPreviewScript = preload("res://src/vocabulary/reward/BuildRewardPreview.gd")
 const DefaultMockRewardsScript = preload("res://src/vocabulary/reward/DefaultMockRewards.gd")
+const ItemStatRollerScript = preload("res://src/vocabulary/reward/ItemStatRoller.gd")
 
 # ?ㅽ뻾: roll deterministic rewards based on seed and loaded JSON tables.
 static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Array, tuning: Dictionary) -> Array:
@@ -107,13 +108,20 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 				selected_item = weighted_entries.back()["item"]
 
 		if selected_item != null:
-			var reward_payload: Dictionary = selected_item.get("payload", {}).duplicate(true)
+			var selected_catalog_id := str(selected_item.get("id", selected_item.get("kind", "")))
+			var reward_payload: Dictionary = ItemStatRollerScript.roll_payload(
+				selected_item.get("payload", {}),
+				combined_seed,
+				i,
+				selected_catalog_id,
+				str(selected_item.get("rarity", "common"))
+			)
 			var reward_data := {
 				"payload": reward_payload
 			}
 			rolled_rewards.append({
 				"rewardId": "reward_%d_%d" % [combined_seed & 0xffff, i],
-				"catalogId": str(selected_item.get("id", "")),
+				"catalogId": selected_catalog_id,
 				"kind": str(selected_item.get("kind", "")),
 				"rarity": str(selected_item.get("rarity", "common")),
 				"qty": 1,
@@ -126,6 +134,15 @@ static func roll_stage_rewards(seed_val: int, stage_index: int, weaknesses: Arra
 			})
 
 	return rolled_rewards
+
+static func _apply_seeded_stat_roll(payload: Dictionary, combined_seed: int, slot_index: int, catalog_id: String, rarity: String) -> void:
+	var rolled_payload: Dictionary = ItemStatRollerScript.roll_payload(payload, combined_seed, slot_index, catalog_id, rarity)
+	payload.clear()
+	for key in rolled_payload.keys():
+		payload[key] = rolled_payload[key]
+
+static func _roll_span_for_rarity(rarity: String) -> float:
+	return ItemStatRollerScript.roll_span_for_rarity(rarity)
 
 # ?ㅽ뻾: keep reward type choices available even when a rarity tier lacks beacons.
 static func _with_reward_type_mix(items: Array, reward_pool: Array) -> Array:
@@ -207,7 +224,7 @@ static func _rolled_rewards_have_type(rewards: Array, reward_type: String) -> bo
 		if not reward is Dictionary:
 			continue
 		var payload: Dictionary = reward.get("payload", {})
-		if str(payload.get("item_type", "drill")).to_lower() == reward_type:
+		if str(payload.get("item_type", payload.get("itemType", "drill"))).to_lower() == reward_type:
 			return true
 	return false
 

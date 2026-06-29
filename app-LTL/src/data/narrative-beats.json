@@ -2,7 +2,7 @@
   "beats": [
     {
       "id": "intro_contract",
-      "trigger": "first_run_start",
+      "trigger": "story_scene_owned_intro",
       "screenId": "node_select",
       "triggerPhase": "node_select",
       "shownOnce": true,

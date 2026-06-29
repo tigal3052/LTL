@@ -11,6 +11,7 @@ const ArtifactScript = preload("res://src/models/Artifact.gd")
 const ApplyNodeModifiersScript = preload("res://src/vocabulary/node/ApplyNodeModifiers.gd")
 const CombatVocabScript = preload("res://src/vocabulary/CombatVocab.gd")
 const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+const RecalculateQueueColorsScript = preload("res://src/vocabulary/combat/RecalculateQueueColors.gd")
 
 # 실행: reduce node selection inputs and transition state to combat phase.
 static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -20,34 +21,6 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		var idx: int = int(event.get("index", event.get("target", 0)))
 		if idx < 0 or idx >= candidates.size():
 			return state
-
-		var active_drills: Array = []
-		var inv_data = state.get("inventory", {})
-		if inv_data is Dictionary and inv_data.has("artifacts"):
-			for art in inv_data["artifacts"]:
-				var itype = str(art.get("item_type", art.get("itemType", "drill")))
-				if itype == "drill" or itype == "":
-					var color = str(art.get("energyType", ""))
-					var artifact_id = str(art.get("id", ""))
-					if color.is_empty():
-						continue
-					var already_seen := false
-					for token in active_drills:
-						if str(token.get("color", "")) == color:
-							already_seen = true
-							break
-					if not already_seen:
-						active_drills.append({
-							"color": color,
-							"source_artifact_id": artifact_id,
-							"source_item_type": "drill"
-						})
-		if active_drills.is_empty():
-			active_drills.append({
-				"color": "red",
-				"source_artifact_id": "",
-				"source_item_type": "drill"
-			})
 
 		var choice: Dictionary = ApplyNodeModifiersScript.apply(candidates[idx], state.get("tuning", {}))
 		if not choice.has("combat") or not (choice["combat"] is Dictionary):
@@ -61,14 +34,14 @@ static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
 		next_state["routeHistory"] = route_history
 
 		var q_capacity: int = int(state.get("queueCapacity", EnergyTempoBalanceScript.DEFAULT_QUEUE_CAPACITY))
-		var initial_q = []
 		var initial_load := EnergyTempoBalanceScript.initial_queue_loaded_count(q_capacity)
-		for i in range(initial_load):
-			initial_q.append(active_drills[i % active_drills.size()].duplicate(true))
-		choice["combat"]["initialQueue"] = initial_q
+		var inventory := _restore_inventory(state.get("inventory", {}))
+		if inventory == null:
+			inventory = InventoryModel.new()
+		var queue_result: Dictionary = RecalculateQueueColorsScript.recalculate(inventory, q_capacity, initial_load)
+		choice["combat"]["initialQueue"] = queue_result.get("items", [])
 
 		var sim: CombatSimulator = CombatVocabScript.prepare_combat(choice, state.get("tuning", {}), q_capacity)
-		var inventory := _restore_inventory(state.get("inventory", {}))
 		CombatVocabScript.prime_obstacles(
 			sim,
 			int(state.get("seed", 1)),
@@ -100,6 +73,8 @@ static func _restore_inventory(inv_data: Variant) -> InventoryModel:
 	for art_dict in inv_data.get("artifacts", []):
 		var artifact := ArtifactScript.new(art_dict)
 		inventory.place_artifact(artifact, artifact.x, artifact.y)
+	inventory.energy_queue_charge_progress = float(inv_data.get("energyQueueChargeProgress", 0.0))
+	inventory.energy_queue_rotation_index = int(inv_data.get("energyQueueRotationIndex", 0))
 	return inventory
 
 static func _history_entry_for_choice(choice: Dictionary, stage_index: int, route_slot_index: int) -> Dictionary:

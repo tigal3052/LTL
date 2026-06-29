@@ -69,22 +69,27 @@ static func fuse_pair(base_artifact: Artifact, incoming: Artifact) -> Artifact:
 	var base_data := base_artifact.to_dict()
 	var base_rarity := _normalize_rarity(base_artifact.grade)
 	var next_rarity := str(NEXT_RARITY.get(base_rarity, base_rarity))
-	var base_cooldown := mini(int(base_artifact.base_cooldown_ticks), int(incoming.base_cooldown_ticks))
-	var native_cooldown := mini(int(base_artifact.native_base_cooldown_ticks), int(incoming.native_base_cooldown_ticks))
+	var base_cooldown := _better_cooldown_ticks(int(base_artifact.base_cooldown_ticks), int(incoming.base_cooldown_ticks))
+	var native_cooldown := _better_cooldown_ticks(int(base_artifact.native_base_cooldown_ticks), int(incoming.native_base_cooldown_ticks))
+	var roll_source := _roll_source_artifact(base_artifact, incoming)
 	base_data["id"] = _fused_id(base_artifact, next_rarity)
 	base_data["name"] = _fused_name(str(base_artifact.name), next_rarity)
 	base_data["grade"] = next_rarity
 	base_data["baseCooldownTicks"] = maxi(1, int(floor(float(base_cooldown) * 0.88)))
 	base_data["nativeBaseCooldownTicks"] = maxi(1, int(floor(float(native_cooldown) * 0.88)))
 	base_data["currentCooldown"] = mini(int(base_artifact.current_cooldown), int(base_data["baseCooldownTicks"]))
-	base_data["damage"] = _improved_positive_stat(maxf(float(base_artifact.base_damage), float(incoming.base_damage)), 0.22, 0.10)
+	base_data["damage"] = _improved_positive_stat(_better_positive_stat(float(base_artifact.base_damage), float(incoming.base_damage)), 0.22, 0.10)
 	base_data["base_damage"] = base_data["damage"]
-	base_data["beacon_cooldown_mod"] = _improved_cooldown_mod(mini(int(base_artifact.beacon_cooldown_mod), int(incoming.beacon_cooldown_mod)))
-	base_data["beacon_damage_mod"] = _improved_positive_stat(maxf(float(base_artifact.beacon_damage_mod), float(incoming.beacon_damage_mod)), 0.25, 0.05)
-	base_data["effect_schema"] = _improved_effect_schema(base_artifact.effect_schema)
+	base_data["beacon_cooldown_mod"] = _improved_cooldown_mod(_better_cooldown_mod(int(base_artifact.beacon_cooldown_mod), int(incoming.beacon_cooldown_mod)))
+	base_data["beacon_damage_mod"] = _improved_positive_stat(_better_positive_stat(float(base_artifact.beacon_damage_mod), float(incoming.beacon_damage_mod)), 0.25, 0.05)
+	base_data["effect_schema"] = _improved_effect_schema(base_artifact.effect_schema, incoming.effect_schema)
 	base_data["fusionKey"] = _fusion_key(base_artifact)
 	base_data["catalogId"] = str(base_artifact.catalog_id)
 	base_data["visualId"] = str(base_artifact.visual_id)
+	base_data["rollQuality"] = int(roll_source.roll_quality)
+	base_data["roll_quality"] = int(roll_source.roll_quality)
+	base_data["statRoll"] = roll_source.stat_roll.duplicate(true)
+	base_data["stat_roll"] = roll_source.stat_roll.duplicate(true)
 	return ArtifactScript.new(base_data)
 
 # 실행: locate the same reward item already placed in the backpack.
@@ -123,6 +128,20 @@ static func _improved_positive_stat(value: float, multiplier: float, flat_bonus:
 		return 0.0
 	return snappedf(value * (1.0 + multiplier) + flat_bonus, 0.01)
 
+static func _better_positive_stat(first: float, second: float) -> float:
+	return maxf(first, second)
+
+static func _better_cooldown_ticks(first: int, second: int) -> int:
+	return mini(maxi(1, first), maxi(1, second))
+
+static func _better_cooldown_mod(first: int, second: int) -> int:
+	return mini(first, second)
+
+static func _roll_source_artifact(base_artifact: Artifact, incoming: Artifact) -> Artifact:
+	if int(incoming.roll_quality) > int(base_artifact.roll_quality):
+		return incoming
+	return base_artifact
+
 static func _improved_cooldown_mod(value: int) -> int:
 	if value < 0:
 		return int(floor(float(value) * 1.25))
@@ -130,11 +149,14 @@ static func _improved_cooldown_mod(value: int) -> int:
 		return maxi(0, int(floor(float(value) * 0.80)))
 	return 0
 
-static func _improved_effect_schema(schema: Dictionary) -> Dictionary:
-	var improved := schema.duplicate(true)
+static func _improved_effect_schema(base_schema: Dictionary, incoming_schema: Dictionary) -> Dictionary:
+	var improved := base_schema.duplicate(true)
+	if incoming_schema.has("value") and (typeof(incoming_schema["value"]) == TYPE_INT or typeof(incoming_schema["value"]) == TYPE_FLOAT):
+		if not improved.has("value") or absf(float(incoming_schema["value"])) > absf(float(improved.get("value", 0.0))):
+			improved["value"] = incoming_schema["value"]
 	if improved.has("value") and (typeof(improved["value"]) == TYPE_INT or typeof(improved["value"]) == TYPE_FLOAT):
 		improved["value"] = _improved_schema_value(improved["value"])
-	improved["fusionTierBonus"] = int(improved.get("fusionTierBonus", 0)) + 1
+	improved.erase("fusionTierBonus")
 	return improved
 
 static func _improved_schema_value(value: Variant) -> Variant:

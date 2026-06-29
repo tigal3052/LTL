@@ -2,11 +2,17 @@ extends "res://tests/support/UiReadModelTestSuite.gd"
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	test_backpack_ui_extracts_pin_and_artifact_runtime_helpers()
+	test_drill_display_texture_rotates_with_artifact_rotation()
+	test_drill_rotation_hot_path_uses_prepared_texture_without_cache_miss()
 	test_backpack_fusion_vfx_helper_and_method_exist()
 	test_backpack_fusion_vfx_profile_describes_two_silhouettes_merging()
 	test_main_view_backpack_runtime_helper_exists()
 	test_main_view_backpack_runtime_requests_fusion_sfx_before_vfx()
 	test_shared_backpack_scene_composes_one_engine_panel()
+	return _result()
+func run_rotation_performance_tests() -> Dictionary:
+	failures.clear()
+	test_drill_rotation_hot_path_uses_prepared_texture_without_cache_miss()
 	return _result()
 func test_backpack_ui_extracts_pin_and_artifact_runtime_helpers() -> void:
 	var pin_helper_path := "res://src/ui/backpack/BackpackPinOverlayRuntime.gd"
@@ -24,6 +30,66 @@ func test_backpack_ui_extracts_pin_and_artifact_runtime_helpers() -> void:
 		_assert(ArtifactHelper.has_method("control_rect_in_layer_space"), "artifact helper owns transformed rect math")
 		_assert(_source_line_count(artifact_helper_path) <= 500, "artifact helper stays within the 500-line cap")
 	_assert(_source_line_count("res://src/ui/BackpackUI.gd") <= 500, "BackpackUI delegates runtime helpers and stays within 500 lines")
+func test_drill_display_texture_rotates_with_artifact_rotation() -> void:
+	var helper_path := "res://src/ui/backpack/BackpackArtifactRenderer.gd"
+	var Helper = load(helper_path)
+	_assert(Helper != null, "backpack artifact renderer loads for drill image rotation contract")
+	if Helper == null:
+		return
+	_assert(Helper.has_method("oriented_display_texture"), "artifact helper exposes oriented display texture generation")
+	if not Helper.has_method("oriented_display_texture"):
+		return
+	var rotated := Helper.call("oriented_display_texture", _asymmetric_texture(), [[1, 1, 1], [0, 0, 1]], 90) as Texture2D
+	_assert(rotated != null, "oriented display texture returns a rotated texture")
+	if rotated == null:
+		return
+	var image: Image = rotated.get_image()
+	_assert_eq(image.get_width(), 3, "90 degree drill display texture swaps source height into width")
+	_assert_eq(image.get_height(), 2, "90 degree drill display texture swaps source width into height")
+	_assert_color_close(image.get_pixel(2, 0), Color(1, 0, 0, 1), "90 degree drill image moves the original top-left pixel to the top-right")
+	_assert_color_close(image.get_pixel(2, 1), Color(0, 1, 0, 1), "90 degree drill image keeps the original top-right pixel on the rotated right edge")
+	_assert_color_close(image.get_pixel(0, 0), Color(0, 0, 1, 1), "90 degree drill image moves the original bottom-left pixel to the rotated top-left")
+func test_drill_rotation_hot_path_uses_prepared_texture_without_cache_miss() -> void:
+	var renderer_path := "res://src/ui/backpack/BackpackArtifactRenderer.gd"
+	var placement_path := "res://src/ui/backpack/BackpackArtifactImagePlacement.gd"
+	var Renderer = load(renderer_path)
+	var Placement = load(placement_path)
+	_assert(Renderer != null, "backpack artifact renderer loads for rotation hot-path contract")
+	_assert(Placement != null, "backpack artifact image placement helper exists for transform-based rotation")
+	if Renderer == null:
+		return
+	var owner := RotationHotPathOwner.new()
+	var art = ArtifactScript.new({
+		"id": "rotation_hot_path_probe",
+		"shape": [[1], [1], [1]],
+		"energyType": "red",
+		"grade": "common",
+		"item_type": "drill"
+	})
+	var texture := Renderer.call("item_texture_for_artifact", owner, art) as Texture2D
+	_assert(texture != null, "rotation hot-path probe resolves an image-backed drill texture")
+	if texture == null:
+		return
+	var prepared_cache_size := owner.drill_texture_cache.size()
+	var image := TextureRect.new()
+	var image_id := image.get_instance_id()
+	var start_usec := Time.get_ticks_usec()
+	for index in range(20):
+		art.rotate_shape()
+		var next_texture := Renderer.call("item_texture_for_artifact", owner, art) as Texture2D
+		_assert(next_texture != null, "rotation hot-path texture remains available at step %d" % index)
+		_assert_eq(owner.drill_texture_cache.size(), prepared_cache_size, "rotation hot path reuses prepared display texture without cache miss at step %d" % index)
+		_assert_eq(image.get_instance_id(), image_id, "rotation hot path reuses the same ghost TextureRect at step %d" % index)
+		if Placement != null and next_texture != null:
+			var footprint := Rect2(Vector2(8, 12), _footprint_for_shape(art.shape))
+			Placement.call("apply_oriented_item_image_placement", image, next_texture, footprint, int(art.rotation), false)
+			var expected_size := _oriented_rect_size(footprint.size, int(art.rotation))
+			_assert_close(float(image.rotation_degrees), float(art.rotation), 0.001, "rotation hot path applies the artifact rotation immediately at step %d" % index)
+			_assert_close(image.size.x, expected_size.x, 0.001, "rotation hot path keeps oriented ghost width stable at step %d" % index)
+			_assert_close(image.size.y, expected_size.y, 0.001, "rotation hot path keeps oriented ghost height stable at step %d" % index)
+	var average_usec := float(Time.get_ticks_usec() - start_usec) / 20.0
+	_assert(average_usec <= 2000.0, "rotation hot path stays under a 2ms warmed average, got %.2f usec" % average_usec)
+	image.free()
 func test_backpack_fusion_vfx_helper_and_method_exist() -> void:
 	var helper_path := "res://src/ui/backpack/BackpackFusionVFX.gd"
 	var Helper = load(helper_path)
@@ -99,6 +165,27 @@ func _source_line_count(path: String) -> int:
 	var text := file.get_as_text()
 	file.close()
 	return text.split("\n").size()
+func _asymmetric_texture() -> Texture2D:
+	var image := Image.create(2, 3, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 1))
+	image.set_pixel(0, 0, Color(1, 0, 0, 1))
+	image.set_pixel(1, 0, Color(0, 1, 0, 1))
+	image.set_pixel(0, 2, Color(0, 0, 1, 1))
+	return ImageTexture.create_from_image(image)
+func _footprint_for_shape(shape: Array) -> Vector2:
+	var rows: int = shape.size()
+	var columns: int = shape[0].size() if rows > 0 and shape[0] is Array else 1
+	return Vector2(float(columns) * 24.0, float(rows) * 24.0)
+func _oriented_rect_size(size: Vector2, rotation_degrees: int) -> Vector2:
+	var rotation := ((rotation_degrees % 360) + 360) % 360
+	return Vector2(size.y, size.x) if rotation in [90, 270] else size
+func _assert_color_close(actual: Color, expected: Color, msg: String) -> void:
+	if actual.is_equal_approx(expected):
+		return
+	failures.append("%s: expected %s, got %s" % [msg, str(expected), str(actual)])
+class RotationHotPathOwner:
+	extends RefCounted
+	var drill_texture_cache: Dictionary = {}
 class FusionRuntimeSpyBackpack:
 	extends RefCounted
 	var played_artifacts: Array = []

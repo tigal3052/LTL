@@ -21,6 +21,8 @@ static func select(state: Dictionary, scenes: Array, history: Dictionary = {}) -
 # 실행: match story triggers only at non-combat safe page transitions.
 static func _matches(trigger: String, state: Dictionary) -> bool:
 	match trigger:
+		"before_character_select":
+			return str(state.get("pageId", "")) == "character_select"
 		"after_character_confirm":
 			return str(state.get("pageId", "")) == "leviathan_select"
 	return false

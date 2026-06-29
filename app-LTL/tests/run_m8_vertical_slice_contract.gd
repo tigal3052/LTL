@@ -65,6 +65,7 @@ func _boot_to_node_select(main_instance: Node) -> Node:
 	_assert(controller != null, "main controller exists for M8 contract")
 	if controller == null:
 		return null
+	await _advance_story_if_present(main_instance, "character_select")
 	var character_page = main_instance.get("character_select_page")
 	if character_page != null:
 		character_page.color_selected.emit("red")

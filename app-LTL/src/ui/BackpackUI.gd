@@ -133,7 +133,7 @@ func _process(_delta: float) -> void:
 		if ghost_container and ghost_container.visible:
 			ghost_container.global_position = ghost_pos
 		if ghost_texture_rect and ghost_texture_rect.visible:
-			BackpackArtifactRendererScript.apply_item_image_placement(ghost_texture_rect, ghost_texture_rect.texture, Rect2(ghost_pos, _ghost_footprint(shape, slot_size)), true)
+			BackpackArtifactRendererScript.apply_oriented_item_image_placement(ghost_texture_rect, ghost_texture_rect.texture, Rect2(ghost_pos, _ghost_footprint(shape, slot_size)), int(held_artifact.rotation), true)
 		_update_drag_slot_feedback()
 	if pin_live_layout_retry_budget > 0:
 		pin_live_layout_retry_budget -= 1
@@ -151,7 +151,7 @@ func update_ghost_display(art: ArtifactClass) -> void:
 	ghost_container.visible = false
 	if ghost_texture_rect != null:
 		ghost_texture_rect.visible = false
-		ghost_texture_rect.texture = null
+		BackpackArtifactRendererScript.reset_item_image_transform(ghost_texture_rect)
 	if held_artifact == null:
 		_update_drag_slot_feedback()
 		return
@@ -160,7 +160,7 @@ func update_ghost_display(art: ArtifactClass) -> void:
 	var item_texture := _item_texture_for_artifact(held_artifact)
 	if item_texture != null:
 		var ghost_rect := Rect2(ghost_global_position_for_cursor(get_global_mouse_position(), shape, slot_size), _ghost_footprint(shape, slot_size))
-		BackpackArtifactRendererScript.apply_item_image_placement(ghost_texture_rect, item_texture, ghost_rect, true)
+		BackpackArtifactRendererScript.apply_oriented_item_image_placement(ghost_texture_rect, item_texture, ghost_rect, int(held_artifact.rotation), true)
 		ghost_texture_rect.visible = true
 		_update_drag_slot_feedback()
 		return
