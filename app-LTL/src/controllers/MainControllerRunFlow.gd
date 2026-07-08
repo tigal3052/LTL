@@ -148,6 +148,9 @@ static func on_loadout_color_selected(controller, color: String) -> void:
 	controller.selected_start_color = color
 	if controller.preview_controller != null:
 		controller.preview_controller.start_color = controller.selected_start_color
+	if controller.page_override_id == "character_select":
+		controller.current_scene["selectedStartColor"] = controller.selected_start_color
+		return
 	if str(controller.current_scene.get("phase", "")) == "node_select":
 		load_backpack_items_into_inventory(controller)
 		controller.view.render_backpack(controller.inventory)

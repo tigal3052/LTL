@@ -293,6 +293,8 @@ static func decorate_scene(controller, scene: Dictionary) -> Dictionary:
 	decorated["characterRoster"] = controller.character_roster.duplicate(true)
 	decorated["leviathanRoster"] = controller.leviathan_roster.duplicate(true)
 	decorated["selectedLeviathanId"] = controller.selected_leviathan_id
+	decorated["progress"] = controller.campaign_progress.duplicate(true)
+	decorated["growth"] = controller.growth_state.to_dict() if controller.growth_state != null else {}
 	decorated["selectedLeviathan"] = controller._selected_leviathan_data()
 	decorated["selectedCharacter"] = controller._selected_character_data()
 	decorated["selectedNodeContext"] = controller._selected_node_context(decorated)

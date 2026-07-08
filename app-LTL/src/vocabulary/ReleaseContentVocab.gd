@@ -9,6 +9,7 @@ class_name ReleaseContentVocab
 extends RefCounted
 
 const SelectNarrativeBeatScript = preload("res://src/vocabulary/narrative/SelectNarrativeBeat.gd")
+const StorySceneFrameBitsScript = preload("res://src/scenes/pages/story_scene/StorySceneFrameBits.gd")
 
 const CONTENT_PATHS := {
 	"nodes": "res://src/data/node-table.json",
@@ -208,9 +209,11 @@ static func _validate_leviathan_fields(items: Array, errors: Array[String]) -> v
 
 # 실행: validate story scenes and nested VN step rows.
 static func _validate_story_scene_fields(items: Array, errors: Array[String]) -> void:
-	_validate_required_fields(items, "storyScenes", ["id", "trigger", "returnPageId", "shownOnce", "sideEffectFree", "steps"], errors)
+	_validate_required_fields(items, "storyScenes", ["id", "trigger", "returnPageId", "shownOnce", "sideEffectFree", "frame", "steps"], errors)
 	for item in items:
 		var id := str(item.get("id", "<missing>"))
+		for frame_error in StorySceneFrameBitsScript.scene_frame_errors(item.get("frame", null)):
+			errors.append("storyScenes.%s.frame %s" % [id, frame_error])
 		var steps: Array = item.get("steps", []) if item.get("steps", []) is Array else []
 		if steps.is_empty():
 			errors.append("storyScenes.%s needs at least one step" % id)
@@ -220,9 +223,11 @@ static func _validate_story_scene_fields(items: Array, errors: Array[String]) ->
 			if not (step is Dictionary):
 				errors.append("storyScenes.%s.steps[%d] must be a dictionary" % [id, index])
 				continue
-			for field in ["speaker", "textKo", "textEn", "portraitPath", "side", "backgroundPath", "expression"]:
+			for field in ["speaker", "textKo", "textEn", "portraitPath", "side", "backgroundPath", "expression", "presentation"]:
 				if not step.has(field):
 					errors.append("storyScenes.%s.steps[%d] missing %s" % [id, index, field])
+			for presentation_error in StorySceneFrameBitsScript.step_presentation_errors(step.get("presentation", null)):
+				errors.append("storyScenes.%s.steps[%d].presentation %s" % [id, index, presentation_error])
 
 # 실행: find a dictionary row by id.
 static func _find_by_id(items: Array, item_id: String) -> Dictionary:

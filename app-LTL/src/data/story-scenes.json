@@ -6,6 +6,15 @@
       "returnPageId": "character_select",
       "shownOnce": true,
       "sideEffectFree": true,
+      "frame": {
+        "chromeMode": "minimal",
+        "dialogueVariant": "expedition_journal",
+        "speakerTagVariant": "leaf_tab",
+        "scrimOpacity": 0.42,
+        "portraitScale": 0.94,
+        "portraitOffsetX": 0.0,
+        "portraitOffsetY": 0.0
+      },
       "steps": [
         {
           "speaker": "Captain",
@@ -14,7 +23,14 @@
           "portraitPath": "res://resources/charactor/npc1.png",
           "side": "left",
           "backgroundPath": "res://resources/charactor/background.png",
-          "expression": "briefing"
+          "expression": "briefing",
+          "presentation": {
+            "speakerTagText": "Captain",
+            "scrimOpacity": 0.40,
+            "portraitScale": 0.92,
+            "portraitOffsetX": 8.0,
+            "portraitOffsetY": 0.0
+          }
         },
         {
           "speaker": "Anchor Miner",
@@ -23,7 +39,14 @@
           "portraitPath": "res://resources/charactor/charactor1.png",
           "side": "right",
           "backgroundPath": "res://resources/charactor/background.png",
-          "expression": "ready"
+          "expression": "ready",
+          "presentation": {
+            "speakerTagText": "Anchor Miner",
+            "scrimOpacity": 0.46,
+            "portraitScale": 1.0,
+            "portraitOffsetX": 10.0,
+            "portraitOffsetY": 6.0
+          }
         }
       ]
     }

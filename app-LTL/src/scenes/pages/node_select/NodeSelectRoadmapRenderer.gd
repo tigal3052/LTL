@@ -12,9 +12,29 @@ const NodeSelectLayoutPolicyScript = preload("res://src/scenes/pages/node_select
 const NodeSelectVisualFactoryScript = preload("res://src/scenes/pages/node_select/NodeSelectVisualFactory.gd")
 
 const TEXT_SOFT := Color(0.80, 0.74, 0.66, 0.72)
+const ATLAS_BG_PATH := "res://resources/node_select/atlas/variant_a_bg_topographic_leviathan_atlas.png"
 
 # ?ㅽ뻾: build ambient textures and the inner frame behind the roadmap canvas.
 static func build_canvas_backdrop(canvas_backdrop: Control, canvas_size: Vector2, spot_texture_cache: Dictionary) -> void:
+	var atlas_bg := TextureRect.new()
+	atlas_bg.name = "AtlasMapBackdrop"
+	atlas_bg.texture = _load_runtime_texture(ATLAS_BG_PATH)
+	atlas_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	atlas_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	atlas_bg.position = Vector2.ZERO
+	atlas_bg.size = canvas_size
+	atlas_bg.self_modulate = Color(1.0, 1.0, 1.0, 0.94)
+	atlas_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_backdrop.add_child(atlas_bg)
+
+	var atlas_wash := ColorRect.new()
+	atlas_wash.name = "AtlasMapWash"
+	atlas_wash.position = Vector2.ZERO
+	atlas_wash.size = canvas_size
+	atlas_wash.color = Color(0.97, 0.92, 0.70, 0.28)
+	atlas_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_backdrop.add_child(atlas_wash)
+
 	var ambient_gold := TextureRect.new()
 	ambient_gold.texture = NodeSelectVisualFactoryScript.radial_spot_texture(Vector2i(320, 220), Color(0.95, 0.83, 0.66, 0.12), spot_texture_cache)
 	ambient_gold.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -51,6 +71,16 @@ static func build_canvas_backdrop(canvas_backdrop: Control, canvas_size: Vector2
 		NodeSelectVisualFactoryScript.panel_style(Color(0.0, 0.0, 0.0, 0.0), Color(0.96, 0.88, 0.76, 0.06), 30, 1)
 	)
 	canvas_backdrop.add_child(inner_frame)
+
+# ?ㅽ뻾: build static stage ruler labels and guide dashes.
+static func _load_runtime_texture(path: String) -> Texture2D:
+	var file_path := ProjectSettings.globalize_path(path)
+	if FileAccess.file_exists(file_path):
+		var image := Image.load_from_file(file_path)
+		if image != null and not image.is_empty():
+			return ImageTexture.create_from_image(image)
+	var loaded := load(path)
+	return loaded if loaded is Texture2D else null
 
 # ?ㅽ뻾: build static stage ruler labels and guide dashes.
 static func build_stage_ruler(stage_ruler: Control, canvas_size: Vector2, markers: Array) -> void:

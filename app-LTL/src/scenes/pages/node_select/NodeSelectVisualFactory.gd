@@ -13,6 +13,17 @@ const FutureMarkerArtScript = preload("res://src/scenes/pages/node_select/Future
 
 const ROUTE_GOLD := Color(0.90, 0.74, 0.43, 0.96)
 const TEXT_SOFT := Color(0.80, 0.74, 0.66, 0.72)
+const ICON_PATHS := {
+	"normal": "res://resources/node_select/atlas/icon_battle_gate.png",
+	"danger": "res://resources/node_select/atlas/icon_battle_gate.png",
+	"harpoon": "res://resources/node_select/atlas/icon_battle_gate.png",
+	"repair": "res://resources/node_select/atlas/icon_camp_seed.png",
+	"reef": "res://resources/node_select/atlas/icon_reward_geode.png",
+	"unknown": "res://resources/node_select/atlas/icon_event_leaf.png",
+	"start": "res://resources/node_select/atlas/icon_event_leaf.png",
+	"future": "res://resources/node_select/atlas/icon_locked_roots.png",
+	"boss": "res://resources/node_select/atlas/icon_boss_crest.png"
+}
 
 # ?ㅽ뻾: create the transparent route button style used by roadmap markers.
 static func route_button_style(_candidate: Dictionary = {}, _selected := false, _hovered := false) -> StyleBoxFlat:
@@ -38,37 +49,32 @@ static func attach_hotspot_visual(host: Control, palette: Dictionary, icon_kind:
 	if existing_icon != null:
 		existing_icon.queue_free()
 
+	var frame := PanelContainer.new()
+	frame.name = "CoreVisual"
+	frame.size = host.size
+	frame.position = Vector2.ZERO
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame_bg := Color(0.92, 0.86, 0.62, 0.88) if selected else Color(0.72, 0.70, 0.60, 0.62)
+	var frame_border := Color(0.25, 0.70, 0.38, 0.92) if selected or hovered else Color(0.25, 0.36, 0.24, 0.34)
 	if preview:
-		var preview_art := FutureMarkerArtScript.new()
-		preview_art.name = "CoreVisual"
-		preview_art.size = host.size
-		preview_art.position = Vector2.ZERO
-		preview_art.fill_color = palette.get("fill", Color(0.18, 0.12, 0.09, 0.82))
-		preview_art.ring_color = palette.get("border", Color(0.88, 0.73, 0.45, 0.72))
-		host.add_child(preview_art)
-		var preview_label := Label.new()
-		preview_label.name = "Icon"
-		preview_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		preview_label.position = Vector2(0.0, 8.0)
-		preview_label.size = Vector2(host.size.x, host.size.y - 12.0)
-		preview_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		preview_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		preview_label.text = "?"
-		preview_label.add_theme_font_size_override("font_size", 28)
-		preview_label.add_theme_color_override("font_color", Color(0.96, 0.90, 0.82, 1.0))
-		host.add_child(preview_label)
-		return
+		frame_bg = Color(0.42, 0.38, 0.30, 0.56)
+		frame_border = Color(0.18, 0.20, 0.16, 0.46)
+	frame.add_theme_stylebox_override("panel", panel_style(frame_bg, frame_border, 14, 2 if selected else 1, Color(0.0, 0.0, 0.0, 0.20), 8 if selected or hovered else 3))
+	host.add_child(frame)
 
-	var core := TextureRect.new()
-	core.name = "CoreVisual"
-	core.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	core.stretch_mode = TextureRect.STRETCH_SCALE
-	core.size = host.size
-	core.position = Vector2.ZERO
-	core.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	core.texture = node_core_texture(Vector2i(maxi(1, int(round(host.size.x))), maxi(1, int(round(host.size.y)))), palette, selected, hovered, core_texture_cache)
-	host.add_child(core)
-	attach_hotspot_icon(host, icon_kind, palette.get("glyph", Color(0.96, 0.90, 0.82, 1.0)))
+	var icon := TextureRect.new()
+	icon.name = "Icon"
+	icon.set_meta("atlas_icon_kind", icon_kind)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.texture = _load_runtime_texture(str(ICON_PATHS.get(icon_kind, ICON_PATHS.get("normal"))))
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var inset := host.size * (0.10 if selected else 0.13)
+	icon.position = inset
+	icon.size = host.size - (inset * 2.0)
+	icon.self_modulate = Color(1.0, 1.0, 1.0, 1.0 if selected or hovered else 0.82)
+	host.add_child(icon)
+	return
 
 # ?ㅽ뻾: refresh a hotspot while preserving the caller's visual state metadata contract.
 static func refresh_hotspot_visual(host: Control, hovered: bool, core_texture_cache: Dictionary) -> void:
@@ -83,6 +89,16 @@ static func refresh_hotspot_visual(host: Control, hovered: bool, core_texture_ca
 	var display_palette := palette if selected or preview else muted_palette(palette)
 	host.set_meta("palette", display_palette.duplicate(true))
 	attach_hotspot_visual(host, display_palette, icon_kind, selected, preview, hovered, core_texture_cache)
+
+# ?ㅽ뻾: attach the glyph icon control for a concrete route hotspot.
+static func _load_runtime_texture(path: String) -> Texture2D:
+	var file_path := ProjectSettings.globalize_path(path)
+	if FileAccess.file_exists(file_path):
+		var image := Image.load_from_file(file_path)
+		if image != null and not image.is_empty():
+			return ImageTexture.create_from_image(image)
+	var loaded := load(path)
+	return loaded if loaded is Texture2D else null
 
 # ?ㅽ뻾: attach the glyph icon control for a concrete route hotspot.
 static func attach_hotspot_icon(host: Control, icon_kind: String, color: Color) -> void:

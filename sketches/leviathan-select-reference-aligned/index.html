@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leviathan Select - Overlay Rail Mockup</title>
+  <style>
+    :root {
+      --bg-top: #ecf6f6;
+      --bg-bottom: #cfe3e7;
+      --sand: #f3e8cf;
+      --ink: #1d4532;
+      --ink-soft: #5d6f62;
+      --mint: #b8ec97;
+      --mint-2: #7ed66f;
+      --hero-bg: url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_turtle.png');
+      --hero-pos: center center;
+      --hero-size: cover;
+      --hero-tone: linear-gradient(180deg, rgba(8,20,26,0.02) 0%, rgba(4,10,12,0.16) 100%);
+      --font-ui: Inter, Pretendard, "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-ui);
+      color: var(--ink);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    }
+    body {
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 74px 1fr;
+      background: linear-gradient(180deg, #e6f3f4 0%, #cae0e6 100%);
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 26px;
+      background: linear-gradient(180deg, #f5ecd4 0%, #f2e7cd 100%);
+      border-bottom: 1px solid rgba(53, 79, 68, 0.10);
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.46);
+    }
+    .brand-row {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+    }
+    .brand {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: #20442d;
+    }
+    .tabs {
+      display: flex;
+      gap: 20px;
+      color: #5b695f;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .tab {
+      position: relative;
+      padding: 6px 0;
+    }
+    .tab.active {
+      color: #284b31;
+    }
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px;
+      background: #7bbd66;
+    }
+    .top-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      border: 1px solid rgba(70, 101, 83, 0.12);
+      background: rgba(255,255,255,0.44);
+      color: #476356;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.56);
+      font-size: 15px;
+    }
+    .workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 222px 1fr;
+      gap: 18px;
+      padding: 18px 18px 18px 0;
+    }
+    .global-rail {
+      min-height: 0;
+      background: linear-gradient(180deg, rgba(248,236,225,0.94) 0%, rgba(247,239,229,0.98) 100%);
+      border-right: 1px solid rgba(77,101,89,0.08);
+      border-top-right-radius: 26px;
+      border-bottom-right-radius: 26px;
+      padding: 18px 14px 18px;
+      box-shadow: inset -1px 0 0 rgba(255,255,255,0.34);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .portrait-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(76, 97, 86, 0.12);
+    }
+    .portrait {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 32% 28%, #fffce7, #d6c09a 58%, #947b51 100%);
+      border: 3px solid rgba(143,122,81,0.30);
+      position: relative;
+      box-shadow: inset 0 2px 6px rgba(255,255,255,0.72), 0 14px 24px rgba(77,56,29,0.12);
+    }
+    .portrait::after {
+      content: "⚓";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      color: rgba(72, 61, 35, 0.72);
+    }
+    .leader-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #21392d;
+    }
+    .leader-rank {
+      font-size: 11px;
+      font-weight: 800;
+      color: #806f57;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      color: #3d5b4c;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .nav-item.active {
+      color: #214027;
+      background: linear-gradient(180deg, #d0f2bd 0%, #b7ec9b 100%);
+      box-shadow: 0 10px 22px rgba(109,172,87,0.18);
+    }
+    .hero-shell {
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+      border-radius: 30px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.48);
+      background: #5f90ab;
+      box-shadow: 0 28px 64px rgba(30, 70, 77, 0.18), inset 0 1px 0 rgba(255,255,255,0.42);
+      isolation: isolate;
+    }
+    .hero-art {
+      position: absolute;
+      inset: 0;
+      background-image: var(--hero-tone), var(--hero-bg);
+      background-position: center, var(--hero-pos);
+      background-size: 100% 100%, var(--hero-size);
+      background-repeat: no-repeat;
+      filter: saturate(1.05) contrast(1.02);
+      transition: background-image 220ms ease, background-position 220ms ease, background-size 220ms ease;
+    }
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(2,8,11,0.00) 0%, rgba(4,10,11,0.04) 60%, rgba(3,8,9,0.14) 100%),
+        linear-gradient(90deg, rgba(4,10,12,0.02) 0%, rgba(4,10,12,0.00) 55%, rgba(4,10,12,0.18) 100%);
+      pointer-events: none;
+    }
+    .hero-copy {
+      position: absolute;
+      left: 28px;
+      top: 28px;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2;
+    }
+    .eyebrow {
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(240, 247, 233, 0.76);
+      border: 1px solid rgba(255,255,255,0.48);
+      backdrop-filter: blur(8px);
+      color: #284633;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .hero-copy h1 {
+      margin: 0;
+      font-size: 44px;
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      color: white;
+      text-shadow: 0 8px 26px rgba(0,0,0,0.26);
+    }
+    .hero-copy p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: rgba(240,247,245,0.94);
+      text-shadow: 0 4px 16px rgba(0,0,0,0.22);
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hero-meta span {
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(246,248,242,0.16);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(7px);
+      color: rgba(246,248,246,0.96);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .overlay-rail {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 312px;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, rgba(12,18,19,0.08) 0%, rgba(12,18,19,0.16) 100%);
+      backdrop-filter: blur(14px);
+      z-index: 3;
+      box-shadow: inset 1px 0 0 rgba(255,255,255,0.08);
+    }
+    .cards-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.28) rgba(255,255,255,0.08);
+    }
+    .cards-scroll::-webkit-scrollbar { width: 10px; }
+    .cards-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.08); }
+    .cards-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.28);
+      border-radius: 999px;
+      border: 2px solid rgba(10,15,18,0.14);
+    }
+    .lev-card {
+      position: relative;
+      width: 100%;
+      min-height: 186px;
+      border: 0;
+      padding: 18px 18px 18px;
+      display: flex;
+      align-items: flex-end;
+      text-align: left;
+      color: white;
+      cursor: pointer;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      isolation: isolate;
+      transition: transform 180ms ease, filter 180ms ease;
+    }
+    .lev-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5,10,12,0.08) 0%, rgba(4,9,10,0.36) 52%, rgba(4,8,9,0.82) 100%);
+      z-index: -2;
+    }
+    .lev-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(10,16,15,0.16) 38%, rgba(7,11,11,0.34) 100%);
+      z-index: -1;
+    }
+    .lev-card.inactive {
+      filter: grayscale(1) brightness(0.62);
+    }
+    .lev-card.selected {
+      filter: none;
+      box-shadow: inset 0 0 0 2px rgba(181, 239, 142, 0.56);
+    }
+    .lev-card.selected::after {
+      background: linear-gradient(180deg, rgba(18,69,39,0.00) 0%, rgba(18,69,39,0.18) 36%, rgba(17,68,34,0.72) 100%);
+    }
+    .lev-card.locked {
+      filter: grayscale(1) brightness(0.38);
+      cursor: default;
+    }
+    .blocked {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(8,10,11,0.54);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(8px);
+      color: rgba(255,255,255,0.82);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      display: none;
+      z-index: 2;
+    }
+    .lev-card.locked .blocked { display: inline-flex; }
+    .card-body {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-tag {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(246,248,242,0.14);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(6px);
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(246,248,246,0.95);
+    }
+    .card-title {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .card-title h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+      font-weight: 900;
+    }
+    .card-title p {
+      margin: 0;
+      font-size: 12px;
+      font-style: italic;
+      color: rgba(240,245,244,0.88);
+      font-weight: 600;
+    }
+    .detail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .detail span {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(246,248,242,0.14);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(245,248,247,0.92);
+    }
+    .start-cta {
+      flex: 0 0 auto;
+      min-height: 98px;
+      border: 0;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      text-align: left;
+      padding: 18px 22px 18px 46px;
+      background: linear-gradient(180deg, rgba(22,95,44,0.88) 0%, rgba(16,69,32,0.92) 100%);
+      color: white;
+      position: relative;
+      font-family: inherit;
+      backdrop-filter: blur(12px);
+    }
+    .start-cta::before {
+      content: "⌕";
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      color: #d9f4c8;
+    }
+    .start-cta small {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(220,243,210,0.84);
+    }
+    .start-cta strong {
+      display: block;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand-row">
+        <div class="brand">Looting The Leviathan</div>
+        <nav class="tabs" aria-label="Primary navigation">
+          <div class="tab active">Bestiary</div>
+          <div class="tab">Field Log</div>
+          <div class="tab">Relics</div>
+          <div class="tab">Map</div>
+        </nav>
+      </div>
+      <div class="top-actions">
+        <div class="icon-btn">⊙</div>
+        <div class="icon-btn">⚙</div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="global-rail" aria-label="Global side menu">
+        <div class="portrait-wrap">
+          <div class="portrait" aria-hidden="true"></div>
+          <div class="leader-title">Expedition Leader</div>
+          <div class="leader-rank">Rank: Scholar</div>
+        </div>
+
+        <div class="nav-list">
+          <div class="nav-item">◻ Expedition Log</div>
+          <div class="nav-item active">💎 Leviathan Index</div>
+          <div class="nav-item">◎ Route Plans</div>
+        </div>
+      </aside>
+
+      <section class="hero-shell" aria-label="Leviathan hero canvas">
+        <div class="hero-art" id="heroArt"></div>
+        <div class="hero-vignette"></div>
+
+        <div class="hero-copy">
+          <div class="eyebrow" id="heroEyebrow">Current Contract</div>
+          <h1 id="heroTitle">유해갑 거북</h1>
+          <p id="heroSubtitle">Great Moss-back · 해양 갑각권을 떠도는 레비아탄. 안전한 조사 진입점과 완만한 외곽 루트를 가진 초입 계약.</p>
+          <div class="hero-meta" id="heroMeta"></div>
+        </div>
+
+        <aside class="overlay-rail" aria-label="Leviathan overlay card rail">
+          <div class="cards-scroll" id="cards"></div>
+          <button class="start-cta" id="startCta" type="button">
+            <small id="ctaEyebrow">Contract Confirmed</small>
+            <strong id="ctaLabel">조사 시작</strong>
+          </button>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const cardsEl = document.getElementById('cards');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroSubtitle = document.getElementById('heroSubtitle');
+    const heroMeta = document.getElementById('heroMeta');
+    const heroEyebrow = document.getElementById('heroEyebrow');
+    const ctaEyebrow = document.getElementById('ctaEyebrow');
+    const ctaLabel = document.getElementById('ctaLabel');
+
+    const leviathans = [
+      {
+        id: 'ossuary_tortoise',
+        name: '유해갑 거북',
+        subtitle: 'Great Moss-back',
+        description: '해양 갑각권을 떠도는 레비아탄. 안전한 조사 진입점과 완만한 외곽 루트를 가진 초입 계약.',
+        runs: 1,
+        stages: 3,
+        biome: '석회 갑각 지대',
+        state: 'selected',
+        cardTag: '현재 선택',
+        eyebrow: 'Current Contract',
+        cta: '조사 시작',
+        ctaEyebrow: 'Contract Confirmed',
+        heroBg: "url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_turtle.png')",
+        heroPos: 'center center',
+        heroSize: 'cover',
+        cardBg: "linear-gradient(180deg, rgba(21,77,37,0.12), rgba(6,16,11,0.20)), url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_turtle.png')",
+        cardPos: 'center center',
+        cardSize: 'cover'
+      },
+      {
+        id: 'storm_wyvern',
+        name: '초야의 리자드',
+        subtitle: 'Storm Wyvern',
+        description: '초원 능선 전체를 몸처럼 감싸는 장신형 레비아탄. 긴 횡축 실루엣과 다층 진입선이 특징인 중급 계약.',
+        runs: 2,
+        stages: 4,
+        biome: '넓은 초원 지대',
+        state: 'inactive',
+        cardTag: '미선택',
+        eyebrow: 'Available Contract',
+        cta: '경로 정찰',
+        ctaEyebrow: 'Available Contract',
+        heroBg: "url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_lizard.png')",
+        heroPos: 'center center',
+        heroSize: 'cover',
+        cardBg: "linear-gradient(180deg, rgba(28,63,37,0.08), rgba(6,16,11,0.18)), url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_lizard.png')",
+        cardPos: 'center center',
+        cardSize: 'cover'
+      },
+      {
+        id: 'sky_mireu',
+        name: '창공 미르',
+        subtitle: 'Sky Mireu',
+        description: '구름권 위로 치솟는 거신형 개체. 실루엣은 강하지만 해금 전까지는 조사권이 봉인된 상위 계약.',
+        runs: 3,
+        stages: 5,
+        biome: '생동하는 오로라',
+        state: 'locked',
+        cardTag: '연구 잠금',
+        eyebrow: 'Locked Contract',
+        cta: '잠금됨',
+        ctaEyebrow: 'Locked Contract',
+        heroBg: "url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_golem.png')",
+        heroPos: 'center center',
+        heroSize: 'cover',
+        cardBg: "linear-gradient(180deg, rgba(30,53,89,0.08), rgba(6,12,18,0.20)), url('file:///D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL/resources/Leviathan/Leviathan_golem.png')",
+        cardPos: 'center center',
+        cardSize: 'cover'
+      }
+    ];
+
+    let selectedId = 'ossuary_tortoise';
+
+    function renderHero(item) {
+      root.style.setProperty('--hero-bg', item.heroBg);
+      root.style.setProperty('--hero-pos', item.heroPos);
+      root.style.setProperty('--hero-size', item.heroSize);
+      heroEyebrow.textContent = item.eyebrow;
+      heroTitle.textContent = item.name;
+      heroSubtitle.textContent = `${item.subtitle} · ${item.description}`;
+      ctaEyebrow.textContent = item.ctaEyebrow;
+      ctaLabel.textContent = item.cta;
+      heroMeta.innerHTML = `
+        <span>항차 ${item.runs}</span>
+        <span>구간 ${item.stages}</span>
+        <span>${item.biome}</span>
+      `;
+    }
+
+    function renderCards() {
+      cardsEl.innerHTML = '';
+      leviathans.forEach((item) => {
+        const selected = item.id === selectedId;
+        const locked = item.state === 'locked';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `lev-card ${selected ? 'selected' : 'inactive'} ${locked ? 'locked' : ''}`;
+        button.style.backgroundImage = item.cardBg;
+        button.style.backgroundPosition = item.cardPos;
+        button.style.backgroundSize = item.cardSize;
+        button.setAttribute('aria-label', `${item.name} ${item.subtitle} 항차 ${item.runs} 구간 ${item.stages}`);
+        button.innerHTML = `
+          <span class="blocked">잠금</span>
+          <div class="card-body">
+            <div class="card-tag">${selected ? '현재 선택' : item.cardTag}</div>
+            <div class="card-title">
+              <h3>${item.name}</h3>
+              <p>${item.subtitle}</p>
+            </div>
+            <div class="detail">
+              <span>항차 ${item.runs}</span>
+              <span>구간 ${item.stages}</span>
+              <span>${item.biome}</span>
+            </div>
+          </div>
+        `;
+        button.addEventListener('click', () => {
+          if (locked) return;
+          selectedId = item.id;
+          render();
+        });
+        cardsEl.appendChild(button);
+      });
+    }
+
+    function render() {
+      const selected = leviathans.find((item) => item.id === selectedId) || leviathans[0];
+      renderHero(selected);
+      renderCards();
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -67,9 +67,46 @@ static func candidate_glyph_color(candidate: Dictionary) -> Color:
 static func candidate_description(candidate: Dictionary) -> String:
 	var risk := TextCatalogScript.enum_label("risk", str(candidate.get("riskTier", "safe")))
 	var reward := TextCatalogScript.enum_label("reward_bias", str(candidate.get("rewardBias", "baseline")))
-	var weakness := weakness_text(candidate)
 	var hint := TextCatalogScript.hint_label(str(candidate.get("recommendedBuildHint", "")))
-	return TextCatalogScript.t("node_runtime.candidate_description", [risk, weakness, reward, hint])
+	return TextCatalogScript.t("node_runtime.candidate_description", [risk, weakness_text(candidate), reward, hint])
+
+static func candidate_obstruction_text(candidate: Dictionary) -> String:
+	var explicit := str(candidate.get("obstructionLabel", candidate.get("obstruction", ""))).strip_edges()
+	if not explicit.is_empty():
+		return explicit
+	var node_type := str(candidate.get("nodeType", "normal"))
+	var risk := str(candidate.get("riskTier", "safe"))
+	var reward_bias := str(candidate.get("rewardBias", "baseline"))
+	if risk == "boss" or node_type == "boss":
+		return "거대 코어 외피가 주기적으로 굳어 채굴 타이밍을 제한합니다."
+	if risk in ["danger", "hard"]:
+		return "불안정한 균열과 역류 압력이 장비 내구도를 빠르게 소모합니다."
+	if risk == "unknown" or node_type == "mysterious_crevice" or reward_bias == "mystery":
+		return "내부 지형 정보가 불완전해 첫 진입 전까지 위협 패턴을 확정하기 어렵습니다."
+	if risk == "support" or node_type == "repair_event":
+		return "직접 위협은 낮지만 보급 동선이 좁아 장비 정비 선택지가 제한됩니다."
+	if node_type == "mixed_weakness" or reward_bias == "multi_energy":
+		return "복수 속성의 단단한 판층이 번갈아 노출되어 단일 속성 빌드의 효율이 떨어집니다."
+	return "표층은 안정적이지만 석회질 판이 드릴 진행 속도를 늦춥니다."
+
+static func candidate_lore_text(candidate: Dictionary) -> String:
+	var explicit := str(candidate.get("lore", candidate.get("flavor", ""))).strip_edges()
+	if not explicit.is_empty():
+		return explicit
+	var node_type := str(candidate.get("nodeType", "normal"))
+	var risk := str(candidate.get("riskTier", "safe"))
+	if risk == "boss" or node_type == "boss":
+		return "레비아탄의 등갑 심부와 맞닿은 핵심 절리입니다. 모든 탐사 기록은 이곳의 반응을 기준으로 재정렬됩니다."
+	if node_type == "repair_event" or risk == "support":
+		return "오래된 탐사 흔적과 비교적 안정된 숨구멍이 남아 있어 장비를 재정비하기 좋은 구간입니다."
+	if risk == "unknown" or node_type == "mysterious_crevice":
+		return "지도에 없는 틈새가 갑자기 열렸습니다. 내부의 공명은 보상과 위험을 동시에 암시합니다."
+	if risk in ["danger", "hard"]:
+		return "등갑 아래의 열과 압력이 뒤틀린 구간입니다. 높은 보상은 대부분 이런 불안정한 판층 사이에 묻혀 있습니다."
+	return "초입 표식과 지형 흔적이 비교적 선명한 표층 구간입니다. 원정대가 안전하게 첫 채굴선을 잡기 좋습니다."
+
+static func candidate_panel_body(candidate: Dictionary) -> String:
+	return "약점\n%s\n\n방해요소\n%s\n\n노드 설명\n%s" % [weakness_text(candidate), candidate_obstruction_text(candidate), candidate_lore_text(candidate)]
 
 # ?ㅽ뻾: build compact hover tooltip copy for a candidate.
 static func candidate_tooltip(candidate: Dictionary) -> String:
@@ -186,7 +223,7 @@ static func history_entry_name(entry: Dictionary) -> String:
 static func history_entry_body(entry: Dictionary) -> String:
 	if int(entry.get("stageIndex", -1)) == 0:
 		return TextCatalogScript.t("node_runtime.fixed_entry.body")
-	return candidate_description(entry)
+	return candidate_panel_body(entry)
 
 static func history_entry_icon_kind(entry: Dictionary) -> String:
 	if int(entry.get("stageIndex", -1)) == 0:

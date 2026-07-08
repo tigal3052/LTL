@@ -183,11 +183,11 @@ func _assert_character_select_layout(MainScene: PackedScene) -> void:
 	_assert_page_shell_host(main_instance, character_page, "meta_page_shell_host", "character select page", true)
 	_assert(meta_page_host != null and bool(meta_page_host.visible), "character select uses the dedicated viewport-sized meta page host")
 	_assert(gameplay_page_host == null or not bool(gameplay_page_host.visible), "character select keeps the gameplay page host hidden")
-	var page_stack = character_page.get_node_or_null("Margin/VStack") as Control
-	var board_shell = character_page.get_node_or_null("Margin/VStack/BoardShell") as Control
-	var roster_scroll = character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone/ZoneMargin/ZoneVBox/RosterScroll") as Control
-	var hero_stage = character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/HeroStage") as Control
-	var continue_button = character_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/ContinueButton") as Control
+	var page_stack = character_page.get_node_or_null("Stage") as Control
+	var board_shell = character_page.get_node_or_null("Stage") as Control
+	var roster_scroll = character_page.get_node_or_null("Stage/RosterRail/RosterMargin/RosterVBox/RosterScroll") as Control
+	var hero_stage = character_page.get_node_or_null("Stage/HeroChar") as Control
+	var continue_button = character_page.get_node_or_null("Stage/Wing/WingMargin/WingVBox/CtaDock/ContinueButton") as Control
 	_assert_control_inside_parent(page_stack, character_page, "character select stack")
 	_assert_control_inside_parent(board_shell, character_page, "character select board shell")
 	_assert_control_inside_viewport(page_stack, "character select stack")
@@ -221,29 +221,46 @@ func _assert_leviathan_select_layout(MainScene: PackedScene) -> void:
 	_assert_page_shell_host(main_instance, leviathan_page, "meta_page_shell_host", "leviathan select page", true)
 	_assert(meta_page_host != null and bool(meta_page_host.visible), "leviathan select keeps the dedicated meta page host visible")
 	_assert(gameplay_page_host == null or not bool(gameplay_page_host.visible), "leviathan select keeps the gameplay page host hidden")
-	var layout = leviathan_page.get_node_or_null("Margin/Layout") as Control
-	var board_panel = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel") as Control
-	var target_ribbon = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel/TargetRibbon") as Control
-	var start_frame = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame") as Control
-	var start_button = leviathan_page.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame/StartButton") as Control
+	var top_bar = leviathan_page.get_node_or_null("TopBar") as Control
+	var layout = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace") as Control
+	var global_rail = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace/GlobalRail") as Control
+	var hero_shell = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace/HeroShell") as Control
+	var overlay_rail = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail") as Control
+	var cards_scroll = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/CardsScroll") as Control
+	var start_frame = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame") as Control
+	var start_button = leviathan_page.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton") as Control
+	_assert_control_inside_parent(top_bar, leviathan_page, "leviathan select top bar")
 	_assert_control_inside_parent(layout, leviathan_page, "leviathan select layout")
-	_assert_control_inside_parent(board_panel, leviathan_page, "leviathan select board panel")
+	_assert_control_inside_parent(global_rail, layout, "leviathan select global rail")
+	_assert_control_inside_parent(hero_shell, layout, "leviathan select hero shell")
+	_assert_control_inside_parent(overlay_rail, hero_shell, "leviathan select overlay rail")
+	_assert_control_inside_viewport(top_bar, "leviathan select top bar")
 	_assert_control_inside_viewport(layout, "leviathan select layout")
-	_assert_control_inside_viewport(board_panel, "leviathan select board panel")
-	_assert_control_inside_viewport(target_ribbon, "leviathan select target ribbon")
+	_assert_control_inside_viewport(global_rail, "leviathan select global rail")
+	_assert_control_inside_viewport(hero_shell, "leviathan select hero shell")
+	_assert_control_inside_viewport(overlay_rail, "leviathan select overlay rail")
+	_assert_control_inside_viewport(cards_scroll, "leviathan select cards scroll")
 	_assert_control_inside_viewport(start_frame, "leviathan select start frame")
 	_assert_control_inside_viewport(start_button, "leviathan select looting-start button")
-	if target_ribbon != null and board_panel != null:
-		_assert(absf(target_ribbon.get_global_rect().position.x - board_panel.get_global_rect().position.x) <= 1.0, "leviathan select target ribbon starts flush with the board panel left edge")
-		_assert(absf(target_ribbon.get_global_rect().end.x - board_panel.get_global_rect().end.x) <= 1.0, "leviathan select target ribbon ends flush with the board panel right edge")
-		_assert(target_ribbon.get_global_rect().size.y <= 96.0, "leviathan select target ribbon stays a shallow bottom banner instead of expanding to board height")
-		_assert(target_ribbon.get_global_rect().position.y >= board_panel.get_global_rect().end.y - 220.0, "leviathan select target ribbon stays in the lower board band")
-	if start_frame != null and board_panel != null:
-		_assert(start_frame.get_global_rect().size.y <= 86.0, "leviathan select start frame keeps a tighter responsive CTA lane instead of expanding to board height")
-		_assert(start_frame.get_global_rect().position.y >= board_panel.get_global_rect().end.y - 128.0, "leviathan select start frame stays pinned to the lower board edge")
+	if global_rail != null and layout != null:
+		_assert(absf(global_rail.get_global_rect().position.x - layout.get_global_rect().position.x) <= 1.0, "leviathan select global rail starts flush with the layout left edge")
+	if overlay_rail != null and hero_shell != null:
+		var hero_rect := hero_shell.get_global_rect()
+		var rail_rect := overlay_rail.get_global_rect()
+		var width_ratio := rail_rect.size.x / maxf(hero_rect.size.x, 1.0)
+		_assert(rail_rect.position.x >= hero_rect.position.x + hero_rect.size.x * 0.55, "leviathan select overlay rail stays docked on the right side of the hero shell")
+		_assert(absf(rail_rect.end.x - hero_rect.end.x) <= 1.0, "leviathan select overlay rail ends flush with the hero shell right edge")
+		_assert(absf(rail_rect.position.y - hero_rect.position.y) <= 1.0, "leviathan select overlay rail starts flush with the hero shell top edge")
+		_assert(absf(rail_rect.end.y - hero_rect.end.y) <= 1.0, "leviathan select overlay rail ends flush with the hero shell bottom edge")
+		_assert(width_ratio >= 0.24 and width_ratio <= 0.38, "leviathan select overlay rail keeps a narrow right-side width share instead of splitting the page evenly (ratio=%.2f)" % width_ratio)
+	if cards_scroll != null and start_frame != null:
+		_assert(cards_scroll.get_global_rect().end.y <= start_frame.get_global_rect().position.y + 1.0, "leviathan select scrollable card stack stays above the docked CTA lane")
+	if start_frame != null and overlay_rail != null:
+		_assert(start_frame.get_global_rect().size.y >= 96.0 and start_frame.get_global_rect().size.y <= 120.0, "leviathan select start frame keeps the taller docked CTA lane instead of the retired slim footer")
+		_assert(start_frame.get_global_rect().position.y >= overlay_rail.get_global_rect().end.y - 132.0, "leviathan select start frame stays pinned to the overlay rail bottom edge")
 	if start_button != null:
 		var button_height := start_button.get_global_rect().size.y
-		_assert(button_height >= 66.0 and button_height <= 74.0, "leviathan select CTA button resolves near the intended 70px baseline at the canonical viewport (height=%.2f)" % button_height)
+		_assert(button_height >= 92.0 and button_height <= 110.0, "leviathan select CTA button resolves near the intended docked overlay baseline at the canonical viewport (height=%.2f)" % button_height)
 	main_instance.queue_free()
 	await process_frame
 func _assert_defeat_layout(MainScene: PackedScene) -> void:

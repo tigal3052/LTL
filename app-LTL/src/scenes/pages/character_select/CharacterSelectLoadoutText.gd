@@ -17,12 +17,44 @@ static func detail_for_slot(color_name: String, slot_index: int) -> Dictionary:
 		return detail_for_artifact(loadout[slot_index])
 	return empty_bag_detail()
 
+static func starter_item_models(color_name: String) -> Array:
+	var models: Array = []
+	for artifact in starter_loadout_for_color(color_name):
+		models.append({
+			"itemId": str(artifact.id),
+			"title": starter_artifact_title(artifact),
+			"summary": starter_artifact_summary(artifact),
+			"metricLine": starter_palette_metric_line(artifact),
+			"itemType": str(artifact.item_type),
+			"colorName": str(artifact.energy_type),
+			"iconPath": starter_artifact_icon_path(artifact)
+		})
+	return models
+
+static func starter_artifact_icon_path(artifact) -> String:
+	if artifact == null:
+		return ""
+	var color_name := str(artifact.energy_type).to_lower()
+	var item_type := str(artifact.item_type).to_lower()
+	if item_type == "beacon":
+		return "res://resources/items/becon/%s_becon_start.png" % color_name
+	if item_type == "drill":
+		return "res://resources/items/drill/%s_drill_common.png" % color_name
+	return ""
+
+static func detail_for_item_id(color_name: String, item_id: String) -> Dictionary:
+	for artifact in starter_loadout_for_color(color_name):
+		if str(artifact.id) == item_id:
+			return detail_for_artifact(artifact)
+	return empty_bag_detail()
+
 static func detail_for_artifact(artifact) -> Dictionary:
 	if artifact == null:
 		return empty_bag_detail()
 	return {
 		"title": starter_artifact_title(artifact),
-		"body": starter_artifact_summary(artifact)
+		"body": starter_artifact_summary(artifact),
+		"metricLine": starter_palette_metric_line(artifact)
 	}
 
 static func starter_palette_text(color_name: String) -> String:
@@ -117,7 +149,8 @@ static func beacon_tick_compact(delta: int) -> String:
 static func empty_bag_detail() -> Dictionary:
 	return {
 		"title": TextCatalogScript.t("character.empty_slot.title"),
-		"body": TextCatalogScript.t("character.empty_slot.body")
+		"body": TextCatalogScript.t("character.empty_slot.body"),
+		"metricLine": ""
 	}
 
 static func _tag(text: String, tone: String) -> Dictionary:
@@ -165,3 +198,15 @@ static func _format_float(value: float) -> String:
 static func _format_signed_float(value: float) -> String:
 	var rendered := _format_float(absf(value))
 	return "+%s" % rendered if value >= 0.0 else "-%s" % rendered
+
+static func starter_palette_meta(color_name: String) -> String:
+	match color_name:
+		"red":
+			return "강한 피해 · 초반 개방"
+		"blue":
+			return "파동 안정 · 쿨다운 보정"
+		"purple":
+			return "디버프 · 상태이상 특화"
+		"green":
+			return "지속 회복 · 장기전 특화"
+	return ""

@@ -39,15 +39,15 @@ func _assert_stage_one_contract() -> void:
 	var settings_button := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/SettingsButton") as Button
 	var run_chip := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/RunChip") as PanelContainer
 	var stage_chip := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/StageChip") as PanelContainer
-	var action_bar := page.get_node_or_null("Margin/VStack/ActionBar") as HBoxContainer
-	var action_bar_spacer := page.get_node_or_null("Margin/VStack/ActionBar/Spacer") as Control
+	var action_bar := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/ActionBar") as HBoxContainer
+	var action_bar_spacer := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/ActionBar/Spacer") as Control
 	_assert(hero_section == null, "stage one removes the retired hero section instead of leaving empty header space")
 	_assert(board_label != null, "stage one exposes the board label for copy cleanup")
 	_assert(board_title != null, "stage one exposes the board title for copy cleanup")
 	if board_label != null:
-		_assert_eq(board_label.text, "", "stage one retires the selected-leviathan board kicker copy")
+		_assert_eq(board_label.text, "LEVIATHAN EXPEDITION ATLAS", "stage one shows the atlas board kicker copy")
 	if board_title != null:
-		_assert_eq(board_title.text, TextCatalogScript.display_name("Ossuary Tortoise"), "stage one keeps the board-head Leviathan title")
+		_assert_eq(board_title.text, "등갑 지형도 · %s" % TextCatalogScript.display_name("Ossuary Tortoise"), "stage one keeps the Leviathan title inside the atlas map title")
 	_assert(shop_button != null, "stage one exposes an in-frame shop button after retiring the outer header controls")
 	_assert(codex_button != null, "stage one exposes an in-frame codex button after retiring the outer header controls")
 	_assert(settings_button != null, "stage one exposes an in-frame settings button after retiring the outer header controls")
@@ -63,12 +63,12 @@ func _assert_stage_one_contract() -> void:
 		var run_style := run_chip.get_theme_stylebox("panel") as StyleBoxFlat
 		_assert(run_style != null, "stage one run chip resolves a panel style")
 		if run_style != null:
-			_assert(run_style.content_margin_left >= 18.0 and run_style.content_margin_right >= 18.0, "stage one run chip adds left/right content padding")
+			_assert(run_style.content_margin_left >= 16.0 and run_style.content_margin_right >= 16.0, "stage one run chip adds left/right content padding")
 	if stage_chip != null:
 		var stage_style := stage_chip.get_theme_stylebox("panel") as StyleBoxFlat
 		_assert(stage_style != null, "stage one stage chip resolves a panel style")
 		if stage_style != null:
-			_assert(stage_style.content_margin_left >= 18.0 and stage_style.content_margin_right >= 18.0, "stage one stage chip adds left/right content padding")
+			_assert(stage_style.content_margin_left >= 16.0 and stage_style.content_margin_right >= 16.0, "stage one stage chip adds left/right content padding")
 	_assert(action_bar != null, "stage one exposes the node-select action bar")
 	_assert(action_bar_spacer != null, "stage one action bar inserts a spacer so reset and start separate to opposite ends")
 	if action_bar_spacer != null:
@@ -91,14 +91,14 @@ func _assert_stage_two_contract() -> void:
 	var hero_section := page.get_node_or_null("Margin/VStack/HeroSection") as Control
 	var board_label := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/BoardLabel") as Label
 	var board_title := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/BoardLead/LeviathanTitle") as Label
-	var start_button := page.get_node_or_null("Margin/VStack/ActionBar/StartButton") as Button
+	var start_button := page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/ActionBar/StartButton") as Button
 	_assert(hero_section == null, "stage two keeps the retired hero section removed")
 	_assert(board_label != null, "stage two exposes the board label for copy cleanup")
 	_assert(board_title != null, "stage two exposes the board title for copy cleanup")
 	if board_label != null:
-		_assert_eq(board_label.text, "", "stage two keeps the selected-leviathan board kicker removed")
+		_assert_eq(board_label.text, "LEVIATHAN EXPEDITION ATLAS", "stage two keeps the atlas board kicker")
 	if board_title != null:
-		_assert_eq(board_title.text, TextCatalogScript.display_name("Ossuary Tortoise"), "stage two keeps the board-head Leviathan title")
+		_assert_eq(board_title.text, "등갑 지형도 · %s" % TextCatalogScript.display_name("Ossuary Tortoise"), "stage two keeps the Leviathan title inside the atlas map title")
 	if start_button != null:
 		_assert_eq(start_button.text, "채굴 시작", "stage two renames the node-select start CTA to mining start")
 	_assert_eq(int(page.call("route_button_count")), 5, "stage two renders five current branch buttons")

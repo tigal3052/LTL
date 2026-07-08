@@ -27,27 +27,39 @@ func _run() -> void:
 		_assert(instance != null, "scene instantiates for %s" % mockup_name)
 		if instance != null:
 			if mockup_name == "m6-run-start-wireframe.html":
+				_assert(instance.get_node_or_null("TopBar") != null, "run-start scene exposes the shared top navigation bar")
 				_assert(instance.get_node_or_null("Margin/VStack/HeroSection") != null, "run-start scene exposes the hero introduction section")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell") != null, "run-start scene exposes the board shell")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/SelectorZone") != null, "run-start scene exposes the narrow selector zone")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone") != null, "run-start scene exposes the wide hero stage zone")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone") != null, "run-start scene exposes the right prep zone")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/ContinueButton") != null, "run-start scene exposes the run-start CTA button")
+				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/ContinueButton") != null, "run-start scene exposes the run-start CTA button in the center hero footer")
+				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FeatureZone/ZoneMargin/ZoneVBox/HeroColumn/CopyCard/CopyMargin/CopyVBox/HeroLine") != null, "run-start scene exposes the per-character hero line in the center footer")
+				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/BagCard/BagMargin/BagVBox/StarterItemList") != null, "run-start scene exposes the starter item list host")
+				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/PrepZone/ZoneMargin/ZoneVBox/PrepColumn/CtaCard/CtaMargin/CtaVBox/ItemDetailBody") != null, "run-start scene exposes the starter item detail body")
 			elif mockup_name == "m6-leviathan-select-wireframe.html":
-				var target_ribbon := instance.get_node_or_null("Margin/Layout/BoardPanel/TargetRibbon") as Control
-				var start_frame := instance.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame") as Control
-				var start_button := instance.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame/StartButton") as Button
-				var advance_label := instance.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame/StartButton/StartButtonMargin/StartButtonCenter/StartButtonStack/AdvanceLabel") as Label
-				var start_label := instance.get_node_or_null("Margin/Layout/BoardPanel/StartButtonFrame/StartButton/StartButtonMargin/StartButtonCenter/StartButtonStack/StartLabel") as Label
-				_assert(target_ribbon != null, "leviathan-select scene exposes the full-width target ribbon overlay")
-				_assert(start_frame != null, "leviathan-select scene exposes the dedicated start-button frame overlay")
+				var top_bar := instance.get_node_or_null("TopBar") as Control
+				var global_rail := instance.get_node_or_null("WorkspaceMargin/Workspace/GlobalRail") as Control
+				var hero_shell := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell") as Control
+				var overlay_rail := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail") as Control
+				var cards_scroll := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/CardsScroll") as ScrollContainer
+				var start_frame := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame") as Control
+				var start_button := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton") as Button
+				var advance_label := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton/StartButtonMargin/StartButtonVBox/AdvanceLabel") as Label
+				var start_label := instance.get_node_or_null("WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton/StartButtonMargin/StartButtonVBox/StartLabel") as Label
+				_assert(top_bar != null, "leviathan-select scene exposes the dedicated top navigation bar")
+				_assert(global_rail != null, "leviathan-select scene exposes the flush left expedition rail")
+				_assert(hero_shell != null, "leviathan-select scene exposes the full-bleed hero shell")
+				_assert(overlay_rail != null, "leviathan-select scene exposes the right overlay rail")
+				_assert(cards_scroll != null, "leviathan-select scene exposes the scrollable overlay card stack")
+				_assert(start_frame != null, "leviathan-select scene exposes the dedicated bottom CTA frame")
 				_assert(start_button != null, "leviathan-select scene exposes the looting-start button")
 				_assert(advance_label != null, "leviathan-select CTA exposes a next-step kicker label")
 				_assert(start_label != null, "leviathan-select CTA exposes a primary looting-start label")
-				_assert_eq(TextCatalogScript.t("leviathan.start_hint", [], "en"), "IMMEDIATE HANDOFF", "leviathan-select CTA keeps the approved condensed kicker copy")
+				_assert_eq(TextCatalogScript.t("leviathan.start_hint", [], "en"), "STRIKE COMMENCE", "leviathan-select CTA keeps the approved condensed kicker copy")
 				_assert_eq(TextCatalogScript.t("leviathan.start_button", [], "en"), "LOOTING START", "leviathan-select CTA keeps the approved condensed primary copy")
 				if start_button != null:
-					_assert(start_button.custom_minimum_size.y >= 68.0 and start_button.custom_minimum_size.y <= 74.0, "leviathan-select CTA keeps the slimmer ~70px baseline height")
+					_assert(start_button.custom_minimum_size.y >= 96.0 and start_button.custom_minimum_size.y <= 110.0, "leviathan-select CTA keeps the taller docked overlay baseline height")
 			elif mockup_name == "2026-06-08-node-select-crossroads-3up.html":
 				_assert(instance.get_node_or_null("Margin/VStack/HeroSection") == null, "node-select scene removes the retired mockup hero section")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell") != null, "node-select scene exposes the dedicated board shell")

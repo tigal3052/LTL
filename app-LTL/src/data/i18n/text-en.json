@@ -240,7 +240,7 @@
     "leviathan.biome": "Biome: {0}",
     "leviathan.target_kicker": "LOOTING TARGET",
     "leviathan.target_core": "{0} Core",
-    "leviathan.start_hint": "IMMEDIATE HANDOFF",
+    "leviathan.start_hint": "STRIKE COMMENCE",
     "leviathan.start_button": "LOOTING START",
     "leviathan.biome_unknown": "unknown waters",
     "character.page.title": "Character Select",
@@ -414,7 +414,9 @@
       "name": "Anchor Miner",
       "role": "Fracture Vanguard Miner",
       "rosterMeta": "Selected",
+      "rosterLongCopy": "Keep this longer expedition-log body in character data so the left roster card can explain the miner without hardcoding copy inside the page runtime.",
       "description": "A frontline miner with a large readable hero image and short copy. The red artifact line gives the most direct launch rhythm.",
+      "heroLine": "Read the first wave, then break the thickest surface first.",
       "summary": "Players skim the narrow left roster first, confirm the main visual and summary in the center, then move into artifact colors and launch prep on the right.",
       "tags": ["Large character art", "Short direct copy", "Links into color artifacts"]
     },
@@ -422,7 +424,9 @@
       "name": "Pulse Engineer",
       "role": "Precision Wave Engineer",
       "rosterMeta": "Unlock candidate",
+      "rosterLongCopy": "The engineer stays visible in the expedition log so the roster can preview a future precision-wave route without page-local placeholder text.",
       "description": "A design-focused operator built around blue artifact loops and beacon routing. Even while locked, the roster keeps the next unlock target visible.",
+      "heroLine": "Measure the surge, then route the cleanest answer through it.",
       "summary": "Unavailable characters still preview the next unlock route through the same compact roster card pattern.",
       "tags": ["Locked candidate", "Precision control", "Beacon amplification"]
     },
@@ -430,7 +434,9 @@
       "name": "Hull Mechanic",
       "role": "Hull Repair Technician",
       "rosterMeta": "Support archetype",
+      "rosterLongCopy": "The mechanic's longer roster note keeps the support role legible in the left log while preserving the same visual grammar as active picks.",
       "description": "A support character centered on repair and recovery. Even while locked, the roster and main board keep the same language pattern.",
+      "heroLine": "Patch the breach, keep the frame true, and the run keeps moving.",
       "summary": "Locked characters still share the same board grammar so the UI language does not shift when the roster expands.",
       "tags": ["Support", "Repair focus", "Late-run stability"]
     },
@@ -438,7 +444,9 @@
       "name": "Future Trawler",
       "role": "Future slot",
       "rosterMeta": "Future slot",
+      "rosterLongCopy": "A reserved expedition-log slot for a later character reveal.",
       "description": "Additional character slot",
+      "heroLine": "Future slot.",
       "summary": "Future slot",
       "tags": ["Future", "Slot", "Planned"]
     },
@@ -446,7 +454,9 @@
       "name": "Bulk Diver",
       "role": "Future slot",
       "rosterMeta": "Future slot",
+      "rosterLongCopy": "A reserved expedition-log slot for a later character reveal.",
       "description": "Additional character slot",
+      "heroLine": "Future slot.",
       "summary": "Future slot",
       "tags": ["Future", "Slot", "Planned"]
     },
@@ -454,7 +464,9 @@
       "name": "Pressure Cartographer",
       "role": "Future slot",
       "rosterMeta": "Future slot",
+      "rosterLongCopy": "A reserved expedition-log slot for a later character reveal.",
       "description": "Additional character slot",
+      "heroLine": "Future slot.",
       "summary": "Future slot",
       "tags": ["Future", "Slot", "Planned"]
     }
@@ -471,6 +483,10 @@
     "sky_mireu": {
       "name": "Sky Mireu",
       "biome": "living aurora"
+    },
+    "leviathan_drake": {
+      "name": "Drake",
+      "biome": "unknown waters"
     }
   },
   "baseShop": {

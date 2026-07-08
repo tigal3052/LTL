@@ -51,12 +51,20 @@ static func create_page_scenes(view) -> void:
 		view.character_select_page.connect("continue_requested", func(): view.character_continue_pressed.emit())
 	if view.character_select_page != null and view.character_select_page.has_signal("settings_requested"):
 		view.character_select_page.connect("settings_requested", func(): view.settings_open_pressed.emit())
+	if view.character_select_page != null and view.character_select_page.has_signal("codex_requested"):
+		view.character_select_page.connect("codex_requested", func(): view.codex_open_pressed.emit())
 	if view.character_select_page != null and view.character_select_page.has_signal("interaction_sfx_requested"):
 		view.character_select_page.connect("interaction_sfx_requested", func(category: String): view.play_interaction_sfx(category))
 	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("leviathan_selected"):
 		view.leviathan_select_page.connect("leviathan_selected", func(leviathan_id): view.leviathan_selected.emit(leviathan_id))
 	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("start_requested"):
 		view.leviathan_select_page.connect("start_requested", func(): view.looting_start_pressed.emit())
+	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("return_to_character_select_requested"):
+		view.leviathan_select_page.connect("return_to_character_select_requested", func(): view.return_to_character_select_pressed.emit())
+	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("codex_requested"):
+		view.leviathan_select_page.connect("codex_requested", func(): view.codex_open_pressed.emit())
+	if view.leviathan_select_page != null and view.leviathan_select_page.has_signal("settings_requested"):
+		view.leviathan_select_page.connect("settings_requested", func(): view.settings_open_pressed.emit())
 	if view.story_scene_page != null and view.story_scene_page.has_signal("continue_requested"):
 		view.story_scene_page.connect("continue_requested", func(scene_id): view.story_continue_requested.emit(scene_id))
 	if view.story_scene_page != null and view.story_scene_page.has_signal("skip_requested"):
@@ -134,7 +142,9 @@ static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Di
 	var bundle := {"pageId": page_id, "pageRoot": page_root}
 	var action_bar_path := "ActionBar"
 	if page_id == "node_select":
-		action_bar_path = "Margin/VStack/ActionBar"
+		action_bar_path = "Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/ActionBar"
+		if page_root.get_node_or_null(action_bar_path) == null:
+			action_bar_path = "Margin/VStack/ActionBar"
 	bundle["actionBar"] = page_root.get_node_or_null(action_bar_path) as HBoxContainer
 	bundle["resetButton"] = page_root.get_node_or_null("%s/ResetButton" % action_bar_path) as Button
 	bundle["startButton"] = page_root.get_node_or_null("%s/StartButton" % action_bar_path) as Button

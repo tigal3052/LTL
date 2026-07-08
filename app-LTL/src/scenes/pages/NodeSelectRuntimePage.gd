@@ -13,14 +13,18 @@ const NodeSelectRoadmapComposerScript = preload("res://src/scenes/pages/node_sel
 const NodeSelectRoadmapRendererScript = preload("res://src/scenes/pages/node_select/NodeSelectRoadmapRenderer.gd")
 const NodeSelectVisualFactoryScript = preload("res://src/scenes/pages/node_select/NodeSelectVisualFactory.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
+const LeviathanSelectChromeBitsScript = preload("res://src/scenes/pages/leviathan_select/LeviathanSelectChromeBits.gd")
 
-const BOARD_BG := Color(0.11, 0.08, 0.06, 0.98)
-const BOARD_BORDER := Color(0.48, 0.34, 0.22, 0.82)
-const PANEL_BG := Color(0.08, 0.05, 0.04, 0.86)
-const PANEL_BORDER := Color(0.76, 0.63, 0.42, 0.22)
-const TEXT_PRIMARY := Color(0.95, 0.90, 0.82, 1.0)
-const TEXT_MUTED := Color(0.74, 0.67, 0.58, 1.0)
-const ROUTE_GOLD := Color(0.90, 0.74, 0.43, 0.96)
+const DESIGN_SPEC_ID := "node-select-atlas-variant-a"
+const ATLAS_BG_PATH := "res://resources/node_select/atlas/variant_a_bg_topographic_leviathan_atlas.png"
+const ATLAS_PANEL_PATH := "res://resources/node_select/atlas/panel_atlas.png"
+const BOARD_BG := Color(0.89, 0.86, 0.72, 0.94)
+const BOARD_BORDER := Color(0.46, 0.55, 0.42, 0.24)
+const PANEL_BG := Color(0.95, 0.88, 0.68, 0.90)
+const PANEL_BORDER := Color(0.33, 0.45, 0.30, 0.30)
+const TEXT_PRIMARY := Color(0.08, 0.16, 0.11, 1.0)
+const TEXT_MUTED := Color(0.28, 0.36, 0.26, 1.0)
+const ROUTE_GOLD := Color(0.20, 0.55, 0.29, 0.96)
 const SHOP_ENABLED := false
 
 @onready var page_backdrop: ColorRect = $PageBackdrop
@@ -35,6 +39,7 @@ const SHOP_ENABLED := false
 @onready var settings_button: Button = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/SettingsButton
 @onready var reset_button: Button = $Margin/VStack/ActionBar/ResetButton
 @onready var start_button: Button = $Margin/VStack/ActionBar/StartButton
+@onready var action_bar: HBoxContainer = $Margin/VStack/ActionBar
 @onready var roadmap_frame: PanelContainer = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame
 @onready var roadmap_canvas: Control = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas
 @onready var canvas_backdrop: ColorRect = $Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/CanvasBackdrop
@@ -62,10 +67,16 @@ var _core_texture_cache: Dictionary = {}
 var _spot_texture_cache: Dictionary = {}
 
 func _ready() -> void:
+	set_meta("design_spec", DESIGN_SPEC_ID)
+	roadmap_canvas.set_meta("atlas_bg_path", ATLAS_BG_PATH)
+	info_card.set_meta("design_spec", DESIGN_SPEC_ID)
+	start_button.set_meta("design_spec", DESIGN_SPEC_ID)
+	reset_button.set_meta("design_spec", DESIGN_SPEC_ID)
 	start_button.set_meta(InteractionFXScript.META_SFX_CATEGORY, "battle_start")
 	_apply_theme()
 	_wire_toolbar_actions()
 	_apply_action_copy()
+	_dock_action_bar_in_canvas()
 	roadmap_canvas.resized.connect(_queue_canvas_layout)
 	apply_state({})
 
@@ -125,28 +136,45 @@ func _render_copy() -> void:
 	var run_index := mini(run_count, maxi(1, int(_state.get("runIndex", 0)) + 1))
 	var art_path := str(_state.get("pageHeroPath", leviathan.get("artPath", "")))
 
-	board_label.text = ""
-	board_label.visible = false
-	leviathan_title.text = _leviathan_name(leviathan)
+	board_label.text = "LEVIATHAN EXPEDITION ATLAS"
+	board_label.visible = true
+	leviathan_title.text = "등갑 지형도 · %s" % _leviathan_name(leviathan)
 	leviathan_title.visible = true
 	run_chip_label.text = TextCatalogScript.t("node_runtime.run_chip", [run_index, run_count])
 	stage_chip_label.text = TextCatalogScript.t("node_runtime.stage_chip", [stage_number, max_stages])
 	info_name_label.text = TextCatalogScript.t("node_runtime.info_name_label")
-	info_body_label.text = TextCatalogScript.t("node_runtime.info_body_label")
-	board_backdrop.texture = LTLThemeScript.art_texture(art_path) if not art_path.is_empty() else null
+	info_body_label.text = "노드 분석"
+	board_backdrop.texture = LTLThemeScript.art_texture(ATLAS_BG_PATH)
 
 func _apply_theme() -> void:
-	page_backdrop.color = Color(0.04, 0.06, 0.09, 1.0)
+	theme = LTLThemeScript.shared_theme()
+	page_backdrop.color = Color(0.78, 0.83, 0.66, 1.0)
 
-	board_shell.add_theme_stylebox_override("panel", _panel_style(BOARD_BG, BOARD_BORDER, 30, 1, Color(0.0, 0.0, 0.0, 0.34), 34))
-	roadmap_frame.add_theme_stylebox_override("panel", _panel_style(Color(0.16, 0.11, 0.08, 0.92), Color(0.71, 0.56, 0.37, 0.14), 28, 1, Color(0.0, 0.0, 0.0, 0.18), 12))
-	info_card.add_theme_stylebox_override("panel", _panel_style(PANEL_BG, PANEL_BORDER, 22, 1, Color(0.0, 0.0, 0.0, 0.24), 20))
-	board_backdrop.self_modulate = Color(1.0, 0.94, 0.88, 0.11)
-	canvas_backdrop.color = Color(0.15, 0.10, 0.08, 0.95)
+	board_shell.add_theme_stylebox_override("panel", _empty_style())
+	roadmap_frame.add_theme_stylebox_override("panel", _panel_style(Color(0.91, 0.88, 0.72, 0.0), Color(0.98, 0.94, 0.78, 0.0), 0, 0))
+	info_card.add_theme_stylebox_override("panel", _empty_style())
+	board_backdrop.visible = false
+	board_backdrop.self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	canvas_backdrop.color = Color(0.92, 0.88, 0.66, 0.0)
+	$Margin.add_theme_constant_override("margin_left", 16)
+	$Margin.add_theme_constant_override("margin_top", 10)
+	$Margin.add_theme_constant_override("margin_right", 16)
+	$Margin.add_theme_constant_override("margin_bottom", 8)
+	$Margin/VStack.add_theme_constant_override("separation", 8)
+	$Margin/VStack/BoardShell/ShellMargin.add_theme_constant_override("margin_left", 0)
+	$Margin/VStack/BoardShell/ShellMargin.add_theme_constant_override("margin_top", 0)
+	$Margin/VStack/BoardShell/ShellMargin.add_theme_constant_override("margin_right", 0)
+	$Margin/VStack/BoardShell/ShellMargin.add_theme_constant_override("margin_bottom", 0)
+	$Margin/VStack/BoardShell/ShellMargin/ShellVBox.add_theme_constant_override("separation", 8)
+	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin.add_theme_constant_override("margin_left", 0)
+	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin.add_theme_constant_override("margin_top", 0)
+	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin.add_theme_constant_override("margin_right", 0)
+	$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin.add_theme_constant_override("margin_bottom", 0)
+	roadmap_canvas.clip_contents = false
 
 	board_label.add_theme_font_size_override("font_size", 11)
-	board_label.add_theme_color_override("font_color", Color(0.92, 0.82, 0.62, 0.82))
-	leviathan_title.add_theme_font_size_override("font_size", 48)
+	board_label.add_theme_color_override("font_color", Color(0.20, 0.42, 0.27, 0.82))
+	leviathan_title.add_theme_font_size_override("font_size", 30)
 	leviathan_title.add_theme_color_override("font_color", TEXT_PRIMARY)
 
 	info_name_label.add_theme_font_size_override("font_size", 11)
@@ -162,17 +190,20 @@ func _apply_theme() -> void:
 		$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/RunChip,
 		$Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead/TitleChips/StageChip
 	]:
-		var chip_style := _panel_style(Color(0.25, 0.17, 0.11, 0.82), Color(0.77, 0.60, 0.32, 0.34), 16, 1)
-		chip_style.content_margin_left = 18
-		chip_style.content_margin_right = 18
+		var chip_style := _panel_style(Color(0.95, 0.91, 0.76, 0.62), Color(0.29, 0.43, 0.28, 0.18), 12, 1)
+		chip_style.content_margin_left = 16
+		chip_style.content_margin_right = 16
 		chip_style.content_margin_top = 8
 		chip_style.content_margin_bottom = 8
 		chip.add_theme_stylebox_override("panel", chip_style)
 		var chip_label := chip.get_node("ChipLabel") as Label
-		chip_label.add_theme_font_size_override("font_size", 11)
-		chip_label.add_theme_color_override("font_color", Color(0.97, 0.83, 0.60, 1.0))
+		chip_label.add_theme_font_size_override("font_size", 12)
+		chip_label.add_theme_color_override("font_color", Color(0.16, 0.29, 0.19, 0.92))
 
 	for utility_button in [shop_button, codex_button, settings_button]:
+		utility_button.set_meta("kind", "top_group")
+		utility_button.set_meta("active", false)
+		utility_button.flat = false
 		utility_button.focus_mode = Control.FOCUS_CLICK
 		utility_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		utility_button.custom_minimum_size = Vector2(112.0, 42.0)
@@ -182,8 +213,38 @@ func _apply_theme() -> void:
 		utility_button.add_theme_stylebox_override("focus", _panel_style(Color(0.29, 0.20, 0.13, 0.92), Color(0.88, 0.71, 0.41, 0.48), 16, 1, Color(0.0, 0.0, 0.0, 0.22), 12))
 		utility_button.add_theme_font_size_override("font_size", 14)
 		utility_button.add_theme_color_override("font_color", TEXT_PRIMARY)
+		_apply_atlas_top_action_theme(utility_button)
 	shop_button.disabled = not SHOP_ENABLED
 	shop_button.mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN if shop_button.disabled else Control.CURSOR_POINTING_HAND
+	_apply_atlas_action_button_theme(reset_button, false)
+	_apply_atlas_action_button_theme(start_button, true)
+
+func _apply_atlas_top_action_theme(button: Button) -> void:
+	button.flat = false
+	button.custom_minimum_size = Vector2(112.0, 42.0)
+	button.add_theme_font_size_override("font_size", 14)
+	for state in ["normal", "focus"]:
+		button.add_theme_stylebox_override(state, _panel_style(Color(0.95, 0.91, 0.76, 0.38), Color(0.20, 0.35, 0.22, 0.14), 12, 1))
+	button.add_theme_stylebox_override("hover", _panel_style(Color(0.97, 0.94, 0.80, 0.64), Color(0.20, 0.45, 0.24, 0.26), 12, 1))
+	button.add_theme_stylebox_override("pressed", _panel_style(Color(0.86, 0.80, 0.62, 0.70), Color(0.20, 0.35, 0.22, 0.22), 12, 1))
+	button.add_theme_stylebox_override("disabled", _panel_style(Color(0.90, 0.86, 0.74, 0.25), Color(0.35, 0.38, 0.32, 0.08), 12, 1))
+	button.add_theme_color_override("font_color", Color(0.12, 0.23, 0.16, 0.96))
+	button.add_theme_color_override("font_hover_color", Color(0.08, 0.19, 0.12, 1.0))
+	button.add_theme_color_override("font_disabled_color", Color(0.34, 0.39, 0.33, 0.38))
+
+func _apply_atlas_action_button_theme(button: Button, primary: bool) -> void:
+	button.custom_minimum_size = Vector2(210.0 if primary else 180.0, 62.0)
+	button.add_theme_font_size_override("font_size", 18 if primary else 16)
+	button.add_theme_color_override("font_color", Color(0.96, 0.98, 0.86, 1.0) if primary else Color(0.18, 0.30, 0.18, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 0.92, 1.0) if primary else Color(0.12, 0.24, 0.14, 1.0))
+	var bg := Color(0.12, 0.38, 0.20, 0.98) if primary else Color(0.86, 0.78, 0.56, 0.96)
+	var border := Color(0.78, 0.88, 0.54, 0.76) if primary else Color(0.40, 0.34, 0.22, 0.52)
+	for state in ["normal", "focus"]:
+		button.add_theme_stylebox_override(state, _panel_style(bg, border, 22, 2, Color(0.0, 0.0, 0.0, 0.18), 12))
+	button.add_theme_stylebox_override("hover", _panel_style(bg.lightened(0.08), border.lightened(0.10), 22, 2, Color(0.0, 0.0, 0.0, 0.22), 14))
+	button.add_theme_stylebox_override("pressed", _panel_style(bg.darkened(0.10), border.darkened(0.06), 22, 2, Color(0.0, 0.0, 0.0, 0.12), 8))
+	button.add_theme_stylebox_override("disabled", _panel_style(Color(0.74, 0.78, 0.60, 0.82), Color(0.34, 0.44, 0.30, 0.34), 22, 1))
+	button.add_theme_color_override("font_disabled_color", Color(0.23, 0.32, 0.22, 0.72))
 
 func _queue_canvas_layout() -> void:
 	if _canvas_layout_pending:
@@ -213,14 +274,55 @@ func _apply_action_copy() -> void:
 
 func _rebuild_canvas() -> void:
 	NodeSelectRoadmapComposerScript.rebuild_canvas(self)
+	_dock_action_bar_in_canvas()
+
+func _dock_action_bar_in_canvas() -> void:
+	if action_bar == null or roadmap_canvas == null:
+		return
+	if action_bar.get_parent() != roadmap_canvas:
+		var parent := action_bar.get_parent()
+		if parent != null:
+			parent.remove_child(action_bar)
+		roadmap_canvas.add_child(action_bar)
+	action_bar.set_meta("design_spec", DESIGN_SPEC_ID)
+	action_bar.name = "ActionBar"
+	action_bar.layout_mode = 0
+	action_bar.z_index = 80
+	action_bar.mouse_filter = Control.MOUSE_FILTER_STOP
+	action_bar.size_flags_horizontal = Control.SIZE_SHRINK_END
+	action_bar.size_flags_vertical = Control.SIZE_SHRINK_END
+	var dock_size := Vector2(minf(440.0, maxf(380.0, roadmap_canvas.size.x * 0.34)), 72.0)
+	action_bar.custom_minimum_size = dock_size
+	action_bar.size = dock_size
+	var x := maxf(20.0, roadmap_canvas.size.x - dock_size.x - 20.0)
+	var y := maxf(20.0, roadmap_canvas.size.y - dock_size.y - 20.0)
+	action_bar.position = Vector2(x, y)
+	_apply_atlas_action_button_theme(reset_button, false)
+	_apply_atlas_action_button_theme(start_button, true)
 
 func _layout_info_card() -> void:
-	var card_width := clampf(roadmap_canvas.size.x * 0.235, 236.0, 272.0)
-	var card_height := clampf(roadmap_canvas.size.y * 0.34, 198.0, 236.0)
-	info_card.position = Vector2(64.0, 18.0)
+	var card_width := clampf(roadmap_canvas.size.x * 0.27, 282.0, 350.0)
+	var card_height := clampf(roadmap_canvas.size.y * 0.58, 300.0, 438.0)
+	info_card.position = Vector2(28.0, 34.0)
 	info_card.size = Vector2(card_width, card_height)
+	_ensure_atlas_panel_texture(card_width, card_height)
 	info_name_label.text = TextCatalogScript.t("node_runtime.info_name_label")
-	info_body_label.text = TextCatalogScript.t("node_runtime.info_body_label")
+	info_body_label.text = "노드 분석"
+
+func _ensure_atlas_panel_texture(card_width: float, card_height: float) -> void:
+	var texture_rect := info_card.get_node_or_null("AtlasPanelTexture") as TextureRect
+	if texture_rect == null:
+		texture_rect = TextureRect.new()
+		texture_rect.name = "AtlasPanelTexture"
+		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		texture_rect.texture = LTLThemeScript.art_texture(ATLAS_PANEL_PATH)
+		info_card.add_child(texture_rect)
+		info_card.move_child(texture_rect, 0)
+	texture_rect.position = Vector2.ZERO
+	texture_rect.size = Vector2(card_width, card_height)
+	texture_rect.self_modulate = Color(1.0, 1.0, 1.0, 0.38)
 
 func _build_canvas_backdrop() -> void:
 	NodeSelectRoadmapRendererScript.build_canvas_backdrop(canvas_backdrop, roadmap_canvas.size, _spot_texture_cache)
@@ -360,6 +462,9 @@ func _candidate_icon_kind(candidate: Dictionary) -> String:
 func _candidate_description(candidate: Dictionary) -> String:
 	return NodeSelectContentModelScript.candidate_description(candidate)
 
+func _candidate_panel_body(candidate: Dictionary) -> String:
+	return NodeSelectContentModelScript.candidate_panel_body(candidate)
+
 func _candidate_tooltip(candidate: Dictionary) -> String:
 	return NodeSelectContentModelScript.candidate_tooltip(candidate)
 
@@ -404,6 +509,9 @@ func _emit_node_selected(index: int) -> void:
 
 func _panel_style(bg: Color, border: Color, radius: int, border_width: int, shadow := Color(0, 0, 0, 0), shadow_size := 0) -> StyleBoxFlat:
 	return NodeSelectVisualFactoryScript.panel_style(bg, border, radius, border_width, shadow, shadow_size)
+
+func _empty_style() -> StyleBoxEmpty:
+	return StyleBoxEmpty.new()
 
 func _tone_palette(tone: String) -> Dictionary:
 	return NodeSelectVisualFactoryScript.tone_palette(tone)

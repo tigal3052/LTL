@@ -31,7 +31,8 @@ static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) ->
 	view.phase_label.text = str(layout.get("phaseText", TextCatalogScript.t("phase.label", [TextCatalogScript.t("phase.unknown")])))
 	view.stage_label.text = str(layout.get("stageText", TextCatalogScript.t("stage.label", [1, 1])))
 	view.stage_label.visible = not view.stage_label.text.is_empty()
-	view.action_bar.visible = bool(layout.get("actionBarVisible", true))
+	if view.action_bar != null:
+		view.action_bar.visible = bool(layout.get("actionBarVisible", true))
 	var node_map_full_page := bool(layout.get("nodeMapFullPage", false))
 	var reward_backpack_dock := bool(layout.get("rewardBackpackDock", false))
 	view._apply_node_select_backpack_dock(str(layout.get("nodeSelectBackpackDock", "top")), float(layout.get("nodeMapStretchRatio", 2.1)), float(layout.get("backpackStretchRatio", 1.0)))
@@ -153,13 +154,19 @@ static func update_action_state(view, scene: Dictionary, show_victory_overlay: b
 	var page_id := str(scene.get("pageId", phase))
 	var reward_ceremony_active := RewardCeremonyPolicyScript.is_active_scene(scene)
 	var narrative_blocked := bool(scene.get("narrativeBlocksInput", false))
-	view.reset_button.visible = page_id not in META_PAGE_IDS
-	view.start_button.visible = page_id == "node_select"
-	view.claim_rewards_button.visible = page_id in ["reward", "boss_reward"]
-	view.start_button.disabled = not (page_id == "node_select" and node_select_start_ready(scene))
+	if view.reset_button != null:
+		view.reset_button.visible = page_id not in META_PAGE_IDS
+	if view.start_button != null:
+		view.start_button.visible = page_id == "node_select"
+	if view.claim_rewards_button != null:
+		view.claim_rewards_button.visible = page_id in ["reward", "boss_reward"]
+	if view.start_button != null:
+		view.start_button.disabled = not (page_id == "node_select" and node_select_start_ready(scene))
 	var claim_disabled := (narrative_blocked or page_id not in ["reward", "boss_reward"] or show_victory_overlay or reward_ceremony_active or bool(scene.get("is_reveal_vfx_running", false)))
-	view.claim_rewards_button.disabled = claim_disabled
-	view.claim_inline_button.disabled = claim_disabled
+	if view.claim_rewards_button != null:
+		view.claim_rewards_button.disabled = claim_disabled
+	if view.claim_inline_button != null:
+		view.claim_inline_button.disabled = claim_disabled
 
 static func node_select_start_ready(scene: Dictionary) -> bool:
 	if scene.has("selectedNodeStartEnabled"):

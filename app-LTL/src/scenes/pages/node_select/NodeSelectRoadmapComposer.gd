@@ -12,10 +12,10 @@ const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const NodeSelectLayoutPolicyScript = preload("res://src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 
-const ROUTE_RED := Color(0.82, 0.47, 0.40, 0.88)
-const ROUTE_GOLD := Color(0.90, 0.74, 0.43, 0.96)
-const ROUTE_FORECAST := Color(0.85, 0.73, 0.55, 0.24)
-const ROUTE_MUTED := Color(0.62, 0.54, 0.44, 0.18)
+const ROUTE_RED := Color(0.28, 0.37, 0.24, 0.62)
+const ROUTE_GOLD := Color(0.48, 0.94, 0.55, 0.96)
+const ROUTE_FORECAST := Color(0.36, 0.45, 0.31, 0.34)
+const ROUTE_MUTED := Color(0.24, 0.30, 0.22, 0.28)
 
 # ?ㅽ뻾: rebuild the roadmap canvas for the supplied runtime page owner.
 static func rebuild_canvas(page) -> void:
@@ -91,7 +91,7 @@ static func rebuild_canvas(page) -> void:
 			var candidate: Dictionary = candidates[index]
 			var center: Vector2 = route_centers[index]
 			var panel_key := "route_%d" % index
-			page._register_panel_model(panel_key, TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?")))), page._candidate_description(candidate))
+			page._register_panel_model(panel_key, TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?")))), page._candidate_panel_body(candidate))
 			page._add_dotted_route("PastRoute%d" % index, history_anchor, center, ROUTE_RED, 4.8, -0.12 + (0.08 * float(index)), 0.86)
 			if index == selected_index:
 				page._add_forecast_route("SelectedRoute%d" % index, history_anchor, center, ROUTE_GOLD, 3.2, -0.08 + (0.05 * float(index)))

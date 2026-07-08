@@ -36,10 +36,20 @@ At this stage the wrapper already automates summary generation and shared closeo
 
 - Shared live status: `docs/agent-worklog/ACTIVE.md`
 - Shared closeouts / handoffs: `docs/agent-worklog/YYYY-MM-DD-<agent>-<slug>.md`
-- Raw Codex evidence: `docs/codex-worklog/plan_*`, `history_*`, `complete_*`
+- Raw Codex evidence: `docs/codex-worklog/<YYYY>-W<WW>/plan_*`, `history_*`, `complete_*`
 - Generated summaries: `docs/agent-worklog/INDEX.md`, `docs/agent-worklog/COMPACT.md`
 
 The shared layer is the default collaboration surface. Raw Codex logs remain evidence, not the default prompt context.
+
+## Raw Codex Worklog Folder Layout
+
+`docs/codex-worklog/` is partitioned into ISO week folders instead of one flat directory, since the raw `plan_/history_/complete_` files accumulate quickly (119 files across ~8 weeks before this split).
+
+- Folder name: `<ISO-year>-W<ISO-week>` (e.g. `2026-W27`), matching `date +%G-W%V`.
+- File naming inside each folder is unchanged: `plan_<repo>_<date>.md`, `history_<repo>_<date>.md`, `complete_<repo>_<date>.md`.
+- When writing a new raw worklog entry, compute the current ISO week and write into (or create) `docs/codex-worklog/<current-ISO-week>/`.
+- `tools/agent-worklog.ps1` / `worklog-token-gate.ps1` already scan `docs/codex-worklog/` recursively, so no reader changes were needed for this split.
+- Do not flatten week folders back together; do not move old weeks when a new week starts.
 
 ## ACTIVE.md Contract
 

@@ -7,7 +7,7 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: db4b372cd76fd4b6c5d986b128a6b05017f3ec0d85ae8e09a8ea461b71cc8a00
+- Source fingerprint: a245330ede595a97c796e673195934df186e6712ffd2385b9854bf9b465a5b63
 
 ## File Map
 
@@ -39,7 +39,23 @@ This file is the live implementation map for AI agents. It records each current 
   - This document explains project design or implementation criteria.
 - `.hermes/plans/2026-06-29_163803-ltl-shared-worklog-unification-plan.ko.md`
   - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-29_234353-combat-003-battlefield-priority-plan.md`
+  - This document explains project design or implementation criteria.
 - `.hermes/plans/2026-06-29-core-001-alpha-baseline-plan.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-30_093300-ltl-leviathan-select-stitch-visual-update-plan.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-06-30_174517-leviathan-select-cta-replan.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-07-01_094958-leviathan-card-strip-scroll-bounce-plan.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-07-03_003814-leviathan-select-scroll-selection-regression-plan.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-07-03_005100-leviathan-select-scroll-selection-regression-plan-revised.ko.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-07-03_165111-leviathan-top-origin-root-cause-plan.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-07-03_172419-leviathan-black-gap-input-owner-replan.md`
   - This document explains project design or implementation criteria.
 - `.hermes/plans/ltl-google-stitch-page-prompts.ko.md`
   - This document explains project design or implementation criteria.
@@ -1022,6 +1038,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Projects starter loadout artifacts into localized character-select button and bag-detail copy.
 - `app-LTL/src/scenes/pages/character_select/CharacterSelectPaletteView.gd`
   - Builds and styles starter palette buttons, tag chips, and selected-color palette states.
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectTopBar.tscn`
+  - Character Select Top Bar defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/character_select/CharacterSelectViewBits.gd`
+  - Character Select View Bits defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/CharacterSelectPage.gd`
   - Renders the character selection page, starter-color buttons, and continue CTA.
 - `app-LTL/src/scenes/pages/CharacterSelectPage.tscn`
@@ -1034,6 +1054,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Defeat page scene matching the defeat wireframe and returning to character select.
 - `app-LTL/src/scenes/pages/EventNodePage.tscn`
   - Event-node page shell scene matching the event-node wireframe.
+- `app-LTL/src/scenes/pages/leviathan_select/LeviathanSelectChromeBits.gd`
+  - Leviathan Select Chrome Bits defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/leviathan_select/LeviathanSelectRailCardFactory.gd`
+  - Leviathan Select Rail Card Factory defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/leviathan_select/LeviathanSelectRailScrollController.gd`
+  - Leviathan Select Rail Scroll Controller defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/leviathan_select/LeviathanSelectViewBits.gd`
+  - Leviathan Select View Bits defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/LeviathanSelectPage.gd`
   - Renders the leviathan contract roster, hero board, target card, and looting-start CTA.
 - `app-LTL/src/scenes/pages/LeviathanSelectPage.tscn`
@@ -1078,6 +1106,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Provides the reusable full-bleed page-shell controller for page-specific backdrops and headings.
 - `app-LTL/src/scenes/pages/StageBackdropPage.tscn`
   - Shared page-shell scene used by node-select, battle, reward, boss, and event page shells.
+- `app-LTL/src/scenes/pages/story_scene/StorySceneFrame.gd`
+  - Story Scene Frame defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/story_scene/StorySceneFrame.tscn`
+  - Story Scene Frame defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/story_scene/StorySceneFrameBits.gd`
+  - Story Scene Frame Bits defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/StoryScenePage.gd`
   - Renders one full VN story step and emits continue/skip requests without mutating game state.
 - `app-LTL/src/scenes/pages/StoryScenePage.tscn`
@@ -1440,6 +1474,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies repeated battle renders do not refresh inactive meta page state on the tile-hit hot path.
 - `app-LTL/tests/run_character_select_cleanup_contract.gd`
   - run character select cleanup contract verifies the simplified character-select shell copy and hover-detail behavior.
+- `app-LTL/tests/run_character_select_interaction_contract.gd`
+  - run character select interaction contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_codex_pause_timing_contract.gd`
   - Verifies codex pause/resume preserves the steady battle terrain timer interval and saved remaining countdown.
 - `app-LTL/tests/run_combat_layout_containment_contract.gd`
@@ -1452,8 +1488,20 @@ This file is the live implementation map for AI agents. It records each current 
   - run interaction audio runtime contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_interaction_sfx_contract.gd`
   - Runs the focused interaction SFX contract suite and reports deterministic pass/fail output for sound routing work.
+- `app-LTL/tests/run_leviathan_card_strip_scroll_contract.gd`
+  - run leviathan card strip scroll contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_leviathan_rail_cta_style_audit.gd`
+  - run leviathan rail cta style audit verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_leviathan_select_runtime_contract.gd`
+  - run leviathan select runtime contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_leviathan_select_visual_hold.gd`
   - run leviathan select visual hold boots the live meta flow into leviathan select and keeps the real Godot window open for manual capture.
+- `app-LTL/tests/run_leviathan_top_button_group_contract.gd`
+  - run leviathan top button group contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_leviathan_top_button_style_audit.gd`
+  - run leviathan top button style audit verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_m6_visual_capture.gd`
+  - run m6 visual capture verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_m6_visual_hold.gd`
   - Boots the live M6 flow into a requested release page and keeps the real Godot window open for matrix capture.
 - `app-LTL/tests/run_m7_narrative_gating_contract.gd`
@@ -1504,6 +1552,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Captures shared backpack visual states used as manual evidence for docking and item art.
 - `app-LTL/tests/run_start_option_contract.gd`
   - run start option contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_story_scene_runtime_contract.gd`
+  - run story scene runtime contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_test_combat_vocab.gd`
   - run test combat vocab executes focused combat vocabulary regression tests.
 - `app-LTL/tests/run_test_node_routing_contract.gd`
@@ -1546,6 +1596,12 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the M8 headless full clear, defeat, retry seed modes, reward reflection, and starter unlocks.
 - `app-LTL/tests/test_vertical_slice_replay_batch.gd`
   - Verifies the M8 three-seed replay batch and telemetry manifest schema.
+- `app-LTL/tests/tmp_capture_leviathan_fix4.gd`
+  - tmp capture leviathan fix4 verifies Godot contracts and regression behavior.
+- `app-LTL/tests/tmp_dump_leviathan_scrollbar.gd`
+  - tmp dump leviathan scrollbar verifies Godot contracts and regression behavior.
+- `app-LTL/tests/tmp_inspect_leviathan_layout.gd`
+  - tmp inspect leviathan layout verifies Godot contracts and regression behavior.
 - `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_influence_suite.gd`
   - ui backpack influence suite verifies Godot contracts and regression behavior.
 - `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_runtime_suite.gd`
@@ -1668,6 +1724,44 @@ This file is the live implementation map for AI agents. It records each current 
   - Large-format review artifact for battle HUD energy queue directions and FIFO examples.
 - `docs/mockups/2026-06-13-battle-hud-info-panel-variants.html`
   - Large-format review artifact for battle HUD information-panel directions.
+- `docs/mockups/2026-07-01-leviathan-raycast-fit-audit-v1.html`
+  - 2026 07 01 leviathan raycast fit audit v1 documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-raycast-fit-audit-v1.png`
+  - 2026 07 01 leviathan raycast fit audit v1 documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-5up.html`
+  - 2026 07 01 leviathan start button 5up documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-5up.png`
+  - 2026 07 01 leviathan start button 5up documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-5up-v2-open-rail.html`
+  - 2026 07 01 leviathan start button 5up v2 open rail documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-5up-v2-open-rail.png`
+  - 2026 07 01 leviathan start button 5up v2 open rail documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-5up-v3-reference-locked.html`
+  - 2026 07 01 leviathan start button 5up v3 reference locked documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-5up-v3-reference-locked.png`
+  - 2026 07 01 leviathan start button 5up v3 reference locked documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v1-moss-strike.html`
+  - 2026 07 01 leviathan start button final v1 moss strike documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v1-moss-strike.png`
+  - 2026 07 01 leviathan start button final v1 moss strike documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v2-fixed-dock.html`
+  - 2026 07 01 leviathan start button final v2 fixed dock documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v3-fixed-dock-scroll.html`
+  - 2026 07 01 leviathan start button final v3 fixed dock scroll documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v3-fixed-dock-scroll.png`
+  - 2026 07 01 leviathan start button final v3 fixed dock scroll documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v4-edge-bleed.html`
+  - 2026 07 01 leviathan start button final v4 edge bleed documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v4-edge-bleed.png`
+  - 2026 07 01 leviathan start button final v4 edge bleed documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v5-edge-flush.html`
+  - 2026 07 01 leviathan start button final v5 edge flush documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v5-edge-flush.png`
+  - 2026 07 01 leviathan start button final v5 edge flush documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v6-edge-flush-tight.html`
+  - 2026 07 01 leviathan start button final v6 edge flush tight documents project decisions, verification, or work history.
+- `docs/mockups/2026-07-01-leviathan-start-button-final-v6-edge-flush-tight.png`
+  - 2026 07 01 leviathan start button final v6 edge flush tight documents project decisions, verification, or work history.
 - `docs/mockups/codex-book-approaches.html`
   - codex book approaches documents project decisions, verification, or work history.
 - `docs/mockups/codex-book-hybrid.html`
@@ -1694,6 +1788,36 @@ This file is the live implementation map for AI agents. It records each current 
   - Comparison mockup that proposes the simplified run-start shell after copy and helper cleanup.
 - `docs/mockups/m6-run-start-wireframe-compare-2026-06-07.html`
   - Review mockup that compares the June 7 run-start CTA direction against the prior wireframe shell.
+- `docs/mockups/reference-captures/autodesk-home.png`
+  - autodesk home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/bmw-home.png`
+  - bmw home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/carbon-button.png`
+  - carbon button documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/crops/bmw-hero-buttons.png`
+  - bmw hero buttons documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/crops/carbon-primary-button.png`
+  - carbon primary button documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/crops/raycast-download-buttons.png`
+  - raycast download buttons documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/crops/riot-watch-now.png`
+  - riot watch now documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/crops/spacex-watch.png`
+  - spacex watch documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/framer-home.png`
+  - framer home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/ibm-home.png`
+  - ibm home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/nvidia-home.png`
+  - nvidia home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/raycast-home.png`
+  - raycast home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/riot-home.png`
+  - riot home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/spacex-home.png`
+  - spacex home documents project decisions, verification, or work history.
+- `docs/mockups/reference-captures/vercel-home.png`
+  - vercel home documents project decisions, verification, or work history.
 - `docs/mockups/render-terrain-panel-before-after.ps1`
   - render terrain panel before after documents project decisions, verification, or work history.
 - `docs/mockups/terrain-panel-before-after.html`
@@ -1888,6 +2012,82 @@ This file is the live implementation map for AI agents. It records each current 
   - Documents the transition-safety gate contract, including allowed page and phase handoff sequences plus failure semantics.
 - `LTL-harness/docs/worklog-token-policy.md`
   - Defines the LTL child-harness policy for using compact agent worklog summaries instead of raw transcript history as default context.
+- `LTL-harness/new_design/stitch_ltl_battle/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_battle/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_battle/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_charactor_select/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_charactor_select/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_charactor_select/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_clear/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_clear/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_clear/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_codex/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_codex/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_codex/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_fail/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_fail/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_fail/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_Leviathan_select/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_Leviathan_select/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_reward/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_reward/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_reward/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_reward_boss/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_reward_boss/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_reward_boss/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_settings/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_settings/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_settings/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_shop/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_shop/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_shop/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_story/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_story/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_story/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_toast/code.html`
+  - code provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_toast/DESIGN.md`
+  - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_toast/screen.png`
+  - screen provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/README.md`
   - README introduces the harness workflow, including source-map verification and source-map-driven request triage.
 - `LTL-harness/tools/architectural-gate.ps1`
@@ -1930,6 +2130,14 @@ This file is the live implementation map for AI agents. It records each current 
   - Runs the blocking transition-safety verification that checks approved page and phase handoff paths before broader quality gates continue.
 - `LTL-harness/tools/transition-safety-gate.tests.ps1`
   - Covers the transition-safety gate success path and ledger/root failure scenarios.
+- `sketches/leviathan-select-reference-aligned/index.html`
+  - index is a project component with a tracked responsibility.
+- `sketches/leviathan-select-reference-aligned/leviathan-select-overlay-rail-mockup.png`
+  - leviathan select overlay rail mockup is a project component with a tracked responsibility.
+- `sketches/leviathan-select-reference-aligned/leviathan-select-reference-aligned.png`
+  - leviathan select reference aligned is a project component with a tracked responsibility.
+- `sketches/leviathan-select-reference-aligned/leviathan-select-vertical-rail-mockup.png`
+  - leviathan select vertical rail mockup is a project component with a tracked responsibility.
 - `tools/agent-worklog.ps1`
   - Wraps the generic worklog-token gate for LTL project paths and exposes inspect, token-report, summarize, validate, compact, and new-log modes.
 - `tools/apply-agent-harness-phase-gate.ps1`
@@ -1950,6 +2158,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Runs the fast local verification path, including source-map, test-size, runtime-size, page-contract, and Godot smoke checks.
 - `tools/run-ltl-quality-gate.ps1`
   - Runs the consolidated LTL source, harness, request-analysis, test-size, runtime-size, architecture, and Godot contract quality gate.
+- `tools/tmp_run_ui_issue6_verify.ps1`
+  - tmp run ui issue6 verify runs local verification or workflow automation.
 - `tools/watch-compile.ps1`
   - watch compile runs local verification or workflow automation.
 - `구현기획서_Godot_TDD.md`

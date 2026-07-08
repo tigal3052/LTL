@@ -142,6 +142,11 @@ func test_story_scenes_have_vn_contract() -> void:
 		_assert(not str(scene.get("trigger", "")).is_empty(), "story scene has trigger")
 		_assert(not str(scene.get("returnPageId", "")).is_empty(), "story scene has returnPageId")
 		_assert(scene.has("shownOnce"), "story scene declares shownOnce")
+		_assert(scene.get("frame", {}) is Dictionary, "story scene declares shared frame metadata: %s" % str(scene.get("id", "")))
+		var frame: Dictionary = scene.get("frame", {}) if scene.get("frame", {}) is Dictionary else {}
+		_assert(str(frame.get("chromeMode", "")) == "minimal", "story scene frame keeps minimal chrome mode: %s" % str(scene.get("id", "")))
+		_assert(str(frame.get("dialogueVariant", "")) == "expedition_journal", "story scene frame declares journal dialogue variant: %s" % str(scene.get("id", "")))
+		_assert(str(frame.get("speakerTagVariant", "")) == "leaf_tab", "story scene frame declares leaf-tab speaker tag: %s" % str(scene.get("id", "")))
 		var steps: Array = scene.get("steps", []) if scene.get("steps", []) is Array else []
 		_assert(steps.size() >= 1, "story scene has at least one VN step: %s" % str(scene.get("id", "")))
 		for step in steps:
@@ -152,6 +157,7 @@ func test_story_scenes_have_vn_contract() -> void:
 			_assert(str(step.get("side", "")) in ["left", "right"], "story step side is left or right: %s" % str(scene.get("id", "")))
 			_assert(not str(step.get("backgroundPath", "")).is_empty(), "story step has backgroundPath: %s" % str(scene.get("id", "")))
 			_assert(step.has("expression"), "story step declares expression: %s" % str(scene.get("id", "")))
+			_assert(step.get("presentation", {}) is Dictionary, "story step declares shared-frame presentation metadata: %s" % str(scene.get("id", "")))
 
 # 실행: verify short narrative beats carry toast placement and visual metadata.
 func test_narrative_beats_have_toast_presentation_metadata() -> void:

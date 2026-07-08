@@ -15,6 +15,7 @@ func run_all_tests() -> Dictionary:
 	test_mark_seen_updates_story_history_only()
 	test_story_selection_does_not_mutate_scene()
 	test_story_read_model_projects_first_step_and_return_page()
+	test_story_read_model_projects_shared_frame_metadata()
 	test_story_telemetry_payloads_have_required_fields()
 	return {"ok": failures.is_empty(), "errors": failures}
 
@@ -56,6 +57,18 @@ func test_story_read_model_projects_first_step_and_return_page() -> void:
 	_assert(str(model.get("text", "")).contains("contract"), "story read model projects English text")
 	_assert(not str(model.get("portraitPath", "")).is_empty(), "story read model exposes portrait path")
 	_assert(not str(model.get("backgroundPath", "")).is_empty(), "story read model exposes background path")
+
+# 실행: verify the read model exposes reusable shared-frame presentation metadata for runtime rendering.
+func test_story_read_model_projects_shared_frame_metadata() -> void:
+	var scene: Dictionary = SelectStorySceneScript.select({"pageId": "character_select", "phase": "node_select"}, _scenes(), {})
+	var model: Dictionary = StorySceneReadModelScript.project(scene, 0, "ko")
+	var frame: Dictionary = model.get("frame", {}) if model.get("frame", {}) is Dictionary else {}
+	_assert_eq(str(frame.get("chromeMode", "")), "minimal", "story read model projects minimal chrome mode")
+	_assert_eq(str(frame.get("dialogueVariant", "")), "expedition_journal", "story read model projects the shared journal dialogue variant")
+	_assert_eq(str(frame.get("speakerTagVariant", "")), "leaf_tab", "story read model projects the leaf-tab speaker tag variant")
+	_assert_eq(str(frame.get("speakerTagText", "")), str(model.get("speaker", "")), "story read model projects speaker-tag text from the active speaker")
+	_assert(float(frame.get("scrimOpacity", -1.0)) >= 0.0, "story read model projects story-frame scrim opacity")
+	_assert(float(frame.get("portraitScale", 0.0)) > 0.0, "story read model projects portrait scale metadata")
 
 # 실행: verify story telemetry uses stable event names and required fields.
 func test_story_telemetry_payloads_have_required_fields() -> void:

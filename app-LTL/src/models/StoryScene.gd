@@ -1,10 +1,11 @@
 # 계약: Full VN story scene dictionaries are validated and normalized before runtime projection.
-# 실행: define pure helpers for story scene content rows.
+# 실행: define pure helpers for story-scene content rows and shared-frame metadata.
 class_name StoryScene
 extends RefCounted
 
-const REQUIRED_FIELDS := ["id", "trigger", "returnPageId", "shownOnce", "sideEffectFree", "steps"]
-const REQUIRED_STEP_FIELDS := ["speaker", "textKo", "textEn", "portraitPath", "side", "backgroundPath", "expression"]
+const StorySceneFrameBitsScript = preload("res://src/scenes/pages/story_scene/StorySceneFrameBits.gd")
+const REQUIRED_FIELDS := ["id", "trigger", "returnPageId", "shownOnce", "sideEffectFree", "frame", "steps"]
+const REQUIRED_STEP_FIELDS := ["speaker", "textKo", "textEn", "portraitPath", "side", "backgroundPath", "expression", "presentation"]
 
 # 실행: return true when a scene row has the minimum story contract.
 static func is_valid(scene: Variant) -> bool:
@@ -23,12 +24,13 @@ static func is_valid(scene: Variant) -> bool:
 			return false
 	return true
 
-# 실행: clone a story scene row and normalize optional runtime defaults.
+# 실행: clone a story scene row and normalize shared-frame defaults for runtime projection.
 static func normalized(scene: Dictionary) -> Dictionary:
 	var next := scene.duplicate(true)
 	next["shownOnce"] = bool(next.get("shownOnce", true))
 	next["sideEffectFree"] = bool(next.get("sideEffectFree", true))
 	next["returnPageId"] = str(next.get("returnPageId", "leviathan_select"))
+	next["frame"] = StorySceneFrameBitsScript.normalized_scene_frame(next.get("frame", {}))
 	var normalized_steps: Array = []
 	for step_value in next.get("steps", []):
 		if not (step_value is Dictionary):
@@ -36,6 +38,7 @@ static func normalized(scene: Dictionary) -> Dictionary:
 		var step: Dictionary = step_value.duplicate(true)
 		step["side"] = _normalized_side(str(step.get("side", "left")))
 		step["expression"] = str(step.get("expression", "neutral"))
+		step["presentation"] = StorySceneFrameBitsScript.normalized_step_presentation(step.get("presentation", {}))
 		normalized_steps.append(step)
 	next["steps"] = normalized_steps
 	return next

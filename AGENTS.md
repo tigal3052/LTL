@@ -6,6 +6,7 @@
 - Before choosing scope or claiming completion, read `docs/project-goals/work-objectives.html` and tie the work to at least one objective id.
 - Start with `docs/agent-worklog/INDEX.md` and `docs/agent-worklog/COMPACT.md` for historical context.
 - Do not read every raw file in `docs/codex-worklog/` unless the current task requires raw evidence.
+- `docs/codex-worklog/` is organized into ISO week folders (`docs/codex-worklog/<YYYY>-W<WW>/`, e.g. `2026-W27`). Write new `plan_/history_/complete_` files into the folder matching today's ISO week; create the week folder if it does not exist yet.
 - Use `docs/source-map.md` to locate owners before broad edits.
 
 ## Project Goals / Objectives

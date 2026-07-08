@@ -29,6 +29,9 @@ func _assert_character_select_starter_sfx_and_cache() -> void:
 	var main_instance := main_scene.instantiate()
 	root.add_child(main_instance)
 	await _settle_frames(5)
+	if str(main_instance.get("active_page_id")) == "story_scene":
+		await _advance_story_if_present(main_instance, "character_select")
+		await _settle_frames(2)
 	var character_page := main_instance.get("character_select_page") as Control
 	_assert(character_page != null, "character select page exists for starter-set interaction audio contract")
 	if character_page == null:
@@ -108,8 +111,25 @@ func _assert_story_page_typewriter_sfx() -> void:
 		)
 	root.add_child(page)
 	await process_frame
-	page.apply_state({"visible": true, "sceneId": "contract_story", "speaker": "Guide", "text": "ABCD", "stepIndex": 0, "stepCount": 1, "continueText": "Next", "skipText": "Skip"})
-	var body_label := page.get_node_or_null("DialoguePanel/DialogueMargin/DialogueBox/BodyLabel") as Label
+	page.apply_state({
+		"visible": true,
+		"sceneId": "contract_story",
+		"speaker": "Guide",
+		"text": "ABCD",
+		"stepIndex": 0,
+		"stepCount": 1,
+		"continueText": "Next",
+		"skipText": "Skip",
+		"frame": {
+			"chromeMode": "minimal",
+			"dialogueVariant": "expedition_journal",
+			"speakerTagVariant": "leaf_tab",
+			"speakerTagText": "Guide",
+			"scrimOpacity": 0.42,
+			"portraitScale": 1.0
+		}
+	})
+	var body_label := page.get_node_or_null("StoryFrame/DialogueDock/DialoguePanel/DialogueMargin/DialogueBox/BodyLabel") as Label
 	_assert(body_label != null, "story scene body label exists")
 	_assert(body_label == null or int(body_label.visible_characters) == 0, "story scene starts by hiding dialogue text for typewriter reveal")
 	_assert(page.has_method("advance_typewriter_for_test"), "story scene exposes a deterministic typewriter advance helper for contract tests")
@@ -117,7 +137,7 @@ func _assert_story_page_typewriter_sfx() -> void:
 		page.call("advance_typewriter_for_test", 0.12)
 	_assert(body_label == null or int(body_label.visible_characters) > 0, "story scene typewriter advance reveals characters incrementally")
 	_assert("typewriter_tick" in heard, "story scene typewriter reveal emits typing ticks")
-	var continue_button := page.get_node_or_null("DialoguePanel/DialogueMargin/DialogueBox/ButtonRow/ContinueButton") as Button
+	var continue_button := page.get_node_or_null("StoryFrame/DialogueDock/DialoguePanel/DialogueMargin/DialogueBox/ButtonRow/ContinueButton") as Button
 	if continue_button != null:
 		continue_button.pressed.emit()
 		await process_frame
@@ -262,3 +282,23 @@ func _finish() -> void:
 		push_error(failure)
 	await process_frame
 	quit(1)
+
+func _advance_story_if_present(main_instance: Node, return_page_id: String) -> void:
+	if str(main_instance.get("active_page_id")) != "story_scene":
+		return
+	var story_page = main_instance.get("story_scene_page")
+	var controller = main_instance.get_node_or_null("MainController")
+	_assert(story_page != null, "story scene page exists during interaction-audio handoff")
+	_assert(controller != null, "main controller exists during interaction-audio handoff")
+	if story_page == null or controller == null:
+		return
+	var story: Dictionary = controller.get("active_story_scene")
+	var scene_id := str(story.get("id", ""))
+	_assert(scene_id != "", "story scene exposes an active scene id during interaction-audio handoff")
+	if scene_id.is_empty():
+		return
+	story_page.continue_requested.emit(scene_id)
+	await process_frame
+	story_page.continue_requested.emit(scene_id)
+	await process_frame
+	_assert_eq(str(main_instance.get("active_page_id")), return_page_id, "story scene returns to %s during interaction-audio contract" % return_page_id)
