@@ -7,6 +7,10 @@
 export.cfg
 export_credentials.cfg
 *.tmp
+*.log
+.tmp-*/
+.superpowers/
+.hermes/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -17,7 +21,16 @@ data_*/
 mono_crash.*.json
 
 .cursor/
+.worktrees/
+.godot-user/
+.godot.codex-*/
+artifacts/
+test-artifacts/
+docs/artifact-ledgers/
+app-LTL/.tmp-*/
+app-LTL/test-artifacts/
 
 # Keep local harness workspaces out of version control
 agent-harness/
 LTL-harness/
+app-LTL/_quarantine_comment_first_violation_2026-05-21/

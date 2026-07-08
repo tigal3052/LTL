@@ -1,0 +1,270 @@
+# 계약:
+# - 책임: 전투 중 페이즈(combat)에서의 공격, 조준, 수리, 전투 종료 전이 등의 상태 전이를 개별 관리한다.
+# - 입력: 현재 페이즈 상태 Dictionary, 처리할 이벤트 Dictionary.
+# - 출력: 전이된 다음 페이즈 상태 Dictionary.
+# - 금지: SceneTree 접근, 직접적인 UI 드로잉.
+#
+# 실행: define the CombatPhase class identity.
+class_name CombatPhase
+extends RefCounted
+
+const ArtifactScript = preload("res://src/models/Artifact.gd")
+const CombatVocabScript = preload("res://src/vocabulary/CombatVocab.gd")
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+const RunGrowthStateScript = preload("res://src/models/RunGrowthState.gd")
+
+# 실행: reduce combat inputs, update simulator state, and evaluate completion or failure transitions.
+static func reduce(state: Dictionary, event: Dictionary) -> Dictionary:
+	var next_state := state.duplicate(true)
+	
+	# Dictionary로부터 임시 InventoryModel 인스턴스 복원
+	var inv_data = next_state.get("inventory", {})
+	var inv: InventoryModel = null
+	if inv_data is Dictionary:
+		inv = InventoryModel.new(int(inv_data.get("width", 8)), int(inv_data.get("height", 8)))
+		if inv_data.has("artifacts"):
+			for art_dict in inv_data["artifacts"]:
+				var art = ArtifactScript.new(art_dict)
+				inv.place_artifact(art, art.x, art.y)
+		inv.energy_queue_charge_progress = float(inv_data.get("energyQueueChargeProgress", 0.0))
+		inv.energy_queue_rotation_index = int(inv_data.get("energyQueueRotationIndex", 0))
+				
+	var combat_dict: Dictionary = next_state.get("combat", {})
+	if combat_dict.is_empty():
+		return state
+
+	# Dictionary로부터 임시 CombatSimulator 인스턴스 복원
+	var dummy_choice := {
+		"combat": {
+			"shield": combat_dict.get("shield", 0.0),
+			"health": combat_dict.get("health", 0.0),
+			"maxShield": combat_dict.get("maxShield", combat_dict.get("shield", 0.0)),
+			"maxHealth": combat_dict.get("maxHealth", combat_dict.get("health", 0.0)),
+			"timeLimitTicks": combat_dict.get("timeLimitTicks", 2400),
+			"weakness": []
+		}
+	}
+	var sim: CombatSimulator = CombatVocabScript.prepare_combat(dummy_choice, next_state.get("tuning", {}), int(combat_dict.get("queue", {}).get("capacity", EnergyTempoBalanceScript.DEFAULT_QUEUE_CAPACITY)))
+	
+	# 세부 상태 필드 복사
+	sim.result = str(combat_dict.get("result", "active"))
+	sim.shield = float(combat_dict.get("shield", 0.0))
+	sim.health = float(combat_dict.get("health", 0.0))
+	sim.max_shield = float(combat_dict.get("maxShield", sim.shield))
+	sim.max_health = float(combat_dict.get("maxHealth", sim.health))
+	sim.time_limit_ticks = int(combat_dict.get("timeLimitTicks", 2400))
+	sim.elapsed_ticks = int(combat_dict.get("elapsedTicks", 0))
+	sim.disabled = bool(combat_dict.get("disabled", false))
+	
+	var q_data: Dictionary = combat_dict.get("queue", {})
+	sim.queue = []
+	if q_data.has("items"):
+		for item in q_data["items"]:
+			sim.queue.append(item.duplicate(true) if item is Dictionary else str(item))
+	sim.queue_pinned_slots = int(q_data.get("pinnedSlots", 0))
+	sim.queue_empty_shots = int(q_data.get("emptyShots", 0))
+	
+	var p_data: Dictionary = combat_dict.get("pin", {})
+	sim.pin_active = bool(p_data.get("active", false))
+	sim.pin_progress = int(p_data.get("progress", 100))
+	sim.pin_turns_remaining = int(p_data.get("turnsRemaining", 4))
+	
+	var r_data: Dictionary = combat_dict.get("repair", {})
+	sim.repair_threshold = int(r_data.get("threshold", 3))
+	sim.repair_progress = int(r_data.get("progress", 0))
+	sim.repair_active = bool(r_data.get("active", false))
+	sim.repair_available = bool(r_data.get("available", true))
+	
+	var a_data: Dictionary = combat_dict.get("aim", {})
+	sim.aim_cell_id = a_data.get("cellId", null)
+	sim.aim_target_color = a_data.get("targetColor", null)
+	sim.aim_can_fire = bool(a_data.get("canFire", true))
+	
+	var b_data: Dictionary = combat_dict.get("battlefield", {})
+	sim.battlefield_rows = int(b_data.get("rows", 3))
+	sim.battlefield_cols = int(b_data.get("columns", 10))
+	sim.weakness_markers = b_data.get("weaknessMarkers", []).duplicate(true)
+	sim.terrain_debuffs = b_data.get("terrainDebuffs", []).duplicate(true)
+	sim.terrain_buffs = b_data.get("terrainBuffs", []).duplicate(true)
+	sim.hazard_snapshot = combat_dict.get("hazard", {}).duplicate(true)
+	sim.obstacle_allowed_families = EnergyTempoBalanceScript.normalized_colors(
+		combat_dict.get("hazard", {}).get("allowedFamilies", b_data.get("allowedObstacleFamilies", [])),
+		false
+	)
+	if sim.obstacle_allowed_families.is_empty():
+		sim.obstacle_allowed_families = _combat_hazard_colors(combat_dict)
+	sim.obstacles = b_data.get("obstacles", []).duplicate(true)
+	sim.obstacle_miss_debt = b_data.get("obstacleMissDebt", {}).duplicate(true)
+	sim.obstacle_spawn_backlog = b_data.get("obstacleSpawnBacklog", {}).duplicate(true)
+	sim.obstacle_shift_count = int(b_data.get("obstacleShiftCount", 0))
+	sim.purple_damage_reduction_ratio = float(b_data.get("purpleDamageReductionRatio", 0.0))
+	sim.paused_obstacle_ticks = int(b_data.get("pausedObstacleTicks", 0))
+	sim.obstacle_feedback_events = b_data.get("obstacleFeedbackEvents", []).duplicate(true)
+	sim.relic_runtime = combat_dict.get("relicRuntime", {}).duplicate(true)
+	
+	var s_data: Dictionary = combat_dict.get("summary", {})
+	sim.summary_shots_fired = int(s_data.get("shots_fired", 0))
+	sim.summary_shots_hit_match = int(s_data.get("shots_hit_match", 0))
+	sim.summary_shots_hit_mismatch = int(s_data.get("shots_hit_mismatch", 0))
+	sim.summary_shots_fired_empty_queue = int(s_data.get("shots_fired_empty_queue", 0))
+
+	var event_type := str(event.get("type", ""))
+
+	# 조준(aim) 처리
+	if event_type == "aim":
+		sim.aim_cell_id = event.get("targetCellId", null)
+		sim.aim_target_color = event.get("targetColor", null)
+		sim.aim_can_fire = not sim.disabled
+		next_state["combat"] = sim.to_dict()
+		return next_state
+
+	# 수리(repair) 처리
+	if event_type == "repair":
+		CombatVocabScript.apply_repair(sim)
+		next_state["combat"] = sim.to_dict()
+		return next_state
+
+	# 전장 shift와 장애물 실패/생성을 하나의 전투 이벤트로 처리
+	if event_type == "shift_battlefield":
+		CombatVocabScript.tick_combat(sim, int(event.get("ticks", 1)), inv)
+		var can_shift := not sim.disabled and not (sim.result in ["clear", "failed", "time_over"])
+		if can_shift:
+			CombatVocabScript.shift_battlefield(
+				sim,
+				int(event.get("shiftSeed", next_state.get("seed", 1))),
+				event.get("colors", _terrain_shift_colors(combat_dict)),
+				int(event.get("shiftStep", sim.obstacle_shift_count + 1)),
+				int(next_state.get("stageIndex", 0)),
+				float(combat_dict.get("hazardModifier", 1.0)),
+				inv
+			)
+		var shifted_hazard := HazardModel.new()
+		shifted_hazard.update_state(sim.health, sim.queue_empty_shots, sim.result, sim.max_health, sim.obstacles, sim.purple_damage_reduction_ratio)
+		var shifted_combat: Dictionary = sim.to_dict()
+		shifted_combat["hazard"] = shifted_hazard.to_dict()
+		_preserve_node_metadata(shifted_combat, combat_dict)
+		next_state["combat"] = shifted_combat
+		if inv != null:
+			next_state["inventory"] = inv.to_dict()
+		if sim.result in ["time_over", "failed"]:
+			next_state["phase"] = "run_complete"
+			next_state["failed"] = true
+			next_state["runComplete"] = true
+			next_state["failureReason"] = sim.result
+			next_state["growth"] = RunGrowthStateScript.apply_m8_result_unlocks(next_state.get("growth", {}), {
+				"failed": true,
+				"failureReason": sim.result,
+				"leviathanId": str(next_state.get("leviathanId", ""))
+			})
+		return next_state
+
+	# 사격(fire) 또는 틱(hold_fire_tick), 직접 해결(resolve) 처리
+	var is_shot := event_type in ["fire", "hold_fire_tick", "resolve"] or event.has("targetColor")
+	if is_shot:
+		if event_type == "resolve":
+			sim.result = str(event.get("outcome", "active"))
+			sim.summary_shots_fired = 1
+			sim.summary_shots_hit_match = 1 if sim.result == "clear" else 0
+			sim.summary_shots_hit_mismatch = 1 if sim.result == "mismatch" else 0
+			sim.summary_shots_fired_empty_queue = 1 if sim.result == "empty_queue" else 0
+			sim.disabled = sim.result in ["clear", "failed", "time_over"]
+		else:
+			var target_color = event.get("targetColor", sim.aim_target_color)
+			var target_cell_id = event.get("targetCellId", sim.aim_cell_id)
+			CombatVocabScript.fire_shot(sim, target_color, target_cell_id, next_state.get("tuning", {}).get("combat", {}), inv)
+
+	# 시간 경과 처리 (인풋이 tick 혹은 hold_fire_tick 일 때 틱을 경과시킴)
+	if event_type == "hold_fire_tick":
+		CombatVocabScript.tick_combat(sim, 2, inv) # 기본 2틱 증가
+	elif event_type == "tick":
+		CombatVocabScript.tick_combat(sim, int(event.get("ticks", 1)), inv)
+
+	# 방해 요소 상태 갱신
+	var hazard := HazardModel.new()
+	hazard.update_state(sim.health, sim.queue_empty_shots, sim.result, sim.max_health, sim.obstacles, sim.purple_damage_reduction_ratio)
+	
+	# 최종 시뮬레이터 상태 딕셔너리로 내보내기
+	var next_combat: Dictionary = sim.to_dict()
+	next_combat["hazard"] = hazard.to_dict()
+	_preserve_node_metadata(next_combat, combat_dict)
+	next_state["combat"] = next_combat
+	
+	if inv != null:
+		next_state["inventory"] = inv.to_dict()
+
+	# 결과 판정에 따른 페이즈 전이 처리
+	if sim.result == "clear":
+		next_state["phase"] = "reward_loot"
+		next_state["pendingRewards"] = RewardVocab.roll_stage_rewards(
+			int(state.get("seed", 1)),
+			int(state.get("stageIndex", 0)),
+			_get_weakness_colors(sim.weakness_markers),
+			state.get("tuning", {})
+		)
+		_apply_selected_node_reward_metadata(next_state["pendingRewards"], combat_dict)
+		next_state["held"] = null
+	elif sim.result in ["time_over", "failed"]:
+		next_state["phase"] = "run_complete"
+		next_state["failed"] = true
+		next_state["runComplete"] = true
+		next_state["failureReason"] = sim.result
+		next_state["growth"] = RunGrowthStateScript.apply_m8_result_unlocks(next_state.get("growth", {}), {
+			"failed": true,
+			"failureReason": sim.result,
+			"leviathanId": str(next_state.get("leviathanId", ""))
+		})
+
+	return next_state
+
+# ?ㅽ뻾: extract weakness colors from battlefield markers.
+static func _get_weakness_colors(markers: Array) -> Array:
+	var colors: Array = []
+	for marker in markers:
+		colors.append(marker.get("color", "red"))
+	return colors
+
+static func _terrain_shift_colors(_combat_dict: Dictionary) -> Array:
+	return EnergyTempoBalanceScript.terrain_color_palette()
+
+static func _combat_hazard_colors(combat_dict: Dictionary) -> Array:
+	var hazard: Dictionary = combat_dict.get("hazard", {})
+	var allowed_families := EnergyTempoBalanceScript.normalized_colors(hazard.get("allowedFamilies", []), false)
+	if not allowed_families.is_empty():
+		return allowed_families
+	var node: Dictionary = combat_dict.get("node", {})
+	var node_colors := EnergyTempoBalanceScript.normalized_colors(node.get("weakness", []), false)
+	if not node_colors.is_empty():
+		return node_colors
+	var battlefield: Dictionary = combat_dict.get("battlefield", {})
+	var battlefield_colors := EnergyTempoBalanceScript.normalized_colors(battlefield.get("allowedObstacleFamilies", []), false)
+	if not battlefield_colors.is_empty():
+		return battlefield_colors
+	return EnergyTempoBalanceScript.normalized_colors([], true)
+
+# 실행: keep selected node routing metadata across combat simulator rehydration.
+static func _preserve_node_metadata(next_combat: Dictionary, previous_combat: Dictionary) -> void:
+	for key in ["node", "telemetry"]:
+		if previous_combat.has(key):
+			next_combat[key] = previous_combat[key].duplicate(true)
+	if previous_combat.has("hazard"):
+		var preserved_hazard: Dictionary = previous_combat["hazard"].duplicate(true)
+		for key in next_combat.get("hazard", {}).keys():
+			preserved_hazard[key] = next_combat["hazard"][key]
+		next_combat["hazard"] = preserved_hazard
+	for key in ["rewardModifier", "difficultyModifier", "hazardModifier"]:
+		if previous_combat.has(key):
+			next_combat[key] = previous_combat[key]
+
+# 실행: annotate rewards with the selected node route metadata without changing reward roll internals.
+static func _apply_selected_node_reward_metadata(rewards: Array, combat_dict: Dictionary) -> void:
+	var node: Dictionary = combat_dict.get("node", {})
+	var reward_modifier := float(combat_dict.get("rewardModifier", 1.0))
+	for reward in rewards:
+		if reward is Dictionary:
+			reward["sourceNode"] = {
+				"id": str(node.get("id", "")),
+				"nodeType": str(node.get("nodeType", "")),
+				"rewardBias": str(node.get("rewardBias", "baseline")),
+				"routeHash": str(node.get("routeHash", "")),
+				"rewardModifier": reward_modifier
+			}

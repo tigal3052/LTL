@@ -1,0 +1,301 @@
+﻿# 계약:
+# - Responsibility: provide the fallback reward catalog used only when reward-table JSON is unavailable.
+# - Input: none.
+# - Output: Array of reward dictionaries matching the formal reward table shape.
+#
+# 실행: expose immutable fallback reward rows through a compact data helper.
+class_name DefaultMockRewards
+extends RefCounted
+
+static func items() -> Array:
+	return [
+		{
+			"id": "reward_crimson_core_red",
+			"kind": "Crimson Drill Core v2 (Red)",
+			"rarity": "epic",
+			"weight": 20,
+			"payload": {"cooldown_mod": -10, "energy_type": "red"},
+			"presentation": {"icon": "core_red", "description": "Reduces red drill cooldown by 10%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_crimson_core_blue",
+			"kind": "Azure Drill Core v2 (Blue)",
+			"rarity": "epic",
+			"weight": 20,
+			"payload": {"cooldown_mod": -10, "energy_type": "blue"},
+			"presentation": {"icon": "core_blue", "description": "Reduces blue drill cooldown by 10%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_crimson_core_purple",
+			"kind": "Violet Drill Core v2 (Purple)",
+			"rarity": "epic",
+			"weight": 20,
+			"payload": {"cooldown_mod": -10, "energy_type": "purple"},
+			"presentation": {"icon": "core_purple", "description": "Reduces purple drill cooldown by 10%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_crimson_core_green",
+			"kind": "Verdant Drill Core v2 (Green)",
+			"rarity": "epic",
+			"weight": 20,
+			"payload": {"cooldown_mod": -10, "energy_type": "green"},
+			"presentation": {"icon": "core_green", "description": "Reduces green drill cooldown by 10%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_rapid_condenser_red",
+			"kind": "Rapid Fuel Condenser (Red)",
+			"rarity": "rare",
+			"weight": 40,
+			"payload": {"cooldown_mod": -5, "energy_type": "red"},
+			"presentation": {"icon": "condenser_red", "description": "Reduces red drill cooldown by 5%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_rapid_condenser_blue",
+			"kind": "Rapid Fuel Condenser (Blue)",
+			"rarity": "rare",
+			"weight": 40,
+			"payload": {"cooldown_mod": -5, "energy_type": "blue"},
+			"presentation": {"icon": "condenser_blue", "description": "Reduces blue drill cooldown by 5%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_rapid_condenser_purple",
+			"kind": "Rapid Fuel Condenser (Purple)",
+			"rarity": "rare",
+			"weight": 40,
+			"payload": {"cooldown_mod": -5, "energy_type": "purple"},
+			"presentation": {"icon": "condenser_purple", "description": "Reduces purple drill cooldown by 5%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_rapid_condenser_green",
+			"kind": "Rapid Fuel Condenser (Green)",
+			"rarity": "rare",
+			"weight": 40,
+			"payload": {"cooldown_mod": -5, "energy_type": "green"},
+			"presentation": {"icon": "condenser_green", "description": "Reduces green drill cooldown by 5%.", "badge": "?ㅼ쓬 ?꾪닾 利됱떆 ?곹뼢"},
+			"tags": ["immediate_power"]
+		},
+		{
+			"id": "reward_resonance_magnet_red",
+			"kind": "Resonance Magnet (Red)",
+			"rarity": "rare",
+			"weight": 30,
+			"payload": {"adjacent_synergy": true, "energy_type": "red"},
+			"presentation": {"icon": "magnet_red", "description": "Triggers synergy bonuses when placed next to drills. (Red)", "badge": "combo standby"},
+			"tags": ["future_combo"]
+		},
+		{
+			"id": "reward_resonance_magnet_blue",
+			"kind": "Resonance Magnet (Blue)",
+			"rarity": "rare",
+			"weight": 30,
+			"payload": {"adjacent_synergy": true, "energy_type": "blue"},
+			"presentation": {"icon": "magnet_blue", "description": "Triggers synergy bonuses when placed next to drills. (Blue)", "badge": "combo standby"},
+			"tags": ["future_combo"]
+		},
+		{
+			"id": "reward_resonance_magnet_purple",
+			"kind": "Resonance Magnet (Purple)",
+			"rarity": "rare",
+			"weight": 30,
+			"payload": {"adjacent_synergy": true, "energy_type": "purple"},
+			"presentation": {"icon": "magnet_purple", "description": "Triggers synergy bonuses when placed next to drills. (Purple)", "badge": "combo standby"},
+			"tags": ["future_combo"]
+		},
+		{
+			"id": "reward_resonance_magnet_green",
+			"kind": "Resonance Magnet (Green)",
+			"rarity": "rare",
+			"weight": 30,
+			"payload": {"adjacent_synergy": true, "energy_type": "green"},
+			"presentation": {"icon": "magnet_green", "description": "Triggers synergy bonuses when placed next to drills. (Green)", "badge": "combo standby"},
+			"tags": ["future_combo"]
+		},
+		{
+			"id": "reward_shield_bot_red",
+			"kind": "Shield Repair Bot (Red)",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {"shield_repair": 15, "energy_type": "red"},
+			"presentation": {"icon": "bot_red", "description": "Increases shield repair efficiency by 15%. (Red)", "badge": "?덉젙"},
+			"tags": ["survival_stability"]
+		},
+		{
+			"id": "reward_shield_bot_blue",
+			"kind": "Shield Repair Bot (Blue)",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {"shield_repair": 15, "energy_type": "blue"},
+			"presentation": {"icon": "bot_blue", "description": "Increases shield repair efficiency by 15%. (Blue)", "badge": "?덉젙"},
+			"tags": ["survival_stability"]
+		},
+		{
+			"id": "reward_shield_bot_purple",
+			"kind": "Shield Repair Bot (Purple)",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {"shield_repair": 15, "energy_type": "purple"},
+			"presentation": {"icon": "bot_purple", "description": "Increases shield repair efficiency by 15%. (Purple)", "badge": "?덉젙"},
+			"tags": ["survival_stability"]
+		},
+		{
+			"id": "reward_shield_bot_green",
+			"kind": "Shield Repair Bot (Green)",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {"shield_repair": 15, "energy_type": "green"},
+			"presentation": {"icon": "bot_green", "description": "Increases shield repair efficiency by 15%. (Green)", "badge": "?덉젙"},
+			"tags": ["survival_stability"]
+		},
+		{
+			"id": "reward_cursed_heart_red",
+			"kind": "Cursed Leviathan Heart (Red)",
+			"rarity": "legendary",
+			"weight": 10,
+			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "red"},
+			"presentation": {"icon": "heart_red", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Red)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk"]
+		},
+		{
+			"id": "reward_cursed_heart_blue",
+			"kind": "Cursed Leviathan Heart (Blue)",
+			"rarity": "legendary",
+			"weight": 10,
+			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "blue"},
+			"presentation": {"icon": "heart_blue", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Blue)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk"]
+		},
+		{
+			"id": "reward_cursed_heart_purple",
+			"kind": "Cursed Leviathan Heart (Purple)",
+			"rarity": "legendary",
+			"weight": 10,
+			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "purple"},
+			"presentation": {"icon": "heart_purple", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Purple)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk"]
+		},
+		{
+			"id": "reward_cursed_heart_green",
+			"kind": "Cursed Leviathan Heart (Green)",
+			"rarity": "legendary",
+			"weight": 10,
+			"payload": {"damage_multiplier": 1.5, "hazard_increase": 10, "energy_type": "green"},
+			"presentation": {"icon": "heart_green", "description": "Deals 50% more extraction damage, but increases hazard severity warning rate. (Green)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk"]
+		},
+		{
+			"id": "reward_special_plasma_red",
+			"kind": "Special Plasma Injector (Red)",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {"damage_multiplier": 2.0, "energy_type": "red"},
+			"presentation": {"icon": "plasma_red", "description": "Doubles extraction damage. (Red)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk", "fusion"]
+		},
+		{
+			"id": "reward_special_plasma_blue",
+			"kind": "Special Plasma Injector (Blue)",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {"damage_multiplier": 2.0, "energy_type": "blue"},
+			"presentation": {"icon": "plasma_blue", "description": "Doubles extraction damage. (Blue)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk", "fusion"]
+		},
+		{
+			"id": "reward_special_plasma_purple",
+			"kind": "Special Plasma Injector (Purple)",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {"damage_multiplier": 2.0, "energy_type": "purple"},
+			"presentation": {"icon": "plasma_purple", "description": "Doubles extraction damage. (Purple)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk", "fusion"]
+		},
+		{
+			"id": "reward_special_plasma_green",
+			"kind": "Special Plasma Injector (Green)",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {"damage_multiplier": 2.0, "energy_type": "green"},
+			"presentation": {"icon": "plasma_green", "description": "Doubles extraction damage. (Green)", "badge": "?꾪뿕 蹂댁긽"},
+			"tags": ["greed_risk", "fusion"]
+		},
+		{
+			"id": "reward_cooldown_beacon_red",
+			"kind": "Amplifying Cooldown Beacon (Red)",
+			"rarity": "rare",
+			"weight": 35,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "red"},
+			"presentation": {"icon": "beacon_red", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Red)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_cooldown_beacon_blue",
+			"kind": "Amplifying Cooldown Beacon (Blue)",
+			"rarity": "rare",
+			"weight": 35,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "blue"},
+			"presentation": {"icon": "beacon_blue", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Blue)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_cooldown_beacon_purple",
+			"kind": "Amplifying Cooldown Beacon (Purple)",
+			"rarity": "rare",
+			"weight": 35,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "purple"},
+			"presentation": {"icon": "beacon_purple", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Purple)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_cooldown_beacon_green",
+			"kind": "Amplifying Cooldown Beacon (Green)",
+			"rarity": "rare",
+			"weight": 35,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": -20, "beacon_damage_mod": 0.4, "energy_type": "green"},
+			"presentation": {"icon": "beacon_green", "description": "Beacon: Decreases adjacent drills' cooldown by 20 ticks and increases their damage by 0.4. (Green)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_unstable_beacon_red",
+			"kind": "Unstable Overcharge Beacon (Red)",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "red"},
+			"presentation": {"icon": "beacon_red", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Red)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_unstable_beacon_blue",
+			"kind": "Unstable Overcharge Beacon (Blue)",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "blue"},
+			"presentation": {"icon": "beacon_blue", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Blue)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_unstable_beacon_purple",
+			"kind": "Unstable Overcharge Beacon (Purple)",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "purple"},
+			"presentation": {"icon": "beacon_purple", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Purple)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		},
+		{
+			"id": "reward_unstable_beacon_green",
+			"kind": "Unstable Overcharge Beacon (Green)",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {"item_type": "beacon", "beacon_cooldown_mod": 15, "beacon_damage_mod": 1.2, "energy_type": "green"},
+			"presentation": {"icon": "beacon_green", "description": "Beacon: Increases adjacent drills' damage by 1.2, but increases their cooldown by 15 ticks. (Green)", "badge": "combo standby"},
+			"tags": ["beacon"]
+		}
+	]
+

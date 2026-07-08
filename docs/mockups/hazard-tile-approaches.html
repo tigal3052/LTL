@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hazard Tile Approaches</title>
+  <style>
+    :root {
+      --bg: #10131a;
+      --panel: rgba(21, 28, 39, 0.92);
+      --card: rgba(30, 39, 53, 0.95);
+      --line: rgba(255, 255, 255, 0.10);
+      --text: #eef2f7;
+      --muted: #a5b0bf;
+      --accent: #f2c46b;
+      --good: #72d48f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Pretendard", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(232, 126, 46, 0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(102, 133, 255, 0.10), transparent 32%),
+        linear-gradient(180deg, #131820 0%, #0b0f15 100%);
+      padding: 32px;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .recommend {
+      border: 1px solid rgba(114, 212, 143, 0.28);
+      background: rgba(53, 79, 65, 0.35);
+      color: #d9f8e3;
+      padding: 14px 16px;
+      border-radius: 16px;
+      min-width: 260px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .approaches {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(12px);
+    }
+
+    .card-head {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .stage {
+      padding: 18px 18px 6px;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .tile-stack {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--card);
+    }
+
+    .tile-name {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: #c9d3df;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .tile-demo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        #111720;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .tile-demo img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: auto;
+    }
+
+    .tile-demo.replace {
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.04), transparent 60%),
+        #090c11;
+    }
+
+    .tile-demo.replace img.base {
+      opacity: 0;
+    }
+
+    .tile-demo.warning img.hazard {
+      opacity: 0.45;
+    }
+
+    .tile-demo.active img.hazard {
+      opacity: 1;
+      filter: drop-shadow(0 0 14px rgba(255, 189, 102, 0.28));
+    }
+
+    .tile-demo.overlay img.base {
+      transform: scale(0.94);
+    }
+
+    .tile-demo.replace img.hazard {
+      object-fit: cover;
+    }
+
+    .state-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .state-label {
+      margin: 0 0 8px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .notes {
+      padding: 0 18px 18px;
+    }
+
+    .notes ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #d7dee7;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .notes li + li {
+      margin-top: 6px;
+    }
+
+    .pick {
+      margin-top: 28px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(242, 196, 107, 0.22);
+      background: rgba(39, 31, 19, 0.52);
+      color: #f9f1de;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .pick strong {
+      color: #ffe3a5;
+    }
+
+    @media (max-width: 1120px) {
+      .approaches {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        flex-direction: column;
+        align-items: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <h1>Hazard Tile UI 적용 방식 비교</h1>
+        <p class="subtitle">
+          새 `*_tile_hazard.png` 이미지는 중앙이 비고 가장자리가 강한 프레임형 아트입니다.
+          그래서 "기존 타일을 보존할지", "위험 상태에서만 전면으로 밀어올릴지"가 핵심 결정입니다.
+        </p>
+      </div>
+      <div class="recommend">
+        <strong>추천: A</strong><br>
+        기존 약점 타일은 유지하고, hazard 이미지는 경고/활성 오버레이로 쓰는 방향이 가장 읽기 쉽습니다.
+      </div>
+    </section>
+
+    <section class="approaches">
+      <article class="card">
+        <div class="card-head">
+          <div class="eyebrow">Option A</div>
+          <h2>오버레이 프레임</h2>
+          <p>기존 약점 타일을 그대로 유지하고, hazard 이미지를 위에 얹어 방해요소 상태만 강조합니다.</p>
+        </div>
+        <div class="stage">
+          <div class="tile-grid">
+            <div class="tile-stack">
+              <p class="tile-name">Red</p>
+              <div class="tile-demo overlay active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="Red base tile">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="Red hazard overlay">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="tile-name">Blue</p>
+              <div class="tile-demo overlay active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="Blue base tile">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="Blue hazard overlay">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="tile-name">Purple</p>
+              <div class="tile-demo overlay active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/purple_tile.png" alt="Purple base tile">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/purple_tile_hazard.png" alt="Purple hazard overlay">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="tile-name">Green</p>
+              <div class="tile-demo overlay active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/green_tile.png" alt="Green base tile">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/green_tile_hazard.png" alt="Green hazard overlay">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notes">
+          <ul>
+            <li>타일 약점 색을 계속 읽을 수 있습니다.</li>
+            <li>현재 `CellView.gd`의 obstacle overlay 구조와 가장 잘 맞습니다.</li>
+            <li>warning, active, afterglow를 알파/펄스로 나누기 쉽습니다.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="eyebrow">Option B</div>
+          <h2>타일 교체형</h2>
+          <p>위험 상태가 되면 기존 타일 대신 hazard 이미지를 메인 타일처럼 사용합니다.</p>
+        </div>
+        <div class="stage">
+          <div class="tile-grid">
+            <div class="tile-stack">
+              <p class="tile-name">Red</p>
+              <div class="tile-demo replace active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="Red replacement tile">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="tile-name">Blue</p>
+              <div class="tile-demo replace active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="Blue replacement tile">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="tile-name">Purple</p>
+              <div class="tile-demo replace active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/purple_tile.png" alt="">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/purple_tile_hazard.png" alt="Purple replacement tile">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="tile-name">Green</p>
+              <div class="tile-demo replace active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/green_tile.png" alt="">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/green_tile_hazard.png" alt="Green replacement tile">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notes">
+          <ul>
+            <li>위험감은 강하지만 중앙이 비어 보여 기본 타일 정보가 사라집니다.</li>
+            <li>배경이 드러나면 "빈 슬롯"처럼 읽힐 위험이 있습니다.</li>
+            <li>전투 판독성보다 장식성이 앞설 수 있습니다.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="eyebrow">Option C</div>
+          <h2>경고/활성 하이브리드</h2>
+          <p>경고 때는 얕은 프레임, 활성 때는 강한 프레임으로 단계 차이를 더 크게 만드는 방식입니다.</p>
+        </div>
+        <div class="stage">
+          <div class="state-row">
+            <div class="tile-stack">
+              <p class="state-label">Warning</p>
+              <div class="tile-demo overlay warning">
+                <img class="base" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="Red warning base">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="Red warning overlay">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="state-label">Active</p>
+              <div class="tile-demo overlay active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="Red active base">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="Red active overlay">
+              </div>
+            </div>
+          </div>
+          <div class="state-row">
+            <div class="tile-stack">
+              <p class="state-label">Warning</p>
+              <div class="tile-demo overlay warning">
+                <img class="base" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="Blue warning base">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="Blue warning overlay">
+              </div>
+            </div>
+            <div class="tile-stack">
+              <p class="state-label">Active</p>
+              <div class="tile-demo overlay active">
+                <img class="base" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="Blue active base">
+                <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="Blue active overlay">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notes">
+          <ul>
+            <li>A의 장점을 유지하면서 상태 차이를 더 분명하게 보여줍니다.</li>
+            <li>코드에서는 warning/active 분기만 조금 더 다듬으면 됩니다.</li>
+            <li>구현은 A보다 약간 늘지만 시각적 보상은 더 큽니다.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section class="pick">
+      <strong>질문:</strong> 브라우저에서 보고 <strong>A / B / C</strong> 중 어느 적용 방식이 맞는지 알려주세요.
+      제 기준 추천은 <strong>A 또는 C</strong>이고, 특히 지금 아트 형태상 <strong>B는 비추천</strong>입니다.
+    </section>
+  </div>
+</body>
+</html>

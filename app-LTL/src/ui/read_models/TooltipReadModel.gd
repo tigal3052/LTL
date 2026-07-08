@@ -1,0 +1,251 @@
+# 계약:
+# - 책임: Artifact 또는 reward dictionary를 tooltip 표시용 read model과 BBCode text로 변환한다.
+# - 입력: Artifact object 또는 reward Dictionary.
+# - 출력: { name, grade, itemType, energyType, bbcode } dictionary.
+# - 금지: UI node 접근, gameplay 상태 변경, inventory 변경.
+#
+# 실행: define the TooltipReadModel class.
+class_name TooltipReadModel
+extends RefCounted
+
+const EnergyTempoBalanceScript = preload("res://src/balance/EnergyTempoBalance.gd")
+const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const ItemFusionScript = preload("res://src/vocabulary/reward/ItemFusion.gd")
+
+# 실행: project tooltip-safe display data from artifact-like input.
+static func project(value: Variant) -> Dictionary:
+	var data := _normalize(value)
+	data["bbcode"] = _build_bbcode(data, TextCatalogScript.locale())
+	return data
+
+# 실행: build a reward tooltip; drills compare against same-color equipped drills, beacons stay single-item.
+static func project_reward_comparison(reward: Dictionary, equipped_artifacts: Array, locale := "") -> Dictionary:
+	var loc := locale if not locale.is_empty() else TextCatalogScript.locale()
+	var reward_data := _normalize(reward)
+	if str(reward_data.get("itemType", "")) != "drill":
+		reward_data["comparison"] = {}
+		reward_data["bbcode"] = _build_bbcode(reward_data, loc)
+		return reward_data
+	var equipped_data := _same_color_drill(equipped_artifacts, str(reward_data.get("energyType", "")))
+	reward_data["comparison"] = equipped_data
+	reward_data["bbcode"] = _build_comparison_bbcode(reward_data, equipped_data, loc)
+	return reward_data
+
+static func project_fusion_preview(existing_artifact, incoming_artifact, locale := "") -> Dictionary:
+	var loc := locale if not locale.is_empty() else TextCatalogScript.locale()
+	var preview: Dictionary = ItemFusionScript.preview_duplicate_fusion(existing_artifact, incoming_artifact)
+	if not bool(preview.get("ok", false)):
+		return {"ok": false, "code": str(preview.get("code", "")), "bbcode": ""}
+	var before_data := _normalize(preview.get("before", null))
+	var after_data := _normalize(preview.get("after", null))
+	return {
+		"ok": true,
+		"code": "preview",
+		"name": str(after_data.get("name", "")),
+		"grade": str(after_data.get("grade", "")),
+		"itemType": str(after_data.get("itemType", "")),
+		"energyType": str(after_data.get("energyType", "")),
+		"tooltipVariant": "fusion",
+		"panelAlpha": 1.0,
+		"bbcode": _build_fusion_bbcode(before_data, after_data, loc)
+	}
+
+# 실행: normalize reward dictionaries and Artifact objects into one shape.
+static func _normalize(value: Variant) -> Dictionary:
+	if value is Dictionary:
+		var payload: Dictionary = value.get("payload", {})
+		var raw_name := str(value.get("kind", TextCatalogScript.t("character.unknown_item")))
+		var grade_val := str(value.get("rarity", "common")).to_lower()
+		var item_type_val := str(payload.get("item_type", payload.get("itemType", "drill"))).to_lower()
+		if payload.get("item_type", "") == "beacon" or raw_name.to_lower().contains("beacon"):
+			item_type_val = "beacon"
+		var default_energy_type := "" if item_type_val == "relic" else "red"
+		var raw_base_cooldown := int(payload.get("base_cooldown_ticks", payload.get("baseCooldownTicks", _default_cooldown(grade_val))))
+		var raw_beacon_cooldown := int(payload.get("beacon_cooldown_mod", payload.get("beaconCooldownMod", _default_beacon_cooldown(grade_val, item_type_val))))
+		return {
+			"name": TextCatalogScript.reward_name(value),
+			"grade": grade_val,
+			"itemType": item_type_val,
+			"energyType": str(payload.get("energy_type", payload.get("energyType", default_energy_type))),
+			"baseCooldownTicks": EnergyTempoBalanceScript.native_cooldown_ticks(raw_base_cooldown),
+			"synergyCooldownReduction": 0,
+			"damage": float(payload.get("damage", _default_damage(grade_val))),
+			"beaconCooldownMod": EnergyTempoBalanceScript.scaled_beacon_cooldown_mod(raw_beacon_cooldown),
+			"beaconDamageMod": float(payload.get("beacon_damage_mod", payload.get("beaconDamageMod", _default_beacon_damage(grade_val, item_type_val)))),
+			"effectSchema": payload.get("effect_schema", payload.get("effectSchema", {})),
+			"keyword": TextCatalogScript.reward_description(value)
+		}
+	return {
+		"name": TextCatalogScript.localized_text(value.text, "name", TextCatalogScript.display_name(str(value.name))),
+		"grade": str(value.grade).to_lower(),
+		"itemType": str(value.item_type),
+		"energyType": str(value.energy_type),
+		"baseCooldownTicks": int(value.base_cooldown_ticks),
+		"synergyCooldownReduction": int(value.synergy_cooldown_reduction),
+		"damage": float(value.damage),
+		"beaconCooldownMod": int(value.beacon_cooldown_mod),
+		"beaconDamageMod": float(value.beacon_damage_mod),
+		"effectSchema": value.effect_schema.duplicate(true) if value.effect_schema is Dictionary else {},
+		"keyword": TextCatalogScript.localized_text(value.text, "description", TextCatalogScript.display_description(str(value.keyword)))
+	}
+
+# 실행: build the BBCode tooltip body.
+static func _build_bbcode(data: Dictionary, locale := "ko") -> String:
+	var rarity_color := _rarity_color(str(data["grade"]))
+	var energy_color := _energy_color(str(data["energyType"]))
+	var item_type := str(data.get("itemType", "drill"))
+	var effect_schema: Dictionary = data.get("effectSchema", {})
+	var lines: Array[String] = []
+	lines.append("[b][size=14][color=%s]%s[/color][/size][/b]" % [rarity_color, data["name"]])
+	lines.append("[color=#7f848e]%s - %s[/color]" % [_label("rarity", str(data["grade"]), locale), _label("item", item_type, locale)])
+	if item_type != "relic":
+		lines.append("[color=%s]%s: %s[/color]" % [energy_color, TextCatalogScript.t("tooltip.energy", [], locale), _label("color", str(data["energyType"]), locale)])
+	if item_type == "drill":
+		var eff_cd := maxi(1, int(data["baseCooldownTicks"]) - int(data["synergyCooldownReduction"]))
+		lines.append("%s: %d T" % [TextCatalogScript.t("tooltip.cooldown", [], locale), eff_cd])
+		lines.append("%s: [color=#e06c75]%.1f[/color]" % [TextCatalogScript.t("tooltip.damage", [], locale), float(data["damage"])])
+		if int(data["synergyCooldownReduction"]) > 0:
+			lines.append("[color=#98c379]%s: -%d T[/color]" % [TextCatalogScript.t("tooltip.synergy_cdr", [], locale), int(data["synergyCooldownReduction"])])
+	elif item_type == "beacon":
+		lines.append("[color=#61afef]%s:[/color]" % TextCatalogScript.t("tooltip.beacon_effects", [], locale))
+		if int(data["beaconCooldownMod"]) != 0:
+			var cd_sign := "+" if int(data["beaconCooldownMod"]) > 0 else ""
+			var cd_color := "#e06c75" if int(data["beaconCooldownMod"]) > 0 else "#98c379"
+			lines.append("- %s: [color=%s]%s%d T[/color]" % [TextCatalogScript.t("tooltip.cooldown", [], locale), cd_color, cd_sign, int(data["beaconCooldownMod"])])
+		if float(data["beaconDamageMod"]) != 0.0:
+			var dmg_sign := "+" if float(data["beaconDamageMod"]) > 0.0 else ""
+			var dmg_color := "#98c379" if float(data["beaconDamageMod"]) > 0.0 else "#e06c75"
+			lines.append("- %s: [color=%s]%s%.1f[/color]" % [TextCatalogScript.t("tooltip.damage", [], locale), dmg_color, dmg_sign, float(data["beaconDamageMod"])])
+	elif item_type == "relic":
+		var link_label := _relic_link_label(effect_schema, locale)
+		if not link_label.is_empty():
+			lines.append("[color=#e5c07b]%s: %s[/color]" % [TextCatalogScript.t("tooltip.relic_link", [], locale), link_label])
+	var effect_summary := TextCatalogScript.effect_summary(effect_schema, locale) if effect_schema is Dictionary else ""
+	if not effect_summary.is_empty():
+		lines.append("[color=#e5c07b]%s[/color]" % effect_summary)
+	if not str(data["keyword"]).is_empty():
+		lines.append("\n[color=#5c6370][i]%s[/i][/color]" % str(data["keyword"]))
+	return "\n".join(lines)
+
+# 실행: render reward and equipped artifact stats side by side in one tooltip body.
+static func _build_comparison_bbcode(reward_data: Dictionary, equipped_data: Dictionary, locale: String) -> String:
+	var reward_lines := _compact_lines(reward_data, locale)
+	var equipped_lines := [TextCatalogScript.t("tooltip.no_same_color_drill", [], locale)]
+	if not equipped_data.is_empty():
+		equipped_lines = _compact_lines(equipped_data, locale)
+	var lines: Array[String] = []
+	lines.append("[table=2]")
+	lines.append("[cell][b][color=#e5c07b]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.reward_artifact", [], locale), "\n".join(reward_lines)])
+	lines.append("[cell][b][color=#98c379]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.equipped_artifact", [], locale), "\n".join(equipped_lines)])
+	lines.append("[/table]")
+	return "\n".join(lines)
+
+static func _build_fusion_bbcode(before_data: Dictionary, after_data: Dictionary, locale: String) -> String:
+	var before_lines := _compact_lines(before_data, locale)
+	var after_lines := _compact_lines(after_data, locale)
+	var lines: Array[String] = []
+	lines.append("[table=2]")
+	lines.append("[cell][b][color=#e5c07b]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.fusion_before", [], locale), "\n".join(before_lines)])
+	lines.append("[cell][b][color=#98c379]%s[/color][/b]\n%s[/cell]" % [TextCatalogScript.t("tooltip.fusion_after", [], locale), "\n".join(after_lines)])
+	lines.append("[/table]")
+	return "\n".join(lines)
+
+# 실행: turn normalized artifact data into compact comparison rows.
+static func _compact_lines(data: Dictionary, locale: String) -> Array[String]:
+	var item_type := str(data.get("itemType", "drill"))
+	var eff_cd := maxi(1, int(data.get("baseCooldownTicks", 1)) - int(data.get("synergyCooldownReduction", 0)))
+	var rows: Array[String] = [
+		str(data.get("name", "")),
+		"%s / %s" % [_label("rarity", str(data.get("grade", "common")), locale), _label("item", item_type, locale)]
+	]
+	if item_type != "relic":
+		rows.append("%s: %s" % [TextCatalogScript.t("tooltip.energy", [], locale), _label("color", str(data.get("energyType", "")), locale)])
+	if item_type == "drill":
+		rows.append("%s: %d T" % [TextCatalogScript.t("tooltip.cooldown", [], locale), eff_cd])
+		rows.append("%s: %.1f" % [TextCatalogScript.t("tooltip.damage", [], locale), float(data.get("damage", 0.0))])
+	elif item_type == "beacon":
+		var cooldown_mod := int(data.get("beaconCooldownMod", 0))
+		var damage_mod := float(data.get("beaconDamageMod", 0.0))
+		rows.append("%s: %s%d T" % [TextCatalogScript.t("tooltip.cooldown", [], locale), "+" if cooldown_mod > 0 else "", cooldown_mod])
+		rows.append("%s: %s%.1f" % [TextCatalogScript.t("tooltip.damage", [], locale), "+" if damage_mod > 0.0 else "", damage_mod])
+	elif item_type == "relic":
+		var effect_schema: Dictionary = data.get("effectSchema", {})
+		var link_label := _relic_link_label(effect_schema, locale)
+		if not link_label.is_empty():
+			rows.append("%s: %s" % [TextCatalogScript.t("tooltip.relic_link", [], locale), link_label])
+		var summary := TextCatalogScript.effect_summary(effect_schema, locale)
+		if not summary.is_empty():
+			rows.append(summary)
+	return rows
+
+# 실행: find the currently equipped drill with the same energy color as the reward.
+static func _same_color_drill(equipped_artifacts: Array, energy_type: String) -> Dictionary:
+	for artifact in equipped_artifacts:
+		var data := _normalize(artifact)
+		if str(data.get("itemType", "")) == "drill" and str(data.get("energyType", "")) == energy_type:
+			return data
+	return {}
+
+# 실행: resolve rarity, item, and color labels through the text catalog.
+static func _label(group: String, value: String, locale: String) -> String:
+	return TextCatalogScript.t("%s.%s" % [group, value.to_lower()], [], locale)
+
+static func _relic_link_label(effect_schema: Dictionary, locale: String) -> String:
+	var link_mode := str(effect_schema.get("link_mode", "")).to_lower()
+	if link_mode.is_empty():
+		return ""
+	return TextCatalogScript.t("relic_link.%s" % link_mode, [], locale)
+
+static func _rarity_color(grade: String) -> String:
+	return {"basic": "#abb2bf", "common": "#a3be8c", "rare": "#61afef", "epic": "#c678dd", "legendary": "#e5c07b", "mythic": "#d19a66"}.get(grade.to_lower(), "#abb2bf")
+
+static func _energy_color(energy: String) -> String:
+	return {"red": "#e06c75", "blue": "#61afef", "purple": "#c678dd", "green": "#98c379"}.get(energy.to_lower(), "#abb2bf")
+
+static func _default_cooldown(rarity: String) -> int:
+	if rarity == "rare":
+		return 70
+	if rarity == "epic":
+		return 60
+	if rarity == "legendary":
+		return 50
+	if rarity == "mythic":
+		return 40
+	return 80
+
+static func _default_damage(rarity: String) -> float:
+	if rarity == "rare":
+		return 1.3
+	if rarity == "epic":
+		return 1.6
+	if rarity == "legendary":
+		return 2.0
+	if rarity == "mythic":
+		return 2.5
+	return 1.0
+
+static func _default_beacon_cooldown(rarity: String, item_type: String) -> int:
+	if item_type != "beacon":
+		return 0
+	if rarity == "rare":
+		return -15
+	if rarity == "epic":
+		return -25
+	if rarity == "legendary":
+		return -30
+	if rarity == "mythic":
+		return -40
+	return -10
+
+static func _default_beacon_damage(rarity: String, item_type: String) -> float:
+	if item_type != "beacon":
+		return 0.0
+	if rarity == "rare":
+		return 0.3
+	if rarity == "epic":
+		return 0.6
+	if rarity == "legendary":
+		return 1.0
+	if rarity == "mythic":
+		return 1.5
+	return 0.1

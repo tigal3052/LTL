@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Boss Reward Pick Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --line: rgba(208, 223, 236, 0.12);
+      --text: #eef4fa;
+      --muted: #97a8b8;
+      --accent: #f0c56c;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(240, 197, 108, 0.12), transparent 22%),
+        radial-gradient(circle at 80% 14%, rgba(163, 120, 255, 0.10), transparent 22%),
+        linear-gradient(180deg, #121922 0%, #080c11 100%);
+      padding: 28px 20px 36px;
+    }
+    .page { width: min(1440px, 100%); margin: 0 auto; }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+    .subtitle {
+      margin: 0 0 18px;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .board,
+    .notes,
+    .impl {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+    .head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .body { padding: 18px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card,
+    .cta,
+    .impl-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+    }
+    .card {
+      min-height: 460px;
+      padding: 18px;
+    }
+    .card.selected {
+      border-color: rgba(240, 197, 108, 0.28);
+      box-shadow: inset 0 0 0 1px rgba(240, 197, 108, 0.10);
+    }
+    .card strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card p,
+    .impl-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .card-badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text);
+      font-size: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+    .card-image {
+      height: 220px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      margin-bottom: 14px;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.08), transparent 18%),
+        rgba(255,255,255,0.02);
+    }
+    .cta {
+      margin-top: 16px;
+      padding: 16px;
+      text-align: center;
+      font-weight: 700;
+      border-color: rgba(240, 197, 108, 0.26);
+      background: linear-gradient(180deg, rgba(98, 74, 25, 0.46), rgba(44, 31, 10, 0.60));
+    }
+    .notes,
+    .impl { margin-top: 16px; }
+    .notes-body,
+    .impl-body { padding: 16px; }
+    .annotation-list {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.75;
+    }
+    .annotation-list li + li { margin-top: 10px; }
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .impl-card { padding: 14px; }
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .impl-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    @media (max-width: 1100px) {
+      .cards,
+      .impl-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">BOSS REWARD PICK</div>
+    <h1>보스전 아이템 보상 페이지</h1>
+    <p class="subtitle">
+      이 화면은 세 개의 강한 보상을 같은 무게로 비교하고, 마지막에 하나만 확정하는 선택 장면이다.
+      별도 상세 패널은 제거하고 카드 자체와 강조 상태만으로 결정 흐름을 읽게 만든다.
+    </p>
+
+    <section class="board" aria-label="보스 보상 선택 보드">
+      <div class="head">
+        <h2>세 개의 보상 카드 비교</h2>
+        <div class="hint">세 카드 비교만 남기고, 확정 전 보조 요약 패널은 제거한다.</div>
+      </div>
+      <div class="body">
+        <div class="cards">
+          <article class="card">
+            <div class="card-badge">안정형</div>
+            <div class="card-image">보상 카드 A<br>이미지 중심 비교</div>
+            <strong>보상 카드 A</strong>
+            <p>유지형 시너지에 맞는 안정적 보상. 다음 런의 구성 폭을 넓히는 타입.</p>
+          </article>
+          <article class="card selected">
+            <div class="card-badge">강공형</div>
+            <div class="card-image">보상 카드 B<br>현재 선택 강조</div>
+            <strong>보상 카드 B</strong>
+            <p>위험하지만 눈에 띄는 보상. 현재 빌드와 맞으면 폭발적인 성장 방향을 만든다.</p>
+          </article>
+          <article class="card">
+            <div class="card-badge">조건형</div>
+            <div class="card-image">보상 카드 C<br>후반 가치 비교</div>
+            <strong>보상 카드 C</strong>
+            <p>조건부 강점이 있는 선택지. 곧바로 강하진 않지만 특정 조합에서 가치가 커진다.</p>
+          </article>
+        </div>
+        <div class="cta">선택 확정 버튼</div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <div class="head">
+        <h2>번호 주석</h2>
+        <div class="hint">three-way comparison annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>세 카드는 같은 시선 우선순위로 놓아 보조 패널 없이도 직접 비교할 수 있어야 한다.</li>
+          <li>선택 강조는 카드 자체의 테두리와 상태 변화로만 전달하고, 별도 상세 설명 면은 두지 않는다.</li>
+          <li>확정 버튼은 카드 비교가 끝난 뒤 마지막 행동으로 남겨 즉흥 선택보다 비교 후 결정을 유도한다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <div class="head">
+        <h2>구현 노트</h2>
+        <div class="hint">allowed / blocked / key signs</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>허용 오버레이</strong>
+            <ul>
+              <li>settings</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>기본 차단</strong>
+            <ul>
+              <li>artifact codex</li>
+              <li>shop</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>핵심 구현 신호</strong>
+            <p>three-way comparison, locked confirm, single chosen relic</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

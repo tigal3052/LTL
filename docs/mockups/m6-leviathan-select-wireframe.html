@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Leviathan Select Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --line: rgba(205, 222, 236, 0.12);
+      --text: #eef5fb;
+      --muted: #97a9b9;
+      --soft: #c8d7e4;
+      --accent: #f0c56c;
+      --danger: #d65a62;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 82% 12%, rgba(109, 179, 255, 0.10), transparent 22%),
+        linear-gradient(180deg, #121a22 0%, #091015 100%);
+      padding: 28px 20px 36px;
+    }
+
+    .page {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.04;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 1040px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.72;
+    }
+
+    .board-shell,
+    .notes,
+    .impl {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head,
+    .notes-head,
+    .impl-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .board-title {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .board-title strong {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .board-title span,
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mode-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.22);
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .board {
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent 22%),
+        rgba(5, 8, 12, 0.28);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 0.56fr 2.24fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .selector-zone,
+    .stage-zone {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+    }
+
+    .zone-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .zone-head h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .zone-head .hint {
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .zone-body {
+      padding: 16px;
+    }
+
+    .selector-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 720px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .selector-list::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .selector-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .choice-card,
+    .impl-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .choice-card {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+    }
+
+    .choice-card.selected {
+      border-color: rgba(240, 197, 108, 0.26);
+      background: linear-gradient(180deg, rgba(69, 54, 20, 0.34), rgba(12, 16, 21, 0.44));
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #3a4959, #1f2a35);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .choice-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .choice-meta {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .cinematic-stage {
+      position: relative;
+      min-height: 780px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.09), transparent 18%),
+        radial-gradient(circle at 70% 70%, rgba(214, 90, 98, 0.11), transparent 26%),
+        linear-gradient(180deg, rgba(31, 42, 55, 0.92), rgba(7, 11, 16, 0.98));
+    }
+
+    .cinematic-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(255,255,255,0.05), transparent 20%),
+        radial-gradient(circle at 86% 18%, rgba(240,197,108,0.05), transparent 16%),
+        linear-gradient(180deg, rgba(4, 6, 9, 0.08), rgba(4, 6, 9, 0.44));
+      pointer-events: none;
+    }
+
+    .hero-image {
+      position: absolute;
+      inset: 22px;
+      border-radius: 24px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--soft);
+      line-height: 1.72;
+      font-size: 22px;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 48% 24%, rgba(255,255,255,0.12), transparent 16%),
+        linear-gradient(180deg, rgba(18, 24, 31, 0.32), rgba(6, 8, 12, 0.54));
+    }
+
+    .title-tag {
+      position: absolute;
+      left: 44px;
+      bottom: 42px;
+      display: grid;
+      gap: 6px;
+      max-width: 360px;
+      z-index: 2;
+    }
+
+    .title-tag strong {
+      font-size: clamp(30px, 3.6vw, 54px);
+      letter-spacing: -0.04em;
+      line-height: 0.96;
+    }
+
+    .title-tag span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .top-strip {
+      position: absolute;
+      top: 26px;
+      left: 28px;
+      right: 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      z-index: 2;
+    }
+
+    .hunt-chip {
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(7, 10, 15, 0.44);
+      backdrop-filter: blur(8px);
+    }
+
+    .hunt-chip strong {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .hunt-chip span {
+      font-size: 15px;
+      color: var(--text);
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .overlay-stack {
+      position: absolute;
+      right: 34px;
+      bottom: 34px;
+      width: min(370px, calc(100% - 68px));
+      display: grid;
+      gap: 12px;
+      z-index: 3;
+    }
+
+    .target-card {
+      position: relative;
+      padding: 16px 16px 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        linear-gradient(180deg, rgba(18, 23, 30, 0.84), rgba(7, 10, 14, 0.90)),
+        rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 28px rgba(0,0,0,0.26);
+      overflow: hidden;
+    }
+
+    .target-card::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 14px;
+      bottom: 14px;
+      border: 1px dashed rgba(255,255,255,0.10);
+      border-radius: 16px;
+      pointer-events: none;
+    }
+
+    .target-kicker {
+      position: relative;
+      z-index: 1;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .target-name {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .target-copy {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.72;
+      max-width: 280px;
+    }
+
+    .clear-stamp {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 8px 14px;
+      border: 3px solid rgba(214, 90, 98, 0.80);
+      color: rgba(214, 90, 98, 0.92);
+      font-family: "Impact", "Arial Black", sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transform: rotate(-13deg);
+      opacity: 0.88;
+      mix-blend-mode: screen;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.18);
+    }
+
+    .start-button {
+      position: relative;
+      padding: 18px 24px;
+      border-radius: 22px;
+      border: 1px solid rgba(240, 197, 108, 0.20);
+      background:
+        radial-gradient(circle at 24% 30%, rgba(240,197,108,0.16), transparent 28%),
+        linear-gradient(180deg, rgba(60, 46, 16, 0.82), rgba(22, 15, 6, 0.90));
+      color: #f7e4b7;
+      text-align: center;
+      overflow: hidden;
+      box-shadow: 0 18px 26px rgba(0,0,0,0.28);
+    }
+
+    .start-button::before,
+    .start-button::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(214, 90, 98, 0.18);
+      filter: blur(1px);
+    }
+
+    .start-button::before {
+      width: 120px;
+      height: 22px;
+      left: -10px;
+      top: 16px;
+      transform: rotate(-8deg);
+    }
+
+    .start-button::after {
+      width: 110px;
+      height: 18px;
+      right: -16px;
+      bottom: 18px;
+      transform: rotate(10deg);
+    }
+
+    .start-button span {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      font-family: "Impact", "Haettenschweiler", "Arial Black", sans-serif;
+      font-size: clamp(28px, 2.7vw, 42px);
+      line-height: 1;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transform: skew(-10deg) rotate(-2deg);
+      text-shadow:
+        0 2px 0 rgba(0,0,0,0.18),
+        2px 2px 0 rgba(0,0,0,0.20),
+        0 0 16px rgba(240,197,108,0.12);
+    }
+
+    .notes,
+    .impl {
+      margin-top: 16px;
+    }
+
+    .notes-body,
+    .impl-body {
+      padding: 16px;
+    }
+
+    .annotation-list {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.78;
+      color: var(--soft);
+    }
+
+    .annotation-list li + li {
+      margin-top: 10px;
+    }
+
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .impl-card {
+      padding: 14px;
+    }
+
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .impl-card ul,
+    .impl-card p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .impl-card ul {
+      padding-left: 18px;
+    }
+
+    @media (max-width: 1120px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .selector-list {
+        max-height: 300px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .board-head,
+      .notes-head,
+      .impl-head,
+      .top-strip {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .top-strip {
+        right: auto;
+      }
+
+      .overlay-stack {
+        position: static;
+        width: 100%;
+        padding: 0 22px 22px;
+      }
+
+      .title-tag {
+        position: static;
+        padding: 22px;
+      }
+
+      .hero-image {
+        inset: 18px 18px 180px;
+      }
+
+      .impl-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">LEVIATHAN HUNT BOARD</div>
+      <h1>레비아탄 선택 페이지</h1>
+      <p class="subtitle">
+        캐릭터 선택 다음 단계에서 어떤 레비아탄 계약에 착수할지 고르는 시네마틱 헌트 화면이다.
+        왼쪽은 좁은 선택 목록, 오른쪽은 거의 전부가 대형 이미지이며, 상단에는 런 구조를 숫자와 기호로만 압축하고
+        오른쪽 하단에는 `루팅 목표`와 `Looting Start`만 강하게 겹쳐 놓는다.
+      </p>
+    </header>
+
+    <section class="board-shell" aria-label="레비아탄 선택 와이어프레임 보드">
+      <div class="board-head">
+        <div class="board-title">
+          <strong>시네마틱 헌트형 계약 선택</strong>
+          <span>왼쪽 1/5 셀렉터와 오른쪽 4/5 포스터형 이미지 보드로, 긴 설명보다 계약 대상과 착수 감각을 먼저 읽게 만드는 단계</span>
+        </div>
+        <div class="mode-pill">after character select</div>
+      </div>
+
+      <div class="board">
+        <div class="grid">
+          <section class="selector-zone" aria-label="레비아탄 선택 목록">
+            <div class="zone-head">
+              <h2>레비아탄 선택</h2>
+              <div class="hint">1/5 selector rail</div>
+            </div>
+            <div class="zone-body">
+              <div class="selector-list">
+                <article class="choice-card selected">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">염수 사체왕</p>
+                    <p class="choice-meta">selected contract</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">공허 척수룡</p>
+                    <p class="choice-meta">deep route type</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">백야 늑골해파</p>
+                    <p class="choice-meta">unstable tide type</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">흑류 수문장</p>
+                    <p class="choice-meta">future contract</p>
+                  </div>
+                </article>
+                <article class="choice-card">
+                  <div class="avatar" aria-hidden="true"></div>
+                  <div>
+                    <p class="choice-name">갈증 도래수</p>
+                    <p class="choice-meta">future contract</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="stage-zone" aria-label="레비아탄 시네마틱 보드">
+            <div class="zone-head">
+              <h2>표적 브리핑</h2>
+              <div class="hint">4/5 cinematic hunt board</div>
+            </div>
+            <div class="zone-body">
+              <div class="cinematic-stage">
+                <div class="top-strip">
+                  <div class="hunt-chip">
+                    <strong>contract</strong>
+                    <span>RUN 4</span>
+                  </div>
+                  <div class="hunt-chip">
+                    <strong>route shorthand</strong>
+                    <span>5 • 6 • 5 • 6</span>
+                  </div>
+                </div>
+
+                <div class="hero-image">
+                  레비아탄 대형 이미지<br>
+                  심해 골격 / 부패 껍질 / 항로 잔해 / 침수 구조물을 한 장면에 묶는 메인 비주얼
+                </div>
+
+                <div class="title-tag">
+                  <strong>염수<br>사체왕</strong>
+                  <span>Leviathan Contract / Heavy Bone Reef / Residual Salt Choir</span>
+                </div>
+
+                <div class="overlay-stack">
+                  <article class="target-card" aria-label="루팅 목표">
+                    <div class="clear-stamp">CLEAR</div>
+                    <div class="target-kicker">루팅 목표</div>
+                    <p class="target-name">왕척추 봉인 유물</p>
+                    <p class="target-copy">
+                      최종 클리어 유물. 목표는 별도 패널로 떼지 않고 이미지 위 하단에 겹쳐 두어,
+                      “이번 계약에서 무엇을 노리는가”가 즉시 읽히게 한다.
+                    </p>
+                  </article>
+
+                  <div class="start-button" aria-label="Looting Start 버튼">
+                    <span>Looting Start</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <div class="notes-head">
+        <h2>번호 주석</h2>
+        <div class="hint">cinematic-hunt annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>왼쪽 1/5는 캐릭터 선택과 같은 문법의 좁은 스크롤 목록으로 유지해 단계 전환이 자연스럽게 이어지게 만든다.</li>
+          <li>오른쪽 4/5는 거의 전부를 레비아탄 이미지가 차지하고, 상단 런 구조 정보는 숫자와 기호만 남겨 최대한 얇게 처리한다.</li>
+          <li>`루팅 목표`와 `Looting Start`는 오른쪽 하단에서 이미지 위에 겹쳐져야 하며, 별도 문서 레이아웃처럼 분리되면 안 된다.</li>
+          <li>클리어 여부는 목표 카드 위 `CLEAR` 도장으로만 표현해, 상태 정보가 곧 목표물의 이력처럼 읽히게 만든다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <div class="impl-head">
+        <h2>구현 힌트</h2>
+        <div class="hint">layout / overlay / CTA rules</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>레이아웃 규칙</strong>
+            <ul>
+              <li>1/5 selector rail</li>
+              <li>4/5 image-first board</li>
+              <li>selector scroll growth safe</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>오버레이 규칙</strong>
+            <ul>
+              <li>top strip = run shorthand only</li>
+              <li>bottom-right = target + CTA only</li>
+              <li>clear state stamped on target</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>버튼 규칙</strong>
+            <p>rough graffiti lettering, readable hitbox, fixed text `Looting Start`, should feel like beginning mercenary fieldwork rather than opening a menu</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

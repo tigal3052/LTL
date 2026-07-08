@@ -1,0 +1,13 @@
+{
+  "passives": [
+	{"id": "engine_coolant", "branch": "engine", "label": "Engine Coolant", "maxLevel": 3, "costGold": 45, "costXp": 10, "effect": {"cooldownMul": 0.96}},
+	{"id": "engine_beacon_amp", "branch": "engine", "label": "Beacon Amplifier", "maxLevel": 4, "costGold": 65, "costXp": 18, "effect": {"beaconEffectMul": 1.06}},
+	{"id": "engine_queue_tune", "branch": "engine", "label": "Queue Tuning", "maxLevel": 2, "costGold": 90, "costXp": 30, "effect": {"queueStability": 1}},
+	{"id": "survival_repair_hand", "branch": "survival", "label": "Repair Hand", "maxLevel": 3, "costGold": 50, "costXp": 12, "effect": {"repairSpeedMul": 1.08}},
+	{"id": "survival_hazard_read", "branch": "survival", "label": "Hazard Read", "maxLevel": 3, "costGold": 70, "costXp": 18, "effect": {"hazardWarningTicks": 6}},
+	{"id": "survival_anchor_brace", "branch": "survival", "label": "Anchor Brace", "maxLevel": 2, "costGold": 95, "costXp": 28, "effect": {"mismatchPinGrace": 1}},
+	{"id": "extraction_gold_vein", "branch": "extraction", "label": "Gold Vein", "maxLevel": 4, "costGold": 40, "costXp": 8, "effect": {"goldGainMul": 1.07}},
+	{"id": "extraction_rare_scan", "branch": "extraction", "label": "Rare Scan", "maxLevel": 3, "costGold": 75, "costXp": 22, "effect": {"rareRewardWeight": 0.06}},
+	{"id": "extraction_boss_core", "branch": "extraction", "label": "Boss Core Map", "maxLevel": 1, "costGold": 130, "costXp": 45, "effect": {"bossRewardMul": 1.25}}
+  ]
+}

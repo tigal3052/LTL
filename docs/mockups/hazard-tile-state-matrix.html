@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hazard Tile State Matrix</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: rgba(18, 24, 34, 0.94);
+      --line: rgba(255, 255, 255, 0.10);
+      --text: #edf2f7;
+      --muted: #a8b1bf;
+      --accent: #f5ca7b;
+      --tile-off: 0.5;
+      --tile-on: 1;
+      --hazard-warning: 0.48;
+      --hazard-active: 1;
+      --hazard-afterglow: 0.22;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Pretendard", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(234, 164, 74, 0.10), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(87, 132, 255, 0.08), transparent 24%),
+        linear-gradient(180deg, #111720 0%, #090c11 100%);
+      padding: 32px;
+    }
+
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 3.5vw, 42px);
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px 20px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .summary-card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .summary-card p,
+    .summary-card li {
+      color: #d7deea;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .summary-card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: 180px repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .matrix-head,
+    .matrix-side,
+    .matrix-cell {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+    }
+
+    .matrix-head,
+    .matrix-side {
+      padding: 18px;
+    }
+
+    .matrix-head {
+      min-height: 108px;
+    }
+
+    .matrix-head .kicker,
+    .matrix-side .kicker {
+      display: block;
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .matrix-head h3,
+    .matrix-side h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .matrix-head p,
+    .matrix-side p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .matrix-cell {
+      padding: 16px;
+    }
+
+    .tile-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .swatch {
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .swatch-title {
+      margin: 0 0 8px;
+      font-size: 11px;
+      color: #cfd8e4;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .tile-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)),
+        #0d1218;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .tile-box img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .tile-box .tile {
+      opacity: var(--tile-alpha, 1);
+    }
+
+    .tile-box .hazard {
+      opacity: var(--hazard-alpha, 0);
+      filter: drop-shadow(0 0 12px rgba(255, 196, 112, 0.16));
+    }
+
+    .matrix-cell ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #dce4ee;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .legend {
+      margin-top: 24px;
+      padding: 18px 20px;
+      background: rgba(42, 33, 18, 0.56);
+      border: 1px solid rgba(245, 202, 123, 0.24);
+      border-radius: 20px;
+      color: #f7edd6;
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    @media (max-width: 1240px) {
+      .summary {
+        grid-template-columns: 1fr;
+      }
+
+      .matrix {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .matrix {
+        grid-template-columns: 1fr;
+      }
+
+      .tile-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Hazard Tile 상태 매트릭스</h1>
+    <p class="subtitle">
+      이번 안은 기존 비교안의 <strong>C</strong>를 더 정확히 정리한 것입니다.
+      핵심은 <strong>약점 여부는 기본 타일 alpha</strong>로, <strong>hazard 상태는 hazard 이미지 alpha</strong>로 읽히게 만드는 것입니다.
+      hazard 이미지는 기본 타일과 같은 크기로 완전히 겹쳐 그립니다.
+    </p>
+
+    <section class="summary">
+      <article class="summary-card">
+        <h2>해석 기준</h2>
+        <ul>
+          <li>약점 없음: 기본 타일이 반투명하게 보입니다.</li>
+          <li>약점 있음: 기본 타일이 100% 선명하게 보입니다.</li>
+          <li>warning: hazard 이미지가 반투명하게 추가됩니다.</li>
+          <li>active: hazard 이미지가 100%로 올라갑니다.</li>
+          <li>afterglow: active가 끝난 뒤 hazard만 아주 약하게 남았다가 사라집니다.</li>
+        </ul>
+      </article>
+      <article class="summary-card">
+        <h2>이번 화면이 보여주는 것</h2>
+        <p>
+          아래 4개 열은 각각 <strong>hazard 없음 / warning / active / afterglow</strong>를,
+          2개 행은 <strong>약점 없음 / 약점 있음</strong>을 뜻합니다.
+          각 칸 안에서는 red와 blue를 예시로 보여주고, 나머지 family도 같은 규칙을 따릅니다.
+        </p>
+      </article>
+    </section>
+
+    <section class="matrix">
+      <div class="matrix-head">
+        <span class="kicker">State</span>
+        <h3>Baseline</h3>
+        <p>hazard 없음</p>
+      </div>
+      <div class="matrix-head">
+        <span class="kicker">State</span>
+        <h3>Warning</h3>
+        <p>hazard 반투명</p>
+      </div>
+      <div class="matrix-head">
+        <span class="kicker">State</span>
+        <h3>Active</h3>
+        <p>hazard 100%</p>
+      </div>
+      <div class="matrix-head">
+        <span class="kicker">State</span>
+        <h3>Afterglow</h3>
+        <p>hazard 약한 잔광</p>
+      </div>
+
+      <div class="matrix-side">
+        <span class="kicker">Weakness</span>
+        <h3>X</h3>
+        <p>기본 타일이 반투명</p>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: 0;">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: 0;">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>타일만 보임</li>
+          <li>weakness가 아니라는 정보가 alpha로 읽힘</li>
+        </ul>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: var(--hazard-warning);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: var(--hazard-warning);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>타일 반투명</li>
+          <li>hazard도 반투명으로만 얹힘</li>
+        </ul>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: var(--hazard-active);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: var(--hazard-active);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>타일은 여전히 반투명</li>
+          <li>hazard는 100%로 올라가서 즉시 읽힘</li>
+        </ul>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: var(--hazard-afterglow);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-off); --hazard-alpha: var(--hazard-afterglow);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>active의 잔광만 아주 약하게 남음</li>
+          <li>warning보다도 더 빨리 사라짐</li>
+        </ul>
+      </div>
+
+      <div class="matrix-side">
+        <span class="kicker">Weakness</span>
+        <h3>O</h3>
+        <p>기본 타일이 100%</p>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: 0;">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: 0;">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>타일만 100%</li>
+          <li>현재 약점 칸이라는 정보가 가장 선명함</li>
+        </ul>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: var(--hazard-warning);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: var(--hazard-warning);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>타일은 약점답게 100%</li>
+          <li>hazard는 경고로만 얹힘</li>
+        </ul>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: var(--hazard-active);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: var(--hazard-active);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>타일 100%</li>
+          <li>hazard도 100%라서 가장 강한 상태</li>
+        </ul>
+      </div>
+      <div class="matrix-cell">
+        <div class="tile-pair">
+          <div class="swatch">
+            <p class="swatch-title">Red</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: var(--hazard-afterglow);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/red_tile.png" alt="red tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/red_tile_hazard.png" alt="red hazard">
+            </div>
+          </div>
+          <div class="swatch">
+            <p class="swatch-title">Blue</p>
+            <div class="tile-box" style="--tile-alpha: var(--tile-on); --hazard-alpha: var(--hazard-afterglow);">
+              <img class="tile" src="../../app-LTL/resources/UI/tile/blue_tile.png" alt="blue tile">
+              <img class="hazard" src="../../app-LTL/resources/UI/tile/blue_tile_hazard.png" alt="blue hazard">
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>기본 타일은 약점답게 유지</li>
+          <li>hazard만 희미하게 남아 사라짐</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="legend">
+      <strong>읽는 법:</strong> 이번 안은 “약점 여부는 기본 타일 alpha”, “hazard 상태는 hazard alpha”로 분리해서 읽게 만드는 방향입니다.
+      따라서 강한 색 테두리보다 화면이 덜 복잡하고, warning과 active의 차이도 더 직접적으로 보입니다.
+    </section>
+  </div>
+</body>
+</html>

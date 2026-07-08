@@ -1,0 +1,52 @@
+{
+  "hazards": [
+    {
+      "id": "freeze",
+      "label": "Frost Lock",
+      "weight": 10,
+      "warningTicks": 35,
+      "durationTicks": 90,
+      "severity": 1.0,
+      "pinDelta": 0,
+      "counterplay": "Fire matching pulse colors before the frost cue applies.",
+      "telemetryEvent": "hazard_freeze_applied",
+      "icon": "res://resources/UI/icons/hazard_freeze.png"
+    },
+    {
+      "id": "wind",
+      "label": "Crosswind",
+      "weight": 9,
+      "warningTicks": 28,
+      "durationTicks": 75,
+      "severity": 1.1,
+      "pinDelta": 0,
+      "counterplay": "Hold aim until the shifted lane stabilizes.",
+      "telemetryEvent": "hazard_wind_applied",
+      "icon": "res://resources/UI/icons/hazard_wind.png"
+    },
+    {
+      "id": "debris",
+      "label": "Bone Debris",
+      "weight": 8,
+      "warningTicks": 42,
+      "durationTicks": 105,
+      "severity": 1.2,
+      "pinDelta": 0,
+      "counterplay": "Repair after the debris wave instead of firing into empty queue.",
+      "telemetryEvent": "hazard_debris_applied",
+      "icon": "res://resources/UI/icons/hazard_debris.png"
+    },
+    {
+      "id": "overheat",
+      "label": "Core Overheat",
+      "weight": 6,
+      "warningTicks": 32,
+      "durationTicks": 80,
+      "severity": 1.35,
+      "pinDelta": 0,
+      "counterplay": "Spend blue shield damage early, then swap to HP colors.",
+      "telemetryEvent": "hazard_overheat_applied",
+      "icon": "res://resources/UI/icons/hazard_overheat.png"
+    }
+  ]
+}

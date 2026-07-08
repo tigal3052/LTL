@@ -1,0 +1,64 @@
+{
+  "leviathans": [
+    {
+      "id": "ossuary_tortoise",
+      "name": "Ossuary Tortoise",
+      "artPath": "res://resources/Leviathan/Leviathan_turtle.png",
+      "stageCnt": 3,
+      "stageCount": 3,
+      "runCnt": 1,
+      "runCount": 1,
+      "biome": "calcified shell",
+      "bossNodeId": "boss_spine",
+      "weaknessBias": ["red", "blue"],
+      "hazardBias": ["debris", "freeze"],
+      "difficultyTier": "tutorial",
+      "unlockCondition": "starter"
+    },
+    {
+      "id": "storm_wyvern",
+      "name": "Storm Wyvern",
+      "artPath": "res://resources/Leviathan/Leviathan_lizard.png",
+      "stageCnt": 4,
+      "stageCount": 4,
+      "runCnt": 2,
+      "runCount": 2,
+      "biome": "storm membrane",
+      "bossNodeId": "boss_spine",
+      "weaknessBias": ["blue", "purple"],
+      "hazardBias": ["wind", "overheat"],
+      "difficultyTier": "standard",
+      "unlockCondition": "starter"
+    },
+    {
+      "id": "sky_mireu",
+      "name": "Sky Mireu",
+      "artPath": "res://resources/Leviathan/Leviathan_golem.png",
+      "stageCnt": 5,
+      "stageCount": 5,
+      "runCnt": 3,
+      "runCount": 3,
+      "biome": "living aurora",
+      "bossNodeId": "boss_spine",
+      "weaknessBias": ["green", "purple"],
+      "hazardBias": ["freeze", "wind", "debris"],
+      "difficultyTier": "advanced",
+      "unlockCondition": "starter"
+    },
+    {
+      "id": "leviathan_drake",
+      "name": "Drake",
+      "artPath": "res://resources/Leviathan/Leviathan_drake.png",
+      "stageCnt": 0,
+      "stageCount": 0,
+      "runCnt": 0,
+      "runCount": 0,
+      "biome": "unknown waters",
+      "bossNodeId": "boss_spine",
+      "weaknessBias": [],
+      "hazardBias": [],
+      "difficultyTier": "locked",
+      "unlockCondition": "locked"
+    }
+  ]
+}

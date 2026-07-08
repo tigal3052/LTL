@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grim Baleen Route Board</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-top: #101722;
+      --bg-bottom: #06090d;
+      --panel-line: rgba(215, 179, 118, 0.18);
+      --text: #f3e7d1;
+      --muted: #bda98a;
+      --gold: #e2bb72;
+      --coral: #d47b66;
+      --shadow: 0 34px 96px rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Pretendard Variable", "Segoe UI Variable", "Malgun Gothic", sans-serif;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(212, 123, 102, 0.12), transparent 24%),
+        radial-gradient(circle at 82% 12%, rgba(226, 187, 114, 0.12), transparent 26%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      padding: 32px 20px 40px;
+    }
+
+    .page {
+      width: min(1280px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--gold);
+      font-family: "Cinzel", "Georgia", serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Cinzel", "Georgia", serif;
+      font-size: clamp(34px, 4vw, 60px);
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+    }
+
+    .subcopy {
+      margin: 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.72;
+    }
+
+    .board {
+      border: 1px solid var(--panel-line);
+      border-radius: 32px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+        linear-gradient(180deg, #2f2218, #16100c);
+      box-shadow: var(--shadow);
+    }
+
+    .board-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid rgba(215, 179, 118, 0.10);
+      background:
+        linear-gradient(180deg, rgba(255, 240, 208, 0.05), rgba(255, 240, 208, 0.01)),
+        rgba(26, 18, 13, 0.84);
+    }
+
+    .board-label {
+      display: block;
+      color: rgba(255, 230, 188, 0.62);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .board-head h2 {
+      margin: 4px 0 0;
+      font-family: "Cinzel", "Georgia", serif;
+      font-size: 56px;
+      line-height: 0.96;
+      letter-spacing: -0.04em;
+    }
+
+    .head-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 320px;
+    }
+
+    .head-meta span {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(215, 179, 118, 0.14);
+      background: rgba(68, 46, 29, 0.46);
+      color: #f0d3a0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .map-shell {
+      position: relative;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 15% 14%, rgba(255, 232, 191, 0.05), transparent 20%),
+        radial-gradient(circle at 88% 22%, rgba(212, 123, 102, 0.08), transparent 26%),
+        linear-gradient(180deg, rgba(255, 240, 208, 0.03), rgba(255, 240, 208, 0));
+    }
+
+    .map-frame {
+      position: relative;
+      aspect-ratio: 920 / 760;
+      min-height: 720px;
+      border-radius: 30px;
+      overflow: hidden;
+      border: 1px solid rgba(215, 179, 118, 0.12);
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 240, 208, 0.04), transparent 18%),
+        radial-gradient(circle at 84% 16%, rgba(255, 240, 208, 0.03), transparent 20%),
+        linear-gradient(180deg, rgba(73, 53, 39, 0.82), rgba(27, 19, 14, 0.94));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .stage-rail {
+      position: absolute;
+      left: 18px;
+      top: 94px;
+      bottom: 28px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: rgba(243, 231, 209, 0.38);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .stage-rail span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-rail span::after {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.42;
+    }
+
+    .info-card {
+      position: absolute;
+      left: 88px;
+      top: 18px;
+      z-index: 7;
+      width: 256px;
+      min-height: 210px;
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid rgba(215, 179, 118, 0.14);
+      background:
+        linear-gradient(180deg, rgba(255, 240, 208, 0.04), rgba(255, 240, 208, 0.01)),
+        rgba(18, 12, 9, 0.86);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(12px);
+    }
+
+    .panel {
+      display: none;
+      gap: 8px;
+    }
+
+    .panel--default {
+      display: grid;
+    }
+
+    .panel-label {
+      color: rgba(240, 211, 160, 0.86);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .panel-name {
+      font-family: "Cinzel", "Georgia", serif;
+      font-size: 28px;
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+    }
+
+    .panel-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.68;
+    }
+
+    .hotspots {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+    }
+
+    .node-hotspot {
+      position: absolute;
+      left: calc(var(--x) * 100% / 920);
+      top: calc(var(--y) * 100% / 760);
+      transform: translate(-50%, -50%);
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      background: none;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+      text-align: center;
+      font: inherit;
+    }
+
+    .node-core {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 226, 186, 0.16);
+      box-shadow: inset 0 -12px 0 rgba(0, 0, 0, 0.20), 0 14px 26px rgba(0, 0, 0, 0.30);
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+
+    .node-hotspot:hover .node-core {
+      transform: translateY(-3px);
+      box-shadow: inset 0 -12px 0 rgba(0, 0, 0, 0.18), 0 18px 30px rgba(0, 0, 0, 0.34);
+    }
+
+    .node-hotspot.is-selected .node-core::after {
+      content: "";
+      position: absolute;
+      inset: -10px;
+      border-radius: 28px;
+      box-shadow: 0 0 0 8px rgba(247, 198, 117, 0.16);
+      pointer-events: none;
+    }
+
+    .tone-start .node-core {
+      background: linear-gradient(180deg, #9d8351, #4e3a24);
+    }
+
+    .tone-stage .node-core {
+      background: linear-gradient(180deg, #ddb96e, #8f6531);
+    }
+
+    .tone-brown .node-core {
+      background: linear-gradient(180deg, #7a5d3f, #3b2c1d);
+    }
+
+    .tone-red .node-core {
+      background: linear-gradient(180deg, #c97d67, #74392f);
+    }
+
+    .tone-boss .node-core {
+      background: linear-gradient(180deg, #d08973, #854035);
+    }
+
+    .node-glyph {
+      width: 30px;
+      height: 30px;
+      stroke: #f5e4c3;
+      stroke-width: 1.85;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .tone-stage .node-glyph {
+      stroke: #2c1e12;
+    }
+
+    .node-tag {
+      max-width: 142px;
+      padding: 6px 10px 7px;
+      border-radius: 16px;
+      border: 1px solid rgba(244, 226, 187, 0.12);
+      background: rgba(35, 24, 17, 0.94);
+      color: #f1e0bc;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .node-sub {
+      color: rgba(243, 231, 209, 0.58);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .future-marker .node-core {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      border: 2px dashed rgba(226, 187, 114, 0.52);
+      background: rgba(41, 29, 20, 0.72);
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.26);
+    }
+
+    .future-marker .node-core span {
+      color: #efd9af;
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .future-marker .node-tag {
+      max-width: 134px;
+      border-style: dashed;
+      border-color: rgba(226, 187, 114, 0.24);
+      color: #f0d3a0;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 0 18px 18px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(215, 179, 118, 0.12);
+      background: rgba(53, 36, 24, 0.58);
+      color: #e8d4af;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .footer-note {
+      padding: 0 18px 20px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-note strong {
+      color: var(--text);
+    }
+
+    .defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .map-frame:has(.node-hotspot[data-node="start"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="stage1"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="repair"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="echo"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="harpoon"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="coral"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="predation"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="boss"]:hover) .panel--default,
+    .map-frame:has(.node-hotspot[data-node="future"]:hover) .panel--default {
+      display: none;
+    }
+
+    .map-frame:has(.node-hotspot[data-node="start"]:hover) .panel--start,
+    .map-frame:has(.node-hotspot[data-node="stage1"]:hover) .panel--stage1,
+    .map-frame:has(.node-hotspot[data-node="repair"]:hover) .panel--repair,
+    .map-frame:has(.node-hotspot[data-node="echo"]:hover) .panel--echo,
+    .map-frame:has(.node-hotspot[data-node="harpoon"]:hover) .panel--harpoon,
+    .map-frame:has(.node-hotspot[data-node="coral"]:hover) .panel--coral,
+    .map-frame:has(.node-hotspot[data-node="predation"]:hover) .panel--predation,
+    .map-frame:has(.node-hotspot[data-node="boss"]:hover) .panel--boss,
+    .map-frame:has(.node-hotspot[data-node="future"]:hover) .panel--future {
+      display: grid;
+    }
+
+    @media (max-width: 1040px) {
+      .board-head {
+        flex-direction: column;
+      }
+
+      .head-meta {
+        justify-content: flex-start;
+        max-width: none;
+      }
+
+      .info-card {
+        position: static;
+        width: auto;
+        min-height: 0;
+        margin: 16px 16px 0;
+      }
+
+      .stage-rail {
+        left: 12px;
+      }
+
+      .map-frame {
+        min-height: 620px;
+      }
+
+      .node-tag {
+        max-width: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg class="defs" aria-hidden="true" focusable="false">
+    <symbol id="i-dock" viewBox="0 0 24 24">
+      <path d="M6 20V10"/>
+      <path d="M18 20V10"/>
+      <path d="M4 10h16"/>
+      <path d="m10 12 2-2 2 2"/>
+      <path d="M12 10v6"/>
+      <path d="M4 20h16"/>
+    </symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24">
+      <path d="M12 3 15 9 21 12 15 15 12 21 9 15 3 12 9 9 12 3z"/>
+      <path d="M12 6 13.8 12 12 18 10.2 12 12 6z"/>
+      <circle cx="12" cy="12" r="1.8"/>
+    </symbol>
+    <symbol id="i-anchor" viewBox="0 0 24 24">
+      <circle cx="12" cy="5" r="2.5"/>
+      <path d="M12 7.5V16"/>
+      <path d="M7 12.5a5 5 0 0 0 10 0"/>
+      <path d="M8 20 7 12.5"/>
+      <path d="M16 20 17 12.5"/>
+    </symbol>
+    <symbol id="i-whirlpool" viewBox="0 0 24 24">
+      <path d="M20 9.5c0-3-3.2-5.5-7.2-5.5S5.5 6.5 5.5 9.5c0 2.9 2.5 4.6 5.4 4.6 3 0 5.1 1.2 5.1 3.1 0 1.7-1.8 2.8-4.2 2.8-2.5 0-4.8-1.3-5.8-3.3"/>
+      <path d="M15.5 10.8c0 1.8-1.6 3.2-3.5 3.2s-3.5-1.4-3.5-3.2c0-1.7 1.6-3.1 3.5-3.1s3.5 1.4 3.5 3.1z"/>
+      <path d="M12 11.2v.1"/>
+    </symbol>
+    <symbol id="i-reef" viewBox="0 0 24 24">
+      <path d="M5 20h14"/>
+      <path d="M7 20c0-5 1-8 3-12"/>
+      <path d="M11 20c-1-6 0-10 1-14"/>
+      <path d="M15 20c0-5 1-9 4-13"/>
+    </symbol>
+    <symbol id="i-skull" viewBox="0 0 24 24">
+      <path d="M12 4c4.2 0 7 2.9 7 6.8 0 2.8-1.6 5.1-4 6.1V20h-6v-3.1c-2.4-1-4-3.3-4-6.1C5 6.9 7.8 4 12 4z"/>
+      <circle cx="9.5" cy="11" r="1.1"/>
+      <circle cx="14.5" cy="11" r="1.1"/>
+      <path d="M10.2 16h3.6"/>
+      <path d="m7 21 3-3"/>
+      <path d="m14 18 3 3"/>
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24">
+      <path d="M2.5 12s3.4-5.5 9.5-5.5S21.5 12 21.5 12s-3.4 5.5-9.5 5.5S2.5 12 2.5 12z"/>
+      <circle cx="12" cy="12" r="2.6"/>
+      <path d="M12 7.7v8.6"/>
+    </symbol>
+    <symbol id="i-harpoon" viewBox="0 0 24 24">
+      <path d="M4 20 20 4"/>
+      <path d="m15 4 5 0-0 5"/>
+      <path d="m8 16 2 4"/>
+      <path d="m6 18 4 2"/>
+    </symbol>
+  </svg>
+
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Single Page Focus · Grim Baleen</p>
+      <h1>레비아탄 해부 보드 단일 시안</h1>
+      <p class="subcopy">
+        `Grim Baleen` 방향만 남기고 다시 정렬한 버전입니다. 경로와 노드 중심을 같은 좌표계 안에 맞췄고,
+        미탐사 `?` 마커는 현재 다섯 선택지와 분리된 `이후 예고 노드`로 다시 표현했습니다.
+      </p>
+    </header>
+
+    <section class="board">
+      <div class="board-head">
+        <div>
+          <span class="board-label">Selected Leviathan</span>
+          <h2>Grim Baleen</h2>
+        </div>
+        <div class="head-meta">
+          <span>Run 1 / 2</span>
+          <span>Stage 2 / 5</span>
+        </div>
+      </div>
+
+      <div class="map-shell">
+        <div class="map-frame">
+          <div class="stage-rail">
+            <span>Eye</span>
+            <span>Pockets</span>
+            <span>Spine</span>
+            <span>Hull</span>
+          </div>
+
+          <!-- Runtime note: replace this CSS-only hover mockup with actual hovered-node state binding so the panel reflects the focused node data. -->
+          <aside class="info-card">
+            <div class="panel panel--default">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">마우스 오버</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">노드에 마우스를 올리면 이름과 설명이 이 패널에 표시되는 형태로 설계했습니다.</div>
+            </div>
+
+            <div class="panel panel--start">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">선체 절개점</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">항상 고정으로 시작하는 출항 지점입니다. 아직 선택 분기가 열리지 않은 첫 스테이지를 의미합니다.</div>
+            </div>
+
+            <div class="panel panel--stage1">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">척추 초입</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">Stage 1 고정 진입 노드입니다. 이 지점을 지난 뒤에만 다섯 개 기관 포켓 선택이 열립니다.</div>
+            </div>
+
+            <div class="panel panel--repair">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">수복 주머니</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">회복과 정비 중심의 안전 포켓입니다. 초반 리스크를 줄이고 다음 분기 진입을 안정화하는 역할입니다.</div>
+            </div>
+
+            <div class="panel panel--echo">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">미궁성 공명실</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">예측이 어려운 공명 이벤트 포켓입니다. 보상과 위험이 함께 열리는 변칙형 분기입니다.</div>
+            </div>
+
+            <div class="panel panel--harpoon">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">작살 혈관로</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">공격적인 전진 루트입니다. 빠른 보스 접근이 가능하지만 압박이 큰 공격 계열 포켓입니다.</div>
+            </div>
+
+            <div class="panel panel--coral">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">산호 척수낭</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">현재 선택된 침투 루트입니다. 중간 난이도와 높은 가치가 함께 붙은 주력 경로로 설정했습니다.</div>
+            </div>
+
+            <div class="panel panel--predation">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">포식 잔존실</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">위험이 큰 전투 후반 포켓입니다. 공격성이 강한 적과 잔존 자원을 한 번에 마주치는 고위험 분기입니다.</div>
+            </div>
+
+            <div class="panel panel--boss">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">홍채 핵심부</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">현재 선택 이후에 도달하게 되는 보스 코어입니다. 미탐사 이후 구간을 통과한 뒤 접근하게 됩니다.</div>
+            </div>
+
+            <div class="panel panel--future">
+              <span class="panel-label">노드명</span>
+              <div class="panel-name">미탐사 이후 구간</div>
+              <span class="panel-label">노드 설명</span>
+              <div class="panel-copy">현재 다섯 선택지와 별개로, 앞으로 남아 있는 미공개 노드를 예고하는 `?` 마커입니다. 지금 선택 가능한 포켓이 아닙니다.</div>
+            </div>
+          </aside>
+
+          <svg class="map" viewBox="0 0 920 760" preserveAspectRatio="xMidYMid meet" aria-label="Grim Baleen single route board mockup">
+            <defs>
+              <filter id="gold-glow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="10" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <filter id="red-glow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="8" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <rect x="42" y="28" width="836" height="704" rx="42" fill="rgba(18, 13, 10, 0.18)" stroke="rgba(244, 226, 187, 0.08)" stroke-width="1.2"/>
+
+            <g opacity="0.16">
+              <path d="M156 580 C214 520 268 470 340 434 C450 380 610 352 744 238" fill="none" stroke="rgba(255, 232, 191, 0.16)" stroke-width="18" stroke-linecap="round"/>
+              <path d="M252 302 C214 332 198 376 204 436" fill="none" stroke="rgba(255, 232, 191, 0.10)" stroke-width="16" stroke-linecap="round"/>
+              <path d="M364 256 C318 304 310 360 320 438" fill="none" stroke="rgba(255, 232, 191, 0.09)" stroke-width="16" stroke-linecap="round"/>
+              <path d="M498 230 C452 288 448 346 462 430" fill="none" stroke="rgba(255, 232, 191, 0.08)" stroke-width="16" stroke-linecap="round"/>
+              <path d="M634 220 C586 290 590 352 612 438" fill="none" stroke="rgba(255, 232, 191, 0.07)" stroke-width="16" stroke-linecap="round"/>
+              <path d="M760 214 C726 286 730 356 744 438" fill="none" stroke="rgba(255, 232, 191, 0.06)" stroke-width="16" stroke-linecap="round"/>
+            </g>
+
+            <g opacity="0.18">
+              <circle cx="178" cy="620" r="4" fill="#dba468"/>
+              <circle cx="334" cy="520" r="4" fill="#dba468"/>
+              <circle cx="248" cy="368" r="4" fill="#c17063"/>
+              <circle cx="392" cy="314" r="4" fill="#c17063"/>
+              <circle cx="522" cy="286" r="4" fill="#c17063"/>
+              <circle cx="654" cy="356" r="4" fill="#e2bb72"/>
+              <circle cx="760" cy="452" r="4" fill="#c17063"/>
+              <circle cx="682" cy="224" r="4" fill="#e2bb72"/>
+              <circle cx="760" cy="138" r="4" fill="#c17063"/>
+            </g>
+
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M178 620 C232 592 280 560 334 520" stroke="rgba(245, 205, 132, 0.28)" stroke-width="18"/>
+
+              <path d="M334 520 C308 466 282 418 248 368" stroke="rgba(191, 100, 83, 0.54)" stroke-width="4" stroke-dasharray="2 12"/>
+              <path d="M334 520 C348 456 366 386 392 314" stroke="rgba(191, 100, 83, 0.54)" stroke-width="4" stroke-dasharray="2 12"/>
+              <path d="M334 520 C410 446 468 372 522 286" stroke="rgba(191, 100, 83, 0.54)" stroke-width="4" stroke-dasharray="2 12"/>
+              <path d="M334 520 C470 482 566 434 654 356" stroke="rgba(191, 100, 83, 0.54)" stroke-width="4" stroke-dasharray="2 12"/>
+              <path d="M334 520 C486 544 624 532 760 452" stroke="rgba(191, 100, 83, 0.54)" stroke-width="4" stroke-dasharray="2 12"/>
+
+              <path d="M248 368 C410 260 586 172 760 138" stroke="rgba(244, 226, 187, 0.18)" stroke-width="3" stroke-dasharray="6 12"/>
+              <path d="M392 314 C520 228 634 170 760 138" stroke="rgba(244, 226, 187, 0.18)" stroke-width="3" stroke-dasharray="6 12"/>
+              <path d="M522 286 C608 224 678 178 760 138" stroke="rgba(244, 226, 187, 0.18)" stroke-width="3" stroke-dasharray="6 12"/>
+              <path d="M654 356 C716 302 742 228 760 138" stroke="rgba(244, 226, 187, 0.18)" stroke-width="3" stroke-dasharray="6 12"/>
+              <path d="M760 452 C792 348 788 248 760 138" stroke="rgba(244, 226, 187, 0.18)" stroke-width="3" stroke-dasharray="6 12"/>
+
+              <path d="M654 356 C666 312 674 270 682 224" stroke="rgba(247, 198, 117, 0.92)" stroke-width="2.4" filter="url(#gold-glow)"/>
+              <path d="M682 224 C716 200 742 176 760 138" stroke="rgba(247, 198, 117, 0.76)" stroke-width="2" filter="url(#gold-glow)"/>
+
+            </g>
+          </svg>
+
+          <div class="hotspots">
+            <button type="button" class="node-hotspot tone-start" data-node="start" style="--x:178; --y:620;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-dock"></use></svg>
+              </span>
+              <span class="node-tag">선체 절개점</span>
+              <span class="node-sub">Fixed Start</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-stage is-selected" data-node="stage1" style="--x:334; --y:520;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-compass"></use></svg>
+              </span>
+              <span class="node-tag">척추 초입</span>
+              <span class="node-sub">Stage 1</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-brown" data-node="repair" style="--x:248; --y:368;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-anchor"></use></svg>
+              </span>
+              <span class="node-tag">수복 주머니</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-brown" data-node="echo" style="--x:392; --y:314;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-whirlpool"></use></svg>
+              </span>
+              <span class="node-tag">미궁성 공명실</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-red" data-node="harpoon" style="--x:522; --y:286;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-harpoon"></use></svg>
+              </span>
+              <span class="node-tag">작살 혈관로</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-red is-selected" data-node="coral" style="--x:654; --y:356;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-reef"></use></svg>
+              </span>
+              <span class="node-tag">산호 척수낭</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-red" data-node="predation" style="--x:760; --y:452;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-skull"></use></svg>
+              </span>
+              <span class="node-tag">포식 잔존실</span>
+            </button>
+
+            <button type="button" class="node-hotspot future-marker" data-node="future" style="--x:682; --y:224;">
+              <span class="node-core"><span>?</span></span>
+              <span class="node-tag">미탐사 이후 구간</span>
+            </button>
+
+            <button type="button" class="node-hotspot tone-boss" data-node="boss" style="--x:760; --y:138;">
+              <span class="node-core">
+                <svg class="node-glyph" viewBox="0 0 24 24"><use href="#i-eye"></use></svg>
+              </span>
+              <span class="node-tag">홍채 핵심부</span>
+              <span class="node-sub">Boss Core</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><i class="swatch" style="background:#c17063;"></i>붉은 점선은 현재 다섯 선택지로 열려 있는 기관 포켓 경로</span>
+        <span><i class="swatch" style="background:#f7c675;"></i>금빛 오버레이는 현재 선택된 침투 루트</span>
+        <span><i class="swatch" style="background:#e2bb72;"></i>`?` 마커는 현재 선택지와 별개인 이후 미탐사 노드 예고</span>
+      </div>
+
+      <p class="footer-note">
+        <strong>정리:</strong> 상단 설명 문구와 추가 상태 칩은 제거했고,
+        우측 패널은 `노드명 / 노드 설명`만 보여주는 hover 패널로 재정의했습니다.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

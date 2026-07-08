@@ -1,0 +1,3839 @@
+{
+	"rewards": [
+		{
+			"id": "reward_common_red_drill_a",
+			"kind": "Crimson Ember Bit",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "red",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 105,
+				"damage": 3.6,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				}
+			},
+			"presentation": {
+				"icon": "drill_red_common",
+				"description": "Basic burst damage and overheat risk drill.",
+				"badge": "common red drill"
+			},
+			"tags": [
+				"drill",
+				"common",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 엠버 비트",
+					"en": "Crimson Ember Bit"
+				},
+				"description": {
+					"ko": "진홍 엠버 비트 · 일반 드릴 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Basic burst damage and overheat risk drill. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Drill role: produces that color energy and handles direct attacks. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_red_beacon_a",
+			"kind": "Crimson Heat Post",
+			"rarity": "common",
+			"weight": 70,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 88,
+				"damage": 0,
+				"beacon_cooldown_mod": -2,
+				"beacon_damage_mod": 0.1
+			},
+			"presentation": {
+				"icon": "beacon_red_start",
+				"description": "Training beacon for burst damage and overheat risk.",
+				"badge": "common red beacon"
+			},
+			"tags": [
+				"beacon",
+				"common",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 히트 포스트",
+					"en": "Crimson Heat Post"
+				},
+				"description": {
+					"ko": "진홍 히트 포스트 · 일반 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Training beacon for burst damage and overheat risk. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_red_drill_2",
+			"kind": "Crimson Spark Relay",
+			"rarity": "common",
+			"weight": 44,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 90,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"beacon_cooldown_mod": -14,
+				"beacon_damage_mod": 0.35
+			},
+			"presentation": {
+				"icon": "beacon_red_common",
+				"description": "Common red beacon that turns spark pressure into faster burst setup.",
+				"badge": "common red beacon"
+			},
+			"tags": [
+				"common",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"tempo",
+				"beacon",
+				"pulse"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 스파크 릴레이",
+					"en": "Crimson Spark Relay"
+				},
+				"description": {
+					"ko": "진홍 스파크 릴레이 · 일반 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Common red beacon that turns spark pressure into faster burst setup. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_blue_drill_a",
+			"kind": "Azure Tide Bit",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 100,
+				"damage": 3.2,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				}
+			},
+			"presentation": {
+				"icon": "drill_blue_common",
+				"description": "Basic shield control and cooldown stability drill.",
+				"badge": "common blue drill"
+			},
+			"tags": [
+				"drill",
+				"common",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 타이드 비트",
+					"en": "Azure Tide Bit"
+				},
+				"description": {
+					"ko": "청람 타이드 비트 · 일반 드릴 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Basic shield control and cooldown stability drill. Blue identity: shields, stability, cooldown loops, and pin protection. Drill role: produces that color energy and handles direct attacks. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_blue_beacon_a",
+			"kind": "Azure Coolant Post",
+			"rarity": "common",
+			"weight": 70,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 86,
+				"damage": 0,
+				"beacon_cooldown_mod": -2,
+				"beacon_damage_mod": 0.1
+			},
+			"presentation": {
+				"icon": "beacon_blue_start",
+				"description": "Training beacon for shield control and cooldown stability.",
+				"badge": "common blue beacon"
+			},
+			"tags": [
+				"beacon",
+				"common",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 쿨런트 포스트",
+					"en": "Azure Coolant Post"
+				},
+				"description": {
+					"ko": "청람 쿨런트 포스트 · 일반 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Training beacon for shield control and cooldown stability. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_purple_drill_a",
+			"kind": "Violet Static Needle",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 105,
+				"damage": 3,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				}
+			},
+			"presentation": {
+				"icon": "drill_purple_common",
+				"description": "Basic resonance copies and terrain debuffs drill.",
+				"badge": "common purple drill"
+			},
+			"tags": [
+				"drill",
+				"common",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 스태틱 니들",
+					"en": "Violet Static Needle"
+				},
+				"description": {
+					"ko": "보랏빛 스태틱 니들 · 일반 드릴 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Basic resonance copies and terrain debuffs drill. Purple identity: marks, echoes, weakened terrain, and positional links. Drill role: produces that color energy and handles direct attacks. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_purple_beacon_a",
+			"kind": "Violet Echo Post",
+			"rarity": "common",
+			"weight": 70,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 90,
+				"damage": 0,
+				"beacon_cooldown_mod": -1,
+				"beacon_damage_mod": 0.2
+			},
+			"presentation": {
+				"icon": "beacon_purple_start",
+				"description": "Training beacon for resonance copies and terrain debuffs.",
+				"badge": "common purple beacon"
+			},
+			"tags": [
+				"beacon",
+				"common",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 에코 포스트",
+					"en": "Violet Echo Post"
+				},
+				"description": {
+					"ko": "보랏빛 에코 포스트 · 일반 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Training beacon for resonance copies and terrain debuffs. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_purple_drill_2",
+			"kind": "Violet Veil Relay",
+			"rarity": "common",
+			"weight": 44,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 102,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"beacon_cooldown_mod": -12,
+				"beacon_damage_mod": 0.3
+			},
+			"presentation": {
+				"icon": "beacon_purple_common",
+				"description": "Common purple beacon that turns veil marks into cleaner echo setup.",
+				"badge": "common purple beacon"
+			},
+			"tags": [
+				"common",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"beacon",
+				"mark"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 베일 릴레이",
+					"en": "Violet Veil Relay"
+				},
+				"description": {
+					"ko": "보랏빛 베일 릴레이 · 일반 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Common purple beacon that turns veil marks into cleaner echo setup. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_green_drill_a",
+			"kind": "Verdant Moss Bit",
+			"rarity": "common",
+			"weight": 80,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "green",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 110,
+				"damage": 3.1,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				}
+			},
+			"presentation": {
+				"icon": "drill_green_common",
+				"description": "Basic repair support and long-fight growth drill.",
+				"badge": "common green drill"
+			},
+			"tags": [
+				"drill",
+				"common",
+				"green_energy",
+				"repair",
+				"growth",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 모스 비트",
+					"en": "Verdant Moss Bit"
+				},
+				"description": {
+					"ko": "청록 모스 비트 · 일반 드릴 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Basic repair support and long-fight growth drill. Green identity: repair, protection, long-fight growth, and break prevention. Drill role: produces that color energy and handles direct attacks. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_green_beacon_a",
+			"kind": "Verdant Seed Post",
+			"rarity": "common",
+			"weight": 70,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 92,
+				"damage": 0,
+				"beacon_cooldown_mod": -2,
+				"beacon_damage_mod": 0.1
+			},
+			"presentation": {
+				"icon": "beacon_green_start",
+				"description": "Training beacon for repair support and long-fight growth.",
+				"badge": "common green beacon"
+			},
+			"tags": [
+				"beacon",
+				"common",
+				"green_energy",
+				"repair",
+				"growth",
+				"starter_safe"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 시드 포스트",
+					"en": "Verdant Seed Post"
+				},
+				"description": {
+					"ko": "청록 시드 포스트 · 일반 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 초반에 색상 정체성을 익히기 좋은 안정적인 유물입니다.",
+					"en": "Training beacon for repair support and long-fight growth. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A stable artifact for learning the color identity."
+				}
+			}
+		},
+		{
+			"id": "reward_common_relic_breach_seal",
+			"kind": "Breach Seal",
+			"rarity": "common",
+			"weight": 36,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "diagonal_1",
+					"trigger": "on_obstacle_hit",
+					"type": "obstacle_progress_bonus",
+					"target": "linked_drill",
+					"value": 1,
+					"summary": "Linked drill gains +1 progress on its first obstacle hit each combat.",
+					"summary_i18n": {
+						"ko": "연결된 드릴의 첫 장애물 타격은 전투당 진행도 +1을 얻습니다.",
+						"en": "Linked drill gains +1 progress on its first obstacle hit each combat."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_common_breach_seal",
+				"description": "Common relic that sharpens the first linked obstacle hit.",
+				"badge": "common relic"
+			},
+			"tags": [
+				"relic",
+				"common",
+				"neutral",
+				"launch_relic",
+				"obstacle_response"
+			],
+			"text": {
+				"name": {
+					"ko": "균열 봉인장",
+					"en": "Breach Seal"
+				},
+				"description": {
+					"ko": "균열 봉인장 · 일반 유물입니다. 대각선으로 연결된 드릴의 첫 장애물 타격에 전투당 진행도 +1을 더합니다.",
+					"en": "Common neutral relic. Grants +1 obstacle progress on the first obstacle hit from its diagonally linked drill each combat."
+				}
+			}
+		},
+		{
+			"id": "reward_common_relic_repair_coil",
+			"kind": "Repair Coil",
+			"rarity": "common",
+			"weight": 34,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "diagonal_1",
+					"trigger": "on_repair_end",
+					"type": "next_two_shots_boost",
+					"target": "linked_drill",
+					"value": 2,
+					"summary": "After repair, the linked drill empowers its next two shots.",
+					"summary_i18n": {
+						"ko": "수리 종료 후 연결된 드릴의 다음 두 발이 강화됩니다.",
+						"en": "After repair, the linked drill empowers its next two shots."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_common_repair_coil",
+				"description": "Common relic that pays repair time back into the next attack cycle.",
+				"badge": "common relic"
+			},
+			"tags": [
+				"relic",
+				"common",
+				"neutral",
+				"launch_relic",
+				"repair"
+			],
+			"text": {
+				"name": {
+					"ko": "수리 코일",
+					"en": "Repair Coil"
+				},
+				"description": {
+					"ko": "수리 코일 · 일반 유물입니다. repair 종료 후 대각선으로 연결된 드릴의 다음 두 발을 강화합니다.",
+					"en": "Common neutral relic. After repair, it boosts the next two shots from its diagonally linked drill."
+				}
+			}
+		},
+		{
+			"id": "reward_common_relic_spare_fuse",
+			"kind": "Spare Fuse",
+			"rarity": "common",
+			"weight": 32,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_activate",
+					"type": "ignore_first_blue_obstacle",
+					"target": "combat",
+					"value": 1,
+					"summary": "Ignores the first blue tile activation and execute each combat.",
+					"summary_i18n": {
+						"ko": "blue 타일 무시.",
+						"en": "Ignores the first blue tile activation and execute each combat."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_common_spare_fuse",
+				"description": "Common relic that blanks one blue tile each combat.",
+				"badge": "common relic"
+			},
+			"tags": [
+				"relic",
+				"common",
+				"neutral",
+				"launch_relic",
+				"repair"
+			],
+			"text": {
+				"name": {
+					"ko": "예비 퓨즈",
+					"en": "Spare Fuse"
+				},
+				"description": {
+					"ko": "blue 타일 무시.",
+					"en": "Common neutral relic. Ignores the first blue tile activation and execute each combat."
+				}
+			}
+		},
+		{
+			"id": "reward_common_relic_tool_rack",
+			"kind": "Tool Rack",
+			"rarity": "common",
+			"weight": 36,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "diagonal_1",
+					"trigger": "passive",
+					"type": "cooldown_trim",
+					"target": "linked_drill",
+					"value": -4,
+					"summary": "Linked drill starts with a small base cooldown reduction.",
+					"summary_i18n": {
+						"ko": "연결된 드릴은 기본 쿨다운이 소폭 줄어든 상태로 시작합니다.",
+						"en": "Linked drill starts with a small base cooldown reduction."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_common_tool_rack",
+				"description": "Common relic that tidies one linked drill's startup tempo.",
+				"badge": "common relic"
+			},
+			"tags": [
+				"relic",
+				"common",
+				"neutral",
+				"launch_relic",
+				"placement"
+			],
+			"text": {
+				"name": {
+					"ko": "공구 걸이",
+					"en": "Tool Rack"
+				},
+				"description": {
+					"ko": "공구 걸이 · 일반 유물입니다. 대각선으로 연결된 드릴의 기본 쿨다운을 소폭 줄입니다.",
+					"en": "Common neutral relic. Shaves a little base cooldown from its diagonally linked drill."
+				}
+			}
+		},
+		{
+			"id": "reward_common_relic_warning_bell",
+			"kind": "Warning Bell",
+			"rarity": "common",
+			"weight": 34,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_execute",
+					"type": "prevent_first_execute",
+					"target": "combat",
+					"value": 1,
+					"summary": "Blocks the first obstacle execute each combat.",
+					"summary_i18n": {
+						"ko": "첫 실행 차단.",
+						"en": "Blocks the first obstacle execute each combat."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_common_warning_bell",
+				"description": "Common relic that blocks the first obstacle execute each combat.",
+				"badge": "common relic"
+			},
+			"tags": [
+				"relic",
+				"common",
+				"neutral",
+				"launch_relic",
+				"obstacle_response"
+			],
+			"text": {
+				"name": {
+					"ko": "경고 종",
+					"en": "Warning Bell"
+				},
+				"description": {
+					"ko": "첫 실행 차단.",
+					"en": "Common neutral relic. Blocks the first obstacle execute each combat."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_red_drill_1",
+			"kind": "Crimson Pressure Fang",
+			"rarity": "rare",
+			"weight": 42,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "red",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 100,
+				"damage": 5.2,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"hazard_increase": 1
+			},
+			"presentation": {
+				"icon": "drill_red_rare",
+				"description": "A red drill that bites harder under pressure.",
+				"badge": "rare red drill"
+			},
+			"tags": [
+				"drill",
+				"rare",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"overheat"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 프레셔 팽",
+					"en": "Crimson Pressure Fang"
+				},
+				"description": {
+					"ko": "진홍 프레셔 팽 · 희귀 드릴 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "A red drill that bites harder under pressure. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Drill role: produces that color energy and handles direct attacks. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_red_beacon_3",
+			"kind": "Crimson Venting Beacon",
+			"rarity": "rare",
+			"weight": 36,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 78,
+				"damage": 0,
+				"beacon_cooldown_mod": -3,
+				"beacon_damage_mod": 0.4
+			},
+			"presentation": {
+				"icon": "beacon_red_rare",
+				"description": "Red beacon that vents heat into nearby red drill damage.",
+				"badge": "rare red beacon"
+			},
+			"tags": [
+				"beacon",
+				"rare",
+				"red_energy",
+				"burst",
+				"risk_reward"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 벤팅 비콘",
+					"en": "Crimson Venting Beacon"
+				},
+				"description": {
+					"ko": "진홍 벤팅 비콘 · 희귀 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Red beacon that vents heat into nearby red drill damage. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_blue_drill_1",
+			"kind": "Azure Tide Cutter",
+			"rarity": "rare",
+			"weight": 42,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 92,
+				"damage": 4.7,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				}
+			},
+			"presentation": {
+				"icon": "drill_blue_rare",
+				"description": "Blue drill tuned to crack shields cleanly.",
+				"badge": "rare blue drill"
+			},
+			"tags": [
+				"drill",
+				"rare",
+				"blue_energy",
+				"shield_break",
+				"control"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 타이드 커터",
+					"en": "Azure Tide Cutter"
+				},
+				"description": {
+					"ko": "청람 타이드 커터 · 희귀 드릴 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Blue drill tuned to crack shields cleanly. Blue identity: shields, stability, cooldown loops, and pin protection. Drill role: produces that color energy and handles direct attacks. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_blue_drill_2",
+			"kind": "Azure Coolant Relay",
+			"rarity": "rare",
+			"weight": 44,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 84,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 5,
+				"beacon_cooldown_mod": -16,
+				"beacon_damage_mod": 0.25
+			},
+			"presentation": {
+				"icon": "beacon_blue_rare",
+				"description": "Rare blue beacon that stabilizes coolant loops and protects tempo.",
+				"badge": "rare blue beacon"
+			},
+			"tags": [
+				"rare",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"beacon",
+				"stability"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 쿨런트 릴레이",
+					"en": "Azure Coolant Relay"
+				},
+				"description": {
+					"ko": "청람 쿨런트 릴레이 · 희귀 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Rare blue beacon that stabilizes coolant loops and protects tempo. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_blue_beacon_3",
+			"kind": "Azure Flow Regulator",
+			"rarity": "rare",
+			"weight": 36,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 75,
+				"damage": 0,
+				"beacon_cooldown_mod": -5,
+				"beacon_damage_mod": 0.25
+			},
+			"presentation": {
+				"icon": "beacon_blue_rare2",
+				"description": "Blue beacon that smooths adjacent blue drill cooldowns.",
+				"badge": "rare blue beacon"
+			},
+			"tags": [
+				"beacon",
+				"rare",
+				"blue_energy",
+				"shield_break",
+				"control"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 플로우 레귤레이터",
+					"en": "Azure Flow Regulator"
+				},
+				"description": {
+					"ko": "청람 플로우 레귤레이터 · 희귀 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Blue beacon that smooths adjacent blue drill cooldowns. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_purple_drill_1",
+			"kind": "Violet Echo Needle",
+			"rarity": "rare",
+			"weight": 42,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 96,
+				"damage": 4.2,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				}
+			},
+			"presentation": {
+				"icon": "drill_purple_rare",
+				"description": "Purple drill that prefers marked or weakened terrain.",
+				"badge": "rare purple drill"
+			},
+			"tags": [
+				"drill",
+				"rare",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 에코 니들",
+					"en": "Violet Echo Needle"
+				},
+				"description": {
+					"ko": "보랏빛 에코 니들 · 희귀 드릴 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Purple drill that prefers marked or weakened terrain. Purple identity: marks, echoes, weakened terrain, and positional links. Drill role: produces that color energy and handles direct attacks. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_purple_beacon_3",
+			"kind": "Violet Echo Lens",
+			"rarity": "rare",
+			"weight": 36,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 82,
+				"damage": 0,
+				"beacon_cooldown_mod": -3,
+				"beacon_damage_mod": 0.45
+			},
+			"presentation": {
+				"icon": "beacon_purple_rare",
+				"description": "Purple beacon that sharpens resonance damage.",
+				"badge": "rare purple beacon"
+			},
+			"tags": [
+				"beacon",
+				"rare",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 에코 렌즈",
+					"en": "Violet Echo Lens"
+				},
+				"description": {
+					"ko": "보랏빛 에코 렌즈 · 희귀 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Purple beacon that sharpens resonance damage. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_green_drill_1",
+			"kind": "Verdant Moss Bore",
+			"rarity": "rare",
+			"weight": 42,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "green",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 96,
+				"damage": 4.4,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 8
+			},
+			"presentation": {
+				"icon": "drill_green_rare",
+				"description": "Green drill that favors long fights and small repairs.",
+				"badge": "rare green drill"
+			},
+			"tags": [
+				"drill",
+				"rare",
+				"green_energy",
+				"repair",
+				"growth"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 모스 보어",
+					"en": "Verdant Moss Bore"
+				},
+				"description": {
+					"ko": "청록 모스 보어 · 희귀 드릴 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Green drill that favors long fights and small repairs. Green identity: repair, protection, long-fight growth, and break prevention. Drill role: produces that color energy and handles direct attacks. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_green_beacon_3",
+			"kind": "Verdant Root Clamp",
+			"rarity": "rare",
+			"weight": 36,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 80,
+				"damage": 0,
+				"beacon_cooldown_mod": -3,
+				"beacon_damage_mod": 0.35
+			},
+			"presentation": {
+				"icon": "beacon_green_rare2",
+				"description": "Green beacon that feeds nearby green drill sustain.",
+				"badge": "rare green beacon"
+			},
+			"tags": [
+				"beacon",
+				"rare",
+				"green_energy",
+				"repair",
+				"growth"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 루트 클램프",
+					"en": "Verdant Root Clamp"
+				},
+				"description": {
+					"ko": "청록 루트 클램프 · 희귀 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Green beacon that feeds nearby green drill sustain. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_green_drill_2",
+			"kind": "Verdant Sap Relay",
+			"rarity": "rare",
+			"weight": 44,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 88,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"beacon_cooldown_mod": -13,
+				"beacon_damage_mod": 0.28
+			},
+			"presentation": {
+				"icon": "beacon_green_rare",
+				"description": "Rare green beacon that routes sap growth into repair-ready tempo.",
+				"badge": "rare green beacon"
+			},
+			"tags": [
+				"rare",
+				"green_energy",
+				"repair",
+				"growth",
+				"beacon"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 수액 릴레이",
+					"en": "Verdant Sap Relay"
+				},
+				"description": {
+					"ko": "청록 수액 릴레이 · 희귀 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 운영을 선명하게 다듬는 중급 유물입니다.",
+					"en": "Rare green beacon that routes sap growth into repair-ready tempo. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A mid-tier artifact that sharpens the color plan."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_relic_counterflow_governor",
+			"kind": "Counterflow Governor",
+			"rarity": "rare",
+			"weight": 28,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_clear",
+					"type": "clear_refund_cooldown",
+					"target": "inventory",
+					"value": 4,
+					"summary": "Clearing an obstacle refunds 4 cooldown to all drills.",
+					"summary_i18n": {
+						"ko": "제거 시 쿨다운 환급.",
+						"en": "Clearing an obstacle refunds 4 cooldown to all drills."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_rare_counterflow_governor",
+				"description": "Rare relic that turns each clear into a whole-backpack cooldown refund.",
+				"badge": "rare relic"
+			},
+			"tags": [
+				"relic",
+				"rare",
+				"neutral",
+				"repair"
+			],
+			"text": {
+				"name": {
+					"ko": "역류기",
+					"en": "Counterflow Governor"
+				},
+				"description": {
+					"ko": "제거 시 쿨다운 환급.",
+					"en": "Rare neutral relic. Clearing an obstacle refunds 4 cooldown to all drills."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_relic_debris_chalk",
+			"kind": "Debris Chalk",
+			"rarity": "rare",
+			"weight": 30,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_clear",
+					"type": "clear_paint_cell",
+					"target": "combat",
+					"value": 2,
+					"summary": "Clearing an obstacle paints that cell to the shot color and refunds 2 cooldown to the clearing drill.",
+					"summary_i18n": {
+						"ko": "제거 칸 약점화.",
+						"en": "Clearing an obstacle paints that cell to the shot color and refunds 2 cooldown to the clearing drill."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_rare_debris_chalk",
+				"description": "Rare relic that marks cleared cells and quickens the follow-up drill.",
+				"badge": "rare relic"
+			},
+			"tags": [
+				"relic",
+				"rare",
+				"neutral",
+				"placement"
+			],
+			"text": {
+				"name": {
+					"ko": "잔해 분필",
+					"en": "Debris Chalk"
+				},
+				"description": {
+					"ko": "제거 칸 약점화.",
+					"en": "Rare neutral relic. Clearing an obstacle paints that cell to the shot color and refunds 2 cooldown to the clearing drill."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_relic_pinbreaker_spring",
+			"kind": "Pinbreaker Spring",
+			"rarity": "rare",
+			"weight": 30,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "diagonal_1",
+					"trigger": "on_mismatch",
+					"type": "first_mismatch_cleanse",
+					"target": "linked_drill",
+					"value": 1,
+					"summary": "The linked drill instantly resolves its first mismatch each combat.",
+					"summary_i18n": {
+						"ko": "연결된 드릴의 첫 mismatch는 전투당 즉시 해소됩니다.",
+						"en": "The linked drill instantly resolves its first mismatch each combat."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_rare_pinbreaker_spring",
+				"description": "Rare relic that smooths the first linked mismatch.",
+				"badge": "rare relic"
+			},
+			"tags": [
+				"relic",
+				"rare",
+				"neutral",
+				"launch_relic",
+				"placement"
+			],
+			"text": {
+				"name": {
+					"ko": "핀브레이커 스프링",
+					"en": "Pinbreaker Spring"
+				},
+				"description": {
+					"ko": "핀브레이커 스프링 · 희귀 유물입니다. 대각선으로 연결된 드릴의 첫 mismatch를 즉시 해소해 핀이 오래 남지 않게 합니다.",
+					"en": "Rare neutral relic. Instantly clears the first mismatch from its diagonally linked drill each combat."
+				}
+			}
+		},
+		{
+			"id": "reward_rare_relic_sealant_patch",
+			"kind": "Sealant Patch",
+			"rarity": "rare",
+			"weight": 28,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_clear",
+					"type": "clear_skip_afterglow",
+					"target": "combat",
+					"value": 1,
+					"summary": "The first cleared obstacle each combat skips afterglow and disappears immediately.",
+					"summary_i18n": {
+						"ko": "첫 제거 즉시 소멸.",
+						"en": "The first cleared obstacle each combat skips afterglow and disappears immediately."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_rare_sealant_patch",
+				"description": "Rare relic that erases the first clear shell each combat.",
+				"badge": "rare relic"
+			},
+			"tags": [
+				"relic",
+				"rare",
+				"neutral",
+				"obstacle_response"
+			],
+			"text": {
+				"name": {
+					"ko": "실 패치",
+					"en": "Sealant Patch"
+				},
+				"description": {
+					"ko": "첫 제거 즉시 소멸.",
+					"en": "Rare neutral relic. The first cleared obstacle each combat skips afterglow and disappears immediately."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_red_drill_1",
+			"kind": "Crimson Overheat Lance",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 86,
+				"damage": 6.8,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"hazard_increase": 2,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "overheat_burst",
+					"trigger": "on_match_fire",
+					"target": "self",
+					"value": 1.35,
+					"summary": "Match hits bank heat; every third red hit bursts for bonus HP damage.",
+					"risk": {
+						"type": "hazard_increase",
+						"value": 2
+					},
+					"summary_i18n": {
+						"ko": "빨강 적중으로 열을 저장하고, 세 번째 적중마다 추가 체력 피해 폭발을 일으킵니다.",
+						"en": "Match hits bank heat; every third red hit bursts for bonus HP damage."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_red_epic",
+				"description": "Hero red drill that banks heat into burst damage.",
+				"badge": "epic red drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"hero",
+				"overheat"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 오버히트 랜스",
+					"en": "Crimson Overheat Lance"
+				},
+				"description": {
+					"ko": "진홍 오버히트 랜스 · 영웅 드릴 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 빨강 적중으로 열을 저장하고, 세 번째 적중마다 추가 체력 피해 폭발을 일으킵니다.",
+					"en": "Hero red drill that banks heat into burst damage. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_red_drill_2",
+			"kind": "Crimson Pressure Bank Auger",
+			"rarity": "epic",
+			"weight": 24,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						0
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 94,
+				"damage": 6.2,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "pressure_bank",
+					"trigger": "on_fire_count",
+					"target": "self",
+					"value": 3,
+					"summary": "After 3 red shots, the next shot gains damage and then resets pressure.",
+					"summary_i18n": {
+						"ko": "빨강 사격 3회 후 다음 사격의 피해가 증가하고 압력이 초기화됩니다.",
+						"en": "After 3 red shots, the next shot gains damage and then resets pressure."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_red_epic2",
+				"description": "Hero red drill that rewards repeated red firing.",
+				"badge": "epic red drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 프레셔 뱅크 오거",
+					"en": "Crimson Pressure Bank Auger"
+				},
+				"description": {
+					"ko": "진홍 프레셔 뱅크 오거 · 영웅 드릴 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 빨강 사격 3회 후 다음 사격의 피해가 증가하고 압력이 초기화됩니다.",
+					"en": "Hero red drill that rewards repeated red firing. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_red_beacon_3",
+			"kind": "Crimson Overheat Beacon",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 74,
+				"damage": 0,
+				"beacon_cooldown_mod": 2,
+				"beacon_damage_mod": 0.9,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "damage_for_delay",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 0.9,
+					"summary": "Adjacent red drills hit much harder, but beacon pulses delay their next cycle.",
+					"summary_i18n": {
+						"ko": "인접한 빨강 드릴의 피해를 크게 높이지만, 비콘 맥동이 다음 주기를 지연시킵니다.",
+						"en": "Adjacent red drills hit much harder, but beacon pulses delay their next cycle."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_red_epic",
+				"description": "Hero red beacon trading speed for heavier burst.",
+				"badge": "epic red beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 오버히트 비콘",
+					"en": "Crimson Overheat Beacon"
+				},
+				"description": {
+					"ko": "진홍 오버히트 비콘 · 영웅 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 인접한 빨강 드릴의 피해를 크게 높이지만, 비콘 맥동이 다음 주기를 지연시킵니다.",
+					"en": "Hero red beacon trading speed for heavier burst. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_red_beacon_4",
+			"kind": "Crimson Venting Relay",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 68,
+				"damage": 0,
+				"beacon_cooldown_mod": -5,
+				"beacon_damage_mod": 0.55,
+				"hazard_increase": 1,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "vented_acceleration",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": -5,
+					"summary": "Pulse accelerates adjacent red drills and raises route hazard slightly.",
+					"summary_i18n": {
+						"ko": "맥동이 인접한 빨강 드릴을 가속하지만 경로 위험도가 조금 상승합니다.",
+						"en": "Pulse accelerates adjacent red drills and raises route hazard slightly."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_red_epic2",
+				"description": "Hero red beacon that accelerates burst at a risk cost.",
+				"badge": "epic red beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 벤팅 릴레이",
+					"en": "Crimson Venting Relay"
+				},
+				"description": {
+					"ko": "진홍 벤팅 릴레이 · 영웅 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 맥동이 인접한 빨강 드릴을 가속하지만 경로 위험도가 조금 상승합니다.",
+					"en": "Hero red beacon that accelerates burst at a risk cost. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_blue_drill_2",
+			"kind": "Azure Queue Rudder",
+			"rarity": "epic",
+			"weight": 24,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 78,
+				"damage": 5.6,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "queue_stabilize",
+					"trigger": "on_match_fire",
+					"target": "combat_queue",
+					"value": 1,
+					"summary": "Match hits protect the next queued blue energy from pin disruption.",
+					"summary_i18n": {
+						"ko": "매치 적중 시 다음 파랑 에너지가 핀 교란을 받지 않도록 보호합니다.",
+						"en": "Match hits protect the next queued blue energy from pin disruption."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_blue_epic",
+				"description": "Hero blue drill that keeps the queue readable.",
+				"badge": "epic blue drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 큐 러더",
+					"en": "Azure Queue Rudder"
+				},
+				"description": {
+					"ko": "청람 큐 러더 · 영웅 드릴 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 매치 적중 시 다음 파랑 에너지가 핀 교란을 받지 않도록 보호합니다.",
+					"en": "Hero blue drill that keeps the queue readable. Blue identity: shields, stability, cooldown loops, and pin protection. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_blue_drill_1",
+			"kind": "Azure Tidal Regulator",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						0
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 82,
+				"damage": 6,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 10,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "shield_to_damage",
+					"trigger": "on_fire_with_shield",
+					"target": "self",
+					"value": 0.12,
+					"summary": "If shield remains, convert a small part of shield advantage into shot damage.",
+					"summary_i18n": {
+						"ko": "보호막이 남아 있으면 일부 우위를 사격 피해로 전환합니다.",
+						"en": "If shield remains, convert a small part of shield advantage into shot damage."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_blue_epic2",
+				"description": "Hero blue drill converting stability into pressure.",
+				"badge": "epic blue drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 타이달 레귤레이터",
+					"en": "Azure Tidal Regulator"
+				},
+				"description": {
+					"ko": "청람 타이달 레귤레이터 · 영웅 드릴 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 보호막이 남아 있으면 일부 우위를 사격 피해로 전환합니다.",
+					"en": "Hero blue drill converting stability into pressure. Blue identity: shields, stability, cooldown loops, and pin protection. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_blue_beacon_4",
+			"kind": "Azure Freeze Relay",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 84,
+				"damage": 0,
+				"beacon_cooldown_mod": 3,
+				"beacon_damage_mod": 0.85,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "stored_coolant",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 0.85,
+					"summary": "Pulse delays nearby blue drills, then boosts their next shield damage.",
+					"summary_i18n": {
+						"ko": "맥동이 주변 파랑 드릴을 늦추고, 다음 보호막 피해를 강화합니다.",
+						"en": "Pulse delays nearby blue drills, then boosts their next shield damage."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_blue_epic",
+				"description": "Hero blue beacon that stores coolant before a heavy strike.",
+				"badge": "epic blue beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 프리즈 릴레이",
+					"en": "Azure Freeze Relay"
+				},
+				"description": {
+					"ko": "청람 프리즈 릴레이 · 영웅 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 맥동이 주변 파랑 드릴을 늦추고, 다음 보호막 피해를 강화합니다.",
+					"en": "Hero blue beacon that stores coolant before a heavy strike. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_blue_beacon_3",
+			"kind": "Azure Tide Loop Beacon",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 66,
+				"damage": 0,
+				"beacon_cooldown_mod": -6,
+				"beacon_damage_mod": 0.45,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "cooldown_refund",
+					"trigger": "on_same_color_fire",
+					"target": "adjacent_same_color_drills",
+					"value": -6,
+					"summary": "When a blue drill fires, this beacon refunds cooldown to adjacent blue drills.",
+					"summary_i18n": {
+						"ko": "파랑 드릴 발사 시 인접한 파랑 드릴에 쿨다운 환급을 돌려줍니다.",
+						"en": "When a blue drill fires, this beacon refunds cooldown to adjacent blue drills."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_blue_epic",
+				"description": "Hero blue beacon for stable chain firing.",
+				"badge": "epic blue beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 타이드 루프 비콘",
+					"en": "Azure Tide Loop Beacon"
+				},
+				"description": {
+					"ko": "청람 타이드 루프 비콘 · 영웅 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 파랑 드릴 발사 시 인접한 파랑 드릴에 쿨다운 환급을 돌려줍니다.",
+					"en": "Hero blue beacon for stable chain firing. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_purple_drill_1",
+			"kind": "Violet Phase Needle",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 90,
+				"damage": 6.1,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "echo_copy",
+					"trigger": "on_marked_hit",
+					"target": "next_same_color_drill",
+					"value": 0.4,
+					"summary": "Marked hits empower the next purple drill to echo part of the shot once.",
+					"summary_i18n": {
+						"ko": "표식된 적중이 다음 보라 드릴에 한 번의 메아리 사격을 부여합니다.",
+						"en": "Marked hits empower the next purple drill to echo part of the shot once."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_purple_epic",
+				"description": "Hero purple drill that sets up echo chains.",
+				"badge": "epic purple drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 페이즈 니들",
+					"en": "Violet Phase Needle"
+				},
+				"description": {
+					"ko": "보랏빛 페이즈 니들 · 영웅 드릴 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 표식된 적중이 다음 보라 드릴에 한 번의 메아리 사격을 부여합니다.",
+					"en": "Hero purple drill that sets up echo chains. Purple identity: marks, echoes, weakened terrain, and positional links. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_purple_drill_2",
+			"kind": "Violet Static Rewriter",
+			"rarity": "epic",
+			"weight": 24,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 84,
+				"damage": 5.8,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "terrain_stack_bonus",
+					"trigger": "on_fire",
+					"target": "target_cell",
+					"value": 1,
+					"summary": "Purple shots add one weakened-terrain stack and scale with existing stacks.",
+					"summary_i18n": {
+						"ko": "보라 사격이 약화 지형 1중첩을 추가하고 기존 중첩에 따라 강해집니다.",
+						"en": "Purple shots add one weakened-terrain stack and scale with existing stacks."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_purple_epic2",
+				"description": "Hero purple drill that rewrites terrain pressure.",
+				"badge": "epic purple drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 스태틱 리라이터",
+					"en": "Violet Static Rewriter"
+				},
+				"description": {
+					"ko": "보랏빛 스태틱 리라이터 · 영웅 드릴 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 보라 사격이 약화 지형 1중첩을 추가하고 기존 중첩에 따라 강해집니다.",
+					"en": "Hero purple drill that rewrites terrain pressure. Purple identity: marks, echoes, weakened terrain, and positional links. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_purple_beacon_3",
+			"kind": "Violet Diagonal Resonator",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 78,
+				"damage": 0,
+				"beacon_cooldown_mod": -4,
+				"beacon_damage_mod": 0.75,
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "diagonal_resonance",
+					"trigger": "on_beacon_pulse",
+					"target": "diagonal_same_color_drills",
+					"value": 0.75,
+					"summary": "Diagonal purple drills count as linked and receive the beacon damage bonus.",
+					"summary_i18n": {
+						"ko": "대각선의 보라 드릴도 연결된 것으로 취급되어 비콘 피해 보너스를 받습니다.",
+						"en": "Diagonal purple drills count as linked and receive the beacon damage bonus."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_purple_epic",
+				"description": "Hero purple beacon that changes the placement puzzle.",
+				"badge": "epic purple beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 대각 공명기",
+					"en": "Violet Diagonal Resonator"
+				},
+				"description": {
+					"ko": "보랏빛 대각 공명기 · 영웅 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 대각선의 보라 드릴도 연결된 것으로 취급되어 비콘 피해 보너스를 받습니다.",
+					"en": "Hero purple beacon that changes the placement puzzle. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_purple_beacon_4",
+			"kind": "Violet Prism Mark",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 70,
+				"damage": 0,
+				"beacon_cooldown_mod": -5,
+				"beacon_damage_mod": 0.55,
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "mark_spread",
+					"trigger": "on_beacon_pulse",
+					"target": "target_cell",
+					"value": 1,
+					"summary": "Pulse spreads the last purple terrain mark to one neighboring cell.",
+					"summary_i18n": {
+						"ko": "맥동이 마지막 보라 지형 표식을 이웃 칸 하나로 퍼뜨립니다.",
+						"en": "Pulse spreads the last purple terrain mark to one neighboring cell."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_purple_epic",
+				"description": "Hero purple beacon for controlled mark spread.",
+				"badge": "epic purple beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 프리즘 마크",
+					"en": "Violet Prism Mark"
+				},
+				"description": {
+					"ko": "보랏빛 프리즘 마크 · 영웅 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 맥동이 마지막 보라 지형 표식을 이웃 칸 하나로 퍼뜨립니다.",
+					"en": "Hero purple beacon for controlled mark spread. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_green_drill_1",
+			"kind": "Verdant Living Hull Seed",
+			"rarity": "epic",
+			"weight": 25,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "green",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 94,
+				"damage": 5.7,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 12,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "growth_stack",
+					"trigger": "every_10_seconds",
+					"target": "self",
+					"value": 0.5,
+					"summary": "Gains stacking damage during long fights, up to a small cap.",
+					"summary_i18n": {
+						"ko": "장기전 동안 피해가 중첩되어 소규모 상한까지 증가합니다.",
+						"en": "Gains stacking damage during long fights, up to a small cap."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_green_epic2",
+				"description": "Hero green drill that grows into long fights.",
+				"badge": "epic green drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"green_energy",
+				"repair",
+				"growth",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 리빙 헐 시드",
+					"en": "Verdant Living Hull Seed"
+				},
+				"description": {
+					"ko": "청록 리빙 헐 시드 · 영웅 드릴 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 장기전 동안 피해가 중첩되어 소규모 상한까지 증가합니다.",
+					"en": "Hero green drill that grows into long fights. Green identity: repair, protection, long-fight growth, and break prevention. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_green_drill_2",
+			"kind": "Verdant Repair Mycelium",
+			"rarity": "epic",
+			"weight": 24,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "green",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 86,
+				"damage": 5.5,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 16,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "repair_surge",
+					"trigger": "on_repair",
+					"target": "self",
+					"value": 1.25,
+					"summary": "After repair completes, the next green shot gains bonus damage.",
+					"summary_i18n": {
+						"ko": "수리가 끝난 뒤 다음 초록 사격의 피해가 증가합니다.",
+						"en": "After repair completes, the next green shot gains bonus damage."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_green_epic",
+				"description": "Hero green drill that turns recovery into offense.",
+				"badge": "epic green drill"
+			},
+			"tags": [
+				"drill",
+				"epic",
+				"green_energy",
+				"repair",
+				"growth",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 리페어 균사체",
+					"en": "Verdant Repair Mycelium"
+				},
+				"description": {
+					"ko": "청록 리페어 균사체 · 영웅 드릴 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 수리가 끝난 뒤 다음 초록 사격의 피해가 증가합니다.",
+					"en": "Hero green drill that turns recovery into offense. Green identity: repair, protection, long-fight growth, and break prevention. Drill role: produces that color energy and handles direct attacks. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_green_beacon_4",
+			"kind": "Verdant Living Shell Beacon",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 76,
+				"damage": 0,
+				"beacon_cooldown_mod": -5,
+				"beacon_damage_mod": 0.5,
+				"shield_repair": 10,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "break_guard",
+					"trigger": "on_adjacent_break",
+					"target": "adjacent_same_color_drills",
+					"value": 1,
+					"summary": "Once per combat, absorb an adjacent green drill break and reset its cooldown.",
+					"summary_i18n": {
+						"ko": "전투당 1회, 인접한 초록 드릴의 파손을 대신 막고 쿨다운을 초기화합니다.",
+						"en": "Once per combat, absorb an adjacent green drill break and reset its cooldown."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_green_epic",
+				"description": "Hero green beacon that protects a key drill.",
+				"badge": "epic green beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"green_energy",
+				"repair",
+				"growth",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 리빙 셸 비콘",
+					"en": "Verdant Living Shell Beacon"
+				},
+				"description": {
+					"ko": "청록 리빙 셸 비콘 · 영웅 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 전투당 1회, 인접한 초록 드릴의 파손을 대신 막고 쿨다운을 초기화합니다.",
+					"en": "Hero green beacon that protects a key drill. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_green_beacon_3",
+			"kind": "Verdant Root Matrix",
+			"rarity": "epic",
+			"weight": 23,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						0,
+						1,
+						0
+					],
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 88,
+				"damage": 0,
+				"beacon_cooldown_mod": -4,
+				"beacon_damage_mod": 0.65,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "root_matrix",
+					"trigger": "on_three_same_color_fires",
+					"target": "adjacent_same_color_drills",
+					"value": -8,
+					"summary": "Every three adjacent green fires, pulse a larger cooldown refund.",
+					"summary_i18n": {
+						"ko": "인접한 초록 발사가 세 번 일어날 때마다 더 큰 쿨다운 환급 맥동을 냅니다.",
+						"en": "Every three adjacent green fires, pulse a larger cooldown refund."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_green_epic",
+				"description": "Hero green beacon that rewards patient adjacency.",
+				"badge": "epic green beacon"
+			},
+			"tags": [
+				"beacon",
+				"epic",
+				"green_energy",
+				"repair",
+				"growth",
+				"hero"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 루트 매트릭스",
+					"en": "Verdant Root Matrix"
+				},
+				"description": {
+					"ko": "청록 루트 매트릭스 · 영웅 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 전투 흐름을 크게 바꾸는 영웅급 유물입니다. 특수 효과: 인접한 초록 발사가 세 번 일어날 때마다 더 큰 쿨다운 환급 맥동을 냅니다.",
+					"en": "Hero green beacon that rewards patient adjacency. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A synergy artifact that starts defining a build direction."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_relic_anchor_oathplate",
+			"kind": "Anchor Oathplate",
+			"rarity": "epic",
+			"weight": 28,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_weakness_hit",
+					"type": "globalize_weakness_every_five_hits",
+					"target": "combat",
+					"threshold": 5,
+					"summary": "Every 5 weakness hits, every terrain tile becomes weak to any energy.",
+					"summary_i18n": {
+						"ko": "약점 5회마다 모든 지형이 모든 에너지에 약점이 된다.",
+						"en": "Every 5 weakness hits, every terrain tile becomes weak to any energy."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_rare_anchor_oathplate",
+				"description": "Epic relic that makes the whole battlefield weak to any energy after every five weakness hits.",
+				"badge": "epic relic"
+			},
+			"tags": [
+				"relic",
+				"epic",
+				"neutral",
+				"launch_relic",
+				"placement"
+			],
+			"text": {
+				"name": {
+					"ko": "앵커 판",
+					"en": "Anchor Oathplate"
+				},
+				"description": {
+					"ko": "약점 5회마다 모든 지형이 모든 에너지에 약점이 된다.",
+					"en": "Epic neutral relic. Every 5 weakness hits makes every terrain tile weak to any energy."
+				}
+			}
+		},
+		{
+			"id": "reward_epic_relic_recovery_winch",
+			"kind": "Recovery Winch",
+			"rarity": "epic",
+			"weight": 24,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_clear",
+					"type": "first_clear_refund_queue",
+					"target": "combat",
+					"value": 1,
+					"summary": "The first obstacle clear each combat refunds 1 queue token of that shot's color.",
+					"summary_i18n": {
+						"ko": "첫 제거 시 queue 반환.",
+						"en": "The first obstacle clear each combat refunds 1 queue token of that shot's color."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_epic_recovery_winch",
+				"description": "Epic relic that snaps the first clear back into immediate queue tempo.",
+				"badge": "epic relic"
+			},
+			"tags": [
+				"relic",
+				"epic",
+				"neutral",
+				"obstacle_response"
+			],
+			"text": {
+				"name": {
+					"ko": "회수 윈치",
+					"en": "Recovery Winch"
+				},
+				"description": {
+					"ko": "첫 제거 시 queue 반환.",
+					"en": "Epic neutral relic. The first obstacle clear each combat refunds 1 queue token of that shot's color."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_red_drill_1",
+			"kind": "Crimson Leviathan Heart Auger",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						1,
+						0,
+						0
+					]
+				],
+				"base_cooldown_ticks": 78,
+				"damage": 9.5,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"hazard_increase": 3,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "hazard_scaling_damage",
+					"trigger": "on_fire",
+					"target": "self",
+					"value": 0.35,
+					"summary": "Damage rises with hazard pressure, capped before it runs away.",
+					"risk": {
+						"type": "hazard_pressure",
+						"value": 3
+					},
+					"summary_i18n": {
+						"ko": "위험 압력이 오를수록 피해가 상승하지만 폭주 전에 상한이 걸립니다.",
+						"en": "Damage rises with hazard pressure, capped before it runs away."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_red_legendary",
+				"description": "Legendary red drill for dangerous burst routes.",
+				"badge": "legendary red drill"
+			},
+			"tags": [
+				"drill",
+				"legendary",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 레비아탄 하트 오거",
+					"en": "Crimson Leviathan Heart Auger"
+				},
+				"description": {
+					"ko": "진홍 레비아탄 하트 오거 · 전설 드릴 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 위험 압력이 오를수록 피해가 상승하지만 폭주 전에 상한이 걸립니다.",
+					"en": "Legendary red drill for dangerous burst routes. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Drill role: produces that color energy and handles direct attacks. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_red_beacon_3",
+			"kind": "Crimson Blood Pressure Beacon",
+			"rarity": "legendary",
+			"weight": 9,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 82,
+				"damage": 0,
+				"beacon_cooldown_mod": 4,
+				"beacon_damage_mod": 1.35,
+				"hazard_increase": 2,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "pressure_beacon",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 1.35,
+					"summary": "Adjacent red drills gain large damage, but each pulse delays them and raises hazard.",
+					"summary_i18n": {
+						"ko": "인접한 빨강 드릴에 큰 피해를 부여하지만, 맥동마다 지연과 위험 상승이 따라옵니다.",
+						"en": "Adjacent red drills gain large damage, but each pulse delays them and raises hazard."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_red_legendary",
+				"description": "Legendary red beacon with explicit risk reward.",
+				"badge": "legendary red beacon"
+			},
+			"tags": [
+				"beacon",
+				"legendary",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 블러드 프레셔 비콘",
+					"en": "Crimson Blood Pressure Beacon"
+				},
+				"description": {
+					"ko": "진홍 블러드 프레셔 비콘 · 전설 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 인접한 빨강 드릴에 큰 피해를 부여하지만, 맥동마다 지연과 위험 상승이 따라옵니다.",
+					"en": "Legendary red beacon with explicit risk reward. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_red_drill_2",
+			"kind": "Crimson Catapult Furnace Beacon",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 88,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "catapult_furnace_pulse",
+					"trigger": "on_beacon_pulse",
+					"target": "self",
+					"value": 1.5,
+					"summary": "Pulse delays adjacent red drills, then converts the delay into a heavier burst.",
+					"summary_i18n": {
+						"ko": "맥동이 인접한 빨강 드릴을 지연시킨 뒤 그 지연을 더 무거운 폭발로 바꿉니다.",
+						"en": "Pulse delays adjacent red drills, then converts the delay into a heavier burst."
+					}
+				},
+				"beacon_cooldown_mod": 12,
+				"beacon_damage_mod": 1.35
+			},
+			"presentation": {
+				"icon": "beacon_red_legendary",
+				"description": "Legendary red beacon that charges delayed drills into catapult bursts.",
+				"badge": "legendary red beacon"
+			},
+			"tags": [
+				"legendary",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"legendary_core",
+				"beacon",
+				"delay_for_damage"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 캐터펄트 퍼니스 비콘",
+					"en": "Crimson Catapult Furnace Beacon"
+				},
+				"description": {
+					"ko": "진홍 캐터펄트 퍼니스 비콘 · 전설 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 맥동이 인접한 빨강 드릴을 지연시킨 뒤 그 지연을 더 무거운 폭발로 바꿉니다.",
+					"en": "Legendary red beacon that charges delayed drills into catapult bursts. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_blue_drill_1",
+			"kind": "Azure Eventide Core Drill",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 72,
+				"damage": 8.2,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 15,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "shield_to_damage",
+					"trigger": "on_fire_with_shield",
+					"target": "self",
+					"value": 0.08,
+					"summary": "Adds a small shield-based damage bonus, then spends a little shield.",
+					"summary_i18n": {
+						"ko": "보호막이 남아 있으면 일부 우위를 사격 피해로 전환합니다.",
+						"en": "Adds a small shield-based damage bonus, then spends a little shield."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_blue_legendary",
+				"description": "Legendary blue drill turning stability into finishing power.",
+				"badge": "legendary blue drill"
+			},
+			"tags": [
+				"drill",
+				"legendary",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 이벤트이드 코어 드릴",
+					"en": "Azure Eventide Core Drill"
+				},
+				"description": {
+					"ko": "청람 이벤트이드 코어 드릴 · 전설 드릴 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 보호막이 남아 있으면 일부 우위를 사격 피해로 전환합니다.",
+					"en": "Legendary blue drill turning stability into finishing power. Blue identity: shields, stability, cooldown loops, and pin protection. Drill role: produces that color energy and handles direct attacks. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_blue_drill_2",
+			"kind": "Azure Abyssal Keel Beacon",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1
+					],
+					[
+						1
+					],
+					[
+						1
+					]
+				],
+				"base_cooldown_ticks": 68,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "abyssal_keel_pulse",
+					"trigger": "on_shield_break",
+					"target": "self",
+					"value": -12,
+					"summary": "When an adjacent blue drill breaks shield, pulse a once-per-cycle cooldown refund.",
+					"summary_i18n": {
+						"ko": "인접한 파랑 드릴이 보호막을 부수면 주기당 한 번 쿨다운 환급 맥동을 냅니다.",
+						"en": "When an adjacent blue drill breaks shield, pulse a once-per-cycle cooldown refund."
+					}
+				},
+				"beacon_cooldown_mod": -28,
+				"beacon_damage_mod": 0.75
+			},
+			"presentation": {
+				"icon": "beacon_blue_legendary",
+				"description": "Legendary blue beacon that anchors shield breaks into cooldown refunds.",
+				"badge": "legendary blue beacon"
+			},
+			"tags": [
+				"legendary",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"legendary_core",
+				"beacon",
+				"shield_loop"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 어비설 킬 비콘",
+					"en": "Azure Abyssal Keel Beacon"
+				},
+				"description": {
+					"ko": "청람 어비설 킬 비콘 · 전설 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 인접한 파랑 드릴이 보호막을 부수면 주기당 한 번 쿨다운 환급 맥동을 냅니다.",
+					"en": "Legendary blue beacon that anchors shield breaks into cooldown refunds. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_blue_beacon_3",
+			"kind": "Azure Abyssal Stabilizer",
+			"rarity": "legendary",
+			"weight": 9,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 70,
+				"damage": 0,
+				"beacon_cooldown_mod": -8,
+				"beacon_damage_mod": 0.9,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "stabilized_aura",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_drills_with_shield",
+					"value": -8,
+					"summary": "If shield is healthy, adjacent drills of any color can receive the cooldown pulse.",
+					"summary_i18n": {
+						"ko": "보호막이 건강하면 모든 색상의 인접 드릴도 쿨다운 맥동을 받을 수 있습니다.",
+						"en": "If shield is healthy, adjacent drills of any color can receive the cooldown pulse."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_blue_legendary",
+				"description": "Legendary blue beacon that stabilizes mixed builds.",
+				"badge": "legendary blue beacon"
+			},
+			"tags": [
+				"beacon",
+				"legendary",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 어비설 스태빌라이저",
+					"en": "Azure Abyssal Stabilizer"
+				},
+				"description": {
+					"ko": "청람 어비설 스태빌라이저 · 전설 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 보호막이 건강하면 모든 색상의 인접 드릴도 쿨다운 맥동을 받을 수 있습니다.",
+					"en": "Legendary blue beacon that stabilizes mixed builds. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_purple_drill_1",
+			"kind": "Violet Twin-Signal Lance",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1,
+						0
+					],
+					[
+						0,
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 82,
+				"damage": 8,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "single_echo_copy",
+					"trigger": "on_first_marked_hit",
+					"target": "target_cell",
+					"value": 0.35,
+					"summary": "First marked hit each cycle repeats a portion of its damage once.",
+					"limit": {
+						"max_triggers_per_cycle": 1
+					},
+					"summary_i18n": {
+						"ko": "매 주기 첫 표식 적중이 피해 일부를 한 번 더 반복합니다.",
+						"en": "First marked hit each cycle repeats a portion of its damage once."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_purple_legendary2",
+				"description": "Legendary purple drill for controlled duplication.",
+				"badge": "legendary purple drill"
+			},
+			"tags": [
+				"drill",
+				"legendary",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 트윈 시그널 랜스",
+					"en": "Violet Twin-Signal Lance"
+				},
+				"description": {
+					"ko": "보랏빛 트윈 시그널 랜스 · 전설 드릴 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 매 주기 첫 표식 적중이 피해 일부를 한 번 더 반복합니다.",
+					"en": "Legendary purple drill for controlled duplication. Purple identity: marks, echoes, weakened terrain, and positional links. Drill role: produces that color energy and handles direct attacks. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_purple_beacon_3",
+			"kind": "Violet Mirror Court Beacon",
+			"rarity": "legendary",
+			"weight": 9,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 78,
+				"damage": 0,
+				"beacon_cooldown_mod": -7,
+				"beacon_damage_mod": 1,
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "mirror_court",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 1,
+					"summary": "Pulse primes one adjacent purple drill to treat the next marked hit as echoed.",
+					"summary_i18n": {
+						"ko": "맥동이 인접한 보라 드릴 하나에 다음 표식 적중을 메아리로 취급하도록 부여합니다.",
+						"en": "Pulse primes one adjacent purple drill to treat the next marked hit as echoed."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_purple_legendary",
+				"description": "Legendary purple beacon for deliberate echo setups.",
+				"badge": "legendary purple beacon"
+			},
+			"tags": [
+				"beacon",
+				"legendary",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 미러 코트 비콘",
+					"en": "Violet Mirror Court Beacon"
+				},
+				"description": {
+					"ko": "보랏빛 미러 코트 비콘 · 전설 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 맥동이 인접한 보라 드릴 하나에 다음 표식 적중을 메아리로 취급하도록 부여합니다.",
+					"en": "Legendary purple beacon for deliberate echo setups. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_purple_drill_2",
+			"kind": "Violet Void Ledger Beacon",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						0,
+						1,
+						0
+					],
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 92,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "void_ledger_pulse",
+					"trigger": "on_mark_applied",
+					"target": "combat_terrain_debuffs",
+					"value": 0.18,
+					"summary": "Pulse records active terrain debuffs and primes one adjacent purple echo, capped per cycle.",
+					"summary_i18n": {
+						"ko": "맥동이 활성 지형 약화를 기록하고, 주기당 한 번 인접한 보라 메아리를 준비시킵니다.",
+						"en": "Pulse records active terrain debuffs and primes one adjacent purple echo, capped per cycle."
+					}
+				},
+				"beacon_cooldown_mod": -20,
+				"beacon_damage_mod": 0.85
+			},
+			"presentation": {
+				"icon": "beacon_purple_legendary",
+				"description": "Legendary purple beacon that records terrain debuffs and primes echoes.",
+				"badge": "legendary purple beacon"
+			},
+			"tags": [
+				"legendary",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"legendary_core",
+				"beacon",
+				"ledger"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 보이드 레저 비콘",
+					"en": "Violet Void Ledger Beacon"
+				},
+				"description": {
+					"ko": "보랏빛 보이드 레저 비콘 · 전설 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 맥동이 활성 지형 약화를 기록하고, 주기당 한 번 인접한 보라 메아리를 준비시킵니다.",
+					"en": "Legendary purple beacon that records terrain debuffs and primes echoes. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_green_drill_1",
+			"kind": "Verdant Verdant Crown Drill",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "green",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 80,
+				"damage": 7.8,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 20,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "repair_to_damage",
+					"trigger": "on_repair",
+					"target": "self",
+					"value": 1.25,
+					"summary": "After a repair event, the next shot gains damage and resets growth count.",
+					"summary_i18n": {
+						"ko": "수리 이벤트 뒤 다음 사격의 피해가 증가하고 성장 카운트가 초기화됩니다.",
+						"en": "After a repair event, the next shot gains damage and resets growth count."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_green_legendary2",
+				"description": "Legendary green drill that converts recovery into pressure.",
+				"badge": "legendary green drill"
+			},
+			"tags": [
+				"drill",
+				"legendary",
+				"green_energy",
+				"repair",
+				"growth",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 크라운 드릴",
+					"en": "Verdant Verdant Crown Drill"
+				},
+				"description": {
+					"ko": "청록 크라운 드릴 · 전설 드릴 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 수리 이벤트 뒤 다음 사격의 피해가 증가하고 성장 카운트가 초기화됩니다.",
+					"en": "Legendary green drill that converts recovery into pressure. Green identity: repair, protection, long-fight growth, and break prevention. Drill role: produces that color energy and handles direct attacks. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_green_drill_2",
+			"kind": "Verdant Lifeline Beacon",
+			"rarity": "legendary",
+			"weight": 11,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						1,
+						0,
+						0
+					]
+				],
+				"base_cooldown_ticks": 88,
+				"damage": 0,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 18,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "lifeline_repair_pulse",
+					"trigger": "on_repair_complete",
+					"target": "self",
+					"value": 0.6,
+					"summary": "After repair, pulse adjacent green drills with damage and one break-protection charge.",
+					"summary_i18n": {
+						"ko": "수리 후 인접한 초록 드릴에 피해 보너스와 1회 파손 방지 충전을 맥동으로 부여합니다.",
+						"en": "After repair, pulse adjacent green drills with damage and one break-protection charge."
+					}
+				},
+				"beacon_cooldown_mod": -18,
+				"beacon_damage_mod": 0.65
+			},
+			"presentation": {
+				"icon": "beacon_green_legendary",
+				"description": "Legendary green beacon that turns repair events into lifeline pulses.",
+				"badge": "legendary green beacon"
+			},
+			"tags": [
+				"legendary",
+				"green_energy",
+				"repair",
+				"growth",
+				"legendary_core",
+				"beacon",
+				"lifeline"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 라이프라인 비콘",
+					"en": "Verdant Lifeline Beacon"
+				},
+				"description": {
+					"ko": "청록 라이프라인 비콘 · 전설 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 수리 후 인접한 초록 드릴에 피해 보너스와 1회 파손 방지 충전을 맥동으로 부여합니다.",
+					"en": "Legendary green beacon that turns repair events into lifeline pulses. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_green_beacon_3",
+			"kind": "Verdant Sanctuary Root Beacon",
+			"rarity": "legendary",
+			"weight": 9,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						0,
+						1,
+						0
+					],
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 84,
+				"damage": 0,
+				"beacon_cooldown_mod": -7,
+				"beacon_damage_mod": 0.85,
+				"shield_repair": 18,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "sanctuary_root",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 1,
+					"summary": "Pulse repairs and primes adjacent green drills; once per combat it can protect one break.",
+					"summary_i18n": {
+						"ko": "인접한 초록 드릴을 수리하고 강화하며, 전투당 1회 파손 하나를 막아줍니다.",
+						"en": "Pulse repairs and primes adjacent green drills; once per combat it can protect one break."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_green_legendary",
+				"description": "Legendary green beacon for sustain builds.",
+				"badge": "legendary green beacon"
+			},
+			"tags": [
+				"beacon",
+				"legendary",
+				"green_energy",
+				"repair",
+				"growth",
+				"legendary_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 생츄어리 루트 비콘",
+					"en": "Verdant Sanctuary Root Beacon"
+				},
+				"description": {
+					"ko": "청록 생츄어리 루트 비콘 · 전설 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 색상 엔진의 방향을 재편하는 전설급 유물입니다. 특수 효과: 인접한 초록 드릴을 수리하고 강화하며, 전투당 1회 파손 하나를 막아줍니다.",
+					"en": "Legendary green beacon for sustain builds. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A high-impact artifact that reshapes the color engine."
+				}
+			}
+		},
+		{
+			"id": "reward_legendary_relic_brake_coil",
+			"kind": "Brake Coil",
+			"rarity": "legendary",
+			"weight": 30,
+			"payload": {
+				"item_type": "relic",
+				"energy_type": "",
+				"shape": [
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 1,
+				"damage": 0,
+				"effect_schema": {
+					"version": 1,
+					"link_mode": "",
+					"trigger": "on_obstacle_clear",
+					"type": "clear_add_time",
+					"target": "combat",
+					"value": 20,
+					"summary": "Adds 1 second when an obstacle is removed.",
+					"summary_i18n": {
+						"ko": "제거 때 시간 +1초.",
+						"en": "Adds 1 second when an obstacle is removed."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "relic_rare_brake_coil",
+				"description": "Legendary relic that adds 1 second whenever an obstacle is removed.",
+				"badge": "legendary relic"
+			},
+			"tags": [
+				"relic",
+				"legendary",
+				"neutral",
+				"launch_relic",
+				"obstacle_response"
+			],
+			"text": {
+				"name": {
+					"ko": "제동 코일",
+					"en": "Brake Coil"
+				},
+				"description": {
+					"ko": "제거 때 시간 +1초.",
+					"en": "Legendary neutral relic. Adds 1 second whenever an obstacle is removed."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_red_drill_1",
+			"kind": "Crimson Cataclysm Bore",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1,
+						0
+					],
+					[
+						0,
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 66,
+				"damage": 13.2,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"hazard_increase": 4,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "cataclysm_burst",
+					"trigger": "on_match_fire",
+					"target": "self",
+					"value": 2,
+					"summary": "Match red shots can trigger a cataclysm burst while hazard is below the safety cap.",
+					"limit": {
+						"hazard_cap": 10
+					},
+					"summary_i18n": {
+						"ko": "위험도가 안전 상한 아래일 때 빨강 사격이 대격변 폭발을 일으킬 수 있습니다.",
+						"en": "Match red shots can trigger a cataclysm burst while hazard is below the safety cap."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_red_legendary2",
+				"description": "Mythic red drill that defines a high-risk burst build.",
+				"badge": "mythic red drill"
+			},
+			"tags": [
+				"drill",
+				"mythic",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 캐터클리즘 보어",
+					"en": "Crimson Cataclysm Bore"
+				},
+				"description": {
+					"ko": "진홍 캐터클리즘 보어 · 신화 드릴 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 위험도가 안전 상한 아래일 때 빨강 사격이 대격변 폭발을 일으킬 수 있습니다.",
+					"en": "Mythic red drill that defines a high-risk burst build. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Drill role: produces that color energy and handles direct attacks. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_red_beacon_2",
+			"kind": "Crimson Cataclysm Relay",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "red",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 78,
+				"damage": 0,
+				"beacon_cooldown_mod": 5,
+				"beacon_damage_mod": 2,
+				"hazard_increase": 3,
+				"effect_schema": {
+					"version": 1,
+					"color": "red",
+					"type": "cataclysm_relay",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 2,
+					"summary": "Adjacent red drills gain massive damage; pulse delays them and stops at high hazard.",
+					"limit": {
+						"hazard_cap": 10
+					},
+					"summary_i18n": {
+						"ko": "인접한 빨강 드릴에 막대한 피해를 주지만, 맥동이 지연을 주고 높은 위험도에서는 멈춥니다.",
+						"en": "Adjacent red drills gain massive damage; pulse delays them and stops at high hazard."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_red_mythic",
+				"description": "Mythic red beacon that turns one drill into a cannon.",
+				"badge": "mythic red beacon"
+			},
+			"tags": [
+				"beacon",
+				"mythic",
+				"red_energy",
+				"burst",
+				"risk_reward",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "진홍 캐터클리즘 릴레이",
+					"en": "Crimson Cataclysm Relay"
+				},
+				"description": {
+					"ko": "진홍 캐터클리즘 릴레이 · 신화 비콘 유물입니다. 빨강 계열은 높은 피해, 과열 압박, 지연을 감수한 폭발 보상을 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 인접한 빨강 드릴에 막대한 피해를 주지만, 맥동이 지연을 주고 높은 위험도에서는 멈춥니다.",
+					"en": "Mythic red beacon that turns one drill into a cannon. Red identity: high damage, overheat pressure, and delay-for-burst rewards. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_blue_drill_1",
+			"kind": "Azure Eventide Sovereign Drill",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						1,
+						0
+					],
+					[
+						0,
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 62,
+				"damage": 11.4,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 25,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "shield_engine",
+					"trigger": "on_fire_with_shield",
+					"target": "self",
+					"value": 0.1,
+					"summary": "Shield advantage becomes damage and cooldown stability, then spends shield.",
+					"summary_i18n": {
+						"ko": "보호막 우위가 피해와 쿨다운 안정성으로 바뀐 뒤 보호막 일부를 소모합니다.",
+						"en": "Shield advantage becomes damage and cooldown stability, then spends shield."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_blue_legendary2",
+				"description": "Mythic blue drill for shield-control engines.",
+				"badge": "mythic blue drill"
+			},
+			"tags": [
+				"drill",
+				"mythic",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 이벤트이드 소버린 드릴",
+					"en": "Azure Eventide Sovereign Drill"
+				},
+				"description": {
+					"ko": "청람 이벤트이드 소버린 드릴 · 신화 드릴 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 보호막 우위가 피해와 쿨다운 안정성으로 바뀐 뒤 보호막 일부를 소모합니다.",
+					"en": "Mythic blue drill for shield-control engines. Blue identity: shields, stability, cooldown loops, and pin protection. Drill role: produces that color energy and handles direct attacks. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_blue_beacon_2",
+			"kind": "Azure Zero-Tide Relay",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "blue",
+				"shape": [
+					[
+						1,
+						1
+					],
+					[
+						1,
+						1
+					]
+				],
+				"base_cooldown_ticks": 72,
+				"damage": 0,
+				"beacon_cooldown_mod": -10,
+				"beacon_damage_mod": 1.25,
+				"effect_schema": {
+					"version": 1,
+					"color": "blue",
+					"type": "zero_tide_loop",
+					"trigger": "on_same_color_fire",
+					"target": "adjacent_same_color_drills",
+					"value": -10,
+					"summary": "Blue fire loops cooldown to adjacent blue drills once per cycle.",
+					"summary_i18n": {
+						"ko": "파랑 발사가 인접한 파랑 드릴로 주기당 1회 쿨다운을 순환시킵니다.",
+						"en": "Blue fire loops cooldown to adjacent blue drills once per cycle."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_blue_mythic",
+				"description": "Mythic blue beacon for disciplined loop builds.",
+				"badge": "mythic blue beacon"
+			},
+			"tags": [
+				"beacon",
+				"mythic",
+				"blue_energy",
+				"shield_break",
+				"control",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청람 제로타이드 릴레이",
+					"en": "Azure Zero-Tide Relay"
+				},
+				"description": {
+					"ko": "청람 제로타이드 릴레이 · 신화 비콘 유물입니다. 파랑 계열은 보호막, 안정성, 쿨다운 순환, 고정 핀 보호를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 파랑 발사가 인접한 파랑 드릴로 주기당 1회 쿨다운을 순환시킵니다.",
+					"en": "Mythic blue beacon for disciplined loop builds. Blue identity: shields, stability, cooldown loops, and pin protection. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_purple_drill_1",
+			"kind": "Violet Singularity Needle",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "purple",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 74,
+				"damage": 11,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "singularity_echo",
+					"trigger": "on_marked_hit",
+					"target": "target_cell",
+					"value": 0.5,
+					"summary": "Marked hits echo once and add a controlled weakened-terrain stack.",
+					"limit": {
+						"max_triggers_per_combat": 6
+					},
+					"summary_i18n": {
+						"ko": "표식 적중이 한 번 메아리치며 제어된 약화 지형 중첩을 추가합니다.",
+						"en": "Marked hits echo once and add a controlled weakened-terrain stack."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_purple_legendary",
+				"description": "Mythic purple drill for capped echo chains.",
+				"badge": "mythic purple drill"
+			},
+			"tags": [
+				"drill",
+				"mythic",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 싱귤래리티 니들",
+					"en": "Violet Singularity Needle"
+				},
+				"description": {
+					"ko": "보랏빛 싱귤래리티 니들 · 신화 드릴 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 표식 적중이 한 번 메아리치며 제어된 약화 지형 중첩을 추가합니다.",
+					"en": "Mythic purple drill for capped echo chains. Purple identity: marks, echoes, weakened terrain, and positional links. Drill role: produces that color energy and handles direct attacks. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_purple_beacon_2",
+			"kind": "Violet Singularity Prism",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "purple",
+				"shape": [
+					[
+						0,
+						1,
+						0
+					],
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 82,
+				"damage": 0,
+				"beacon_cooldown_mod": -9,
+				"beacon_damage_mod": 1.45,
+				"effect_schema": {
+					"version": 1,
+					"color": "purple",
+					"type": "repeat_first_mark",
+					"trigger": "on_beacon_pulse",
+					"target": "adjacent_same_color_drills",
+					"value": 1,
+					"summary": "Replays the first adjacent purple mark trigger, capped per combat.",
+					"summary_i18n": {
+						"ko": "인접한 보라 표식 트리거의 첫 발동을 전투당 상한 내에서 다시 재생합니다.",
+						"en": "Replays the first adjacent purple mark trigger, capped per combat."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_purple_mythic",
+				"description": "Mythic purple beacon that completes resonance builds.",
+				"badge": "mythic purple beacon"
+			},
+			"tags": [
+				"beacon",
+				"mythic",
+				"purple_energy",
+				"resonance",
+				"terrain_debuff",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "보랏빛 싱귤래리티 프리즘",
+					"en": "Violet Singularity Prism"
+				},
+				"description": {
+					"ko": "보랏빛 싱귤래리티 프리즘 · 신화 비콘 유물입니다. 보라 계열은 표식, 메아리, 약화 지형, 위치 연계를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 인접한 보라 표식 트리거의 첫 발동을 전투당 상한 내에서 다시 재생합니다.",
+					"en": "Mythic purple beacon that completes resonance builds. Purple identity: marks, echoes, weakened terrain, and positional links. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_green_drill_1",
+			"kind": "Verdant Worldroot Excavator",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "drill",
+				"energy_type": "green",
+				"shape": [
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 90,
+				"damage": 10.8,
+				"synergy": {
+					"type": "same_color",
+					"value": 2
+				},
+				"shield_repair": 30,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "worldroot_growth",
+					"trigger": "every_10_seconds",
+					"target": "self",
+					"value": 0.8,
+					"summary": "Every 10 seconds gains damage up to 4 stacks; each stack adds a small cooldown cost.",
+					"limit": {
+						"max_stacks": 4
+					},
+					"risk": {
+						"type": "cooldown_penalty_per_stack",
+						"value": 3
+					},
+					"summary_i18n": {
+						"ko": "10초마다 최대 4중첩까지 피해가 증가하지만, 중첩마다 소량의 쿨다운 비용이 붙습니다.",
+						"en": "Every 10 seconds gains damage up to 4 stacks; each stack adds a small cooldown cost."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "drill_green_legendary",
+				"description": "Mythic green drill for long-fight growth builds.",
+				"badge": "mythic green drill"
+			},
+			"tags": [
+				"drill",
+				"mythic",
+				"green_energy",
+				"repair",
+				"growth",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 월드루트 익스커베이터",
+					"en": "Verdant Worldroot Excavator"
+				},
+				"description": {
+					"ko": "청록 월드루트 익스커베이터 · 신화 드릴 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 드릴은 해당 색상 에너지를 만들고 직접 공격 타이밍을 담당합니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 10초마다 최대 4중첩까지 피해가 증가하지만, 중첩마다 소량의 쿨다운 비용이 붙습니다.",
+					"en": "Mythic green drill for long-fight growth builds. Green identity: repair, protection, long-fight growth, and break prevention. Drill role: produces that color energy and handles direct attacks. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		},
+		{
+			"id": "reward_mythic_green_beacon_2",
+			"kind": "Verdant Worldroot Heart",
+			"rarity": "mythic",
+			"weight": 5,
+			"payload": {
+				"item_type": "beacon",
+				"energy_type": "green",
+				"shape": [
+					[
+						0,
+						1,
+						0
+					],
+					[
+						1,
+						1,
+						1
+					],
+					[
+						0,
+						1,
+						0
+					]
+				],
+				"base_cooldown_ticks": 86,
+				"damage": 0,
+				"beacon_cooldown_mod": -8,
+				"beacon_damage_mod": 1.4,
+				"shield_repair": 25,
+				"effect_schema": {
+					"version": 1,
+					"color": "green",
+					"type": "worldroot_guard",
+					"trigger": "on_repair_or_break",
+					"target": "adjacent_same_color_drills",
+					"value": 1,
+					"summary": "Protects one adjacent green drill and turns repair into a larger cooldown pulse.",
+					"summary_i18n": {
+						"ko": "인접한 초록 드릴 하나를 보호하고 수리를 더 큰 쿨다운 맥동으로 전환합니다.",
+						"en": "Protects one adjacent green drill and turns repair into a larger cooldown pulse."
+					}
+				}
+			},
+			"presentation": {
+				"icon": "beacon_green_mythic",
+				"description": "Mythic green beacon that anchors sustain builds.",
+				"badge": "mythic green beacon"
+			},
+			"tags": [
+				"beacon",
+				"mythic",
+				"green_energy",
+				"repair",
+				"growth",
+				"mythic_core"
+			],
+			"text": {
+				"name": {
+					"ko": "청록 월드루트 하트",
+					"en": "Verdant Worldroot Heart"
+				},
+				"description": {
+					"ko": "청록 월드루트 하트 · 신화 비콘 유물입니다. 초록 계열은 수리, 보호, 장기전 성장, 파손 방지를 다룹니다. 비콘은 인접한 같은 색상 유물을 조율해 쿨다운과 피해 흐름을 바꿉니다. 명확한 상한과 리스크를 함께 관리하는 신화급 핵심 유물입니다. 특수 효과: 인접한 초록 드릴 하나를 보호하고 수리를 더 큰 쿨다운 맥동으로 전환합니다.",
+					"en": "Mythic green beacon that anchors sustain builds. Green identity: repair, protection, long-fight growth, and break prevention. Beacon role: tunes adjacent same-color artifacts through cooldown, damage, and special conditions. A top-tier artifact that changes run strategy with explicit caps."
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Battle HUD Mockup V2</title>
+  <style>
+    :root {
+      --bg: #090d12;
+      --bg-2: #111922;
+      --panel: #171f29;
+      --panel-2: #0f151d;
+      --line: #34475c;
+      --line-soft: rgba(123, 151, 180, 0.18);
+      --text: #eef5fb;
+      --muted: #93a7bc;
+      --warm: #f2ca74;
+      --health: #dc5757;
+      --shield: #5d95eb;
+      --red: #d75656;
+      --blue: #5f9ef5;
+      --green: #61c27d;
+      --purple: #b07af5;
+      --empty: #2b3846;
+      --shadow: 0 24px 48px rgba(0,0,0,0.34);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background:
+        radial-gradient(circle at 0% 0%, rgba(92, 142, 214, 0.12), transparent 32%),
+        radial-gradient(circle at 100% 100%, rgba(242, 202, 116, 0.09), transparent 28%),
+        linear-gradient(180deg, #070a0f, #10161d 45%, #0b1016);
+      color: var(--text);
+      font-family: "Segoe UI", "Noto Sans KR", sans-serif;
+      line-height: 1.45;
+    }
+
+    .page {
+      width: min(1560px, calc(100vw - 40px));
+      margin: 22px auto 40px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero, .section, .analysis {
+      background: rgba(12, 17, 24, 0.86);
+      border: 1px solid rgba(121, 146, 170, 0.22);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      padding: 24px 28px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .eyebrow {
+      color: var(--warm);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, h4, p { margin: 0; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; }
+    h4 { font-size: 15px; }
+    .subtitle { color: var(--muted); font-size: 14px; }
+
+    .section {
+      padding: 24px 26px 28px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .variant-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .variant {
+      background: linear-gradient(180deg, rgba(25, 34, 45, 0.97), rgba(11, 16, 23, 0.99));
+      border: 1px solid var(--line-soft);
+      border-radius: 22px;
+      overflow: hidden;
+      display: grid;
+      gap: 0;
+    }
+
+    .variant-head {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid rgba(126, 152, 179, 0.16);
+      display: grid;
+      gap: 6px;
+    }
+
+    .variant-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ffe7a6;
+      background: rgba(124, 91, 26, 0.28);
+      border: 1px solid rgba(242, 202, 116, 0.18);
+    }
+
+    .variant-body {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 1.02fr 1.44fr 0.94fr;
+      gap: 14px;
+      min-height: 360px;
+    }
+
+    .column {
+      border-radius: 18px;
+      border: 1px solid rgba(122, 146, 170, 0.16);
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(21, 29, 40, 0.98), rgba(11, 16, 23, 0.99));
+      display: grid;
+    }
+
+    .column-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(122, 146, 170, 0.14);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .column-body {
+      padding: 12px 14px 14px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .tabbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(126, 152, 179, 0.18);
+      color: var(--muted);
+      background: rgba(8, 12, 18, 0.9);
+    }
+
+    .tab.active {
+      color: white;
+      border-color: rgba(242, 202, 116, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(242, 202, 116, 0.15);
+    }
+
+    .battlefield {
+      min-height: 100%;
+      background:
+        linear-gradient(180deg, rgba(13, 20, 28, 0.96), rgba(7, 12, 18, 0.98));
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .battlefield::before {
+      content: "";
+      position: absolute;
+      inset: 8% 8%;
+      border-radius: 8px;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 11.11% 11.11%;
+      box-shadow: inset 0 0 0 14px rgba(120, 129, 82, 0.18);
+      border: 1px solid rgba(120, 146, 171, 0.18);
+    }
+
+    .drill-left::after,
+    .drill-bottom::after,
+    .drill-minimal::after {
+      content: "";
+      position: absolute;
+      background: linear-gradient(180deg, #6f849a, #304252);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.28);
+    }
+
+    .drill-left::after {
+      width: 68px;
+      height: 122px;
+      left: 2%;
+      top: 36%;
+      border-radius: 16px 12px 12px 16px;
+      transform: translateY(-50%);
+    }
+
+    .drill-bottom::after {
+      width: 130px;
+      height: 58px;
+      left: 8%;
+      bottom: 6%;
+      border-radius: 18px;
+    }
+
+    .drill-minimal::after {
+      width: 112px;
+      height: 2px;
+      left: 14%;
+      top: 50%;
+      background: linear-gradient(90deg, rgba(94, 167, 255, 0.0), rgba(94, 167, 255, 0.9));
+      box-shadow: 0 0 14px rgba(94, 167, 255, 0.55);
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(20, 28, 38, 0.98), rgba(10, 15, 22, 0.98));
+      border: 1px solid rgba(121, 146, 170, 0.18);
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric {
+      display: grid;
+      gap: 5px;
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .bar {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(14, 22, 30, 0.95);
+      border: 1px solid rgba(90, 110, 132, 0.34);
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .fill.health { width: 100%; background: linear-gradient(90deg, #b93939, #e25d5d); }
+    .fill.shield { width: 78%; background: linear-gradient(90deg, #3f71d7, #67a7ff); }
+
+    .queue-shell {
+      display: grid;
+      gap: 8px;
+    }
+
+    .queue-shell.tight { gap: 6px; }
+
+    .queue-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .queue-size {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .queue-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .queue-row.eight {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+
+    .queue-row.sixteen {
+      grid-template-columns: repeat(16, minmax(0, 1fr));
+    }
+
+    .token {
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid rgba(127, 151, 175, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .token::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .token.red { background: linear-gradient(180deg, #a43b3b, #612020); }
+    .token.blue { background: linear-gradient(180deg, #3467ba, #1d3d73); }
+    .token.green { background: linear-gradient(180deg, #2f8953, #1d5133); }
+    .token.purple { background: linear-gradient(180deg, #7745b2, #452266); }
+    .token.empty {
+      color: rgba(255,255,255,0.24);
+      background: linear-gradient(180deg, #2c3947, #202a35);
+    }
+
+    .subgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid rgba(130, 152, 175, 0.15);
+      background: rgba(9, 13, 18, 0.95);
+    }
+
+    .pill.blue { color: #b8d6ff; }
+    .pill.red { color: #ffb8b8; }
+    .pill.gold { color: #ffe39c; }
+
+    .mult {
+      background: rgba(8, 12, 18, 0.92);
+      border: 1px solid rgba(120, 145, 169, 0.14);
+      border-radius: 14px;
+      padding: 10px;
+      display: grid;
+      gap: 3px;
+      min-height: 70px;
+    }
+
+    .mult .label { color: var(--muted); font-size: 11px; }
+    .mult .value { font-size: 21px; font-weight: 900; }
+    .mult .desc { color: #cad8e5; font-size: 11px; }
+
+    .timer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 74px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(55, 39, 14, 0.42), rgba(18, 13, 7, 0.8));
+      border: 1px solid rgba(205, 164, 70, 0.18);
+      font-size: 34px;
+      font-weight: 300;
+      color: #ffd45f;
+      letter-spacing: .04em;
+    }
+
+    .portrait {
+      height: 124px;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 72% 28%, rgba(255, 208, 88, 0.2), transparent 16%),
+        linear-gradient(140deg, #253547, #101821 62%);
+      border: 1px solid rgba(120,145,169,0.16);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portrait::before {
+      content: "";
+      position: absolute;
+      left: 12%;
+      bottom: -12%;
+      width: 42%;
+      height: 98%;
+      border-radius: 999px 999px 12px 12px;
+      background: linear-gradient(180deg, #60492d, #2b221c);
+    }
+
+    .analysis {
+      padding: 24px 26px 28px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 14px;
+    }
+
+    .analysis-card {
+      background: linear-gradient(180deg, rgba(18, 25, 35, 0.98), rgba(9, 13, 19, 0.98));
+      border: 1px solid rgba(120,145,169,0.16);
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .analysis-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #d7e4f1;
+      font-size: 13px;
+    }
+
+    .analysis-card li + li { margin-top: 8px; }
+
+    .recommend {
+      outline: 1px solid rgba(242, 202, 116, 0.24);
+      box-shadow: inset 0 0 0 1px rgba(242, 202, 116, 0.08);
+    }
+
+    @media (max-width: 1300px) {
+      .variant-grid, .analysis-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">Battle HUD Design Iteration</div>
+      <h1>전투 HUD 발전 시안 v2</h1>
+      <p class="subtitle">이번 버전은 FIFO 8칸/16칸 큐, 노드 정보 상단 배치, 드릴 상태와 전투 타이머 유지, 그리고 백팩과 하단 지형 타일이 가진 장치형 픽셀 메카닉 감성을 더 강하게 반영한 3개 스타일 시안입니다.</p>
+    </section>
+
+    <section class="analysis">
+      <h2>디자인 분석과 추천 패턴</h2>
+      <div class="analysis-grid">
+        <div class="analysis-card">
+          <h3>이 화면에 필요한 디자인 패턴</h3>
+          <ul>
+            <li>`컨트롤 패널형 HUD`가 기본입니다. 전투 중 항상 보는 정보와 참조용 정보를 강하게 분리해야 합니다.</li>
+            <li>`장치 패널형 컴포넌트`가 맞습니다. 백팩과 하단 타일처럼 패널이 하나의 기계 부품처럼 보여야 화면 톤이 맞습니다.</li>
+            <li>`FIFO 시각화 패턴`이 필요합니다. 큐는 역할 구분이 아니라 흐름과 순서를 읽혀야 하므로 레일형 슬롯이 적합합니다.</li>
+            <li>`위계 분리형 상태 카드`가 필요합니다. 노드 정보는 상단 분석 블록, 체력/실드/큐는 하단 실시간 블록으로 나눠야 시선이 덜 흔들립니다.</li>
+          </ul>
+        </div>
+        <div class="analysis-card">
+          <h3>이번 수정에서 지켜야 할 원칙</h3>
+          <ul>
+            <li>에너지 큐는 최소 8칸, 최대 16칸이며 2칸씩 증가하는 구조를 전제로 보여야 합니다.</li>
+            <li>큐는 항상 선입선출입니다. 따라서 중간 빈칸이 있는 레이아웃은 금지됩니다.</li>
+            <li>스테이지 제한 시간은 제거하지만, 전투 타이머와 드릴 상태는 유지되어야 합니다.</li>
+            <li>우측 탭은 기본이 탐사자 상태이며, 로그는 선택적으로 여는 참조 패널이어야 합니다.</li>
+          </ul>
+        </div>
+        <div class="analysis-card recommend">
+          <h3>최종 추천</h3>
+          <ul>
+            <li>세 시안 중 추천은 `시안 B: 모듈 레일형`입니다.</li>
+            <li>하단 지형 타일의 기계 레일 느낌과 가장 자연스럽게 이어지고, 큐를 8칸과 16칸 모두 설득력 있게 확장할 수 있습니다.</li>
+            <li>노드 정보 상단 / 실시간 전투 지표 하단 분리도 가장 안정적입니다.</li>
+            <li>실 구현 시 드릴 이미지는 `하단 발사 레일형`을 먼저 검토하는 것이 가장 자연스럽습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>3개 발전 시안</h2>
+      <div class="variant-grid">
+        <article class="variant">
+          <div class="variant-head">
+            <span class="variant-tag">시안 A</span>
+            <h3>장갑 캐비닛형</h3>
+            <p class="subtitle">패널 자체를 중장비 콘솔처럼 보이게 하는 방향. 정보 카드들이 묵직하게 분절됩니다.</p>
+          </div>
+          <div class="variant-body">
+            <div class="shell">
+              <div class="column">
+                <div class="column-head"><strong>드릴 및 노드 상태</strong><span class="queue-size">상시 표시</span></div>
+                <div class="column-body">
+                  <div class="card">
+                    <h4>현재 노드: Blue Reef</h4>
+                    <div class="chip-row">
+                      <span class="pill blue">약점 파랑 x1.50</span>
+                      <span class="pill red">실드 불일치 x0.20</span>
+                      <span class="pill red">체력 불일치 x0.50</span>
+                    </div>
+                    <div class="subgrid">
+                      <div class="mult"><span class="label">실드 배율</span><span class="value">x1.15</span><span class="desc">보호막 두꺼움</span></div>
+                      <div class="mult"><span class="label">체력 배율</span><span class="value">x1.00</span><span class="desc">기본 유지</span></div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="metric-stack">
+                      <div class="metric"><div class="metric-top"><strong>레비아탄 체력</strong><span>36 / 36</span></div><div class="bar"><div class="fill health"></div></div></div>
+                      <div class="metric"><div class="metric-top"><strong>보호막</strong><span>28 / 36</span></div><div class="bar"><div class="fill shield"></div></div></div>
+                    </div>
+                  </div>
+                  <div class="card queue-shell">
+                    <div class="queue-head"><strong>에너지 큐 8칸</strong><span class="queue-size">FIFO / 중간 빈칸 없음</span></div>
+                    <div class="queue-row eight">
+                      <div class="token purple">P</div><div class="token purple">P</div><div class="token blue">B</div><div class="token red">R</div><div class="token green">G</div><div class="token red">R</div><div class="token empty">0</div><div class="token empty">0</div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="subgrid">
+                      <div class="mult"><span class="label">드릴 상태</span><span class="value">부하</span><span class="desc">수리 준비 필요</span></div>
+                      <div class="mult"><span class="label">전투 타이머</span><span class="value">01:27</span><span class="desc">전투 경과 시간</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="column">
+                <div class="column-head"><strong>백팩 전장</strong><span class="queue-size">중앙 집중</span></div>
+                <div class="battlefield drill-left"></div>
+              </div>
+              <div class="column">
+                <div class="column-head">
+                  <div class="tabbar"><span class="tab active">탐사자 상태</span><span class="tab">시스템 로그와 정보</span></div>
+                </div>
+                <div class="column-body">
+                  <div class="portrait"></div>
+                  <div class="card"><h4>탐사자 상태 기본 탭</h4><p class="subtitle">로그는 보조 탭으로 숨기고, 기본은 초상/장비/상태를 보여줍니다.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="variant">
+          <div class="variant-head">
+            <span class="variant-tag">시안 B</span>
+            <h3>모듈 레일형</h3>
+            <p class="subtitle">백팩과 하단 지형 타일의 레일 구조를 상태 패널에도 가져오는 방향. 가장 게임 내 톤과 잘 맞습니다.</p>
+          </div>
+          <div class="variant-body">
+            <div class="shell">
+              <div class="column">
+                <div class="column-head"><strong>드릴 및 노드 상태</strong><span class="queue-size">추천안</span></div>
+                <div class="column-body">
+                  <div class="card">
+                    <h4>노드 분석</h4>
+                    <div class="chip-row">
+                      <span class="pill blue">약점 파랑 x1.50</span>
+                      <span class="pill red">실드 x0.20</span>
+                      <span class="pill red">체력 x0.50</span>
+                      <span class="pill gold">보상 x1.10</span>
+                    </div>
+                    <div class="subgrid">
+                      <div class="mult"><span class="label">실드 배율</span><span class="value">x1.15</span><span class="desc">Blue Reef</span></div>
+                      <div class="mult"><span class="label">위험도</span><span class="value">x1.08</span><span class="desc">소폭 상승</span></div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="queue-shell tight">
+                      <div class="queue-head"><strong>에너지 큐 8칸</strong><span class="queue-size">시작 상태</span></div>
+                      <div class="queue-row eight">
+                        <div class="token purple">P</div><div class="token purple">P</div><div class="token blue">B</div><div class="token blue">B</div><div class="token green">G</div><div class="token red">R</div><div class="token empty">0</div><div class="token empty">0</div>
+                      </div>
+                      <div class="queue-head"><strong>에너지 큐 16칸</strong><span class="queue-size">최대 확장</span></div>
+                      <div class="queue-row sixteen">
+                        <div class="token purple">P</div><div class="token purple">P</div><div class="token blue">B</div><div class="token blue">B</div><div class="token green">G</div><div class="token green">G</div><div class="token red">R</div><div class="token red">R</div><div class="token purple">P</div><div class="token blue">B</div><div class="token green">G</div><div class="token red">R</div><div class="token empty">0</div><div class="token empty">0</div><div class="token empty">0</div><div class="token empty">0</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="metric-stack">
+                      <div class="metric"><div class="metric-top"><strong>레비아탄 체력</strong><span>36 / 36</span></div><div class="bar"><div class="fill health"></div></div></div>
+                      <div class="metric"><div class="metric-top"><strong>보호막</strong><span>28 / 36</span></div><div class="bar"><div class="fill shield"></div></div></div>
+                    </div>
+                    <div class="subgrid">
+                      <div class="mult"><span class="label">드릴 상태</span><span class="value">부하</span><span class="desc">과열 직전 아님</span></div>
+                      <div class="mult"><span class="label">전투 타이머</span><span class="value">01:27</span><span class="desc">유지 필요</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="column">
+                <div class="column-head"><strong>백팩 전장</strong><span class="queue-size">하단 발사 레일형 드릴 추천</span></div>
+                <div class="battlefield drill-bottom"></div>
+              </div>
+              <div class="column">
+                <div class="column-head">
+                  <div class="tabbar"><span class="tab active">탐사자 상태</span><span class="tab">시스템 로그와 정보</span></div>
+                </div>
+                <div class="column-body">
+                  <div class="portrait"></div>
+                  <div class="card"><h4>탐사자 상태 기본</h4><p class="subtitle">중앙 전투를 방해하지 않으면서도 캐릭터 존재감을 지키는 보조 패널입니다.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="variant">
+          <div class="variant-head">
+            <span class="variant-tag">시안 C</span>
+            <h3>계기판 오버레이형</h3>
+            <p class="subtitle">드릴 이미지를 최소화하고 조준선과 발광 UI를 강화하는 방향. 가장 깔끔하지만 픽셀아트 존재감은 적습니다.</p>
+          </div>
+          <div class="variant-body">
+            <div class="shell">
+              <div class="column">
+                <div class="column-head"><strong>드릴 및 노드 상태</strong><span class="queue-size">정제된 UI</span></div>
+                <div class="column-body">
+                  <div class="card">
+                    <h4>노드 분석</h4>
+                    <div class="subgrid">
+                      <div class="mult"><span class="label">약점</span><span class="value">파랑</span><span class="desc">최종 x1.50</span></div>
+                      <div class="mult"><span class="label">불일치</span><span class="value">x0.20 / x0.50</span><span class="desc">실드 / 체력</span></div>
+                    </div>
+                  </div>
+                  <div class="card queue-shell">
+                    <div class="queue-head"><strong>에너지 큐 16칸</strong><span class="queue-size">최대 길이 강조</span></div>
+                    <div class="queue-row sixteen">
+                      <div class="token purple">P</div><div class="token blue">B</div><div class="token blue">B</div><div class="token green">G</div><div class="token red">R</div><div class="token red">R</div><div class="token purple">P</div><div class="token blue">B</div><div class="token green">G</div><div class="token red">R</div><div class="token purple">P</div><div class="token blue">B</div><div class="token empty">0</div><div class="token empty">0</div><div class="token empty">0</div><div class="token empty">0</div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="metric-stack">
+                      <div class="metric"><div class="metric-top"><strong>레비아탄 체력</strong><span>36 / 36</span></div><div class="bar"><div class="fill health"></div></div></div>
+                      <div class="metric"><div class="metric-top"><strong>보호막</strong><span>28 / 36</span></div><div class="bar"><div class="fill shield"></div></div></div>
+                    </div>
+                    <div class="timer">01:27</div>
+                    <div class="chip-row"><span class="pill gold">드릴 상태: 부하</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="column">
+                <div class="column-head"><strong>백팩 전장</strong><span class="queue-size">조준선 중심</span></div>
+                <div class="battlefield drill-minimal"></div>
+              </div>
+              <div class="column">
+                <div class="column-head">
+                  <div class="tabbar"><span class="tab active">탐사자 상태</span><span class="tab">시스템 로그와 정보</span></div>
+                </div>
+                <div class="column-body">
+                  <div class="portrait"></div>
+                  <div class="card"><h4>시스템 로그는 보조</h4><p class="subtitle">사용자가 열 때만 확인하는 부가 정보라는 성격이 가장 잘 유지됩니다.</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="analysis">
+      <h2>드릴 이미지 아이디어 정리</h2>
+      <div class="analysis-grid">
+        <div class="analysis-card">
+          <h3>1. 좌측 프레임 결합형</h3>
+          <ul>
+            <li>그리드의 왼쪽 벽체 장치로 붙입니다.</li>
+            <li>장점: 드릴이 전장 프레임 일부처럼 보입니다.</li>
+            <li>단점: 현재 하단 지형 타일과의 연결감은 약합니다.</li>
+          </ul>
+        </div>
+        <div class="analysis-card recommend">
+          <h3>2. 하단 발사 레일형</h3>
+          <ul>
+            <li>하단 지형 타일과 동일한 기계 레일 위에 드릴을 앉힙니다.</li>
+            <li>장점: 큐와 발사 흐름의 연결이 가장 직관적입니다.</li>
+            <li>장점: 이번 HUD 재구성의 모듈 레일형 상태 패널과도 가장 잘 맞습니다.</li>
+          </ul>
+        </div>
+        <div class="analysis-card">
+          <h3>3. 조준 오버레이형</h3>
+          <ul>
+            <li>드릴 실루엣은 줄이고 조준선, 에너지 충전광, 목표 셀 피드백을 키웁니다.</li>
+            <li>장점: 화면이 가장 정리됩니다.</li>
+            <li>단점: 드릴 자체의 존재감과 개성이 약해질 수 있습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Node Select Run Flow Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --line: rgba(208, 223, 236, 0.12);
+      --text: #eef4fa;
+      --muted: #95a6b7;
+      --soft: #c7d4df;
+      --accent: #f0c56c;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 14% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 82% 14%, rgba(97, 171, 255, 0.10), transparent 22%),
+        linear-gradient(180deg, #121a23 0%, #080c11 100%);
+      padding: 28px 20px 36px;
+    }
+
+    .page {
+      width: min(1340px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.72;
+    }
+
+    .board-shell,
+    .notes,
+    .impl {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head,
+    .notes-head,
+    .impl-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .board-title {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .board-title strong {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .board-title span,
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .title-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .title-chip {
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(240,197,108,0.22);
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .board-body {
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent 22%),
+        rgba(5, 8, 12, 0.28);
+    }
+
+    .roadmap-frame {
+      min-height: 980px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.06), transparent 16%),
+        linear-gradient(180deg, rgba(21, 30, 39, 0.96), rgba(8, 11, 15, 0.98));
+      position: relative;
+      overflow: hidden;
+      padding: 28px 26px;
+    }
+
+    .map-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .map-title strong {
+      font-size: 22px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .map-title span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 560px;
+      text-align: right;
+    }
+
+    .roadmap-canvas {
+      position: relative;
+      min-height: 820px;
+      border-radius: 26px;
+      border: 1px dashed rgba(255,255,255,0.16);
+      background:
+        radial-gradient(circle at 50% 10%, rgba(255,255,255,0.05), transparent 20%),
+        rgba(255,255,255,0.02);
+      overflow: hidden;
+    }
+
+    .dust {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(255,255,255,0.05), transparent 20%),
+        radial-gradient(circle at 80% 32%, rgba(240,197,108,0.05), transparent 18%),
+        radial-gradient(circle at 48% 62%, rgba(104,175,255,0.04), transparent 20%),
+        radial-gradient(circle at 28% 78%, rgba(255,255,255,0.03), transparent 16%);
+      pointer-events: none;
+    }
+
+    .stage-ruler {
+      position: absolute;
+      top: 54px;
+      bottom: 58px;
+      left: 24px;
+      display: grid;
+      grid-template-rows: repeat(5, 1fr);
+      align-items: center;
+      color: rgba(255,255,255,0.24);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .stage-ruler span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-ruler span::after {
+      content: "";
+      display: block;
+      width: 26px;
+      height: 1px;
+      background: rgba(255,255,255,0.16);
+    }
+
+    .route-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .route-line {
+      fill: none;
+      stroke: rgba(214, 228, 240, 0.44);
+      stroke-width: 3.2;
+      stroke-linecap: round;
+      stroke-dasharray: 4 12;
+    }
+
+    .route-line.future {
+      stroke: rgba(136, 152, 168, 0.28);
+    }
+
+    .route-line.current {
+      stroke: rgba(240, 197, 108, 0.48);
+    }
+
+    .arrow-path {
+      fill: none;
+      stroke: rgba(255,255,255,0.22);
+      stroke-width: 1.2;
+      stroke-dasharray: 2 16;
+    }
+
+    .node {
+      position: absolute;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.22);
+      box-shadow: inset 0 -8px rgba(0,0,0,0.18), 0 8px 16px rgba(0,0,0,0.22);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      inset: -10px;
+      border-radius: 999px;
+      border: 1px dashed rgba(255,255,255,0.10);
+      opacity: 0;
+    }
+
+    .node.current::after {
+      opacity: 1;
+    }
+
+    .node.boss {
+      width: 62px;
+      height: 62px;
+      border-width: 3px;
+      background: linear-gradient(180deg, #ff8b7b, #a33a2f);
+      left: calc(50% - 31px);
+      top: 60px;
+    }
+
+    .node.future {
+      left: calc(50% - 23px);
+      top: 226px;
+      background: linear-gradient(180deg, #79899a, #334150);
+      color: rgba(255,255,255,0.78);
+      font-size: 24px;
+    }
+
+    .node.future::before {
+      content: "?";
+      position: relative;
+      z-index: 1;
+    }
+
+    .node.choice1 { left: calc(50% - 262px); top: 404px; background: linear-gradient(180deg, #df5d67, #952a3a); }
+    .node.choice2 { left: calc(50% - 134px); top: 370px; background: linear-gradient(180deg, #4a7dff, #204eaa); }
+    .node.choice3 { left: calc(50% - 23px); top: 440px; background: linear-gradient(180deg, #f0c56c, #af771a); }
+    .node.choice4 { left: calc(50% + 88px); top: 370px; background: linear-gradient(180deg, #5cc37d, #2d8049); }
+    .node.choice5 { left: calc(50% + 216px); top: 404px; background: linear-gradient(180deg, #c884ff, #6e2ca6); }
+
+    .node.current.choice3 {
+      box-shadow:
+        inset 0 -8px rgba(0,0,0,0.18),
+        0 0 0 3px rgba(240,197,108,0.18),
+        0 14px 22px rgba(0,0,0,0.24);
+    }
+
+    .node.past {
+      left: calc(50% - 23px);
+      top: 616px;
+      background: linear-gradient(90deg, #4a7dff 0 50%, #f0c56c 50% 100%);
+    }
+
+    .node.start {
+      left: calc(50% - 26px);
+      top: 764px;
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(180deg, #6ac3ff, #2f6ba0);
+    }
+
+    .node-label {
+      position: absolute;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+
+    .node-label.boss { top: 26px; left: calc(50% - 94px); width: 188px; }
+    .node-label.future { top: 280px; left: calc(50% - 130px); width: 260px; }
+    .node-label.current { top: 504px; left: calc(50% - 156px); width: 312px; }
+    .node-label.past { top: 674px; left: calc(50% - 152px); width: 304px; }
+    .node-label.start { top: 826px; left: calc(50% - 70px); width: 140px; }
+
+    .roadmap-note {
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      bottom: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .notes {
+      margin-top: 18px;
+    }
+
+    .notes-body,
+    .impl-body {
+      padding: 18px 22px 22px;
+    }
+
+    .annotation-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .annotation-list li + li {
+      margin-top: 8px;
+    }
+
+    .impl {
+      margin-top: 18px;
+    }
+
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .impl-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+    }
+
+    .impl-card strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .impl-card ul,
+    .impl-card p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .impl-card ul {
+      padding-left: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .map-title,
+      .board-head,
+      .notes-head,
+      .impl-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .map-title span {
+        text-align: left;
+      }
+
+      .roadmap-frame {
+        padding: 20px;
+      }
+
+      .impl-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">NODE SELECT BOARD</div>
+      <h1>노드 선택 페이지</h1>
+      <p class="subtitle">
+        이 화면은 제목과 전체 로드맵 이미지만으로 현재 스테이지 구조를 읽게 만든다.
+        `Stage 3/5` 예시이므로 시작, 지나온 노드, 현재 5선택, 남은 노드, 보스전의 다섯 레벨이 모두 보이며,
+        미래 노드는 회색 `?`, 지나온 노드는 당시 선택했던 지형의 색을 그대로 남긴다.
+      </p>
+    </header>
+
+    <section class="board-shell" aria-label="노드 선택 보드">
+      <div class="board-head">
+        <div class="board-title">
+          <strong>세로형 5스테이지 로드맵</strong>
+          <span>`Stage 3/5` 예시에서 과거와 미래가 모두 보이도록 5개 레벨을 한 번에 보여주는 이미지 중심 지도</span>
+        </div>
+        <div class="title-chips">
+          <div class="title-chip">Run 1/5</div>
+          <div class="title-chip">Stage 3/5</div>
+        </div>
+      </div>
+
+      <div class="board-body">
+        <div class="roadmap-frame" aria-label="세로형 스테이지 로드맵">
+          <div class="map-title">
+            <strong>현재 스테이지 전체 경로</strong>
+            <span>시작은 아래, 보스는 위에 둔다. 미래는 회색 `?`, 현재는 5갈래 병렬 선택, 과거는 실제로 골랐던 색을 기억하는 노드로 보여준다.</span>
+          </div>
+
+          <div class="roadmap-canvas">
+            <div class="dust" aria-hidden="true"></div>
+
+            <div class="stage-ruler" aria-hidden="true">
+              <span>Stage 5</span>
+              <span>Stage 4</span>
+              <span>Stage 3</span>
+              <span>Stage 2</span>
+              <span>Stage 1</span>
+            </div>
+
+            <svg class="route-svg" viewBox="0 0 1000 820" aria-hidden="true">
+              <defs>
+                <marker id="routeArrow" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.2" />
+                </marker>
+              </defs>
+
+              <path class="route-line" d="M500 772 C500 734, 500 706, 500 648" />
+
+              <path class="route-line current" d="M500 648 C458 602, 418 562, 376 428" />
+              <path class="route-line current" d="M500 648 C476 600, 430 552, 504 464" />
+              <path class="route-line current" d="M500 648 C500 584, 500 538, 500 462" />
+              <path class="route-line current" d="M500 648 C524 598, 570 552, 608 394" />
+              <path class="route-line current" d="M500 648 C552 600, 624 560, 744 428" />
+
+              <path class="route-line future" d="M376 428 C424 336, 452 298, 500 248" />
+              <path class="route-line future" d="M504 464 C504 384, 504 316, 500 248" />
+              <path class="route-line future" d="M500 462 C500 384, 500 324, 500 248" />
+              <path class="route-line future" d="M608 394 C566 324, 540 292, 500 248" />
+              <path class="route-line future" d="M744 428 C652 334, 596 288, 500 248" />
+
+              <path class="route-line future" d="M500 248 C500 188, 500 150, 500 92" />
+
+              <path class="arrow-path" d="M500 790 C500 744, 500 692, 500 648" marker-end="url(#routeArrow)" />
+              <path class="arrow-path" d="M500 648 C500 572, 500 520, 500 462" marker-end="url(#routeArrow)" />
+              <path class="arrow-path" d="M500 462 C500 378, 500 316, 500 248" marker-end="url(#routeArrow)" />
+              <path class="arrow-path" d="M500 248 C500 180, 500 140, 500 94" marker-end="url(#routeArrow)" />
+            </svg>
+
+            <div class="node boss" aria-label="보스전"></div>
+            <div class="node future" aria-label="남은 노드 물음표"></div>
+
+            <div class="node choice1" aria-label="현재 선택 가능한 노드 색상 1"></div>
+            <div class="node choice2" aria-label="현재 선택 가능한 노드 색상 2"></div>
+            <div class="node choice3 current" aria-label="현재 커서가 머무는 선택 가능한 노드 색상 3"></div>
+            <div class="node choice4" aria-label="현재 선택 가능한 노드 색상 4"></div>
+            <div class="node choice5" aria-label="현재 선택 가능한 노드 색상 5"></div>
+
+            <div class="node past" aria-label="지나온 노드 선택 색 기록"></div>
+            <div class="node start" aria-label="시작 노드"></div>
+
+            <div class="node-label boss">보스전</div>
+            <div class="node-label future">남은 노드: 회색 원 안에 `?`를 넣어 미래의 정보가 숨겨져 있음을 표시</div>
+            <div class="node-label current">현재 노드 선택지: 다섯 개를 병렬로 배치한 `Stage 3/5` 행</div>
+            <div class="node-label past">지나온 노드: 실제 선택 색을 기억하며, 복합 지형은 반반 분할 색으로 표시</div>
+            <div class="node-label.start">시작 노드</div>
+
+            <div class="roadmap-note">
+              이 예시는 `Stage 3/5`라서 보스전 / 남은 노드 / 현재 5선택 / 지나온 노드 / 시작 노드의 다섯 단계가 모두 보인다.
+              미래가 더 많을 때는 `남은 노드` 구간이 늘어나고, 과거가 더 많을 때는 `지나온 노드` 구간이 늘어나는 식으로 변동성을 해석한다.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <div class="notes-head">
+        <h2>번호 주석</h2>
+        <div class="hint">map-first annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>`Stage 3/5` 예시에서는 정확히 5개 레벨만 보이게 구성한다: 보스전, 남은 노드, 현재 5선택, 지나온 노드, 시작 노드.</li>
+          <li>남은 노드는 회색처리만 하지 않고 원 안에 `?`를 넣어 “아직 정체가 드러나지 않은 단계”임을 즉시 읽게 만든다.</li>
+          <li>현재 선택 가능한 노드는 다섯 개를 병렬 배치하되, 정보는 숨기고 색상 차이만으로 읽게 만든다.</li>
+          <li>지나온 노드는 실제 선택했던 지형의 색을 기억하고, 다색 지형은 반반으로 분할해 당시의 선택 흔적이 남도록 만든다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <div class="impl-head">
+        <h2>구현 힌트</h2>
+        <div class="hint">allowed / blocked / key signs</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>허용 오버레이</strong>
+            <ul>
+              <li>settings</li>
+              <li>artifact codex</li>
+              <li>shop</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>핵심 지도 규칙</strong>
+            <ul>
+              <li>5 stage rows for Stage 3/5 example</li>
+              <li>future node with `?`</li>
+              <li>remembered past-node color</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>핵심 구현 신호</strong>
+            <p>bottom-to-top roadmap, wavy dotted routes, one future row, five current choices, split-color past node, boss endpoint</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

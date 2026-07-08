@@ -1,0 +1,174 @@
+param(
+  [Parameter(Mandatory = $true)]
+  [ValidateSet("contract-only", "execution-only", "implementation")]
+  [string]$Mode,
+
+  [Parameter(Mandatory = $true)]
+  [string]$Root,
+
+  [Parameter(Mandatory = $true)]
+  [string[]]$Targets,
+
+  [string]$Ledger
+)
+
+$ErrorActionPreference = "Stop"
+
+function Fail($Message) {
+  Write-Error $Message
+  exit 1
+}
+
+function Resolve-InRoot($RootPath, $TargetPath) {
+  $resolvedRoot = (Resolve-Path -LiteralPath $RootPath).Path
+  $combined = if ([System.IO.Path]::IsPathRooted($TargetPath)) { $TargetPath } else { Join-Path $resolvedRoot $TargetPath }
+  $resolvedTarget = (Resolve-Path -LiteralPath $combined).Path
+  if (-not $resolvedTarget.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+    Fail "target escapes root: $TargetPath"
+  }
+  return $resolvedTarget
+}
+
+function Assert-Not-Forbidden-Path($Path) {
+  $normalized = $Path.Replace("/", "\")
+  if ($normalized -match "\\prototype\\" -or $normalized -match "\\_quarantine" -or $normalized -match "\\_legacy") {
+    Fail "forbidden implementation path: $Path"
+  }
+}
+
+function Is-CommentOrBlank($Line) {
+  $trimmed = $Line.Trim()
+  return $trimmed.Length -eq 0 -or
+    $trimmed.StartsWith("#") -or
+    $trimmed.StartsWith("//") -or
+    $trimmed.StartsWith("/*") -or
+    $trimmed.StartsWith("*") -or
+    $trimmed.StartsWith("*/") -or
+    $trimmed.StartsWith("<!--") -or
+    $trimmed.StartsWith("-->")
+}
+
+function Looks-Like-Code($Line) {
+  $trimmed = $Line.Trim()
+  if ($trimmed.Length -eq 0) { return $false }
+  if (Is-CommentOrBlank $Line) { return $false }
+  return $true
+}
+
+function Has-ContractMarker($Text) {
+  return $Text.Contains("계약:")
+}
+
+function Has-ExecutionMarker($Text) {
+  return $Text.Contains("실행:")
+}
+
+function Test-NoCodeTokens($Path) {
+  $lines = Get-Content -LiteralPath $Path
+  for ($index = 0; $index -lt $lines.Count; $index++) {
+    if (Looks-Like-Code $lines[$index]) {
+      Fail "$Mode gate failed: $Path line $($index + 1) contains implementation code"
+    }
+  }
+}
+
+function Previous-MeaningfulLine($Lines, $Index) {
+  for ($cursor = $Index - 1; $cursor -ge 0; $cursor--) {
+    if ($Lines[$cursor].Trim().Length -gt 0) {
+      return $Lines[$cursor].Trim()
+    }
+  }
+  return ""
+}
+
+function Assert-ContractOnly($Path) {
+  Assert-Not-Forbidden-Path $Path
+  $text = Get-Content -LiteralPath $Path -Raw
+  if (-not (Has-ContractMarker $text)) {
+    Fail "contract-only gate failed: missing contract marker in $Path"
+  }
+  if (Has-ExecutionMarker $text) {
+    Fail "contract-only gate failed: execution comments were added before an execution-comment request in $Path"
+  }
+  Test-NoCodeTokens $Path
+}
+
+function Assert-ExecutionOnly($Path) {
+  Assert-Not-Forbidden-Path $Path
+  $text = Get-Content -LiteralPath $Path -Raw
+  if (-not (Has-ContractMarker $text)) {
+    Fail "execution-only gate failed: missing contract marker in $Path"
+  }
+  if (-not (Has-ExecutionMarker $text)) {
+    Fail "execution-only gate failed: missing execution marker in $Path"
+  }
+  Test-NoCodeTokens $Path
+}
+
+function Assert-Implementation($Path) {
+  Assert-Not-Forbidden-Path $Path
+  $text = Get-Content -LiteralPath $Path -Raw
+  if (-not (Has-ContractMarker $text)) {
+    Fail "implementation gate failed: missing contract marker in $Path"
+  }
+  if (-not (Has-ExecutionMarker $text)) {
+    Fail "implementation gate failed: missing execution marker in $Path"
+  }
+
+  $lines = Get-Content -LiteralPath $Path
+  for ($index = 0; $index -lt $lines.Count; $index++) {
+    if (Looks-Like-Code $lines[$index]) {
+      $previous = Previous-MeaningfulLine $lines $index
+      if (-not $previous.Contains("실행:")) {
+        Fail "implementation gate failed: code line $($index + 1) is not directly guarded by an execution comment in $Path"
+      }
+    }
+  }
+}
+
+function Assert-LedgerPhase($LedgerText, $ExpectedPhase, $LedgerPath) {
+  if (-not $LedgerText.Contains("phase: $ExpectedPhase")) {
+    Fail "ledger phase mismatch in ${LedgerPath}: expected $ExpectedPhase"
+  }
+}
+
+function Assert-LedgerApproval($LedgerText, $LedgerPath) {
+  if (-not $LedgerText.Contains("approval: approved")) {
+    Fail "ledger approval missing in $LedgerPath"
+  }
+}
+
+function Assert-LedgerTargets($LedgerText, $TargetsToCheck, $LedgerPath) {
+  foreach ($target in $TargetsToCheck) {
+    if (-not $LedgerText.Contains("- $target")) {
+      Fail "ledger target mismatch in ${LedgerPath}: missing $target"
+    }
+  }
+}
+
+if ($Mode -eq "execution-only" -or $Mode -eq "implementation") {
+  if ([string]::IsNullOrWhiteSpace($Ledger)) {
+    Fail "$Mode gate requires -Ledger"
+  }
+  $ledgerPath = Resolve-InRoot $Root $Ledger
+  $ledgerText = Get-Content -LiteralPath $ledgerPath -Raw
+  Assert-LedgerApproval $ledgerText $Ledger
+  Assert-LedgerTargets $ledgerText $Targets $Ledger
+  if ($Mode -eq "execution-only") {
+    Assert-LedgerPhase $ledgerText "execution-only" $Ledger
+  }
+  if ($Mode -eq "implementation") {
+    Assert-LedgerPhase $ledgerText "implementation-approved" $Ledger
+  }
+}
+
+foreach ($target in $Targets) {
+  $path = Resolve-InRoot $Root $target
+  switch ($Mode) {
+    "contract-only" { Assert-ContractOnly $path }
+    "execution-only" { Assert-ExecutionOnly $path }
+    "implementation" { Assert-Implementation $path }
+  }
+}
+
+Write-Output "COMMENT_FIRST_GATE_OK"

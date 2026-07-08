@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leviathan Start CTA Final Mockup · Moss Strike Edge Flush</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f1e5;
+      --paper-2: #efe6d6;
+      --ink: #183028;
+      --muted: #617466;
+      --soft-border: rgba(24, 48, 40, 0.10);
+      --soft-fill: rgba(24, 48, 40, 0.05);
+      --panel-shadow: 0 24px 72px rgba(24, 46, 39, 0.10);
+      --green-1: #204f31;
+      --green-2: #1a4229;
+      --green-3: #2d7747;
+      --green-4: #91d0a0;
+      --green-5: #dff6e6;
+      --rail-card-line: rgba(255,255,255,.08);
+      --rail-card-sep: rgba(255,255,255,.04);
+      --rail-copy: rgba(246,248,248,.98);
+      --rail-meta: rgba(226,232,232,.84);
+      --rail-sub: rgba(214,219,220,.72);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: Inter, "Segoe UI", "Malgun Gothic", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(81, 132, 92, 0.10), transparent 18%),
+        radial-gradient(circle at 88% 12%, rgba(72, 132, 108, 0.09), transparent 20%),
+        linear-gradient(180deg, #fbf9f4 0%, var(--paper) 100%);
+    }
+    .page {
+      width: 1980px;
+      margin: 0 auto;
+      padding: 28px;
+      display: grid;
+      gap: 22px;
+    }
+    .hero,
+    .reference-panel,
+    .mockup-panel,
+    .macro-panel,
+    .decision-panel {
+      background: rgba(255,255,255,.76);
+      border: 1px solid var(--soft-border);
+      border-radius: 28px;
+      box-shadow: var(--panel-shadow);
+    }
+    .hero { padding: 28px 30px 24px; }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: #2f614b;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 56px;
+      line-height: .98;
+      letter-spacing: -.06em;
+    }
+    .hero p {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.72;
+      color: var(--muted);
+      max-width: 1700px;
+    }
+    .chips {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chip {
+      padding: 10px 13px;
+      border-radius: 999px;
+      background: var(--soft-fill);
+      border: 1px solid rgba(24,48,40,.09);
+      color: #2d5241;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .reference-panel {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .reference-shot {
+      min-height: 184px;
+      border-radius: 20px;
+      border: 1px solid rgba(24,48,40,.08);
+      background: #111416;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      overflow: hidden;
+    }
+    .reference-shot img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      box-shadow: 0 12px 24px rgba(0,0,0,.20);
+    }
+    .reference-copy {
+      padding: 6px 4px 4px 0;
+      display: grid;
+      gap: 12px;
+    }
+    .ref-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #637a6d;
+    }
+    .reference-copy h2 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .reference-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.64;
+      max-width: 1320px;
+    }
+    .source-link {
+      color: #1457a8;
+      text-decoration: none;
+      font-size: 13px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      word-break: break-all;
+    }
+    .learn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .learn-card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(24,48,40,.08);
+      background: rgba(24,48,40,.05);
+    }
+    .learn-card strong {
+      display: block;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+      color: #335444;
+    }
+    .learn-card span {
+      display: block;
+      color: #597063;
+      font-size: 13px;
+      line-height: 1.58;
+    }
+
+    .mockup-panel {
+      overflow: hidden;
+    }
+    .mockup-head {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(24,48,40,.08);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .mockup-head h2 {
+      margin: 0 0 8px;
+      font-size: 36px;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .mockup-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.64;
+      max-width: 1280px;
+    }
+    .status-pill {
+      flex: 0 0 auto;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(36,98,56,.18);
+      background: rgba(36,98,56,.10);
+      color: #265c39;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .runtime-shell {
+      position: relative;
+      min-height: 980px;
+      background: linear-gradient(180deg, #efe2bf 0 74px, transparent 74px), linear-gradient(180deg, #d6eaf3 0%, #cde3ef 100%);
+    }
+    .topbar {
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 26px 0 30px;
+      color: #2a5a47;
+      font-size: 15px;
+      font-weight: 700;
+      position: relative;
+      z-index: 3;
+    }
+    .brand {
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -.04em;
+    }
+    .topnav {
+      display: flex;
+      gap: 30px;
+      color: #7c7968;
+      font-size: 14px;
+    }
+    .topnav .active {
+      color: #2e7a4d;
+      position: relative;
+    }
+    .topnav .active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -23px;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(83,190,120,0), rgba(83,190,120,.88), rgba(83,190,120,0));
+    }
+    .runtime-body {
+      display: grid;
+      grid-template-columns: 202px 1fr;
+      gap: 18px;
+      padding: 18px 0 18px 18px;
+      position: relative;
+      z-index: 2;
+    }
+    .sidebar {
+      border-radius: 26px;
+      border: 1px solid rgba(24,48,40,.08);
+      background: linear-gradient(180deg, rgba(248,242,232,.97), rgba(244,238,228,.95));
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 850px;
+    }
+    .portrait {
+      text-align: center;
+      padding-top: 10px;
+    }
+    .portrait-mark {
+      width: 116px;
+      height: 116px;
+      margin: 0 auto 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 35% 32%, #fff0a4 0%, #ffe178 72%, #f8d95a 100%);
+      color: #44b0ff;
+      font-size: 54px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.10);
+    }
+    .portrait-name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -.03em;
+      color: #223a2f;
+      margin-bottom: 4px;
+    }
+    .portrait-rank {
+      font-size: 12px;
+      font-weight: 700;
+      color: #9c8767;
+    }
+    .sidebar-links {
+      display: grid;
+      gap: 11px;
+      color: #5b6d62;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    .sidebar-links .active {
+      color: #2e5c48;
+      font-weight: 700;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 850px;
+      overflow: hidden;
+      isolation: isolate;
+      border-top: 1px solid rgba(24,48,40,.08);
+      border-left: 1px solid rgba(24,48,40,.08);
+      border-bottom: 1px solid rgba(24,48,40,.08);
+      border-right: 0;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255,255,255,.10), transparent 16%),
+        radial-gradient(circle at 44% 50%, rgba(99, 153, 205, .18), transparent 26%),
+        linear-gradient(180deg, #2b6195 0%, #16324a 25%, #071019 78%);
+    }
+    .stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), transparent 18%, transparent 72%, rgba(0,0,0,.24)),
+        linear-gradient(90deg, rgba(7,12,15,.20), rgba(7,12,15,.06) 24%, rgba(7,12,15,0));
+      z-index: 1;
+    }
+    .hero-copy {
+      position: absolute;
+      left: 34px;
+      top: 30px;
+      z-index: 3;
+      max-width: 540px;
+    }
+    .eyebadge {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(248,250,249,.92);
+      color: #244738;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .hero-copy h3 {
+      margin: 14px 0 10px;
+      font-size: 72px;
+      line-height: .92;
+      letter-spacing: -.07em;
+      color: #fff;
+      text-shadow: 0 8px 24px rgba(0,0,0,.28);
+    }
+    .hero-copy p {
+      margin: 0 0 14px;
+      color: rgba(245,248,249,.92);
+      font-size: 22px;
+      line-height: 1.45;
+    }
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .facts span {
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.12);
+      color: rgba(244,248,246,.94);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .hero-media {
+      position: absolute;
+      left: 18px;
+      right: 0;
+      top: 126px;
+      bottom: 0;
+      z-index: 2;
+      overflow: hidden;
+    }
+    .leviathan {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 58%;
+      transform: scale(1.03);
+      z-index: 2;
+      filter: none;
+    }
+
+    .rail-shell {
+      position: absolute;
+      right: 0;
+      top: -1px;
+      bottom: -1px;
+      width: 336px;
+      z-index: 5;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)),
+        linear-gradient(90deg, rgba(8,12,15,0) 0%, rgba(8,12,15,.08) 10%, rgba(8,12,15,.32) 22%, rgba(10,20,13,.82) 42%, rgba(10,20,13,.97) 100%);
+    }
+    .rail-shell::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -26px;
+      width: 26px;
+      background: linear-gradient(90deg, rgba(8,12,15,0), rgba(8,12,15,.18));
+      z-index: 1;
+      pointer-events: none;
+    }
+    .rail-shell::after {
+      content: '';
+      position: absolute;
+      left: 10px;
+      right: 0;
+      bottom: 104px;
+      height: 24px;
+      z-index: 4;
+      background: linear-gradient(180deg, rgba(10,20,13,0), rgba(10,20,13,.92));
+      pointer-events: none;
+    }
+    .rail-scroll {
+      position: absolute;
+      left: 10px;
+      right: 0;
+      top: 0;
+      bottom: 104px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 2;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .rail-scroll::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+    .rail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: max-content;
+      padding-bottom: 8px;
+    }
+    .rail-dock {
+      position: absolute;
+      left: 10px;
+      right: 0;
+      bottom: -1px;
+      height: 104px;
+      z-index: 7;
+    }
+    .rail-dock::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -18px;
+      height: 18px;
+      background: linear-gradient(180deg, rgba(10,20,13,0), rgba(10,20,13,.94));
+      pointer-events: none;
+    }
+    .rail-card,
+    .cta-card {
+      border-radius: 0;
+      flex: 0 0 auto;
+    }
+    .rail-card {
+      position: relative;
+      height: 92px;
+      border-top: 1px solid var(--rail-card-line);
+      border-bottom: 1px solid var(--rail-card-sep);
+      overflow: hidden;
+      background: #11181b;
+    }
+    .rail-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.08);
+    }
+    .rail-card.available img {
+      filter: grayscale(1) contrast(1.02) saturate(.08) brightness(.68);
+    }
+    .rail-card.locked img,
+    .rail-card.dummy-top img,
+    .rail-card.dummy-bottom img {
+      filter: grayscale(1) contrast(1.05) saturate(.05) brightness(.46);
+    }
+    .rail-card.selected img {
+      filter: saturate(1.06) contrast(1.02) brightness(.88);
+    }
+    .rail-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,.18), rgba(0,0,0,.02) 32%, rgba(0,0,0,.46));
+    }
+    .rail-card.selected::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--green-4);
+      z-index: 3;
+    }
+    .card-copy {
+      position: absolute;
+      inset: 18px 16px 14px 18px;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .card-title {
+      color: var(--rail-copy);
+      font-size: 17px;
+      line-height: 1.04;
+      font-weight: 700;
+      letter-spacing: -.04em;
+    }
+    .card-meta {
+      color: var(--rail-meta);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .card-sub {
+      color: var(--rail-sub);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+    .chip-right {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 5;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(17,21,24,.56);
+      color: rgba(255,255,255,.92);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .rail-dock .cta-card {
+      height: 100%;
+    }
+    .cta-card {
+      position: relative;
+      height: 104px;
+      border-top: 1px solid var(--rail-card-line);
+      border-bottom: 1px solid var(--rail-card-sep);
+      border-left: 1px solid rgba(255,255,255,.10);
+      border-right: 0;
+      background: linear-gradient(180deg, #2b7744, #1c562f 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      overflow: hidden;
+    }
+    .cta-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 62px;
+      height: 100%;
+      background: linear-gradient(180deg, #101814, #09100c 100%);
+      border-left: 1px solid rgba(255,255,255,.08);
+    }
+    .cta-micro {
+      position: absolute;
+      left: 18px;
+      top: 14px;
+      z-index: 2;
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: .14em;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: rgba(233, 249, 237, .84);
+    }
+    .cta-main {
+      position: absolute;
+      left: 18px;
+      right: 76px;
+      bottom: 18px;
+      z-index: 2;
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: -.05em;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .cta-icon {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      color: #ffffff;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .macro-panel {
+      overflow: hidden;
+    }
+    .macro-head {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(24,48,40,.08);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+    }
+    .macro-head h2 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .macro-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+    .metric-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .metric-row span {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(24,48,40,.06);
+      border: 1px solid rgba(24,48,40,.08);
+      font-size: 12px;
+      font-weight: 700;
+      color: #315042;
+    }
+    .macro-surface {
+      background: linear-gradient(180deg, #11181b, #0d1316);
+      padding: 0 18px 18px;
+    }
+    .macro-top {
+      height: 124px;
+      position: relative;
+      border-left: 1px solid rgba(255,255,255,.08);
+      border-right: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      overflow: hidden;
+      background: #11181b;
+    }
+    .macro-top img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(1) contrast(1.05) saturate(.05) brightness(.46);
+      transform: scale(1.04);
+    }
+    .macro-top::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,.18), rgba(0,0,0,.02) 32%, rgba(0,0,0,.46));
+    }
+    .macro-top .card-copy { inset: 22px 18px 18px 18px; }
+    .macro-top .chip-right { right: 14px; top: 14px; }
+    .macro-cta {
+      position: relative;
+      margin-top: 16px;
+      height: 132px;
+      border-left: 1px solid rgba(255,255,255,.10);
+      border-right: 1px solid rgba(255,255,255,.10);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      background: linear-gradient(180deg, #2c7846, #1d5730 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+      overflow: hidden;
+    }
+    .macro-cta::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 68px;
+      height: 100%;
+      background: linear-gradient(180deg, #101814, #09100c 100%);
+      border-left: 1px solid rgba(255,255,255,.08);
+    }
+    .macro-cta .cta-micro { top: 18px; font-size: 12px; }
+    .macro-cta .cta-main { bottom: 22px; right: 84px; font-size: 42px; }
+    .macro-cta .cta-icon { right: 22px; font-size: 34px; }
+    .macro-notes {
+      margin: 0;
+      padding: 14px 18px 18px 36px;
+      color: #355246;
+      font-size: 13px;
+      line-height: 1.64;
+    }
+    .macro-notes li { margin: 6px 0; }
+
+    .decision-panel {
+      padding: 18px 22px 20px;
+      display: grid;
+      gap: 12px;
+    }
+    .decision-panel h2 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .decision-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.68;
+    }
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .decision-card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(24,48,40,.08);
+      background: rgba(24,48,40,.05);
+    }
+    .decision-card strong {
+      display: block;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+      color: #355446;
+    }
+    .decision-card span {
+      display: block;
+      color: #597063;
+      font-size: 13px;
+      line-height: 1.58;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">leviathan select · final mockup / user-picked direction / moss strike pass</div>
+      <h1>채굴 시작 버튼 최종 목업 · 오른쪽 하단 edge flush 정렬 승인안</h1>
+      <p>
+        이번 안은 사용자가 고른 <strong>5번안의 angular strike panel 구조</strong>를 유지하면서,
+        전체 페이지의 <strong>초록·아이보리 디자인 패턴</strong>에 맞게 표면을 <strong>진한 moss green</strong>으로 바꾼 최종 후보입니다.
+        또한 사용자가 지적한 대로 <strong>하단 밑줄 패턴은 완전히 제거</strong>했고, 버튼은 <strong>카드 스트립과 좌우 정렬을 공유하지만 스크롤과 분리된 독립 dock</strong>으로 유지하되,
+        <strong>우측 edge에 빈틈 없이 flush</strong>시키고 <strong>메인 이미지 위로 자연스럽게 침범</strong>하되 <strong>상단/하단/우측 내용이 잘리지 않도록</strong> 다시 정리했습니다.
+      </p>
+      <div class="chips">
+        <span class="chip">geometry owner: rail + fixed dock + image overlap</span>
+        <span class="chip">우측 edge flush / 좌우 정렬 유지</span>
+        <span class="chip">top-bottom-right no clipping</span>
+        <span class="chip">hero image full-fill 유지</span>
+        <span class="chip">하단 underline 제거</span>
+      </div>
+    </section>
+
+    <section class="reference-panel">
+      <div class="reference-shot">
+        <img src="reference-captures/crops/riot-watch-now.png" alt="Riot Watch Now CTA reference">
+      </div>
+      <div class="reference-copy">
+        <div class="ref-label">actual source reference retained</div>
+        <h2>Riot 기반 구조 + LTL 색상 체계 재번역</h2>
+        <a class="source-link" href="https://www.riotgames.com/en" target="_blank" rel="noreferrer">https://www.riotgames.com/en</a>
+        <p>
+          유지한 것은 <strong>각진 strike panel 구조</strong>, <strong>우측 action bay 분리</strong>, <strong>즉시 눌리는 공격적 행동성</strong>이고,
+          버린 것은 <strong>이벤트성 red surface</strong>와 <strong>강한 하단 underline 신호</strong>입니다.
+          즉, <strong>기하 구조는 5번안 그대로</strong>, <strong>색상은 deep green으로 유지하되 위치 계약만 fixed bottom-right dock</strong>으로 다시 맞춘 버전입니다.
+        </p>
+        <div class="learn-grid">
+          <div class="learn-card">
+            <strong>borrowed</strong>
+            <span>각진 메인 패널 + 우측 icon bay 분리로 행동성을 유지.</span>
+          </div>
+          <div class="learn-card">
+            <strong>translated</strong>
+            <span>red를 moss green으로 바꾸고 CTA를 fixed dock로 분리한 뒤, rail을 우측 edge에 flush시키고 이미지 위로 겹치되 내용은 잘리지 않게 조정.</span>
+          </div>
+          <div class="learn-card">
+            <strong>rejected</strong>
+            <span>하단 underline 패턴은 제거해 rail 내부 표면 자체로만 차별화.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mockup-panel">
+      <div class="mockup-head">
+        <div>
+          <h2>Final · Moss Strike Panel</h2>
+          <p>
+            square-edge rail 가족과 동일한 좌우선을 유지하되, rail과 CTA는 우측 edge에 빈틈 없이 flush되고 메인 이미지를 가르지 않고 침범하되 내부 내용은 잘리지 않도록 정리한 최종 시안입니다.
+          </p>
+        </div>
+        <span class="status-pill">승인 후보</span>
+      </div>
+
+      <div class="runtime-shell">
+        <div class="topbar">
+          <div class="brand">Looting The Leviathan</div>
+          <div class="topnav">
+            <span>캐릭터 선택</span>
+            <span class="active">레비아탄 계약</span>
+            <span>유물 도감</span>
+            <span>설정</span>
+          </div>
+        </div>
+
+        <div class="runtime-body">
+          <aside class="sidebar">
+            <div class="portrait">
+              <div class="portrait-mark">⚓</div>
+              <div class="portrait-name">Expedition Leader</div>
+              <div class="portrait-rank">RANK: SCHOLAR</div>
+            </div>
+            <div class="sidebar-links">
+              <span>캐릭터 선택</span>
+              <span class="active">레비아탄 계약</span>
+              <span>유물 도감</span>
+              <span>설정</span>
+            </div>
+          </aside>
+
+          <div class="stage">
+            <div class="hero-copy">
+              <span class="eyebadge">채굴 목표</span>
+              <h3>유해갑 거북</h3>
+              <p>유해갑 거북 핵심부 · 서식 지대 · 석회 갑각 지대</p>
+              <div class="facts">
+                <span>항차 1</span>
+                <span>구간 3</span>
+                <span>석회 갑각 지대</span>
+              </div>
+            </div>
+
+            <div class="hero-media">
+              <img class="leviathan" src="../../app-LTL/resources/Leviathan/Leviathan_turtle.png" alt="유해갑 거북">
+            </div>
+
+            <div class="rail-shell">
+              <div class="rail-scroll" aria-label="leviathan contract strip">
+                <div class="rail-list">
+                  <div class="rail-card dummy-top">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_lizard.png" alt="북해 전초 계약">
+                    <span class="chip-right">정찰</span>
+                    <div class="card-copy">
+                      <span class="card-title">북해 전초 계약</span>
+                      <span class="card-meta">항차 0 · 프리롤</span>
+                      <span class="card-sub">상단 시작 카드</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card selected">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_turtle.png" alt="유해갑 거북">
+                    <div class="card-copy">
+                      <span class="card-title">유해갑 거북</span>
+                      <span class="card-meta">항차 1 · 구간 3</span>
+                      <span class="card-sub">석회 갑각 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_lizard.png" alt="초야의 리자드">
+                    <div class="card-copy">
+                      <span class="card-title">초야의 리자드</span>
+                      <span class="card-meta">항차 2 · 구간 4</span>
+                      <span class="card-sub">넓은 초목 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_golem.png" alt="창공 미르">
+                    <div class="card-copy">
+                      <span class="card-title">창공 미르</span>
+                      <span class="card-meta">항차 3 · 구간 5</span>
+                      <span class="card-sub">생동하는 오로라</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card locked">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_drake.png" alt="드레이크">
+                    <span class="chip-right">잠금</span>
+                    <div class="card-copy">
+                      <span class="card-title">드레이크</span>
+                      <span class="card-meta">봉인 구역</span>
+                      <span class="card-sub">미확인 해역</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_lizard.png" alt="황혼 리자드">
+                    <div class="card-copy">
+                      <span class="card-title">황혼 리자드</span>
+                      <span class="card-meta">항차 4 · 구간 1</span>
+                      <span class="card-sub">풍화 절벽 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_golem.png" alt="심연 미르">
+                    <div class="card-copy">
+                      <span class="card-title">심연 미르</span>
+                      <span class="card-meta">항차 4 · 구간 2</span>
+                      <span class="card-sub">침식 협곡 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_drake.png" alt="청해 드레이크">
+                    <div class="card-copy">
+                      <span class="card-title">청해 드레이크</span>
+                      <span class="card-meta">항차 5 · 구간 1</span>
+                      <span class="card-sub">파식 수로 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_lizard.png" alt="갈풍 리자드">
+                    <div class="card-copy">
+                      <span class="card-title">갈풍 리자드</span>
+                      <span class="card-meta">항차 5 · 구간 2</span>
+                      <span class="card-sub">건열 협만 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card available">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_golem.png" alt="광층 미르">
+                    <div class="card-copy">
+                      <span class="card-title">광층 미르</span>
+                      <span class="card-meta">항차 5 · 구간 3</span>
+                      <span class="card-sub">결정층 공동 지대</span>
+                    </div>
+                  </div>
+
+                  <div class="rail-card dummy-bottom">
+                    <img src="../../app-LTL/resources/Leviathan/Leviathan_golem.png" alt="더미 계약 B">
+                    <span class="chip-right">더미</span>
+                    <div class="card-copy">
+                      <span class="card-title">더미 계약 B</span>
+                      <span class="card-meta">overflow preview</span>
+                      <span class="card-sub">하단 초과 컷</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rail-dock" aria-label="고정 채굴 시작 dock">
+                <div class="cta-card" aria-label="채굴 시작 버튼">
+                  <span class="cta-micro">strike commence</span>
+                  <span class="cta-main">채굴 시작</span>
+                  <span class="cta-icon">↗</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="macro-panel">
+      <div class="macro-head">
+        <div>
+          <h2>버튼 확대 검토</h2>
+          <p>잠금 카드와의 분리 / fixed dock 정렬 / 카드 스트립과의 스크롤 분리 여부를 확인하기 위한 확대판.</p>
+        </div>
+        <div class="metric-row">
+          <span>fixed dock</span>
+          <span>좌우 정렬 동일</span>
+          <span>underline 없음</span>
+          <span>title 34px</span>
+        </div>
+      </div>
+      <div class="macro-surface">
+        <div class="macro-top">
+          <img src="../../app-LTL/resources/Leviathan/Leviathan_drake.png" alt="드레이크">
+          <span class="chip-right">잠금</span>
+          <div class="card-copy">
+            <span class="card-title">드레이크</span>
+            <span class="card-meta">봉인 구역</span>
+            <span class="card-sub">미확인 해역</span>
+          </div>
+        </div>
+        <div class="macro-cta">
+          <span class="cta-micro">strike commence</span>
+          <span class="cta-main">채굴 시작</span>
+          <span class="cta-icon">↗</span>
+        </div>
+      </div>
+      <ul class="macro-notes">
+        <li>채굴 시작 버튼은 rail과 좌우선을 공유하지만 카드 스트립과는 분리된 독립 dock로 오른쪽 하단에 고정됩니다.</li>
+        <li>카드 리스트는 그 위 영역에서 별도로 스크롤되고, rail/CTA는 상단·하단·우측에 flush되지만 내부 내용이 잘리지 않도록 정리했습니다.</li>
+        <li>메인 이미지는 별도 hero-media 영역을 가득 채우고, rail 좌측 경계선 없이 이미지 위를 자연스럽게 침범하도록 조정했습니다.</li>
+      </ul>
+    </section>
+
+    <section class="decision-panel">
+      <h2>승인 판단용 요약</h2>
+      <p>
+        사용자가 선택한 5번안의 장점은 유지하되, 위치 계약을 바로잡아 CTA를 오른쪽 하단 fixed dock로 분리하고 rail을 우측 edge flush + image overlap 구조로 정리한 최종 목업입니다.
+        이 안이 승인되면 다음 단계에서는 이 dock geometry와 hero-image fill rule을 기준으로 런타임 반영 준비로 넘어가면 됩니다.
+      </p>
+      <div class="decision-grid">
+        <div class="decision-card">
+          <strong>kept</strong>
+          <span>각진 strike panel 구조, 우측 action bay, card와 동일한 좌우 정렬.</span>
+        </div>
+        <div class="decision-card">
+          <strong>changed</strong>
+          <span>red surface → 진한 moss green surface, rail-cell → fixed dock 배치로 전환.</span>
+        </div>
+        <div class="decision-card">
+          <strong>removed</strong>
+          <span>하단 underline 패턴 제거 + CTA 아래 카드 노출 제거.</span>
+        </div>
+        <div class="decision-card">
+          <strong>ready</strong>
+          <span>승인 시 fixed-dock runtime 적용 방향 owner로 사용 가능.</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

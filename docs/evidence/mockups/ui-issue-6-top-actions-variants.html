@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ui-issue-6 top-right button mockups</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --panel: #fbf7f0;
+      --panel-border: rgba(58, 77, 61, 0.12);
+      --ink: #20372a;
+      --muted: #637266;
+      --line: rgba(50, 68, 55, 0.14);
+      --green-900: #173425;
+      --green-800: #214534;
+      --green-700: #2b5b43;
+      --green-600: #367255;
+      --green-500: #4e8b67;
+      --mint-100: #edf6ee;
+      --mint-200: #dcecdc;
+      --ivory: #f6efdf;
+      --ivory-2: #efe4cf;
+      --brass: #d1b172;
+      --shadow: 0 18px 36px rgba(29, 40, 31, 0.08);
+      --header-h: 76px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: linear-gradient(180deg, #efe9dd 0%, #f8f5ef 100%); color: var(--ink); }
+    body {
+      font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+      line-height: 1.45;
+      padding: 28px;
+    }
+    .page {
+      max-width: 1560px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+    .hero {
+      background: rgba(255,255,255,0.56);
+      border: 1px solid rgba(60,74,61,0.10);
+      border-radius: 24px;
+      padding: 24px 26px 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #607262;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      margin: 0;
+      max-width: 980px;
+      color: #4f6155;
+      font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+    .variant {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+      align-items: stretch;
+      background: rgba(255,255,255,0.52);
+      border: 1px solid rgba(61,75,63,0.10);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 14px 30px rgba(28, 41, 32, 0.06);
+    }
+    .meta {
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(253,250,244,0.96), rgba(245,238,226,0.96));
+      border: 1px solid rgba(67,79,68,0.09);
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 124px;
+    }
+    .kicker {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6a7a6f;
+    }
+    .meta h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+    .meta .desc {
+      margin: 0;
+      color: #55675b;
+      font-size: 14px;
+    }
+    .header-preview {
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(58,74,62,0.12);
+      background: #efe4cf;
+      box-shadow: inset 0 -1px 0 rgba(70,86,75,0.08);
+    }
+    .header-row {
+      height: var(--header-h);
+      display: grid;
+      grid-template-columns: 250px 1fr auto;
+      align-items: center;
+      gap: 24px;
+      padding: 0 22px 0 24px;
+      background: linear-gradient(180deg, #efe4cf 0%, #f2e7d4 100%);
+      position: relative;
+    }
+    .brand {
+      font-size: 20px;
+      color: #274736;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .tabs {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      min-width: 0;
+    }
+    .tab {
+      font-size: 13px;
+      color: #667568;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .tab.active {
+      color: #294836;
+      background: rgba(255,255,255,0.42);
+      border-color: rgba(72,94,79,0.08);
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-self: end;
+    }
+    .btn {
+      min-width: 112px;
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--ink);
+      position: relative;
+      box-shadow: none;
+    }
+    .btn.small-gap { margin-left: 2px; }
+
+    .v1 .btn {
+      background: linear-gradient(180deg, #2f6047 0%, #234c37 100%);
+      color: #f3fbf5;
+      border-color: rgba(201, 227, 208, 0.26);
+      box-shadow: 0 8px 18px rgba(28, 55, 41, 0.18);
+    }
+    .v1 .btn.secondary {
+      background: linear-gradient(180deg, #3a6f53 0%, #295740 100%);
+    }
+
+    .v2 .btn {
+      background: rgba(252, 248, 240, 0.9);
+      color: #274836;
+      border-color: rgba(49, 76, 57, 0.20);
+      box-shadow: 0 8px 16px rgba(48, 62, 50, 0.07);
+    }
+    .v2 .btn::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 155, 138, 0.18);
+      pointer-events: none;
+    }
+
+    .v3 .actions {
+      gap: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(44, 73, 56, 0.14);
+      box-shadow: 0 10px 18px rgba(33, 44, 35, 0.08);
+    }
+    .v3 .btn {
+      min-width: 116px;
+      border-radius: 0;
+      height: 46px;
+      background: rgba(250, 246, 237, 0.92);
+      color: #244333;
+      border-right: 1px solid rgba(44, 73, 56, 0.12);
+      font-weight: 800;
+    }
+    .v3 .btn:last-child { border-right: 0; }
+    .v3 .btn.primary {
+      background: linear-gradient(180deg, #edf5ee 0%, #dcecdf 100%);
+    }
+
+    .v4 .btn {
+      min-width: 118px;
+      height: 44px;
+      background: linear-gradient(180deg, rgba(31, 51, 38, 0.96) 0%, rgba(21, 36, 27, 0.98) 100%);
+      color: #f4e7c8;
+      border-color: rgba(211, 177, 114, 0.34);
+      box-shadow: 0 10px 22px rgba(22, 31, 24, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .v4 .btn::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(222, 191, 126, 0.88);
+      box-shadow: 0 0 0 4px rgba(222, 191, 126, 0.09);
+    }
+    .v4 .btn span { transform: translateX(6px); }
+
+    .v5 .btn {
+      min-width: 108px;
+      height: 40px;
+      background: transparent;
+      color: #274736;
+      border-color: transparent;
+      box-shadow: none;
+      font-weight: 800;
+      padding: 0 14px;
+    }
+    .v5 .btn::after {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 7px;
+      height: 2px;
+      border-radius: 2px;
+      background: rgba(37, 72, 53, 0.18);
+    }
+    .v5 .btn.primary::after {
+      background: linear-gradient(90deg, rgba(45, 95, 68, 0.0), rgba(45, 95, 68, 0.88) 20%, rgba(45, 95, 68, 0.88) 80%, rgba(45, 95, 68, 0.0));
+      height: 3px;
+    }
+    .v5 .btn.secondary { color: rgba(39, 71, 54, 0.82); }
+
+    .note {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 16px 14px;
+      border-top: 1px solid rgba(56,75,62,0.08);
+      background: rgba(255,255,255,0.48);
+      font-size: 13px;
+      color: #56675a;
+    }
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid rgba(59,79,65,0.10);
+      color: #526457;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    @media (max-width: 1260px) {
+      .variant { grid-template-columns: 1fr; }
+      .header-row { grid-template-columns: 210px 1fr auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">ui issue 6 · step 1 mockups</div>
+      <h1>레비아탄 상단 우측 도감/설정 버튼 시안 5종</h1>
+      <p>현재 페이지의 따뜻한 아이보리 헤더, 좌측 브랜드/탭 구조, 우측 넓은 여백을 유지한 채 버튼만 더 “클릭 가능한 유틸리티 액션”처럼 읽히도록 강화한 비교 보드입니다. 모두 텍스트 기반으로 유지해 참조 화면과의 괴리를 최소화했습니다.</p>
+    </section>
+
+    <section class="grid">
+      <article class="variant v1">
+        <div class="meta">
+          <div class="kicker">Variant 01</div>
+          <h2>강화형 현재안</h2>
+          <p class="desc">지금 방향을 거의 유지하되 크기·명도·그림자만 올린 가장 보수적인 수정안.</p>
+          <div class="tag-row"><span class="tag">안전</span><span class="tag">가시성 ↑</span><span class="tag">구현 리스크 낮음</span></div>
+        </div>
+        <div class="header-preview">
+          <div class="header-row">
+            <div class="brand">Looting The Leviathan</div>
+            <div class="tabs"><div class="tab">캐릭터 선택</div><div class="tab active">레비아탄 계약</div></div>
+            <div class="actions"><button class="btn primary">유물 도감</button><button class="btn secondary small-gap">설정</button></div>
+          </div>
+          <div class="note"><span>현재 구조/톤에 가장 자연스럽게 붙는 방향</span><span>추천 용도: 가장 작은 수정으로 버튼성만 회복</span></div>
+        </div>
+      </article>
+
+      <article class="variant v2">
+        <div class="meta">
+          <div class="kicker">Variant 02</div>
+          <h2>아이보리 캡슐</h2>
+          <p class="desc">헤더와 더 잘 섞이도록 밝은 캡슐을 쓰고, 외곽선과 이중 라인으로 조형만 선명하게 만드는 안.</p>
+          <div class="tag-row"><span class="tag">정돈됨</span><span class="tag">과장 적음</span><span class="tag">헤더 융화</span></div>
+        </div>
+        <div class="header-preview">
+          <div class="header-row">
+            <div class="brand">Looting The Leviathan</div>
+            <div class="tabs"><div class="tab">캐릭터 선택</div><div class="tab active">레비아탄 계약</div></div>
+            <div class="actions"><button class="btn primary">유물 도감</button><button class="btn secondary">설정</button></div>
+          </div>
+          <div class="note"><span>탭/브랜드와의 충돌이 적고 밝은 헤더 위에서 품위 있게 분리됨</span><span>추천 용도: 더 깨끗하고 현대적인 인상</span></div>
+        </div>
+      </article>
+
+      <article class="variant v3">
+        <div class="meta">
+          <div class="kicker">Variant 03</div>
+          <h2>분할 커맨드 바</h2>
+          <p class="desc">두 버튼을 하나의 utility cluster로 묶어 헤더 우측에 확실한 도구영역을 만드는 안.</p>
+          <div class="tag-row"><span class="tag">도구영역 명확</span><span class="tag">게임 UI 느낌</span><span class="tag">클러스터형</span></div>
+        </div>
+        <div class="header-preview">
+          <div class="header-row">
+            <div class="brand">Looting The Leviathan</div>
+            <div class="tabs"><div class="tab">캐릭터 선택</div><div class="tab active">레비아탄 계약</div></div>
+            <div class="actions"><button class="btn primary">유물 도감</button><button class="btn secondary">설정</button></div>
+          </div>
+          <div class="note"><span>두 액션이 하나의 “우상단 툴셋”으로 읽힘</span><span>추천 용도: 기능 그룹을 명확히 보이게 하고 싶을 때</span></div>
+        </div>
+      </article>
+
+      <article class="variant v4">
+        <div class="meta">
+          <div class="kicker">Variant 04</div>
+          <h2>다크 브라스 툴캡</h2>
+          <p class="desc">메인 CTA의 강함을 조금 빌려오되, 상단 액션답게 더 작고 고급스럽게 누른 안.</p>
+          <div class="tag-row"><span class="tag">강한 버튼성</span><span class="tag">세계관 톤</span><span class="tag">존재감 큼</span></div>
+        </div>
+        <div class="header-preview">
+          <div class="header-row">
+            <div class="brand">Looting The Leviathan</div>
+            <div class="tabs"><div class="tab">캐릭터 선택</div><div class="tab active">레비아탄 계약</div></div>
+            <div class="actions"><button class="btn primary"><span>유물 도감</span></button><button class="btn secondary"><span>설정</span></button></div>
+          </div>
+          <div class="note"><span>상단에서도 액션성이 매우 분명하지만 조금 더 무겁게 느껴질 수 있음</span><span>추천 용도: 세계관/프리미엄 감각을 강조할 때</span></div>
+        </div>
+      </article>
+
+      <article class="variant v5">
+        <div class="meta">
+          <div class="kicker">Variant 05</div>
+          <h2>미니멀 언더라인 액션</h2>
+          <p class="desc">박스감은 거의 빼고 텍스트 액션으로 유지하되, 밑줄과 무게로만 클릭성을 회복하는 안.</p>
+          <div class="tag-row"><span class="tag">가장 가벼움</span><span class="tag">헤더 우선</span><span class="tag">버튼감은 약함</span></div>
+        </div>
+        <div class="header-preview">
+          <div class="header-row">
+            <div class="brand">Looting The Leviathan</div>
+            <div class="tabs"><div class="tab">캐릭터 선택</div><div class="tab active">레비아탄 계약</div></div>
+            <div class="actions"><button class="btn primary">유물 도감</button><button class="btn secondary">설정</button></div>
+          </div>
+          <div class="note"><span>가장 정제되어 보이지만 현재 문제였던 ‘버튼처럼 안 보임’을 충분히 못 푸를 수도 있음</span><span>추천 용도: 헤더를 최대한 조용하게 유지하고 싶을 때</span></div>
+        </div>
+      </article>
+    </section>
+  </div>
+</body>
+</html>

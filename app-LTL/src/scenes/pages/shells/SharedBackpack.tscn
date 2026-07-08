@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://src/scenes/pages/shells/BackpackEnginePanel.tscn" id="1"]
+
+[node name="SharedBackpackContainer" type="AspectRatioContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+ratio = 1.0
+
+[node name="BackpackEnginePanel" parent="." instance=ExtResource("1")]
+layout_mode = 2

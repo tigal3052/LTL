@@ -1,0 +1,382 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/scenes/pages/LeviathanSelectPage.gd" id="1"]
+
+[node name="LeviathanSelectPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.835294, 0.901961, 0.913725, 1)
+
+[node name="TopBar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 76.0
+grow_horizontal = 2
+
+[node name="TopBarMargin" type="MarginContainer" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_right = 22
+
+[node name="TopBarRow" type="HBoxContainer" parent="TopBar/TopBarMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+theme_override_constants/separation = 16
+
+[node name="BrandRow" type="HBoxContainer" parent="TopBar/TopBarMargin/TopBarRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_constants/separation = 24
+
+[node name="BrandLabel" type="Label" parent="TopBar/TopBarMargin/TopBarRow/BrandRow"]
+layout_mode = 2
+text = "Looting The Leviathan"
+
+[node name="TabsRow" type="HBoxContainer" parent="TopBar/TopBarMargin/TopBarRow/BrandRow"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="BestiaryTab" type="Label" parent="TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Bestiary"
+
+[node name="FieldLogTab" type="Label" parent="TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Field Log"
+
+[node name="RelicsTab" type="Label" parent="TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Relics"
+
+[node name="MapTab" type="Label" parent="TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Map"
+
+[node name="TopActions" type="HBoxContainer" parent="TopBar/TopBarMargin/TopBarRow"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScopeShell" type="PanelContainer" parent="TopBar/TopBarMargin/TopBarRow/TopActions"]
+layout_mode = 2
+custom_minimum_size = Vector2(32, 32)
+
+[node name="ScopeLabel" type="Label" parent="TopBar/TopBarMargin/TopBarRow/TopActions/ScopeShell"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 24.0
+offset_bottom = 26.0
+text = "⊙"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SettingsShell" type="PanelContainer" parent="TopBar/TopBarMargin/TopBarRow/TopActions"]
+layout_mode = 2
+custom_minimum_size = Vector2(32, 32)
+
+[node name="SettingsLabel" type="Label" parent="TopBar/TopBarMargin/TopBarRow/TopActions/SettingsShell"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 24.0
+offset_bottom = 26.0
+text = "⚙"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WorkspaceMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 76.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="Workspace" type="HBoxContainer" parent="WorkspaceMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="GlobalRail" type="PanelContainer" parent="WorkspaceMargin/Workspace"]
+layout_mode = 2
+custom_minimum_size = Vector2(222, 0)
+size_flags_vertical = 3
+
+[node name="RailMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/GlobalRail"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 18
+
+[node name="RailVBox" type="VBoxContainer" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="PortraitShell" type="PanelContainer" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+custom_minimum_size = Vector2(92, 92)
+
+[node name="PortraitMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/PortraitShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="PortraitIcon" type="Label" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/PortraitShell/PortraitMargin"]
+layout_mode = 2
+text = "⚓"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeaderTitle" type="Label" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox"]
+layout_mode = 2
+text = "Expedition Leader"
+horizontal_alignment = 1
+
+[node name="LeaderRank" type="Label" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox"]
+layout_mode = 2
+text = "RANK: SCHOLAR"
+horizontal_alignment = 1
+
+[node name="RailDivider" type="HSeparator" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox"]
+layout_mode = 2
+
+[node name="NavList" type="VBoxContainer" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ExpeditionLogLabel" type="Label" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/NavList"]
+layout_mode = 2
+text = "◻ Expedition Log"
+
+[node name="LeviathanIndexShell" type="PanelContainer" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/NavList"]
+layout_mode = 2
+
+[node name="LeviathanIndexMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/NavList/LeviathanIndexShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="LeviathanIndexLabel" type="Label" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/NavList/LeviathanIndexShell/LeviathanIndexMargin"]
+layout_mode = 2
+text = "💎 Leviathan Index"
+
+[node name="RoutePlansLabel" type="Label" parent="WorkspaceMargin/Workspace/GlobalRail/RailMargin/RailVBox/NavList"]
+layout_mode = 2
+text = "◎ Route Plans"
+
+[node name="HeroShell" type="Panel" parent="WorkspaceMargin/Workspace"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HeroArt" type="TextureRect" parent="WorkspaceMargin/Workspace/HeroShell"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="HeroShade" type="ColorRect" parent="WorkspaceMargin/Workspace/HeroShell"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0509804, 0.0784314, 0.101961, 0.12)
+mouse_filter = 2
+
+[node name="HeroCopyMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/HeroShell"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 360
+theme_override_constants/margin_bottom = 28
+mouse_filter = 2
+
+[node name="HeroCopyBox" type="VBoxContainer" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin"]
+layout_mode = 2
+size_flags_horizontal = 1
+theme_override_constants/separation = 10
+mouse_filter = 2
+
+[node name="HeroEyebrowShell" type="PanelContainer" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+
+[node name="HeroEyebrowMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox/HeroEyebrowShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+mouse_filter = 2
+
+[node name="HeroEyebrow" type="Label" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox/HeroEyebrowShell/HeroEyebrowMargin"]
+layout_mode = 2
+text = ""
+mouse_filter = 2
+
+[node name="HeroName" type="Label" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+mouse_filter = 2
+
+[node name="HeroSummary" type="Label" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+mouse_filter = 2
+
+[node name="HeroFactsRow" type="HBoxContainer" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+mouse_filter = 2
+
+[node name="ClearShell" type="PanelContainer" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="ClearMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox/ClearShell"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 7
+mouse_filter = 2
+
+[node name="ClearLabel" type="Label" parent="WorkspaceMargin/Workspace/HeroShell/HeroCopyMargin/HeroCopyBox/ClearShell/ClearMargin"]
+layout_mode = 2
+text = ""
+mouse_filter = 2
+
+[node name="OverlayRail" type="PanelContainer" parent="WorkspaceMargin/Workspace/HeroShell"]
+clip_contents = true
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -312.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="OverlayVBox" type="Control" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CardsScroll" type="ScrollContainer" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 0.0
+offset_bottom = -112.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="CardsVBox" type="VBoxContainer" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/CardsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="StartButtonFrame" type="MarginContainer" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = -111.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+
+[node name="StartButton" type="Button" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame"]
+custom_minimum_size = Vector2(0, 98)
+layout_mode = 2
+size_flags_horizontal = 3
+text = ""
+
+[node name="StartButtonMargin" type="MarginContainer" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
+
+[node name="StartButtonVBox" type="VBoxContainer" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton/StartButtonMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="AdvanceLabel" type="Label" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton/StartButtonMargin/StartButtonVBox"]
+layout_mode = 2
+text = ""
+mouse_filter = 2
+
+[node name="StartLabel" type="Label" parent="WorkspaceMargin/Workspace/HeroShell/OverlayRail/OverlayVBox/StartButtonFrame/StartButton/StartButtonMargin/StartButtonVBox"]
+layout_mode = 2
+text = ""
+mouse_filter = 2

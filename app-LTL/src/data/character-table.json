@@ -1,0 +1,40 @@
+{
+  "characters": [
+    {
+      "id": "miner",
+      "name": "Anchor Miner",
+      "costGold": 0,
+      "unlocked": true,
+      "portrait": "res://resources/charactor/charactor1.png",
+      "modifiers": {
+        "matchDamageMul": 1.15,
+        "mismatchPenaltyMul": 1.1,
+        "starterHint": "Reliable damage if the player follows pulse color."
+      }
+    },
+    {
+      "id": "engineer",
+      "name": "Pulse Engineer",
+      "costGold": 120,
+      "unlocked": false,
+      "portrait": "res://resources/charactor/charactor1.png",
+      "modifiers": {
+        "beaconEffectMul": 1.2,
+        "queueCapacityDelta": -1,
+        "starterHint": "Stronger beacon routing with tighter queue discipline."
+      }
+    },
+    {
+      "id": "mechanic",
+      "name": "Hull Mechanic",
+      "costGold": 140,
+      "unlocked": false,
+      "portrait": "res://resources/charactor/charactor1.png",
+      "modifiers": {
+        "repairSpeedMul": 1.4,
+        "baseDamageMul": 0.9,
+        "starterHint": "Safer recovery and lower burst damage."
+      }
+    }
+  ]
+}

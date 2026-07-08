@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leviathan CTA Duel 3 vs 6</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --bg: #081015;
+      --shell: rgba(9, 13, 18, 0.84);
+      --line: rgba(221, 234, 245, 0.12);
+      --text: #edf4fb;
+      --muted: #93a8ba;
+      --gold: #f2cf84;
+      --shadow: 0 30px 90px rgba(0, 0, 0, 0.48);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 8%, rgba(242, 207, 132, 0.08), transparent 18%),
+        radial-gradient(circle at 88% 14%, rgba(101, 165, 255, 0.10), transparent 24%),
+        linear-gradient(180deg, #121b23 0%, #081015 100%);
+      padding: 28px 22px 36px;
+    }
+
+    .page {
+      width: min(1780px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 24px 28px 26px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        var(--shell);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 1220px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .duel-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .scene-card {
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        rgba(8, 11, 15, 0.82);
+      box-shadow: var(--shadow);
+    }
+
+    .scene-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .scene-head strong {
+      display: block;
+      font-size: 21px;
+      line-height: 1.1;
+    }
+
+    .scene-head span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .tag {
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .tag.glass {
+      color: #eedcad;
+      border: 1px solid rgba(235, 216, 167, 0.30);
+      background: rgba(36, 48, 66, 0.52);
+    }
+
+    .tag.condensed {
+      color: #ffe5a3;
+      border: 1px solid rgba(242, 210, 128, 0.48);
+      background: rgba(23, 29, 39, 0.90);
+    }
+
+    .board {
+      padding: 18px;
+    }
+
+    .layout {
+      position: relative;
+      min-height: 900px;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      display: grid;
+      grid-template-columns: 0.56fr 2.24fr;
+      background: linear-gradient(180deg, rgba(16, 23, 30, 0.96), rgba(8, 11, 15, 0.98));
+    }
+
+    .rail {
+      position: relative;
+      z-index: 2;
+      padding: 18px 16px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(13, 18, 24, 0.98), rgba(10, 13, 17, 0.98));
+      display: grid;
+      align-content: start;
+      gap: 10px;
+    }
+
+    .rail-title {
+      padding: 2px 4px 10px;
+    }
+
+    .rail-title strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .rail-title span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .contract {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 11px 12px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .contract strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .contract span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .contract.active-glass {
+      background: linear-gradient(180deg, rgba(29, 41, 58, 0.74), rgba(16, 22, 30, 0.88));
+      border-color: rgba(225, 211, 173, 0.20);
+    }
+
+    .contract.active-condensed {
+      background: linear-gradient(180deg, rgba(34, 39, 48, 0.90), rgba(17, 20, 26, 0.96));
+      border-color: rgba(242, 210, 128, 0.28);
+    }
+
+    .stage {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage.glass {
+      background:
+        radial-gradient(circle at 58% 18%, rgba(255,255,255,0.12), transparent 14%),
+        radial-gradient(circle at 76% 30%, rgba(192, 164, 112, 0.10), transparent 16%),
+        linear-gradient(180deg, #3f5d7f 0%, #21324b 34%, #0f1721 74%, #0a0f14 100%);
+    }
+
+    .stage.condensed {
+      background:
+        radial-gradient(circle at 84% 18%, rgba(255,255,255,0.10), transparent 14%),
+        linear-gradient(180deg, #1f2731 0%, #262f39 16%, #1a2028 42%, #0c0f13 100%);
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255,255,255,0.06), transparent 20%),
+        linear-gradient(180deg, rgba(255,255,255,0.06), transparent 22%, transparent 72%, rgba(0,0,0,0.28));
+      pointer-events: none;
+    }
+
+    .sky-dust {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 22% 19%, rgba(255,255,255,0.18) 0 1px, transparent 2px),
+        radial-gradient(circle at 26% 24%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 30% 14%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 72% 22%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 78% 18%, rgba(255,255,255,0.16) 0 1px, transparent 2px);
+      opacity: 0.62;
+      pointer-events: none;
+    }
+
+    .hero-block {
+      position: absolute;
+      left: 22px;
+      top: 22px;
+      z-index: 2;
+      max-width: 330px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .hero-block .mini {
+      color: rgba(242, 246, 250, 0.84);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .hero-block h2 {
+      margin: 0;
+      font-size: 56px;
+      line-height: 0.93;
+      letter-spacing: -0.04em;
+      color: #fbfdff;
+    }
+
+    .hero-block p {
+      margin: 0;
+      color: rgba(237,243,248,0.92);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .leviathan-figure {
+      position: absolute;
+      right: -2%;
+      bottom: 8%;
+      width: 66%;
+      height: 78%;
+      opacity: 0.94;
+      filter: drop-shadow(0 26px 42px rgba(0,0,0,0.38));
+    }
+
+    .leviathan-figure svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .miners {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 6%;
+      height: 14%;
+      z-index: 2;
+      opacity: 0.88;
+    }
+
+    .miners::before,
+    .miners::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 10% 70%, rgba(0,0,0,0.68) 0 24px, transparent 26px),
+        radial-gradient(circle at 18% 62%, rgba(0,0,0,0.68) 0 20px, transparent 22px),
+        radial-gradient(circle at 29% 68%, rgba(0,0,0,0.72) 0 22px, transparent 24px),
+        radial-gradient(circle at 44% 52%, rgba(0,0,0,0.72) 0 28px, transparent 30px),
+        radial-gradient(circle at 61% 69%, rgba(0,0,0,0.70) 0 24px, transparent 26px),
+        radial-gradient(circle at 76% 64%, rgba(0,0,0,0.68) 0 18px, transparent 20px),
+        linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.16) 54%, rgba(0,0,0,0.52) 100%);
+    }
+
+    .goal-ribbon {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 78px;
+      z-index: 3;
+      padding: 16px 28px 15px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.52));
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .goal-ribbon .tiny {
+      display: block;
+      color: rgba(236,240,245,0.82);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .goal-ribbon .goal {
+      font-size: 34px;
+      line-height: 0.98;
+      color: #fbfdff;
+    }
+
+    .cta-lane {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      z-index: 4;
+    }
+
+    .cta {
+      width: 100%;
+      min-height: 66px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      padding: 12px 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta .micro {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 11px;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      opacity: 0.88;
+    }
+
+    .cta .main {
+      display: block;
+      line-height: 0.98;
+    }
+
+    .cta.glass {
+      background: linear-gradient(180deg, rgba(35,46,61,0.98), rgba(22,29,40,0.96));
+      border: 1px solid rgba(232,214,164,0.60);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 14px 28px rgba(0,0,0,0.36);
+      backdrop-filter: blur(12px);
+    }
+
+    .cta.glass .micro {
+      font-family: "Manrope", sans-serif;
+      color: #dbc89d;
+    }
+
+    .cta.glass .main {
+      font-family: "DM Serif Display", serif;
+      color: #fff6df;
+      font-size: 32px;
+      letter-spacing: 0.01em;
+    }
+
+    .cta.condensed {
+      background: linear-gradient(90deg, #15181d 0%, #202731 42%, #0e1014 100%);
+      border: 1px solid rgba(242,210,128,0.76);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 14px 30px rgba(0,0,0,0.36);
+    }
+
+    .cta.condensed .micro {
+      font-family: "Space Grotesk", sans-serif;
+      color: #f7d88e;
+    }
+
+    .cta.condensed .main {
+      font-family: "Barlow Condensed", sans-serif;
+      color: #fff8e3;
+      font-size: 38px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .notes {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px 22px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        rgba(10, 14, 18, 0.82);
+      box-shadow: var(--shadow);
+    }
+
+    .notes strong {
+      color: #f0ddb1;
+    }
+
+    .notes p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.72;
+    }
+
+    @media (max-width: 1280px) {
+      .duel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 18px 14px 26px;
+      }
+
+      .layout {
+        min-height: 760px;
+        grid-template-columns: 1fr;
+      }
+
+      .rail {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .hero-block h2 {
+        font-size: 42px;
+      }
+
+      .goal-ribbon .goal {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Focused Leviathan Select Mockup</div>
+      <h1>3번과 6번을 전체 배경까지 확장한 비교안</h1>
+      <p class="subtitle">둘 다 `루팅 목표` 패널은 예전처럼 양옆으로 딱 붙는 리본형으로 유지했습니다. 차이는 CTA의 분위기와 그에 맞춰 배경의 조명, 금속감, 화면 리듬을 다르게 잡은 점입니다. 왼쪽은 더 조용하고 고급스러운 유리/브라스 무드, 오른쪽은 더 넓고 강한 디스플레이 타이포 중심의 산업적 프리미엄 무드입니다.</p>
+    </section>
+
+    <section class="duel-grid">
+      <article class="scene-card">
+        <div class="scene-head">
+          <div>
+            <strong>3. Velvet Glass Monogram</strong>
+            <span>조용한 럭셔리, 스모크 글래스, 브라스 라인, 더 성숙한 시네마틱 무드</span>
+          </div>
+          <div class="tag glass">Refined Glass Luxe</div>
+        </div>
+        <div class="board">
+          <div class="layout">
+            <aside class="rail">
+              <div class="rail-title">
+                <strong>Leviathan Contracts</strong>
+                <span>더 절제된 골드 포인트와 차분한 선택 패널</span>
+              </div>
+              <div class="contract"><strong>Ossuary Tortoise</strong><span>calcified shell sector</span></div>
+              <div class="contract"><strong>Storm Wyvern</strong><span>tempest spine breach</span></div>
+              <div class="contract active-glass"><strong>Sky Mireu</strong><span>living aurora / run 3 / stages 5</span></div>
+            </aside>
+            <section class="stage glass">
+              <div class="sky-dust"></div>
+              <div class="hero-block">
+                <div class="mini">Leviathan Select</div>
+                <h2>Sky Mireu</h2>
+                <p>RUN 3 &nbsp; | &nbsp; STAGES 5<br>사냥 해역: living aurora</p>
+              </div>
+              <div class="leviathan-figure">
+                <svg viewBox="0 0 600 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="stoneBodyA" x1="160" y1="40" x2="420" y2="700" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#8696a6"/>
+                      <stop offset="0.44" stop-color="#5c6d7d"/>
+                      <stop offset="1" stop-color="#33404d"/>
+                    </linearGradient>
+                    <linearGradient id="crackA" x1="140" y1="120" x2="460" y2="650" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#f0c97c"/>
+                      <stop offset="0.55" stop-color="#7d6cff"/>
+                      <stop offset="1" stop-color="#4fd0b3"/>
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="320" cy="90" rx="64" ry="82" fill="url(#stoneBodyA)"/>
+                  <path d="M240 148C264 112 378 116 406 160C434 204 422 292 418 362C414 432 432 574 386 650C358 696 284 694 252 650C198 576 220 430 214 354C208 278 208 194 240 148Z" fill="url(#stoneBodyA)"/>
+                  <path d="M184 286C136 308 100 372 108 438C116 500 160 612 214 640C228 646 246 630 238 608C220 556 200 486 206 430C212 378 244 316 218 288C210 280 196 280 184 286Z" fill="#4a5a68"/>
+                  <path d="M428 282C482 300 534 382 520 462C506 542 456 630 410 664C392 676 370 656 378 632C400 568 422 500 420 432C418 378 394 314 408 290C412 282 420 278 428 282Z" fill="#4a5a68"/>
+                  <path d="M152 612C144 656 156 712 194 732C228 750 250 728 248 708C246 684 228 654 214 622L152 612Z" fill="#384550"/>
+                  <path d="M390 638C384 682 396 720 432 738C470 756 500 726 494 698C488 672 462 650 446 626L390 638Z" fill="#384550"/>
+                  <path d="M284 124L300 216L262 330L288 470L256 606" stroke="url(#crackA)" stroke-width="12" stroke-linecap="round" opacity="0.88"/>
+                  <path d="M350 138L364 254L330 380L344 540L322 660" stroke="url(#crackA)" stroke-width="10" stroke-linecap="round" opacity="0.72"/>
+                  <path d="M228 214L326 242L412 214" stroke="url(#crackA)" stroke-width="8" stroke-linecap="round" opacity="0.66"/>
+                  <path d="M196 404L280 428L244 558" stroke="url(#crackA)" stroke-width="8" stroke-linecap="round" opacity="0.72"/>
+                  <path d="M408 404L356 468L380 590" stroke="url(#crackA)" stroke-width="8" stroke-linecap="round" opacity="0.72"/>
+                </svg>
+              </div>
+              <div class="miners"></div>
+              <div class="goal-ribbon">
+                <span class="tiny">Looting target</span>
+                <span class="goal">Sky Mireu Core</span>
+              </div>
+              <div class="cta-lane">
+                <div class="cta glass">
+                  <span>
+                    <span class="micro">Advance</span>
+                    <span class="main">Start the contract</span>
+                  </span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </article>
+
+      <article class="scene-card">
+        <div class="scene-head">
+          <div>
+            <strong>6. Monument Condensed</strong>
+            <span>더 넓고 강한 타이포, 산업적 프리미엄, 전광판처럼 보이는 진행 신호</span>
+          </div>
+          <div class="tag condensed">Display-Scale Premium</div>
+        </div>
+        <div class="board">
+          <div class="layout">
+            <aside class="rail">
+              <div class="rail-title">
+                <strong>Leviathan Contracts</strong>
+                <span>더 선형적이고 공업적인 리스트 리듬</span>
+              </div>
+              <div class="contract"><strong>Ossuary Tortoise</strong><span>calcified shell sector</span></div>
+              <div class="contract"><strong>Storm Wyvern</strong><span>tempest spine breach</span></div>
+              <div class="contract active-condensed"><strong>Sky Mireu</strong><span>living aurora / run 3 / stages 5</span></div>
+            </aside>
+            <section class="stage condensed">
+              <div class="sky-dust"></div>
+              <div class="hero-block">
+                <div class="mini">Expedition Gate</div>
+                <h2>Sky Mireu</h2>
+                <p>RUN 3 &nbsp; | &nbsp; STAGES 5<br>contract vector: living aurora</p>
+              </div>
+              <div class="leviathan-figure">
+                <svg viewBox="0 0 600 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="stoneBodyB" x1="180" y1="60" x2="432" y2="710" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#7b858f"/>
+                      <stop offset="0.42" stop-color="#59636d"/>
+                      <stop offset="1" stop-color="#2a3138"/>
+                    </linearGradient>
+                    <linearGradient id="crackB" x1="150" y1="160" x2="452" y2="650" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stop-color="#f6cf74"/>
+                      <stop offset="0.48" stop-color="#6f7cff"/>
+                      <stop offset="1" stop-color="#47d1b0"/>
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="328" cy="94" rx="60" ry="78" fill="url(#stoneBodyB)"/>
+                  <path d="M248 152C278 116 380 120 410 162C440 204 432 298 430 372C428 446 442 578 392 654C360 704 286 702 252 654C198 578 220 436 216 360C212 284 214 196 248 152Z" fill="url(#stoneBodyB)"/>
+                  <path d="M184 286C138 306 102 370 112 440C122 510 164 610 218 642C232 650 248 634 242 610C224 554 204 488 210 430C216 376 246 314 220 290C212 282 196 280 184 286Z" fill="#434d56"/>
+                  <path d="M430 284C486 306 538 388 522 468C506 548 456 632 408 664C390 676 372 656 380 632C400 570 424 498 422 432C420 376 396 314 410 290C414 282 422 280 430 284Z" fill="#434d56"/>
+                  <path d="M154 612C146 660 160 712 198 732C234 750 252 728 250 704C248 682 230 654 216 622L154 612Z" fill="#323940"/>
+                  <path d="M388 636C382 680 396 722 434 740C472 758 500 726 494 696C488 670 464 648 446 624L388 636Z" fill="#323940"/>
+                  <path d="M286 128L306 220L268 338L292 478L258 610" stroke="url(#crackB)" stroke-width="12" stroke-linecap="round" opacity="0.94"/>
+                  <path d="M352 142L368 258L332 386L350 548L326 664" stroke="url(#crackB)" stroke-width="10" stroke-linecap="round" opacity="0.76"/>
+                  <path d="M230 216L332 246L416 216" stroke="url(#crackB)" stroke-width="8" stroke-linecap="round" opacity="0.66"/>
+                  <path d="M194 404L282 430L246 560" stroke="url(#crackB)" stroke-width="8" stroke-linecap="round" opacity="0.74"/>
+                  <path d="M410 406L356 470L382 594" stroke="url(#crackB)" stroke-width="8" stroke-linecap="round" opacity="0.74"/>
+                </svg>
+              </div>
+              <div class="miners"></div>
+              <div class="goal-ribbon">
+                <span class="tiny">Looting target</span>
+                <span class="goal">Sky Mireu Core</span>
+              </div>
+              <div class="cta-lane">
+                <div class="cta condensed">
+                  <span>
+                    <span class="micro">Immediate handoff</span>
+                    <span class="main">Looting Start</span>
+                  </span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="notes">
+      <p><strong>왼쪽 3번</strong>은 배경도 더 부드럽고 깊게 잡혀서 버튼이 “비싼 장면 안의 정교한 진입점”처럼 읽힙니다. <strong>오른쪽 6번</strong>은 배경과 타이포 모두 더 직선적이라, 버튼이 “확실한 진행 명령”처럼 훨씬 강하게 튀어오릅니다.</p>
+    </section>
+  </main>
+</body>
+</html>

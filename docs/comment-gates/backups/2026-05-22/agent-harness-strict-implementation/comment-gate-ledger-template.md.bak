@@ -1,0 +1,21 @@
+﻿# Comment Gate Ledger
+
+date: YYYY-MM-DD
+task: short-task-name
+phase: contract-only
+approval: approved
+targets:
+  - relative/path.ext
+
+## Contract Summary
+
+- Summarize the rule or contract that is fixed in this phase.
+
+## Execution Scope
+
+- List the execution comments or implementation blocks that this ledger is allowed to cover.
+
+## Advancement Rule
+
+- next_phase: execution-only
+- required_user_request: explicit

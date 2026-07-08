@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[node name="TopBar" type="PanelContainer"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 76.0
+grow_horizontal = 2
+
+[node name="TopBarMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_right = 22
+
+[node name="TopBarRow" type="HBoxContainer" parent="TopBarMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="BrandRow" type="HBoxContainer" parent="TopBarMargin/TopBarRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_constants/separation = 24
+
+[node name="BrandLabel" type="Label" parent="TopBarMargin/TopBarRow/BrandRow"]
+layout_mode = 2
+text = "Looting The Leviathan"
+
+[node name="TabsRow" type="HBoxContainer" parent="TopBarMargin/TopBarRow/BrandRow"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="CharacterTab" type="Label" parent="TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Character"
+
+[node name="LeviathanTab" type="Label" parent="TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Leviathan"
+
+[node name="CodexTab" type="Label" parent="TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Codex"
+
+[node name="SettingsTab" type="Label" parent="TopBarMargin/TopBarRow/BrandRow/TabsRow"]
+layout_mode = 2
+text = "Settings"
+
+[node name="TopActions" type="HBoxContainer" parent="TopBarMargin/TopBarRow"]
+layout_mode = 2
+theme_override_constants/separation = 10

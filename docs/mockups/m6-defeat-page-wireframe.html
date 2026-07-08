@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Defeat Page Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --line: rgba(255, 221, 221, 0.12);
+      --text: #f7eded;
+      --muted: #d2bcbc;
+      --accent: #e69a73;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(230, 154, 115, 0.18), transparent 20%),
+        radial-gradient(circle at 20% 82%, rgba(255, 120, 120, 0.10), transparent 20%),
+        linear-gradient(180deg, #170d12 0%, #09090c 100%);
+      padding: 28px 20px 36px;
+    }
+    .page { width: min(1320px, 100%); margin: 0 auto; }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(54px, 8vw, 104px);
+      line-height: 0.95;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      text-align: center;
+    }
+    .board,
+    .notes,
+    .impl {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(20, 13, 16, 0.82);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+    .head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .body { padding: 20px; }
+    .hero-frame {
+      min-height: 520px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 28px;
+      color: var(--muted);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.06), transparent 18%),
+        rgba(255,255,255,0.02);
+      font-size: 20px;
+      line-height: 1.7;
+    }
+    .meta {
+      max-width: 760px;
+      margin: 18px auto 0;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .cta {
+      max-width: 340px;
+      margin: 20px auto 0;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      text-align: center;
+      font-weight: 700;
+      background: rgba(255,255,255,0.04);
+    }
+    .notes,
+    .impl { margin-top: 16px; }
+    .notes-body,
+    .impl-body { padding: 16px; }
+    .annotation-list {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.75;
+    }
+    .annotation-list li + li { margin-top: 10px; }
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .impl-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(26, 17, 21, 0.96), rgba(12, 8, 11, 0.98));
+      padding: 14px;
+    }
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .impl-card ul,
+    .impl-card p {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .impl-card ul { padding-left: 18px; }
+    @media (max-width: 980px) {
+      .impl-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">DEFEAT PAGE</div>
+    <h1>GAME OVER</h1>
+    <p class="subtitle">
+      캐릭터가 확대되며 패러글라이딩으로 탈출하는 연출과 함께, 이번 런의 종료를 감정적으로 강하게 전달하는 화면이다.
+      다시하기 버튼은 화면 중앙에서 바로 다음 시도를 유도해야 한다.
+    </p>
+
+    <section class="board" aria-label="패배 연출 보드">
+      <div class="head">
+        <h2>탈출 프레임 + 중앙 재시작 CTA</h2>
+        <div class="hint">실패 원인과 다음 시도 힌트를 짧게 남기고, 감정 비트를 먼저 전달한다.</div>
+      </div>
+      <div class="body">
+        <div class="hero-frame">캐릭터 확대 프레임<br>패러글라이딩 탈출 애니메이션 자리<br>전투 패배가 아니라 생환 후 철수 장면처럼 읽히는 중심 연출</div>
+        <p class="meta">실패 원인 한 줄: 장기전을 버티지 못하고 보급 구성이 무너졌다.<br>다음 시도 힌트 한 줄: 초반 정리보다 회복/유지 슬롯을 먼저 확보해보자.</p>
+        <div class="cta">다시하기</div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <div class="head">
+        <h2>번호 주석</h2>
+        <div class="hint">defeat-beat annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>패배 페이지의 첫 시선은 설명이 아니라 캐릭터 탈출 프레임과 GAME OVER 문구에 머물러야 한다.</li>
+          <li>재시작 CTA는 화면 중앙에 고정해 다음 행동으로의 이동 거리를 최소화한다.</li>
+          <li>실패 원인과 다음 시도 힌트는 짧게만 남겨 감정 비트를 방해하지 않도록 한다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <div class="head">
+        <h2>구현 노트</h2>
+        <div class="hint">allowed / blocked / key signs</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>허용 오버레이</strong>
+            <ul>
+              <li>settings</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>기본 차단</strong>
+            <ul>
+              <li>artifact codex</li>
+              <li>shop</li>
+              <li>combat HUD</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>핵심 구현 신호</strong>
+            <p>emotional beat, escape framing, centered restart CTA</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

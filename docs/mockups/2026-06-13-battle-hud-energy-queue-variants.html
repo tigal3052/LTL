@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battle HUD Energy Queue Final Direction</title>
+  <style>
+    :root {
+      --bg: #081018;
+      --panel: #121c28;
+      --panel-2: #1b2735;
+      --line: #35506f;
+      --text: #eef5ff;
+      --muted: #9fb3cb;
+      --gold: #dbb675;
+      --gold-deep: #8c6731;
+      --blue: #61bcff;
+      --red: #ff7b74;
+      --green: #9af0a3;
+      --purple: #d987ff;
+      --shadow: 0 22px 48px rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Apple SD Gothic Neo", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(98, 149, 207, 0.16), transparent 30%),
+        linear-gradient(180deg, #081018 0%, #04070d 100%);
+    }
+
+    .page {
+      width: min(1320px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .intro {
+      margin-bottom: 22px;
+      padding: 22px 24px;
+      border-radius: 22px;
+      border: 1px solid rgba(96, 132, 170, 0.34);
+      background: linear-gradient(180deg, rgba(19, 29, 41, 0.96), rgba(10, 16, 24, 0.96));
+      box-shadow: var(--shadow);
+    }
+
+    .intro h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    .intro p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .final-card {
+      overflow: hidden;
+      border-radius: 26px;
+      border: 1px solid rgba(97, 132, 171, 0.44);
+      background: linear-gradient(180deg, rgba(19, 29, 42, 0.97), rgba(10, 15, 22, 0.98));
+      box-shadow: var(--shadow);
+    }
+
+    .final-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(95, 128, 165, 0.28);
+    }
+
+    .badge {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(118, 151, 188, 0.28);
+      background: rgba(10, 16, 24, 0.72);
+      color: #dceaff;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .final-header h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .final-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .body {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .concept {
+      padding: 15px;
+      border-radius: 18px;
+      border: 1px solid rgba(88, 121, 156, 0.3);
+      background: linear-gradient(180deg, rgba(17, 25, 35, 0.92), rgba(11, 17, 24, 0.94));
+    }
+
+    .concept h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #dce9fb;
+    }
+
+    .concept ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .states {
+      display: grid;
+      gap: 16px;
+    }
+
+    .state-card {
+      padding: 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(88, 121, 158, 0.34);
+      background: linear-gradient(180deg, rgba(18, 28, 39, 0.94), rgba(10, 16, 24, 0.96));
+    }
+
+    .state-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .state-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .state-header span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .queue-shell {
+      padding: 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(120, 157, 196, 0.28);
+      background:
+        linear-gradient(180deg, rgba(8, 12, 17, 0.96), rgba(14, 20, 28, 0.94)),
+        radial-gradient(circle at right, rgba(97, 188, 255, 0.06), transparent 24%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 -16px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .queue-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .row-block {
+      padding: 10px 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(88, 121, 156, 0.26);
+      background: rgba(11, 17, 25, 0.72);
+    }
+
+    .row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: #dce8fa;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+    }
+
+    .queue-row {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .slot {
+      position: relative;
+      min-height: 80px;
+      border-radius: 16px;
+      overflow: hidden;
+      isolation: isolate;
+      --tone: rgba(144, 158, 178, 0.24);
+    }
+
+    .slot .frame,
+    .slot .screen,
+    .slot .wave-glow,
+    .slot .wave-core {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .slot .frame {
+      inset: 0;
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(219, 185, 122, 0.3), rgba(92, 70, 35, 0.14)),
+        linear-gradient(180deg, #2a3948 0%, #18222d 100%);
+      border: 1px solid rgba(214, 179, 118, 0.34);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -12px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .slot .screen {
+      inset: 8px 9px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(8, 14, 21, 0.92), rgba(16, 24, 34, 0.94)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px);
+      border: 1px solid rgba(104, 128, 155, 0.18);
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.26);
+    }
+
+    .slot .wave-glow,
+    .slot .wave-core {
+      inset: 13px 12px;
+      width: calc(100% - 24px);
+      height: calc(100% - 26px);
+    }
+
+    .slot .wave-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      color: var(--tone);
+    }
+
+    .slot .wave-shadow {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 18;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.28;
+      filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 18px currentColor);
+    }
+
+    .slot .wave-main {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 11;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.98;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .slot .wave-highlight {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.58);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.7;
+    }
+
+    .slot.filled.c-red { --tone: var(--red); }
+    .slot.filled.c-blue { --tone: var(--blue); }
+    .slot.filled.c-green { --tone: var(--green); }
+    .slot.filled.c-purple { --tone: var(--purple); }
+    .slot.empty { --tone: rgba(140, 154, 176, 0.22); }
+    .slot.locked { --tone: rgba(98, 108, 122, 0.14); }
+
+    .slot.empty .wave-shadow,
+    .slot.empty .wave-main,
+    .slot.empty .wave-highlight {
+      opacity: 0.18;
+    }
+
+    .slot.locked .wave-shadow,
+    .slot.locked .wave-main,
+    .slot.locked .wave-highlight {
+      opacity: 0.08;
+    }
+
+    .slot.locked::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          transparent 0 8px,
+          rgba(255, 255, 255, 0.05) 8px 10px
+        );
+      pointer-events: none;
+    }
+
+    .state-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(103, 138, 178, 0.28);
+      background: rgba(10, 16, 24, 0.76);
+      color: #e9f3ff;
+      font-size: 12px;
+    }
+
+    .chip::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chip-color, #89bff5);
+      box-shadow: 0 0 12px var(--chip-color, #89bff5);
+    }
+
+    .chip.lock::before {
+      background: #6d7583;
+      box-shadow: none;
+    }
+
+    @media (max-width: 1100px) {
+      .page {
+        width: min(100%, calc(100vw - 24px));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="intro">
+      <h1>에너지 큐 최종 방향 1안 정리</h1>
+      <p>
+        선택된 1안은 구조 실험보다 <strong>타일 중앙 파형</strong>의 선명한 재해석에 집중했습니다.
+        슬롯마다 화면 패널 안에 굵은 파동선을 직접 깔고, 색은 에너지 종류만 담당하게 했습니다.
+        파형은 두꺼운 본선, 흰색 하이라이트, 발광 그림자를 분리해서 단순하지만 가볍지 않게 보이도록 처리했습니다.
+      </p>
+    </section>
+
+    <article class="final-card">
+      <header class="final-header">
+        <span class="badge">Final Direction / Concept 1</span>
+        <h2>모니터 레일</h2>
+        <p>
+          전투 HUD 안에 가장 자연스럽게 들어가는 방향입니다. 타일 한 장 한 장을 큐에 복붙하지 않고,
+          타일 중앙의 맥박 그래프만 추출해 작은 모니터 모듈로 재구성했습니다.
+        </p>
+      </header>
+
+      <div class="body">
+        <section class="concept">
+          <h3>디자인 포인트</h3>
+          <ul>
+            <li>슬롯 중심은 굵은 파형선만 남기고, 프레임은 보조 역할만 하도록 축소했습니다.</li>
+            <li>색 구분은 파동선 발광으로 해결하고, 배경 화면은 어두운 격자 모니터로 통일했습니다.</li>
+            <li>8칸과 16칸의 차이는 구조 변경이 아니라 점등 범위와 잠금 열 처리로 읽히게 했습니다.</li>
+          </ul>
+        </section>
+
+        <section class="states" id="states"></section>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    const states = [
+      {
+        key: "base8",
+        title: "8칸 기본 상태",
+        subtitle: "하단 확장 행 비활성",
+        note: "상단 모니터 열만 켜져 있고 하단은 잠금 상태로 남습니다. 8칸 상태와 16칸 상태의 차이를 구조 변화 없이도 즉시 읽게 만드는 방향입니다.",
+        rows: [
+          ["red", "red", "purple", "purple", "blue", "green", "empty", "empty"],
+          ["locked", "locked", "locked", "locked", "locked", "locked", "locked", "locked"]
+        ]
+      },
+      {
+        key: "full16",
+        title: "16칸 확장 상태",
+        subtitle: "두 행 모두 활성",
+        note: "상단 1~8칸을 먼저 소비한 뒤 하단 9~16칸으로 이어집니다. 같은 파형 화면이 아래줄까지 확장되면서 큐가 커진 감각을 자연스럽게 전달합니다.",
+        rows: [
+          ["red", "red", "purple", "purple", "blue", "blue", "green", "green"],
+          ["red", "purple", "purple", "blue", "green", "empty", "empty", "empty"]
+        ]
+      }
+    ];
+
+    const slotClass = (token) => {
+      if (token === "locked") return "slot locked";
+      if (token === "empty") return "slot empty";
+      return `slot filled c-${token}`;
+    };
+
+    const rowLabel = (index, state) => {
+      if (state === "base8") return index === 0 ? ["상단 1~8칸", "활성"] : ["하단 9~16칸", "비활성"];
+      return index === 0 ? ["상단 1~8칸", "우선 소비"] : ["하단 9~16칸", "상단 이후 소비"];
+    };
+
+    const renderWave = () => `
+      <svg class="wave-svg" viewBox="0 0 120 60" preserveAspectRatio="none" aria-hidden="true">
+        <polyline class="wave-shadow" points="0,34 26,34 36,34 46,46 58,10 72,50 86,22 96,34 120,34"></polyline>
+        <polyline class="wave-main" points="0,34 26,34 36,34 46,46 58,10 72,50 86,22 96,34 120,34"></polyline>
+        <polyline class="wave-highlight" points="0,34 26,34 36,34 46,46 58,10 72,50 86,22 96,34 120,34"></polyline>
+      </svg>
+    `;
+
+    const renderSlots = (row) =>
+      row
+        .map(
+          (token) => `
+            <div class="${slotClass(token)}">
+              <span class="frame"></span>
+              <span class="screen"></span>
+              <span class="wave-glow">${renderWave()}</span>
+            </div>
+          `
+        )
+        .join("");
+
+    document.getElementById("states").innerHTML = states
+      .map((state) => `
+        <section class="state-card">
+          <div class="state-header">
+            <h3>${state.title}</h3>
+            <span>${state.subtitle}</span>
+          </div>
+          <div class="queue-shell">
+            <div class="queue-grid">
+              ${state.rows.map((row, index) => {
+                const [left, right] = rowLabel(index, state.key);
+                return `
+                  <div class="row-block">
+                    <div class="row-head">
+                      <strong>${left}</strong>
+                      <span>${right}</span>
+                    </div>
+                    <div class="queue-row">
+                      ${renderSlots(row)}
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+          <p class="state-note">${state.note}</p>
+          <div class="legend">
+            <span class="chip" style="--chip-color: var(--red);">붉은 파형</span>
+            <span class="chip" style="--chip-color: var(--blue);">청색 파형</span>
+            <span class="chip" style="--chip-color: var(--green);">녹색 파형</span>
+            <span class="chip" style="--chip-color: var(--purple);">보라 파형</span>
+            <span class="chip lock">잠금 열</span>
+          </div>
+        </section>
+      `)
+      .join("");
+  </script>
+</body>
+</html>

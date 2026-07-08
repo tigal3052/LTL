@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "character_engineer",
+      "label": "Recruit Pulse Engineer",
+      "type": "character",
+      "category": "crew",
+      "costGold": 120,
+      "costXp": 0,
+      "unlockId": "engineer"
+    },
+    {
+      "id": "character_mechanic",
+      "label": "Recruit Hull Mechanic",
+      "type": "character",
+      "category": "crew",
+      "costGold": 140,
+      "costXp": 0,
+      "unlockId": "mechanic"
+    },
+    {
+      "id": "starter_drill_blue",
+      "label": "Blue Starter Drill",
+      "type": "starter_item",
+      "category": "loadout",
+      "costGold": 70,
+      "costXp": 20,
+      "unlockId": "starter_drill_blue"
+    },
+    {
+      "id": "starter_beacon_blue",
+      "label": "Blue Starter Beacon",
+      "type": "starter_item",
+      "category": "loadout",
+      "costGold": 55,
+      "costXp": 10,
+      "unlockId": "starter_beacon_blue"
+    },
+    {
+      "id": "starter_repair_kit",
+      "label": "Compact Repair Kit",
+      "type": "starter_item",
+      "category": "safety",
+      "costGold": 65,
+      "costXp": 15,
+      "unlockId": "starter_repair_kit"
+    },
+    {
+      "id": "leviathan_scan_storm",
+      "label": "Storm Wyvern Scan",
+      "type": "scan",
+      "category": "leviathan",
+      "costGold": 110,
+      "costXp": 35,
+      "unlockId": "storm_wyvern"
+    }
+  ]
+}

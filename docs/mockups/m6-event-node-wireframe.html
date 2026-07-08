@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M6 Event Node Wireframe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --line: rgba(208, 223, 236, 0.12);
+      --text: #eef4fa;
+      --muted: #95a6b7;
+      --accent: #f0c56c;
+      --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      background:
+        radial-gradient(circle at 14% 10%, rgba(240, 197, 108, 0.10), transparent 22%),
+        radial-gradient(circle at 80% 14%, rgba(134, 177, 233, 0.10), transparent 22%),
+        linear-gradient(180deg, #111922 0%, #080c11 100%);
+      padding: 28px 20px 36px;
+    }
+
+    .page {
+      width: min(1420px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .board-shell,
+    .notes,
+    .impl {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+        rgba(8, 11, 15, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head,
+    .notes-head,
+    .impl-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+
+    .board-title {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .board-title strong {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .board-title span,
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .mode-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 197, 108, 0.22);
+      background: rgba(49, 39, 16, 0.42);
+      color: #f8e4b5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .board-body {
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent 22%),
+        rgba(5, 8, 12, 0.28);
+    }
+
+    .hero-image {
+      min-height: 620px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.08), transparent 20%),
+        linear-gradient(180deg, rgba(28, 39, 51, 0.96), rgba(10, 14, 19, 0.98));
+      padding: 20px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 16px;
+    }
+
+    .hero-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 24px;
+      border: 1px dashed rgba(255,255,255,0.18);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1.7;
+      padding: 28px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .choices {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+      overflow: hidden;
+    }
+
+    .choices-head {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .choices-head h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .choices-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .choice {
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      padding: 14px 16px;
+    }
+
+    .choice strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .choice p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .notes,
+    .impl {
+      margin-top: 16px;
+    }
+
+    .notes-body,
+    .impl-body {
+      padding: 16px;
+    }
+
+    .annotation-list {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.75;
+    }
+
+    .annotation-list li + li {
+      margin-top: 10px;
+    }
+
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .impl-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(18, 26, 35, 0.96), rgba(9, 13, 18, 0.98));
+      padding: 14px;
+    }
+
+    .impl-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .impl-card p,
+    .impl-card ul {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .impl-card ul {
+      padding-left: 18px;
+    }
+
+    @media (max-width: 980px) {
+      .impl-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">EVENT SURFACE</div>
+      <h1>이벤트 노드 페이지</h1>
+      <p class="subtitle">
+        이 화면은 결과 힌트 보조 패널 없이, 대형 이벤트 이미지와 선택지 패널만으로 사건의 분위기와 결정을 읽게 만드는 단순한 서사 화면이다.
+      </p>
+    </header>
+
+    <section class="board-shell" aria-label="이벤트 노드 와이어프레임 보드">
+      <div class="board-head">
+        <div class="board-title">
+          <strong>대형 이벤트 이미지 중심 보드</strong>
+          <span>이벤트 장면이 가장 먼저 보이고, 선택지는 아래에서 짧고 분명하게 비교된다.</span>
+        </div>
+        <div class="mode-pill">low-distraction shell</div>
+      </div>
+      <div class="board-body">
+        <section class="hero-image" aria-label="대형 이벤트 이미지">
+          <div class="hero-frame">대형 이벤트 이미지<br>상황 일러스트 / 서사 프롬프트 / 긴장감을 가장 크게 전달하는 메인 장면</div>
+        </section>
+
+        <section class="choices" aria-label="선택지 패널">
+          <div class="choices-head">
+            <h2>선택지 패널</h2>
+            <p>짧은 결과 힌트만 붙이고, 나머지 주의는 전부 장면 이미지에 남긴다.</p>
+          </div>
+          <div class="choice-list">
+            <article class="choice">
+              <strong>선택지 A</strong>
+              <p>안전한 대응. 손실은 적지만 얻는 변화도 작다.</p>
+            </article>
+            <article class="choice">
+              <strong>선택지 B</strong>
+              <p>위험한 대응. 지금 손실을 감수하고 더 큰 보상을 노린다.</p>
+            </article>
+            <article class="choice">
+              <strong>선택지 C</strong>
+              <p>우회하거나 더 읽는 대응. 즉시 결론 대신 상황을 더 파악하는 선택지다.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="annotation notes">
+      <div class="notes-head">
+        <h2>번호 주석</h2>
+        <div class="hint">choice-first annotations</div>
+      </div>
+      <div class="notes-body">
+        <ol class="annotation-list">
+          <li>이벤트 페이지의 첫 시선은 항상 대형 장면 이미지에 머물러야 하며, 보조 패널이 그 시선을 나눠 가지면 안 된다.</li>
+          <li>선택지는 짧고 읽기 쉬운 카드로 정리해 비교 부담을 줄이고, 세부 결과 설명은 이 페이지에서 최소화한다.</li>
+          <li>도감/상점 같은 외부 행동보다 사건 장면과 결정을 먼저 읽게 만드는 저자극 셸을 유지한다.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="impl" aria-label="implementation notes">
+      <div class="impl-head">
+        <h2>구현 노트</h2>
+        <div class="hint">allowed / blocked / key signs</div>
+      </div>
+      <div class="impl-body">
+        <div class="impl-grid">
+          <div class="impl-card">
+            <strong>허용 오버레이</strong>
+            <ul>
+              <li>settings</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>기본 차단</strong>
+            <ul>
+              <li>artifact codex</li>
+              <li>shop</li>
+            </ul>
+          </div>
+          <div class="impl-card">
+            <strong>핵심 구현 신호</strong>
+            <p>hero image hierarchy, choice clarity, low-distraction shell</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
