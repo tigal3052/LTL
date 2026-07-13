@@ -7,7 +7,7 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: 740da7bd3291e9c7e7b137021d0467e69d2d16ab065d05263054376a3a075192
+- Source fingerprint: 70aa39b1fd981aec8a9f4a35600472e2410cf45449978f179b406f35912afd94
 
 ## File Map
 
@@ -535,6 +535,26 @@ This file is the live implementation map for AI agents. It records each current 
   - NPC portrait art used by the release page and narrative presentation surfaces.
 - `app-LTL/resources/charactor/npc1.png.import`
   - Godot import metadata for the NPC portrait art resource.
+- `app-LTL/resources/fonts/codex/LICENSES.md`
+  - LICENSES is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/NotoSerifKR-VariableFont_wght.ttf`
+  - Noto Serif KR Variable Font wght is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/NotoSerifKR-VariableFont_wght.ttf.import`
+  - Noto Serif KR Variable Font wght.ttf is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/NotoSerif-VariableFont_wght.ttf`
+  - Noto Serif Variable Font wght is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/NotoSerif-VariableFont_wght.ttf.import`
+  - Noto Serif Variable Font wght.ttf is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/OFL-NotoSerif.txt`
+  - OFL Noto Serif is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/OFL-NotoSerifKR.txt`
+  - OFL Noto Serif KR is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/OFL-WorkSans.txt`
+  - OFL Work Sans is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/WorkSans-VariableFont_wght.ttf`
+  - Work Sans Variable Font wght is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/fonts/codex/WorkSans-VariableFont_wght.ttf.import`
+  - Work Sans Variable Font wght.ttf is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/items/becon/blue_becon_common.png`
   - blue becon common is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/items/becon/blue_becon_common.png.import`
@@ -895,6 +915,62 @@ This file is the live implementation map for AI agents. It records each current 
   - panel parchment is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/battle_redesign/panel_parchment.png.import`
   - panel parchment.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_card_locked_608x204.png`
+  - codex v5 card locked 608x204 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_card_locked_608x204.png.import`
+  - codex v5 card locked 608x204.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_card_normal_608x204.png`
+  - codex v5 card normal 608x204 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_card_normal_608x204.png.import`
+  - codex v5 card normal 608x204.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_card_selected_608x204.png`
+  - codex v5 card selected 608x204 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_card_selected_608x204.png.import`
+  - codex v5 card selected 608x204.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_chip_active_240x56.png`
+  - codex v5 chip active 240x56 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_chip_active_240x56.png.import`
+  - codex v5 chip active 240x56.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_chip_inactive_240x56.png`
+  - codex v5 chip inactive 240x56 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_chip_inactive_240x56.png.import`
+  - codex v5 chip inactive 240x56.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_detail_hero_frame_1080x584.png`
+  - codex v5 detail hero frame 1080x584 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_detail_hero_frame_1080x584.png.import`
+  - codex v5 detail hero frame 1080x584.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_detail_panel_bg_1192x1448.png`
+  - codex v5 detail panel bg 1192x1448 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_detail_panel_bg_1192x1448.png.import`
+  - codex v5 detail panel bg 1192x1448.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_facts_panel_bg_1080x428.png`
+  - codex v5 facts panel bg 1080x428 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_facts_panel_bg_1080x428.png.import`
+  - codex v5 facts panel bg 1080x428.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_list_panel_bg_1480x1216.png`
+  - codex v5 list panel bg 1480x1216 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_list_panel_bg_1480x1216.png.import`
+  - codex v5 list panel bg 1480x1216.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_locked_thumb_152x152.png`
+  - codex v5 locked thumb 152x152 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_locked_thumb_152x152.png.import`
+  - codex v5 locked thumb 152x152.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_observation_note_296x140.png`
+  - codex v5 observation note 296x140 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_observation_note_296x140.png.import`
+  - codex v5 observation note 296x140.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_screen_parchment_bg_1440x900.png`
+  - codex v5 screen parchment bg 1440x900 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_screen_parchment_bg_1440x900.png.import`
+  - codex v5 screen parchment bg 1440x900.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_sort_dropdown_280x64.png`
+  - codex v5 sort dropdown 280x64 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_sort_dropdown_280x64.png.import`
+  - codex v5 sort dropdown 280x64.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_thumb_slot_152x152.png`
+  - codex v5 thumb slot 152x152 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/codex/v5/codex_v5_thumb_slot_152x152.png.import`
+  - codex v5 thumb slot 152x152.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/cta/expedition_cta_button.png`
   - expedition cta button is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/cta/expedition_cta_button.png.import`
@@ -1321,6 +1397,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/codex/ArtifactCodexLayoutPolicy.gd`
   - Centralizes artifact codex book aspect, safe-area, page, grid, and viewport transform calculations.
   - Keeps ratio-driven codex layout math deterministic for panel rendering and structural tests.
+- `app-LTL/src/ui/codex/CodexTypography.gd`
+  - Codex Typography owns Godot UI rendering and interaction behavior.
 - `app-LTL/src/ui/CombatSceneModel.gd`
   - Converts run snapshots into combat scene read models.
   - Calculates viewport layout and terrain cell presentation.
@@ -1624,6 +1702,8 @@ This file is the live implementation map for AI agents. It records each current 
   - run character select visual style contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_codex_pause_timing_contract.gd`
   - Verifies codex pause/resume preserves the steady battle terrain timer interval and saved remaining countdown.
+- `app-LTL/tests/run_codex_v5_runtime_contract.gd`
+  - run codex v5 runtime contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_combat_layout_containment_contract.gd`
   - Verifies combat HUD, gameplay shell, and phase surfaces stay inside the runtime viewport containment budget.
 - `app-LTL/tests/run_defeat_page_contract.gd`
@@ -1678,6 +1758,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies each active page mockup, including the June 8 node-select crossroads shell, is backed by an instantiable Godot scene file.
 - `app-LTL/tests/run_pin_miner_layout_probe.gd`
   - run pin miner layout probe verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_redesign_page_capture.gd`
+  - run redesign page capture verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_board_layout_contract.gd`
   - run reward board layout contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_reward_ceremony_contract.gd`
@@ -2066,6 +2148,10 @@ This file is the live implementation map for AI agents. It records each current 
   - comment first enforcement explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/i18n-text-enforcement.md`
   - i18n text enforcement explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/mockup-apply-evaluation-criteria.md`
+  - mockup apply evaluation criteria explains harness operating rules and implementation procedures.
+- `LTL-harness/docs/mockup-evaluation-criteria.md`
+  - mockup evaluation criteria explains harness operating rules and implementation procedures.
 - `LTL-harness/docs/page-contract-execution-gate.md`
   - Defines the required mockup-to-scene, flow, hidden-surface, and gate-run rules for mockup-backed runtime pages.
 - `LTL-harness/docs/phase-gate-examples.md`
@@ -2337,9 +2423,9 @@ This file is the live implementation map for AI agents. It records each current 
 - `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_rare_live.png`
   - card discovered rare live provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_empty_placeholder.png`
-  - card empty placeholder provides an LTL harness entrypoint or agent rule set.
+  - Codex card crop asset for the empty no-discovery card state in the codex mockup.
 - `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_empty_placeholder_live.png`
-  - card empty placeholder live provides an LTL harness entrypoint or agent rule set.
+  - Codex card crop asset for the empty no-discovery card state captured from the live mockup.
 - `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_locked_fogged.png`
   - card locked fogged provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_locked_fogged_live.png`
@@ -2412,6 +2498,8 @@ This file is the live implementation map for AI agents. It records each current 
   - index provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_codex_redesign/V5_ASSET_MATCH_REPORT.md`
   - V5 ASSET MATCH REPORT provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/REDESIGN_2026W29_ANALYSIS.md`
+  - REDESIGN 2026 W29 ANALYSIS provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_battle/code.html`
   - code provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_battle/DESIGN.md`
