@@ -291,6 +291,10 @@ func _on_codex_entry_selected(entry_id: String) -> void:
 	MainViewPanelsRuntimeScript.on_codex_entry_selected(self, entry_id)
 func _on_codex_section_selected(section_id: String) -> void:
 	MainViewPanelsRuntimeScript.on_codex_section_selected(self, section_id)
+func _on_codex_taxonomy_selected(taxonomy_id: String) -> void:
+	MainViewPanelsRuntimeScript.on_codex_taxonomy_selected(self, taxonomy_id)
+func _on_codex_sort_selected(sort_id: String) -> void:
+	MainViewPanelsRuntimeScript.on_codex_sort_selected(self, sort_id)
 func _rerender_current_codex() -> void:
 	MainViewPanelsRuntimeScript.rerender_current_codex(self)
 func _install_interaction_fx() -> void:

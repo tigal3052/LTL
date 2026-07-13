@@ -138,6 +138,8 @@ var current_codex_growth_state: Dictionary = {}
 var current_codex_debug_all := false
 var current_codex_selected_entry_id := ""
 var current_codex_active_section := "all"
+var current_codex_active_taxonomy_id := "backpack_items"
+var current_codex_sort_id := "catalog"
 var giant_timer_panel: PanelContainer
 var giant_timer_label: Label
 var vignette_overlay: Panel

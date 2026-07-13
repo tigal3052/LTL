@@ -21,7 +21,8 @@ static func install_interaction_fx(view) -> void:
 	InteractionFXScript.install_tree(view, Callable(view, "play_interaction_sfx"))
 
 static func apply_shell_theme(view) -> void:
-	var surface := LTLThemeScript.surface_style(LTLThemeScript.SURFACE_MID)
+	# 전투 리디자인: 전투/보상 상단 셸은 양피지 라이트 톤을 사용한다.
+	var surface := LTLThemeScript.parchment_style()
 	for page_id in view.SURFACE_PAGE_IDS:
 		var bundle: Dictionary = view._page_bundle(page_id)
 		if bundle.is_empty():
@@ -399,10 +400,14 @@ static func _record_sfx_event(view, descriptor: Dictionary) -> void:
 		view.interaction_sfx_events.pop_front()
 
 static func _apply_surface_bundle_theme(view, page_id: String, bundle: Dictionary, surface: StyleBox) -> void:
-	for key in ["statusPanel", "backpackUI", "rightSidebar", "battlefieldUI"]:
+	for key in ["statusPanel", "rightSidebar"]:
 		var panel = bundle.get(key, null)
 		if panel != null:
 			panel.add_theme_stylebox_override("panel", surface)
+	# 전투 리디자인: 백팩 셸은 석회암 판, 배틀필드는 이끼 석재(씬 기본 스타일)를 유지한다.
+	var backpack_panel = bundle.get("backpackUI", null)
+	if backpack_panel != null:
+		backpack_panel.add_theme_stylebox_override("panel", LTLThemeScript.limestone_style(10))
 	var reward_surface = bundle.get("rewardPanel", null) as PanelContainer
 	if reward_surface == null:
 		return
@@ -429,10 +434,12 @@ static func _apply_surface_bundle_theme(view, page_id: String, bundle: Dictionar
 		discard_card_panel.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.18, 0.09, 0.10, 0.98), Color(0.78, 0.34, 0.34, 1.0), 16, 1, 0.16))
 
 static func _style_shell_buttons(view) -> void:
-	for button in [view.settings_open_button, view.reset_button, view.start_button, view.claim_rewards_button, view.claim_inline_button, view.shop_open_button, view.codex_open_button]:
+	for button in [view.settings_open_button, view.claim_inline_button, view.shop_open_button, view.codex_open_button]:
 		if button != null:
 			style_shell_button(view, button)
 	for page_id in view.ACTION_BAR_PAGE_IDS:
+		if page_id == "node_select":
+			continue
 		var bundle: Dictionary = view._page_bundle(page_id)
 		for key in ["resetButton", "startButton", "claimRewardsButton", "claimInlineButton"]:
 			var button = bundle.get(key, null) as Button

@@ -86,6 +86,13 @@ static func build_neutral_card(shield_mul: float, health_mul: float) -> PanelCon
 	var card := _base_card()
 	var content := _card_content(card)
 	content.add_child(_card_title(TextCatalogScript.t("panel.info.neutral_title")))
+	# 공통 배율: 4색 지형 타일 스트립으로 '모든 색에 동일 적용'을 이미지로 표기한다.
+	var tile_row := HBoxContainer.new()
+	tile_row.name = "NeutralTileRow"
+	tile_row.add_theme_constant_override("separation", 4)
+	for color_name in ["red", "blue", "green", "purple"]:
+		tile_row.add_child(_tile_icon(str(color_name), Vector2(52.0, 16.0)))
+	content.add_child(tile_row)
 	content.add_child(metric_stack(shield_mul, health_mul))
 	return card
 
@@ -131,11 +138,11 @@ static func _note_chip(text_value: String, accent: Color) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.09, 0.12, 0.17, 0.96),
-		Color(accent.r, accent.g, accent.b, 0.32),
+		Color(1.0, 1.0, 1.0, 0.60),
+		Color(accent.r, accent.g, accent.b, 0.45),
 		999,
 		1,
-		0.10
+		0.0
 	))
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
@@ -150,20 +157,21 @@ static func _note_chip(text_value: String, accent: Color) -> PanelContainer:
 	var label := Label.new()
 	label.text = text_value
 	label.add_theme_font_size_override("font_size", 11)
-	label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	label.add_theme_color_override("font_color", LTLThemeScript.INK_PRIMARY)
 	row.add_child(label)
 	return panel
 
+# 배율 카드: 텍스트 앞 세로 색상 바(체력=빨강, 실드=파랑)가 유일한 마커 — 타일 이미지는 약점 카드 몫.
 static func _metric_card(label_text: String, value: float, accent: Color) -> PanelContainer:
 	var card := PanelContainer.new()
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.custom_minimum_size = Vector2(0.0, 58.0)
 	card.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.08, 0.11, 0.15, 0.96),
-		Color(accent.r, accent.g, accent.b, 0.24),
+		Color(1.0, 1.0, 1.0, 0.55),
+		Color(accent.r, accent.g, accent.b, 0.40),
 		10,
 		1,
-		0.12
+		0.0
 	))
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 6)
@@ -171,28 +179,42 @@ static func _metric_card(label_text: String, value: float, accent: Color) -> Pan
 	margin.add_theme_constant_override("margin_right", 6)
 	margin.add_theme_constant_override("margin_bottom", 6)
 	card.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	margin.add_child(row)
+	row.add_child(_accent_bar(accent))
 	var box := VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 2)
-	margin.add_child(box)
-	var head := HBoxContainer.new()
-	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_theme_constant_override("separation", 6)
-	box.add_child(head)
-	head.add_child(_round_dot(accent, 8.0, "MetricDot"))
+	row.add_child(box)
 	var label := Label.new()
 	label.name = "MetricLabel"
 	label.text = label_text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_font_size_override("font_size", 10)
-	label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-	head.add_child(label)
+	label.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
+	box.add_child(label)
 	var value_label := Label.new()
 	value_label.text = "x%.2f" % value
 	value_label.add_theme_font_size_override("font_size", 18)
-	value_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	value_label.add_theme_color_override("font_color", LTLThemeScript.INK_PRIMARY)
 	box.add_child(value_label)
 	return card
+
+static func _accent_bar(accent: Color) -> Panel:
+	var bar := Panel.new()
+	bar.name = "MetricAccentBar"
+	bar.custom_minimum_size = Vector2(5.0, 0.0)
+	bar.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = accent
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
+	bar.add_theme_stylebox_override("panel", style)
+	return bar
 
 static func _round_dot(accent: Color, size: float, node_name: String) -> Panel:
 	var dot := Panel.new()
@@ -216,7 +238,7 @@ static func _card_title(text_value: String) -> Label:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_font_size_override("font_size", 11)
-	label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	label.add_theme_color_override("font_color", LTLThemeScript.INK_PRIMARY)
 	return label
 
 static func _base_card() -> PanelContainer:
@@ -224,11 +246,11 @@ static func _base_card() -> PanelContainer:
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.custom_minimum_size = Vector2(0.0, 80.0)
 	card.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.10, 0.14, 0.19, 0.97),
-		Color(0.28, 0.38, 0.48, 1.0),
-		14,
+		Color(1.0, 1.0, 1.0, 0.55),
+		LTLThemeScript.OUTLINE_VARIANT,
+		8,
 		1,
-		0.14
+		0.0
 	))
 	return card
 
@@ -246,6 +268,18 @@ static func _card_content(card: PanelContainer) -> VBoxContainer:
 
 static func _tile_texture(color_name: String) -> Texture2D:
 	return LTLThemeScript.art_texture(str(TILE_TEXTURE_PATHS.get(color_name, "")))
+
+# 실행: 지형 타일 아트를 소형 아이콘으로 재사용한다 (노드 정보 = 타일 이미지 언어 유지).
+static func _tile_icon(color_name: String, icon_size: Vector2, node_name: String = "TileIcon") -> TextureRect:
+	var icon := TextureRect.new()
+	icon.name = node_name
+	icon.texture = _tile_texture(color_name)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	icon.custom_minimum_size = icon_size
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return icon
 
 static func _joined_color_labels(colors: Array) -> String:
 	var labels: Array[String] = []

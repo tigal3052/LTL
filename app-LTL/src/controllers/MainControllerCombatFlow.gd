@@ -242,11 +242,13 @@ static func on_combat_overlay_pause_visibility_changed(controller, _active: bool
 	sync_battle_pause_from_overlay_visibility(controller)
 
 # ?ㅽ뻾: derive combat pause from the current overlay and phase.
+# 전투 리디자인: '굴착 시작' 전 시작 홀드도 전투 정지 사유에 포함한다.
 static func sync_battle_pause_from_overlay_visibility(controller) -> void:
 	var overlay_visible := false
 	if controller.view != null and controller.view.has_method("is_combat_pause_overlay_visible"):
 		overlay_visible = bool(controller.view.is_combat_pause_overlay_visible())
-	set_battle_pause_active(controller, overlay_visible and str(controller.current_scene.get("phase", "")) == "combat")
+	var hold_active := bool(controller.get("battle_start_hold_active"))
+	set_battle_pause_active(controller, (overlay_visible or hold_active) and str(controller.current_scene.get("phase", "")) == "combat")
 
 # ?ㅽ뻾: apply the combat pause state to timers, holds, and view state.
 static func set_battle_pause_active(controller, active: bool) -> void:

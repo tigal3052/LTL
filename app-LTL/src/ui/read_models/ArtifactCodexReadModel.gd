@@ -99,6 +99,8 @@ static func _project_entry(reward: Dictionary, discovered_lookup: Dictionary, de
 		"shapeMatrix": shape_matrix,
 		"shapeBounds": shape_bounds,
 		"occupiedCellCount": occupied_cell_count,
+		"baseCooldownTicks": int(payload.get("base_cooldown_ticks", 0)),
+		"baseDamage": float(payload.get("damage", 0.0)),
 		"debug": debug_all,
 		"iconKey": icon_key,
 		"badge": badge,
@@ -154,6 +156,8 @@ static func _project_left_page(selected_entry: Dictionary, locale: String) -> Di
 		"shapeMatrix": shape_matrix.duplicate(true),
 		"shapeItemType": str(selected_entry.get("itemType", "")),
 		"shapeEnergyType": str(selected_entry.get("energyType", "")),
+		"baseCooldownTicks": int(selected_entry.get("baseCooldownTicks", 0)),
+		"baseDamage": float(selected_entry.get("baseDamage", 0.0)),
 		"missingArtText": TextCatalogScript.t("codex.missing_art", [], locale),
 		"empty": false
 	}
@@ -275,15 +279,66 @@ static func _shape_cell_count(shape_matrix: Array) -> int:
 # 실행: map rarity ids to a compact pip count for the right-grid badge.
 static func _rarity_pips(rarity: String) -> int:
 	match rarity:
-		"common":
-			return 1
-		"rare":
-			return 2
-		"epic":
-			return 3
-		"legendary":
-			return 4
-		"mythic":
-			return 5
-		_:
-			return 1
+		"common": return 1
+		"rare": return 2
+		"epic": return 3
+		"legendary": return 4
+		"mythic": return 5
+		_: return 1
+
+# V5 keeps the gameplay discovery projection above, then adds display-only taxonomy and sorting state.
+static func project_v5(reward_table: Dictionary, growth_state: Dictionary = {}, debug_all: bool = false, locale := "", selected_entry_id := "", active_section := "all", active_taxonomy_id := "backpack_items", sort_id := "catalog") -> Dictionary:
+	var base := project(reward_table, growth_state, debug_all, locale, selected_entry_id, active_section)
+	var normalized_taxonomy := _normalize_v5_taxonomy(active_taxonomy_id)
+	var normalized_sort := _normalize_v5_sort(sort_id)
+	var all_entries: Array = base.get("entries", [])
+	var section_entries: Array = (base.get("rightPage", {}) as Dictionary).get("gridEntries", [])
+	var filtered: Array = []
+	for entry in section_entries:
+		if _entry_matches_v5_taxonomy(entry, normalized_taxonomy):
+			filtered.append(entry)
+	_sort_v5_entries(filtered, normalized_sort)
+	var resolved := _resolve_selected_entry_id(filtered, selected_entry_id)
+	var selected := _entry_by_id(all_entries, resolved)
+	base["activeTaxonomyId"] = normalized_taxonomy
+	base["activeSortId"] = normalized_sort
+	base["taxonomies"] = _project_v5_taxonomies(all_entries, normalized_taxonomy, locale)
+	base["sortOptions"] = _project_v5_sort_options(normalized_sort, locale)
+	base["rightPage"] = {"gridEntries": filtered, "gridColumns": 2, "emptyText": TextCatalogScript.t("codex.empty", [], locale), "selectedEntryId": resolved}
+	base["leftPage"] = _project_left_page(selected, locale)
+	base["resolvedSelectedEntryId"] = resolved
+	return base
+
+static func _normalize_v5_taxonomy(value: String) -> String:
+	return value if value in ["backpack_items", "leviathan_traces", "flora", "minerals", "ruin_patterns"] else "backpack_items"
+
+static func _normalize_v5_sort(value: String) -> String:
+	return value if value in ["catalog", "name", "rarity"] else "catalog"
+
+static func _entry_matches_v5_taxonomy(entry: Dictionary, taxonomy: String) -> bool:
+	if taxonomy == "backpack_items":
+		return str(entry.get("itemType", "")) in ["drill", "beacon", "relic"]
+	return false
+
+static func _project_v5_taxonomies(entries: Array, active_id: String, locale: String) -> Array:
+	var fallback := {"backpack_items": "Backpack Items", "leviathan_traces": "Leviathan Traces", "flora": "Flora", "minerals": "Minerals", "ruin_patterns": "Ruin Patterns"}
+	var result: Array = []
+	for id in ["leviathan_traces", "flora", "minerals", "ruin_patterns", "backpack_items"]:
+		var count := 0
+		for entry in entries:
+			if _entry_matches_v5_taxonomy(entry, id): count += 1
+		result.append({"id": id, "label": TextCatalogScript.t("codex.taxonomy.%s" % id, [], locale) if TextCatalogScript.t("codex.taxonomy.%s" % id, [], locale) != "codex.taxonomy.%s" % id else fallback[id], "count": count, "active": id == active_id})
+	return result
+
+static func _project_v5_sort_options(active_id: String, _locale: String) -> Array:
+	return [{"id": "catalog", "label": "Catalog", "active": active_id == "catalog"}, {"id": "name", "label": "Name", "active": active_id == "name"}, {"id": "rarity", "label": "Rarity", "active": active_id == "rarity"}]
+
+static func _sort_v5_entries(entries: Array, sort_id: String) -> void:
+	if sort_id == "catalog": return
+	entries.sort_custom(func(a: Dictionary, b: Dictionary):
+		if sort_id == "name": return str(a.get("name", "")) < str(b.get("name", ""))
+		var ranks := {"common": 0, "rare": 1, "epic": 2, "legendary": 3, "mythic": 4}
+		var rank_a := int(ranks.get(str(a.get("rarity", "common")), 0))
+		var rank_b := int(ranks.get(str(b.get("rarity", "common")), 0))
+		return rank_a < rank_b if rank_a != rank_b else str(a.get("name", "")) < str(b.get("name", ""))
+	)

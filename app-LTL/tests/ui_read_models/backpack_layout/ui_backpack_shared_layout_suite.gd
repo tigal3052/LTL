@@ -26,9 +26,9 @@ func test_surface_pages_expose_backpack_host_without_embedded_engine_panel() -> 
 		_assert(page != null, "%s instantiates for empty backpack host contract" % scene_path)
 		if page == null:
 			continue
-		var host = page.get_node_or_null("TopContent/BackpackContainer") as AspectRatioContainer
-		_assert(host != null, "%s exposes TopContent/BackpackContainer as the shared backpack host" % scene_path)
-		_assert(page.get_node_or_null("TopContent/BackpackContainer/BackpackEnginePanel") == null, "%s no longer embeds a page-local BackpackEnginePanel" % scene_path)
+		var host = page.get_node_or_null("TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea/BackpackContainer") as AspectRatioContainer
+		_assert(host != null, "%s exposes the board-panel BackpackContainer as the shared backpack host" % scene_path)
+		_assert(page.get_node_or_null("TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea/BackpackContainer/BackpackEnginePanel") == null, "%s no longer embeds a page-local BackpackEnginePanel" % scene_path)
 		page.free()
 func test_main_view_backpack_runtime_targets_single_shared_panel() -> void:
 	var helper_path := "res://src/ui/main_view/MainViewBackpackRuntime.gd"

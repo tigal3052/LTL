@@ -15,6 +15,7 @@ func run_all_tests() -> Dictionary:
 	test_cell_view_removes_colored_hazard_frame()
 	test_cell_view_maps_green_family_to_green_hazard_texture()
 	test_cell_view_expands_green_hazard_overlay_and_softens_fill()
+	test_cell_view_anchors_hazard_stem_frame_to_tile_border()
 	test_obstacle_execution_feedback_flash_and_popup_api_exists()
 	test_hazard_model_uses_active_severity_for_live_obstacles()
 	test_hazard_model_stays_stable_without_live_obstacles()
@@ -45,24 +46,33 @@ func test_phase_layout_hides_backpack_cooldown_visuals_outside_combat() -> void:
 	_assert_eq(bool(reward.get("backpackCooldownVisible", true)), false, "reward layout hides cooldown darkness while reorganizing loot")
 	_assert_eq(bool(combat.get("backpackCooldownVisible", false)), true, "combat keeps cooldown darkness visible")
 
-# ?ㅽ뻾: verify combat feedback presenter converts hit status to screenshake.
+# ?ㅽ뻾: 목업 발굴 현장 계약 — 좌측 마이너 도크가 폭을 점유하고 타일 그리드는 그 오른쪽에서 시작한다.
 func test_battlefield_layout_uses_top_left_header_miner_overlay() -> void:
 	var battlefield_ui = BattlefieldUIScript.new()
 	_assert(battlefield_ui.has_method("layout_metrics_for_board"), "battlefield ui exposes deterministic terrain layout metrics for regression tests")
 	if not battlefield_ui.has_method("layout_metrics_for_board"):
 		return
-	var metrics: Dictionary = battlefield_ui.call("layout_metrics_for_board", Vector2(1280.0, 220.0))
+	var board_size := Vector2(1280.0, 142.0)
+	var metrics: Dictionary = battlefield_ui.call("layout_metrics_for_board", board_size)
 	var shell_rect: Rect2 = metrics.get("shellRect", Rect2())
 	var grid_rect: Rect2 = metrics.get("gridRect", Rect2())
 	var header_miner_rect: Rect2 = metrics.get("headerMinerRect", Rect2())
-	_assert(abs(header_miner_rect.position.x - 0.0) < 0.1, "header miner now hugs the panel's left edge")
-	_assert(abs(header_miner_rect.position.y - 0.0) < 0.1, "header miner now touches the top edge of the battlefield panel")
-	_assert(abs(shell_rect.position.x - 20.0) < 0.1, "terrain shell keeps its left margin instead of shifting right to make a miner column")
-	_assert(abs(shell_rect.position.y - 8.0) < 0.1, "battlefield shell shifts upward by about 12px so the miner sits closer to the panel ceiling")
-	_assert(abs((1280.0 - shell_rect.end.x) - 20.0) < 0.1, "battlefield shell keeps a symmetric right margin while the miner overlays above it")
-	_assert(abs((220.0 - shell_rect.end.y) - 8.0) < 0.1, "battlefield shell extends downward by the same amount it moved upward so the tile panel stays vertically balanced")
-	_assert(grid_rect.size.y >= 140.0, "battlefield grid gains extra vertical room after the shell expands upward and downward")
-	_assert(abs(float(metrics.get("headerMinerWidth", 0.0)) - (1280.0 * 0.1425)) < 0.1, "header miner uses about half of the previous battlefield miner width ratio")
+	var dock_width := float(metrics.get("minerDockWidth", 0.0))
+	var lane_rects: Array = metrics.get("laneRects", [])
+	_assert(abs(dock_width - (1280.0 * 0.1425)) < 0.1, "miner dock keeps the mockup 14.25% width share")
+	_assert(header_miner_rect.position.x >= -0.1 and header_miner_rect.end.x <= dock_width + 0.1, "miner stays inside its left dock instead of overlapping the tiles")
+	_assert(abs(header_miner_rect.end.y - board_size.y) < 1.0, "miner is bottom-aligned in the dock (mockup flex-end)")
+	_assert(grid_rect.position.x >= dock_width + 0.1, "terrain grid starts to the right of the miner dock")
+	_assert(grid_rect.end.x <= board_size.x + 0.1, "terrain grid stays inside the board")
+	_assert(shell_rect.position.y >= 6.9, "lane stack keeps the mockup 7px top padding")
+	_assert(abs((board_size.y - shell_rect.end.y) - 5.0) < 0.1, "lane stack keeps the mockup 5px bottom padding")
+	_assert_eq(lane_rects.size(), 3, "battlefield keeps three decorated lane bands")
+	if lane_rects.size() == 3:
+		var lane0: Rect2 = lane_rects[0]
+		var lane1: Rect2 = lane_rects[1]
+		_assert(abs((lane1.position.y - lane0.end.y) - 4.0) < 0.5, "lane bands keep the mockup 4px gap")
+		_assert(lane0.size.y > grid_rect.size.y / 3.0 - 6.0, "lane band wraps its cell row with vertical padding")
+	_assert_eq(int(metrics.get("gridVSeparation", 0)), 10, "cell rows keep the lane-gap plus padding separation so rows center inside lane bands")
 
 func test_cell_view_uses_tile_alpha_for_weakness_readability() -> void:
 	_assert(abs(float(CellViewScript.base_tile_alpha_for(null)) - 0.5) < 0.01, "non-weakness tiles render semi-transparent")
@@ -137,8 +147,21 @@ func test_cell_view_maps_green_family_to_green_hazard_texture() -> void:
 	_assert_eq(green_hazard_texture, CellViewScript.GREEN_HAZARD_TEXTURE, "green hazards use green_tile_hazard.png instead of a shared fallback")
 
 func test_cell_view_expands_green_hazard_overlay_and_softens_fill() -> void:
-	_assert(float(CellViewScript.hazard_texture_margin_for("green", "active")) > float(CellViewScript.hazard_texture_margin_for("red", "active")), "green hazards expand farther so the vine frame stays readable at combat scale")
+	var cell_size := Vector2(110.0, 30.0)
+	var green_rect: Rect2 = CellViewScript.hazard_overlay_rect_for("green", cell_size)
+	var red_rect: Rect2 = CellViewScript.hazard_overlay_rect_for("red", cell_size)
+	_assert(green_rect.size.x > red_rect.size.x, "green hazards scale larger so the vine frame stays readable at combat scale")
 	_assert(float(CellViewScript.active_hazard_fill_alpha_for("green", 0.8)) < float(CellViewScript.active_hazard_fill_alpha_for("red", 0.8)), "green hazards keep a lighter active fill so the hazard artwork is not washed out")
+
+func test_cell_view_anchors_hazard_stem_frame_to_tile_border() -> void:
+	var cell_size := Vector2(110.0, 30.0)
+	for family in ["red", "blue", "green", "purple"]:
+		var overlay_rect: Rect2 = CellViewScript.hazard_overlay_rect_for(str(family), cell_size)
+		var headroom := -overlay_rect.position.y
+		var footroom := overlay_rect.end.y - cell_size.y
+		_assert(headroom > 0.0, "%s hazard art rises above the tile border" % family)
+		_assert(footroom > 0.0, "%s hazard art still wraps below the tile border" % family)
+		_assert(headroom > footroom, "%s hazard corner objects (fire/ice/moss/smoke) extend upward past the stem frame" % family)
 
 func test_obstacle_execution_feedback_flash_and_popup_api_exists() -> void:
 	var battlefield_vfx = BattlefieldVFXScript.new()
@@ -190,9 +213,9 @@ func test_battlefield_miner_pose_assets_use_trimmed_regions() -> void:
 	if not battlefield_ui.has_method("_texture_for_miner_pose_path"):
 		return
 	var expected_regions := {
-		"res://resources/UI/miner/miner_45.png": Rect2(91, 201, 1311, 612),
-		"res://resources/UI/miner/miner_60.png": Rect2(298, 80, 709, 1024),
-		"res://resources/UI/miner/miner_90.png": Rect2(510, 59, 234, 1140)
+		"res://resources/UI/miner/miner_45.png": Rect2(43, 0, 981, 898),
+		"res://resources/UI/miner/miner_60.png": Rect2(43, 0, 981, 960),
+		"res://resources/UI/miner/miner_90.png": Rect2(186, 13, 593, 980)
 	}
 	for asset_path in expected_regions.keys():
 		var atlas := battlefield_ui.call("_texture_for_miner_pose_path", asset_path) as AtlasTexture

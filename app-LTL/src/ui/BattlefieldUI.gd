@@ -15,29 +15,23 @@ signal cell_released()
 const CellViewScript = preload("res://src/ui/CellView.gd")
 const BattlefieldVFXScript = preload("res://src/ui/BattlefieldVFX.gd")
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
-const TILE_PANEL_TEXTURE := preload("res://resources/UI/tile/tile_panel_nobg.png")
-const BATTLE_BACKDROP_PATH := "res://resources/charactor/background.png"
 const MINER_45_TEXTURE_PATH := "res://resources/UI/miner/miner_45.png"
 const MINER_60_TEXTURE_PATH := "res://resources/UI/miner/miner_60.png"
 const MINER_90_TEXTURE_PATH := "res://resources/UI/miner/miner_90.png"
 const MINER_45_TEXTURE := preload("res://resources/UI/miner/miner_45.png")
 const MINER_60_TEXTURE := preload("res://resources/UI/miner/miner_60.png")
 const MINER_90_TEXTURE := preload("res://resources/UI/miner/miner_90.png")
-const MINER_45_VISIBLE_REGION := Rect2(91, 201, 1311, 612)
-const MINER_60_VISIBLE_REGION := Rect2(298, 80, 709, 1024)
-const MINER_90_VISIBLE_REGION := Rect2(510, 59, 234, 1140)
-const TILE_PANEL_VISIBLE_REGION := Rect2(27, 128, 1384, 188)
+const MINER_45_VISIBLE_REGION := Rect2(43, 0, 981, 898)
+const MINER_60_VISIBLE_REGION := Rect2(43, 0, 981, 960)
+const MINER_90_VISIBLE_REGION := Rect2(186, 13, 593, 980)
 const HEADER_MINER_WIDTH_RATIO := 0.1425
-const SHELL_MARGIN_X := 20.0
-const SHELL_MARGIN_Y := 8.0
-const HEADER_MINER_TOP_MARGIN := 0.0
-const HEADER_MINER_LEFT_MARGIN := 0.0
-const GRID_PADDING_X := 26.0
-const GRID_PADDING_Y := 22.0
-const GRID_PADDING_X_MIN := 16.0
-const GRID_PADDING_Y_MIN := 16.0
+const MINER_DOCK_MIN_WIDTH := 96.0
+const MINER_DOCK_GAP_X := 10.0
+const GRID_PADDING_TOP := 7.0
+const GRID_PADDING_BOTTOM := 5.0
 const LANE_OVERHANG_X := 6.0
-const LANE_GAP_Y := 6.0
+const LANE_PAD_Y := 3.0
+const LANE_GAP_Y := 4.0
 const TITLE_MINER_COMPRESS_SCALE := 0.94
 const TITLE_MINER_OVERSHOOT_SCALE := 1.04
 
@@ -54,12 +48,10 @@ var vfx_overlay
 var title_miner_pose_tween: Tween
 var miner_pose_textures: Dictionary = {}
 var battle_pause_active := false
-var battle_backdrop: TextureRect
-var backdrop_drift_time := 0.0
 
 # 실행: configure the art-backed shell layers and mount the VFX overlay.
+# 전투 리디자인: 배경 이미지/패널 셸 텍스처는 폐지 — 이끼 석재 패널 스타일 + 레인 틴트만 유지 (mockup .battlefield).
 func _ready() -> void:
-	_install_backdrop()
 	_configure_visual_layers()
 	battlefield_visual_root.resized.connect(_layout_battlefield_visuals)
 	battlefield_title.resized.connect(_layout_battlefield_visuals)
@@ -69,14 +61,6 @@ func _ready() -> void:
 	vfx_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vfx_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(vfx_overlay)
-	set_process(true)
-
-func _process(delta: float) -> void:
-	if battle_backdrop == null or battle_pause_active:
-		return
-	backdrop_drift_time += delta
-	battle_backdrop.scale = Vector2.ONE * 1.015
-	battle_backdrop.position.y = -6.0 + sin(backdrop_drift_time * 0.30) * 4.0
 
 func set_battle_pause_active(active: bool) -> void:
 	battle_pause_active = active
@@ -102,12 +86,9 @@ func _configure_visual_layers() -> void:
 	title_miner.self_modulate = Color.WHITE
 	title_miner.z_index = 3
 
-	var panel_region := AtlasTexture.new()
-	panel_region.atlas = TILE_PANEL_TEXTURE
-	panel_region.region = TILE_PANEL_VISIBLE_REGION
-	panel_shell.texture = panel_region
-	panel_shell.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	panel_shell.stretch_mode = TextureRect.STRETCH_SCALE
+	# 목업 정합: 구 tile_panel 프레임 텍스처 셸은 표시하지 않는다 (노드는 계약상 유지).
+	panel_shell.texture = null
+	panel_shell.visible = false
 	panel_shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel_shell.z_index = 0
 
@@ -123,62 +104,51 @@ func _configure_visual_layers() -> void:
 	battlefield_grid.add_theme_constant_override("v_separation", 5)
 	battlefield_grid.z_index = 2
 
-func _install_backdrop() -> void:
-	if battlefield_visual_root == null or battle_backdrop != null:
-		return
-	battle_backdrop = TextureRect.new()
-	battle_backdrop.name = "BattleBackdrop"
-	battle_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	battle_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	battle_backdrop.texture = LTLThemeScript.art_texture(BATTLE_BACKDROP_PATH)
-	battle_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	battle_backdrop.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	battle_backdrop.self_modulate = Color(0.48, 0.48, 0.48, 0.34)
-	battle_backdrop.z_index = -2
-	battlefield_visual_root.add_child(battle_backdrop)
-	battlefield_visual_root.move_child(battle_backdrop, 0)
-
 # 실행: expose the board layout policy for regression tests and runtime reuse.
+# 목업 준거(.miner-dock 14.25%/min 96px 좌측 도크 + .lane-stack): 마이너가 왼쪽 도크를 점유하고
+# 지형 타일 그리드는 도크 오른쪽에서 시작한다 — 캐릭터와 타일이 겹치지 않는다.
 func layout_metrics_for_board(board_size: Vector2) -> Dictionary:
-	var header_miner_width := board_size.x * HEADER_MINER_WIDTH_RATIO
+	var dock_width := maxf(MINER_DOCK_MIN_WIDTH, board_size.x * HEADER_MINER_WIDTH_RATIO)
 	var reference_texture: Texture2D = title_miner.texture if title_miner != null and title_miner.texture != null else _texture_for_miner_pose_path(MINER_45_TEXTURE_PATH)
 	var texture_size := _texture_display_size(reference_texture)
 	var texture_ratio := texture_size.y / maxf(1.0, texture_size.x)
+	var header_miner_width := dock_width
 	var header_miner_height := header_miner_width * texture_ratio
-	var max_miner_height := maxf(0.0, board_size.y - SHELL_MARGIN_Y * 2.0)
+	var max_miner_height := maxf(0.0, board_size.y * 0.98)
 	if header_miner_height > max_miner_height and texture_ratio > 0.0:
 		header_miner_height = max_miner_height
 		header_miner_width = header_miner_height / texture_ratio
+	# 도크 안 중앙 정렬 + 바닥 정렬 (mockup align-items: flex-end)
 	var header_miner_rect := Rect2(
 		Vector2(
-			HEADER_MINER_LEFT_MARGIN,
-			HEADER_MINER_TOP_MARGIN
+			maxf(0.0, (dock_width - header_miner_width) * 0.5),
+			maxf(0.0, board_size.y - header_miner_height)
 		),
 		Vector2(header_miner_width, header_miner_height)
 	)
-	var shell_rect := Rect2(
-		Vector2(SHELL_MARGIN_X, SHELL_MARGIN_Y),
-		Vector2(
-			maxf(0.0, board_size.x - SHELL_MARGIN_X * 2.0),
-			maxf(0.0, board_size.y - SHELL_MARGIN_Y * 2.0)
-		)
-	)
-	var grid_padding_x := clampf(shell_rect.size.x * 0.015, GRID_PADDING_X_MIN, GRID_PADDING_X)
-	var grid_padding_y := clampf(shell_rect.size.y * 0.10, GRID_PADDING_Y_MIN, GRID_PADDING_Y)
+	var grid_left := dock_width + MINER_DOCK_GAP_X + LANE_OVERHANG_X
+	# 레인 스택: 상단 7 / 하단 5 패딩, 레인 3줄(셀 + 상하 3px 패딩) + 레인 간 4px (mockup .lane-stack/.lane)
+	var lane_stack_height := maxf(0.0, board_size.y - GRID_PADDING_TOP - GRID_PADDING_BOTTOM)
+	var lane_height := maxf(0.0, (lane_stack_height - LANE_GAP_Y * 2.0) / 3.0)
+	var cell_row_height := maxf(0.0, lane_height - LANE_PAD_Y * 2.0)
+	var grid_v_separation := int(LANE_GAP_Y + LANE_PAD_Y * 2.0)
+	var grid_h_separation := 3
 	var grid_rect := Rect2(
-		shell_rect.position + Vector2(grid_padding_x, grid_padding_y),
+		Vector2(grid_left, GRID_PADDING_TOP + LANE_PAD_Y),
 		Vector2(
-			maxf(0.0, shell_rect.size.x - grid_padding_x * 2.0),
-			maxf(0.0, shell_rect.size.y - grid_padding_y * 2.0)
+			maxf(0.0, board_size.x - grid_left - LANE_OVERHANG_X),
+			cell_row_height * 3.0 + float(grid_v_separation) * 2.0
 		)
 	)
-	var grid_h_separation := 2 if shell_rect.size.x < 1120.0 else 3
-	var grid_v_separation := 4 if shell_rect.size.x < 1120.0 else 5
-	var lane_height := maxf(0.0, floor((grid_rect.size.y - LANE_GAP_Y * 2.0) / 3.0))
+	# 셸 rect는 장식 텍스처 폐지 후에도 계약 호환을 위해 레인 스택 외곽으로 유지한다.
+	var shell_rect := Rect2(
+		Vector2(grid_rect.position.x - LANE_OVERHANG_X, GRID_PADDING_TOP),
+		Vector2(grid_rect.size.x + LANE_OVERHANG_X * 2.0, lane_stack_height)
+	)
 	var lane_rects: Array = []
 	for index in range(3):
 		lane_rects.append(Rect2(
-			Vector2(grid_rect.position.x - LANE_OVERHANG_X, grid_rect.position.y + float(index) * (lane_height + LANE_GAP_Y)),
+			Vector2(grid_rect.position.x - LANE_OVERHANG_X, GRID_PADDING_TOP + float(index) * (lane_height + LANE_GAP_Y)),
 			Vector2(grid_rect.size.x + LANE_OVERHANG_X * 2.0, lane_height)
 		))
 	return {
@@ -187,6 +157,7 @@ func layout_metrics_for_board(board_size: Vector2) -> Dictionary:
 		"gridRect": grid_rect,
 		"laneRects": lane_rects,
 		"headerMinerWidth": header_miner_width,
+		"minerDockWidth": dock_width,
 		"gridHSeparation": grid_h_separation,
 		"gridVSeparation": grid_v_separation
 	}
@@ -207,9 +178,6 @@ func _layout_battlefield_visuals() -> void:
 
 	panel_shell.position = shell_rect.position
 	panel_shell.size = shell_rect.size
-	if battle_backdrop != null:
-		battle_backdrop.position = shell_rect.position + Vector2(-6.0, -6.0)
-		battle_backdrop.size = shell_rect.size + Vector2(12.0, 12.0)
 
 	var lanes: Array[ColorRect] = [lane_top, lane_middle, lane_bottom]
 	for index in range(mini(lanes.size(), lane_rects.size())):

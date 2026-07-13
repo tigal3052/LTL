@@ -1,484 +1,263 @@
 # 계약:
-# - 책임: 책 기반 아티팩트 도감 UI를 구성하고 read model을 페이지형 레이아웃으로 렌더링한다.
-# - 입력: ArtifactCodexReadModel.project() 결과와 debug/section/entry 상호작용.
-# - 출력: debug_toggled, section_selected, entry_selected signal과 시각적 페이지 갱신.
-# - 금지: reward-table 파일 읽기, run state 직접 변경, 발견 상태 계산.
+# - 책임: V5 도감 overlay를 1440x900 캔버스로 조합하고 read model을 표시한다.
+# - 입력: ArtifactCodexReadModel의 V5 projection 및 사용자 선택 신호.
+# - 출력: debug_toggled, entry_selected, section_selected, taxonomy_selected, sort_selected.
+# - 금지: reward table 직접 읽기와 run state 변경.
 #
-# 실행: define the artifact codex panel UI control.
+# 실행: V5 parchment catalog and detail overlay control.
 class_name ArtifactCodexPanelUI
 extends PanelContainer
 
 signal debug_toggled(debug_all: bool)
 signal entry_selected(entry_id: String)
 signal section_selected(section_id: String)
+signal taxonomy_selected(taxonomy_id: String)
+signal sort_selected(sort_id: String)
 
-const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
-const BOOK_TEXTURE = preload("res://resources/UI/ItemBook.png")
-const ArtifactCodexLayoutPolicyScript = preload("res://src/ui/codex/ArtifactCodexLayoutPolicy.gd")
-const ArtifactCodexBookVisualFactoryScript = preload("res://src/ui/codex/ArtifactCodexBookVisualFactory.gd")
+const TextCatalog = preload("res://src/ui/TextCatalog.gd")
+const Layout = preload("res://src/ui/codex/ArtifactCodexLayoutPolicy.gd")
+const Typography = preload("res://src/ui/codex/CodexTypography.gd")
+const V5_ROOT := "res://resources/UI/codex/v5"
+const SORT_CONTROL_SIZE := Vector2(126, 28)
+const SORT_POPUP_SIZE := Vector2i(126, 92)
 
-const BOOK_PIXEL_SIZE := ArtifactCodexLayoutPolicyScript.BOOK_PIXEL_SIZE
-
-var book_center: Control
-var book_aspect: Control
-var book_root: Control
-var spread: Control
-var header_bar: HBoxContainer
+var design_canvas: Control
+var catalog_region: Control
+var detail_region: Control
 var title_label: Label
 var count_label: Label
-var debug_check: CheckBox
 var close_button: Button
-var left_page: Control
-var right_page: Control
-var left_scroll: ScrollContainer
-var right_scroll: ScrollContainer
-var left_content: VBoxContainer
-var right_content: VBoxContainer
-var left_title_label: Label
-var left_subtitle_label: Label
-var hero_shell: PanelContainer
-var hero_art_host: Control
-var hero_badge_label: Label
-var fact_row: HBoxContainer
-var shape_section: VBoxContainer
-var shape_title_label: Label
-var shape_detail_label: Label
-var shape_grid: GridContainer
-var description_label: RichTextLabel
-var illustration_hint_label: Label
-var section_tabs: HBoxContainer
-var right_summary_label: Label
-var grid: GridContainer
+var debug_check: CheckBox
+var taxonomy_tabs: HBoxContainer
+var filter_tabs: HBoxContainer
+var entry_grid: GridContainer
 var empty_label: Label
+var detail_title: Label
+var detail_subtitle: Label
+var detail_status: Label
+var hero_art_host: Control
+var observation_label: Label
+var facts_box: VBoxContainer
+var description_label: RichTextLabel
+var sort_popup: PopupMenu
 var last_model: Dictionary = {}
 var _built := false
 
-# 실행: construct the book shell once the node enters the tree.
 func _ready() -> void:
-	if _built:
-		return
+	if _built: return
 	_built = true
 	visible = false
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	add_theme_stylebox_override("panel", _transparent_panel_style())
-	_build_book_shell()
-	_build_left_page()
-	_build_right_page()
-	apply_locale()
-	call_deferred("_apply_book_layout")
+	add_theme_stylebox_override("panel", _flat(Color.TRANSPARENT))
+	_build_shell()
+	call_deferred("_apply_canvas_layout")
 
-# 실행: keep the spread aligned to the book image whenever the panel resizes.
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_RESIZED and _built:
-		call_deferred("_apply_book_layout")
+	if what == NOTIFICATION_RESIZED and _built: call_deferred("_apply_canvas_layout")
 
-# 실행: expose ratio-driven book safe-area math for deterministic tests and layout.
-func book_layout_metrics_for_rect(book_rect: Rect2) -> Dictionary:
-	return ArtifactCodexLayoutPolicyScript.book_layout_metrics_for_rect(book_rect)
+func book_layout_metrics_for_rect(rect: Rect2) -> Dictionary:
+	return Layout.book_layout_metrics_for_rect(rect)
 
-# 실행: refresh static panel text after locale changes.
 func apply_locale() -> void:
-	if not _built:
-		return
-	title_label.text = TextCatalogScript.t("codex.title")
-	debug_check.text = TextCatalogScript.t("codex.debug_all")
-	close_button.text = TextCatalogScript.t("action.close")
-	if not last_model.is_empty():
-		render_codex(last_model)
+	if last_model.is_empty(): return
+	render_codex(last_model)
 
-# 실행: render a projected codex model into the book panel.
 func render_codex(model: Dictionary) -> void:
-	if not _built:
-		_ready()
+	if not _built: _ready()
 	last_model = model.duplicate(true)
-	title_label.text = str(model.get("title", TextCatalogScript.t("codex.title")))
-	count_label.text = TextCatalogScript.t(
-		"codex.discovered_count",
-		[int(model.get("discoveredCount", 0)), int(model.get("totalCount", 0))]
-	)
+	title_label.text = str(model.get("title", TextCatalog.t("codex.title")))
+	count_label.text = TextCatalog.t("codex.discovered_count", [int(model.get("discoveredCount", 0)), int(model.get("totalCount", 0))])
 	debug_check.set_pressed_no_signal(bool(model.get("debugAll", false)))
-	_render_sections(model.get("sections", []), str(model.get("activeSection", "all")))
-	_render_left_page(model.get("leftPage", {}))
-	_render_right_page(model.get("rightPage", {}), str(model.get("resolvedSelectedEntryId", "")))
-	call_deferred("_apply_book_layout")
+	_render_taxonomies(model.get("sections", []), str(model.get("activeSection", "all")))
+	_render_filters(model.get("sections", []), str(model.get("activeSection", "all")), model.get("sortOptions", []))
+	_render_entries((model.get("rightPage", {}) as Dictionary).get("gridEntries", []), str(model.get("resolvedSelectedEntryId", "")))
+	_render_detail(model.get("leftPage", {}))
+	call_deferred("_apply_canvas_layout")
 
-# 실행: construct the global shell, overlay, book frame, and shared header.
-func _build_book_shell() -> void:
-	var overlay := ColorRect.new()
-	overlay.name = "OverlayShade"
-	overlay.color = Color(0.02, 0.015, 0.01, 0.68)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(overlay)
+func _build_shell() -> void:
+	var shade := ColorRect.new()
+	shade.name = "OverlayShade"
+	shade.color = Color(0.05, 0.035, 0.02, 0.45)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(shade)
+	var viewport := Control.new()
+	viewport.name = "CodexViewport"
+	viewport.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(viewport)
+	design_canvas = Control.new()
+	design_canvas.name = "DesignCanvas"
+	design_canvas.size = Layout.DESIGN_SIZE
+	viewport.add_child(design_canvas)
+	var bg := TextureRect.new()
+	bg.name = "ParchmentBackground"
+	bg.texture = _texture("codex_v5_screen_parchment_bg_1440x900.png")
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	design_canvas.add_child(bg)
+	_build_topbar()
+	_build_catalog()
+	_build_detail()
 
-	book_center = Control.new()
-	book_center.name = "BookCenter"
-	book_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(book_center)
+func _build_topbar() -> void:
+	# PanelContainer would resize every direct child to its content rect, destroying the absolute 1440x80 chrome geometry.
+	var top := Panel.new()
+	top.name = "TopBar"
+	top.position = Vector2(0, 0); top.size = Vector2(1440, 80)
+	top.add_theme_stylebox_override("panel", _flat(Color(1, 0.975, 0.94, 0.94), Color(0.25, 0.35, 0.25, 0.16), 0, 0, 0, 1))
+	design_canvas.add_child(top)
+	var brand := _label("Looting The Leviathan", 34, Color("183a1f"), "serif")
+	brand.name = "Brand"; brand.position = Vector2(40, 17); brand.size = Vector2(430, 46); top.add_child(brand)
+	var version := _label("Field Journal v1.0.4", 12, Color("727971"))
+	version.name = "Version"; version.position = Vector2(480, 28); version.size = Vector2(150, 25); version.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; version.add_theme_stylebox_override("normal", _flat(Color(1, 1, 1, 0.42), Color(0.45, 0.47, 0.44, 0.32), 1, 1, 1, 1)); top.add_child(version)
+	var nav := HBoxContainer.new(); nav.name = "ContextNav"; nav.position = Vector2(645, 20); nav.size = Vector2(390, 42); nav.alignment = BoxContainer.ALIGNMENT_CENTER; nav.add_theme_constant_override("separation", 28); top.add_child(nav)
+	title_label = _label(TextCatalog.t("codex.title"), 14, Color("183a1f")); title_label.name = "CodexNavLabel"; title_label.visible = false; top.add_child(title_label)
+	for label_text in ["캐릭터 선택", "레비아탄 선택", TextCatalog.t("codex.title"), "설정"]:
+		var nav_label := _label(label_text, 14, Color("183a1f") if label_text == TextCatalog.t("codex.title") else Color("444840")); nav_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nav_label.custom_minimum_size = Vector2(72, 36); nav.add_child(nav_label)
+	debug_check = CheckBox.new(); debug_check.name = "DebugCheck"; debug_check.visible = false; debug_check.toggled.connect(func(v): debug_toggled.emit(v)); top.add_child(debug_check)
+	close_button = Button.new(); close_button.name = "CloseButton"; close_button.text = "×"; close_button.position = Vector2(1350, 20); close_button.size = Vector2(48, 38); close_button.add_theme_font_size_override("font_size", 24); close_button.add_theme_color_override("font_color", Color("183a1f")); close_button.add_theme_stylebox_override("normal", _flat(Color.TRANSPARENT)); close_button.pressed.connect(func(): visible = false); top.add_child(close_button)
 
-	book_aspect = Control.new()
-	book_aspect.name = "BookAspect"
-	book_aspect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	book_center.add_child(book_aspect)
+func _build_catalog() -> void:
+	catalog_region = Control.new(); catalog_region.name = "CatalogRegion"; catalog_region.position = Vector2(40, 118); catalog_region.size = Vector2(740, 750); design_canvas.add_child(catalog_region)
+	var kicker := _label("EXPLORATION ALMANAC", 13, Color("316428")); kicker.position = Vector2(0, 0); kicker.size = Vector2(400, 20); catalog_region.add_child(kicker)
+	var heading := _label(TextCatalog.t("codex.title"), 56, Color("043f28"), "serif"); heading.position = Vector2(0, 18); heading.size = Vector2(470, 70); catalog_region.add_child(heading)
+	var subtitle := _label("Recovered artifact field journal", 18, Color("3a2c1c"), "serif"); subtitle.position = Vector2(2, 88); subtitle.size = Vector2(500, 28); catalog_region.add_child(subtitle)
+	var count_kicker := _label("TOTAL DISCOVERED", 12, Color("6d6b62")); count_kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; count_kicker.position = Vector2(500, 14); count_kicker.size = Vector2(220, 20); catalog_region.add_child(count_kicker)
+	count_label = _label("", 30, Color("275e23"), "serif"); count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; count_label.position = Vector2(500, 35); count_label.size = Vector2(220, 42); catalog_region.add_child(count_label)
+	var panel := TextureRect.new(); panel.name = "ListPanel"; panel.texture = _texture("codex_v5_list_panel_bg_1480x1216.png"); panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; panel.stretch_mode = TextureRect.STRETCH_SCALE; panel.position = Vector2(0, 144); panel.size = Vector2(740, 606); panel.mouse_filter = Control.MOUSE_FILTER_IGNORE; catalog_region.add_child(panel)
+	taxonomy_tabs = HBoxContainer.new(); taxonomy_tabs.name = "TaxonomyTabs"; taxonomy_tabs.position = Vector2(42, 170); taxonomy_tabs.size = Vector2(650, 38); taxonomy_tabs.add_theme_constant_override("separation", 28); catalog_region.add_child(taxonomy_tabs)
+	filter_tabs = HBoxContainer.new(); filter_tabs.name = "FilterTabs"; filter_tabs.position = Vector2(42, 218); filter_tabs.size = Vector2(650, 30); filter_tabs.add_theme_constant_override("separation", 8); catalog_region.add_child(filter_tabs)
+	var scroll := ScrollContainer.new(); scroll.name = "CatalogScroll"; scroll.position = Vector2(38, 265); scroll.size = Vector2(674, 465); scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; _style_scrollbar(scroll.get_v_scroll_bar()); catalog_region.add_child(scroll)
+	entry_grid = GridContainer.new(); entry_grid.name = "EntryGrid"; entry_grid.columns = 2; entry_grid.add_theme_constant_override("h_separation", 18); entry_grid.add_theme_constant_override("v_separation", 14); scroll.add_child(entry_grid)
+	empty_label = _label(TextCatalog.t("codex.empty"), 16, Color("6d6b62")); empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; empty_label.custom_minimum_size = Vector2(620, 80); entry_grid.add_child(empty_label)
 
-	book_root = Control.new()
-	book_root.name = "BookRoot"
-	book_root.size = BOOK_PIXEL_SIZE
-	book_aspect.add_child(book_root)
+func _build_detail() -> void:
+	detail_region = Control.new(); detail_region.name = "DetailRegion"; detail_region.position = Vector2(804, 118); detail_region.size = Vector2(596, 750); detail_region.clip_contents = true; design_canvas.add_child(detail_region)
+	var panel := TextureRect.new(); panel.name = "DetailPanel"; panel.texture = _texture("codex_v5_detail_panel_bg_1192x1448.png"); panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; panel.stretch_mode = TextureRect.STRETCH_SCALE; panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); panel.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(panel)
+	detail_status = _label("", 11, Color("316428")); detail_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; detail_status.position = Vector2(350, 42); detail_status.size = Vector2(170, 22); detail_region.add_child(detail_status)
+	detail_title = _label("", 36, Color("183a1f")); detail_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; detail_title.position = Vector2(45, 70); detail_title.size = Vector2(510, 45); detail_region.add_child(detail_title)
+	detail_subtitle = _label("", 16, Color("4d3218")); detail_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; detail_subtitle.position = Vector2(45, 115); detail_subtitle.size = Vector2(510, 25); detail_region.add_child(detail_subtitle)
+	var hero_frame := TextureRect.new(); hero_frame.texture = _texture("codex_v5_detail_hero_frame_1080x584.png"); hero_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; hero_frame.stretch_mode = TextureRect.STRETCH_SCALE; hero_frame.position = Vector2(28, 145); hero_frame.size = Vector2(540, 292); hero_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(hero_frame)
+	hero_art_host = Control.new(); hero_art_host.name = "HeroArtHost"; hero_art_host.position = Vector2(150, 175); hero_art_host.size = Vector2(280, 230); detail_region.add_child(hero_art_host)
+	var observation_note := TextureRect.new(); observation_note.name = "ObservationNote"; observation_note.texture = _texture("codex_v5_observation_note_296x140.png"); observation_note.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; observation_note.stretch_mode = TextureRect.STRETCH_SCALE; observation_note.position = Vector2(382, 340); observation_note.size = Vector2(148, 70); observation_note.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(observation_note)
+	observation_label = _label("", 10, Color("4f3929")); observation_label.name = "ObservationText"; observation_label.position = Vector2(394, 348); observation_label.size = Vector2(125, 54); observation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; observation_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP; observation_label.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(observation_label)
+	var facts_frame := TextureRect.new(); facts_frame.texture = _texture("codex_v5_facts_panel_bg_1080x428.png"); facts_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; facts_frame.stretch_mode = TextureRect.STRETCH_SCALE; facts_frame.position = Vector2(28, 440); facts_frame.size = Vector2(540, 214); facts_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(facts_frame)
+	facts_box = VBoxContainer.new(); facts_box.name = "Facts"; facts_box.position = Vector2(70, 462); facts_box.size = Vector2(455, 174); facts_box.add_theme_constant_override("separation", 3); detail_region.add_child(facts_box)
+	description_label = RichTextLabel.new(); description_label.name = "FlavorText"; description_label.bbcode_enabled = false; description_label.fit_content = false; description_label.scroll_active = true; description_label.position = Vector2(78, 670); description_label.size = Vector2(438, 54); description_label.add_theme_font_override("normal_font", Typography.korean_serif_font()); description_label.add_theme_font_size_override("normal_font_size", 13); description_label.add_theme_color_override("default_color", Color("564334")); description_label.add_theme_stylebox_override("normal", _flat(Color.TRANSPARENT)); _style_scrollbar(description_label.get_v_scroll_bar()); detail_region.add_child(description_label)
 
-	var book_frame := TextureRect.new()
-	book_frame.name = "BookFrame"
-	book_frame.texture = BOOK_TEXTURE
-	book_frame.texture_filter = Control.TEXTURE_FILTER_NEAREST
-	book_frame.stretch_mode = TextureRect.STRETCH_SCALE
-	book_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	book_root.add_child(book_frame)
-
-	spread = Control.new()
-	spread.name = "Spread"
-	book_root.add_child(spread)
-
-	header_bar = HBoxContainer.new()
-	header_bar.name = "HeaderBar"
-	header_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
-	header_bar.add_theme_constant_override("separation", 14)
-	spread.add_child(header_bar)
-
-	title_label = Label.new()
-	title_label.name = "TitleLabel"
-	title_label.add_theme_font_size_override("font_size", 30)
-	title_label.add_theme_color_override("font_color", Color(0.31, 0.20, 0.09, 1.0))
-	header_bar.add_child(title_label)
-
-	count_label = Label.new()
-	count_label.name = "CountLabel"
-	count_label.add_theme_font_size_override("font_size", 16)
-	count_label.add_theme_color_override("font_color", Color(0.41, 0.28, 0.13, 0.96))
-	header_bar.add_child(count_label)
-
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header_bar.add_child(spacer)
-
-	debug_check = CheckBox.new()
-	debug_check.name = "DebugCheck"
-	debug_check.add_theme_font_size_override("font_size", 12)
-	debug_check.add_theme_color_override("font_color", Color(0.30, 0.22, 0.12, 0.95))
-	debug_check.toggled.connect(func(enabled: bool): debug_toggled.emit(enabled))
-	header_bar.add_child(debug_check)
-
-	close_button = Button.new()
-	close_button.name = "CloseButton"
-	close_button.custom_minimum_size = Vector2(92.0, 20.0)
-	close_button.pressed.connect(func(): visible = false)
-	_style_small_action_button(close_button)
-	left_page = Control.new()
-	left_page.name = "LeftPage"
-	spread.add_child(left_page)
-
-	right_page = Control.new()
-	right_page.name = "RightPage"
-	spread.add_child(right_page)
-
-	header_bar.add_child(close_button)
-	header_bar.z_index = 3
-	header_bar.top_level = false
-
-# 실행: construct the detailed left page with its own scroll container.
-func _build_left_page() -> void:
-	left_scroll = ScrollContainer.new()
-	left_scroll.name = "LeftScroll"
-	left_scroll.follow_focus = true
-	left_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	left_page.add_child(left_scroll)
-
-	left_content = VBoxContainer.new()
-	left_content.name = "LeftContent"
-	left_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_content.add_theme_constant_override("separation", 14)
-	left_scroll.add_child(left_content)
-
-	left_title_label = Label.new()
-	left_title_label.name = "EntryTitle"
-	left_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	left_title_label.add_theme_font_size_override("font_size", 28)
-	left_title_label.add_theme_color_override("font_color", Color(0.28, 0.16, 0.07, 1.0))
-	left_content.add_child(left_title_label)
-
-	left_subtitle_label = Label.new()
-	left_subtitle_label.name = "EntrySubtitle"
-	left_subtitle_label.add_theme_font_size_override("font_size", 15)
-	left_subtitle_label.add_theme_color_override("font_color", Color(0.44, 0.31, 0.16, 0.92))
-	left_content.add_child(left_subtitle_label)
-
-	hero_shell = PanelContainer.new()
-	hero_shell.name = "HeroShell"
-	hero_shell.clip_contents = true
-	hero_shell.add_theme_stylebox_override("panel", _hero_frame_style())
-	left_content.add_child(hero_shell)
-
-	hero_art_host = Control.new()
-	hero_art_host.name = "HeroArtHost"
-	hero_art_host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	hero_shell.add_child(hero_art_host)
-
-	hero_badge_label = Label.new()
-	hero_badge_label.name = "HeroBadge"
-	hero_badge_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hero_badge_label.add_theme_font_size_override("font_size", 13)
-	hero_badge_label.add_theme_color_override("font_color", Color(0.42, 0.28, 0.14, 0.95))
-	left_content.add_child(hero_badge_label)
-
-	fact_row = HBoxContainer.new()
-	fact_row.name = "FactRow"
-	fact_row.alignment = BoxContainer.ALIGNMENT_BEGIN
-	fact_row.add_theme_constant_override("separation", 8)
-	left_content.add_child(fact_row)
-
-	shape_section = VBoxContainer.new()
-	shape_section.name = "ShapeSection"
-	shape_section.visible = false
-	shape_section.add_theme_constant_override("separation", 6)
-	left_content.add_child(shape_section)
-
-	shape_title_label = Label.new()
-	shape_title_label.name = "ShapeTitle"
-	shape_title_label.add_theme_font_size_override("font_size", 13)
-	shape_title_label.add_theme_color_override("font_color", Color(0.36, 0.24, 0.11, 0.96))
-	shape_section.add_child(shape_title_label)
-
-	shape_detail_label = Label.new()
-	shape_detail_label.name = "ShapeDetail"
-	shape_detail_label.add_theme_font_size_override("font_size", 12)
-	shape_detail_label.add_theme_color_override("font_color", Color(0.45, 0.33, 0.18, 0.92))
-	shape_section.add_child(shape_detail_label)
-
-	shape_grid = GridContainer.new()
-	shape_grid.name = "ShapeGrid"
-	shape_grid.columns = 1
-	shape_grid.add_theme_constant_override("h_separation", 4)
-	shape_grid.add_theme_constant_override("v_separation", 4)
-	shape_section.add_child(shape_grid)
-
-	description_label = RichTextLabel.new()
-	description_label.name = "Description"
-	description_label.fit_content = true
-	description_label.scroll_active = false
-	description_label.bbcode_enabled = false
-	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description_label.add_theme_font_size_override("normal_font_size", 15)
-	description_label.add_theme_color_override("default_color", Color(0.20, 0.14, 0.08, 0.96))
-	left_content.add_child(description_label)
-
-	illustration_hint_label = Label.new()
-	illustration_hint_label.name = "IllustrationHint"
-	illustration_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	illustration_hint_label.add_theme_font_size_override("font_size", 11)
-	illustration_hint_label.add_theme_color_override("font_color", Color(0.48, 0.38, 0.24, 0.85))
-	left_content.add_child(illustration_hint_label)
-
-# 실행: construct the right page with tabs, summary, and a separate grid scroll container.
-func _build_right_page() -> void:
-	section_tabs = HBoxContainer.new()
-	section_tabs.name = "SectionTabs"
-	section_tabs.alignment = BoxContainer.ALIGNMENT_BEGIN
-	section_tabs.add_theme_constant_override("separation", 10)
-	right_page.add_child(section_tabs)
-
-	right_summary_label = Label.new()
-	right_summary_label.name = "RightSummary"
-	right_summary_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	right_summary_label.add_theme_font_size_override("font_size", 15)
-	right_summary_label.add_theme_color_override("font_color", Color(0.39, 0.28, 0.14, 0.96))
-	right_page.add_child(right_summary_label)
-
-	right_scroll = ScrollContainer.new()
-	right_scroll.name = "RightScroll"
-	right_scroll.follow_focus = true
-	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	right_page.add_child(right_scroll)
-
-	right_content = VBoxContainer.new()
-	right_content.name = "RightContent"
-	right_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_content.add_theme_constant_override("separation", 12)
-	right_scroll.add_child(right_content)
-
-	grid = GridContainer.new()
-	grid.name = "EntryGrid"
-	grid.columns = 3
-	right_content.add_child(grid)
-
-	empty_label = Label.new()
-	empty_label.name = "EmptyLabel"
-	empty_label.visible = false
-	empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	empty_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	empty_label.add_theme_font_size_override("font_size", 15)
-	empty_label.add_theme_color_override("font_color", Color(0.47, 0.34, 0.18, 0.94))
-	right_content.add_child(empty_label)
-
-# 실행: position every major page element inside the book safe area.
-func _apply_book_layout() -> void:
-	if not _built:
-		return
-	var fitted := _book_transform_for_viewport(size)
-	book_root.position = fitted["position"]
-	book_root.scale = Vector2.ONE * float(fitted["scale"])
-	book_root.size = BOOK_PIXEL_SIZE
-
-	var metrics := book_layout_metrics_for_rect(Rect2(Vector2.ZERO, BOOK_PIXEL_SIZE))
-	spread.position = Vector2(float(metrics["outerLeft"]), float(metrics["outerTop"]))
-	spread.size = Vector2(float(metrics["safeWidth"]), float(metrics["safeHeight"]))
-
-	var page_width := float(metrics["pageWidth"])
-	var page_height := float(metrics["pageHeight"])
-	var gutter := float(metrics["gutter"])
-	var page_padding_x := float(metrics["pagePaddingX"])
-	var page_padding_y := float(metrics["pagePaddingY"])
-	var header_height := float(metrics["headerHeight"])
-	var tabs_height := float(metrics["tabsHeight"])
-	var summary_height := float(metrics["summaryHeight"])
-	var page_gap := float(metrics["pageGap"])
-	header_bar.position = Vector2(page_padding_x, page_padding_y * 0.18)
-	header_bar.size = Vector2(spread.size.x - page_padding_x * 2.0, header_height)
-	var content_top := header_bar.position.y + header_height + page_gap
-	var usable_page_height := maxf(0.0, page_height - content_top)
-
-	left_page.position = Vector2(0.0, content_top)
-	left_page.size = Vector2(page_width, usable_page_height)
-	right_page.position = Vector2(page_width + gutter, content_top)
-	right_page.size = Vector2(page_width, usable_page_height)
-
-	left_scroll.position = Vector2(page_padding_x, page_padding_y)
-	left_scroll.size = Vector2(page_width - page_padding_x * 2.0, maxf(0.0, left_page.size.y - page_padding_y * 2.0))
-	left_content.custom_minimum_size.x = maxf(0.0, left_scroll.size.x - 18.0)
-	left_title_label.custom_minimum_size.x = left_content.custom_minimum_size.x
-	left_subtitle_label.custom_minimum_size.x = left_content.custom_minimum_size.x
-	description_label.custom_minimum_size.x = left_content.custom_minimum_size.x
-	illustration_hint_label.custom_minimum_size.x = left_content.custom_minimum_size.x
-	hero_shell.custom_minimum_size = Vector2(left_content.custom_minimum_size.x, minf(float(metrics["heroHeight"]), left_scroll.size.y * 0.42))
-
-	section_tabs.position = Vector2(page_padding_x, page_padding_y)
-	section_tabs.size = Vector2(page_width - page_padding_x * 2.0, tabs_height)
-
-	right_summary_label.position = Vector2(page_padding_x, section_tabs.position.y + tabs_height + page_gap * 0.35)
-	right_summary_label.size = Vector2(page_width - page_padding_x * 2.0, summary_height)
-
-	right_scroll.position = Vector2(page_padding_x, right_summary_label.position.y + summary_height + page_gap)
-	right_scroll.size = Vector2(page_width - page_padding_x * 2.0, maxf(0.0, right_page.size.y - right_scroll.position.y - page_padding_y))
-	right_content.custom_minimum_size.x = maxf(0.0, right_scroll.size.x - 16.0)
-	grid.columns = int(metrics["gridColumns"])
-	grid.add_theme_constant_override("h_separation", int(metrics["gridGap"]))
-	grid.add_theme_constant_override("v_separation", int(metrics["gridGap"]))
-	_resize_grid_cards(Vector2(float(metrics["cardWidth"]), float(metrics["cardHeight"])))
-
-# 실행: rebuild the top tab row from the projected section payload.
-func _render_sections(sections: Array, active_section: String) -> void:
-	_clear_children(section_tabs)
-	var active_payload := {}
+func _render_taxonomies(sections: Array, active_section: String) -> void:
+	_clear(taxonomy_tabs)
 	for section in sections:
-		var payload: Dictionary = section
-		if str(payload.get("id", "")) == active_section:
-			active_payload = payload
-		var button := Button.new()
-		button.text = str(payload.get("label", ""))
-		button.custom_minimum_size = Vector2(96.0, 22.0)
-		_style_section_button(button, bool(payload.get("active", false)))
-		button.pressed.connect(_on_section_button_pressed.bind(str(payload.get("id", ""))))
-		section_tabs.add_child(button)
-	if active_payload.is_empty() and not sections.is_empty():
-		active_payload = sections[0]
-	right_summary_label.text = TextCatalogScript.t(
-		"codex.discovered_count",
-		[int(active_payload.get("discoveredCount", 0)), int(active_payload.get("count", 0))]
-	)
+		var data: Dictionary = section; var active := str(data.get("id", "")) == active_section; var b := _text_button(str(data.get("label", "")), active, Vector2(112, 30)); var tab_style := _flat(Color.TRANSPARENT, Color("3b692a") if active else Color.TRANSPARENT, 0, 0, 0, 3 if active else 0); tab_style.corner_radius_top_left = 0; tab_style.corner_radius_top_right = 0; tab_style.corner_radius_bottom_left = 0; tab_style.corner_radius_bottom_right = 0; b.add_theme_stylebox_override("normal", tab_style); b.add_theme_stylebox_override("hover", tab_style); b.add_theme_stylebox_override("pressed", tab_style); b.pressed.connect(func(): section_selected.emit(str(data.get("id", "")))); taxonomy_tabs.add_child(b)
 
-# 실행: populate the left detail page from the resolved selected entry payload.
-func _render_left_page(left_page_model: Dictionary) -> void:
-	left_title_label.text = str(left_page_model.get("title", TextCatalogScript.t("codex.title")))
-	left_subtitle_label.text = str(left_page_model.get("subtitle", ""))
-	description_label.text = str(left_page_model.get("body", TextCatalogScript.t("codex.empty")))
-	hero_badge_label.text = str(left_page_model.get("badge", ""))
-	hero_badge_label.visible = not hero_badge_label.text.is_empty()
-	_render_fact_chips(left_page_model.get("factChips", []))
-	_render_shape_info(left_page_model)
-	var hero_art: Dictionary = left_page_model.get("heroArt", {})
-	_render_art_placeholder(hero_art_host, hero_art, str(left_page_model.get("title", "")), true)
-	var requested_path := str(hero_art.get("requestedPath", ""))
-	var resolved_path := str(hero_art.get("path", ""))
-	var resolved_source := str(hero_art.get("source", ""))
-	if not requested_path.is_empty() and requested_path != resolved_path and resolved_source in ["fallback", "missing"]:
-		illustration_hint_label.text = "%s (%s)" % [
-			str(left_page_model.get("missingArtText", TextCatalogScript.t("codex.missing_art"))),
-			str(hero_art.get("iconKey", ""))
-		]
-		illustration_hint_label.visible = true
-	else:
-		illustration_hint_label.visible = false
+func _render_filters(sections: Array, active_section: String, sort_options: Array) -> void:
+	_clear(filter_tabs)
+	for section in sections:
+		var data: Dictionary = section; var b := _text_button(str(data.get("label", "")), str(data.get("id", "")) == active_section, Vector2(80, 28)); b.pressed.connect(func(): section_selected.emit(str(data.get("id", "")))); filter_tabs.add_child(b)
+	for option in sort_options:
+		var data: Dictionary = option
+		if bool(data.get("active", false)):
+			var sort := _text_button("정렬: %s ▾" % _sort_label(str(data.get("id", "catalog"))), true, SORT_CONTROL_SIZE); sort.name = "SortDropdown"; sort.add_theme_stylebox_override("normal", _texture_style("codex_v5_sort_dropdown_280x64.png")); sort.add_theme_stylebox_override("hover", _texture_style("codex_v5_sort_dropdown_280x64.png")); sort.add_theme_stylebox_override("pressed", _texture_style("codex_v5_sort_dropdown_280x64.png")); sort.pressed.connect(func(): _show_sort_popup(sort, sort_options)); filter_tabs.add_child(sort); break
 
-# 실행: populate the right grid page from the projected grid entries.
-func _render_right_page(right_page_model: Dictionary, selected_entry_id: String) -> void:
-	_clear_children(grid)
-	var entries: Array = right_page_model.get("gridEntries", [])
-	empty_label.text = str(right_page_model.get("emptyText", TextCatalogScript.t("codex.empty")))
-	empty_label.visible = entries.is_empty()
-	for entry in entries:
-		var payload: Dictionary = entry
-		var button := _build_entry_card(payload, str(payload.get("id", "")) == selected_entry_id)
-		grid.add_child(button)
+func _sort_label(sort_id: String) -> String:
+	return {"catalog": "도감", "name": "이름", "rarity": "희귀도"}.get(sort_id, "도감")
 
-# 실행: build one right-page card with image and grade-only emphasis.
+func _show_sort_popup(anchor: Control, options: Array) -> void:
+	if sort_popup == null:
+		sort_popup = PopupMenu.new(); sort_popup.name = "SortPopup"; sort_popup.add_theme_font_override("font", Typography.ui_font()); sort_popup.add_theme_font_size_override("font_size", 12); sort_popup.add_theme_color_override("font_color", Color("3b2918")); sort_popup.add_theme_color_override("font_hover_color", Color("183a1f")); sort_popup.add_theme_stylebox_override("panel", _flat(Color("f4ead1"), Color("786b50"), 1, 4, 4, 4)); sort_popup.add_theme_stylebox_override("hover", _flat(Color("dce8c8"))); design_canvas.add_child(sort_popup)
+		sort_popup.id_pressed.connect(func(id: int): sort_selected.emit(str(sort_popup.get_item_metadata(id))))
+	sort_popup.clear()
+	for option in options:
+		var data: Dictionary = option; var index := sort_popup.item_count; sort_popup.add_item(_sort_label(str(data.get("id", "catalog")))); sort_popup.set_item_metadata(index, str(data.get("id", "catalog")))
+	sort_popup.position = Vector2i(anchor.global_position + Vector2(0, anchor.size.y)); sort_popup.size = SORT_POPUP_SIZE; sort_popup.popup()
+
+func _render_entries(entries: Array, selected_id: String) -> void:
+	_clear(entry_grid)
+	if entries.is_empty():
+		var empty := _label(TextCatalog.t("codex.empty"), 16, Color("6d6b62")); empty.name = "EmptyCatalog"; empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; empty.custom_minimum_size = Vector2(620, 80); entry_grid.add_child(empty); return
+	for item in entries:
+		var entry: Dictionary = item; entry_grid.add_child(_entry_card(entry, str(entry.get("id", "")) == selected_id))
+
 func _build_entry_card(entry: Dictionary, selected: bool) -> Button:
-	return ArtifactCodexBookVisualFactoryScript.build_entry_card(entry, selected, Callable(self, "_on_entry_card_pressed"))
+	return _entry_card(entry, selected)
 
-# 실행: render either a future real illustration or a high-quality placeholder composition.
-func _render_art_placeholder(host: Control, descriptor: Dictionary, label_text: String, large: bool) -> void:
-	ArtifactCodexBookVisualFactoryScript.render_art_placeholder(host, descriptor, label_text, large)
+func _render_art_placeholder(host: Control, descriptor: Dictionary, _label_text: String = "", _large: bool = false) -> void:
+	_clear(host)
+	var image := TextureRect.new()
+	image.name = "ResolvedArtTexture"
+	image.texture = _art_texture(descriptor)
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if image.texture == null:
+		image.name = "PlaceholderPlate"
+	host.add_child(image)
 
-# 실행: rebuild the left-page chip strip.
-func _render_fact_chips(facts: Array) -> void:
-	ArtifactCodexBookVisualFactoryScript.render_fact_chips(fact_row, facts)
+func _entry_card(entry: Dictionary, selected: bool) -> Button:
+	var button := Button.new(); button.name = "Entry_%s" % str(entry.get("id", "")); button.custom_minimum_size = Vector2(304, 102); button.text = ""; button.add_theme_stylebox_override("normal", _texture_style("codex_v5_card_selected_608x204.png" if selected else ("codex_v5_card_locked_608x204.png" if not bool(entry.get("visible", false)) else "codex_v5_card_normal_608x204.png"))); button.pressed.connect(func(): entry_selected.emit(str(entry.get("id", ""))))
+	var thumb := TextureRect.new(); thumb.texture = _texture("codex_v5_locked_thumb_152x152.png") if not bool(entry.get("visible", false)) else _art_texture(entry.get("thumbArt", {})); thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED; thumb.position = Vector2(12, 13); thumb.size = Vector2(76, 76); thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE; button.add_child(thumb)
+	var name := _label(str(entry.get("name", "")), 13, Color("3b2918")); name.position = Vector2(104, 20); name.size = Vector2(175, 30); name.mouse_filter = Control.MOUSE_FILTER_IGNORE; button.add_child(name)
+	var rarity := _label(str(entry.get("rarity", "")).capitalize(), 12, Color("8b7666")); rarity.position = Vector2(104, 54); rarity.size = Vector2(175, 25); rarity.mouse_filter = Control.MOUSE_FILTER_IGNORE; button.add_child(rarity)
+	return button
 
-func _render_shape_info(left_page_model: Dictionary) -> void:
-	ArtifactCodexBookVisualFactoryScript.render_shape_info(self, left_page_model)
+func _render_detail(data: Dictionary) -> void:
+	detail_title.text = str(data.get("title", TextCatalog.t("codex.title"))); detail_subtitle.text = str(data.get("subtitle", "")); detail_status.text = "CATALOGED" if not bool(data.get("empty", true)) else ""; description_label.text = str(data.get("body", "")); observation_label.text = "Observations:\n피해 %.1f / 쿨타임 %d" % [float(data.get("baseDamage", 0.0)), int(data.get("baseCooldownTicks", 0))]; _clear(hero_art_host); _clear(facts_box)
+	var art := _art_texture(data.get("heroArt", {})); if art != null:
+		var image := TextureRect.new(); image.texture = art; image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED; image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); hero_art_host.add_child(image)
+	facts_box.add_child(_label("유물 세부 정보", 15, Color("183a1f"), "serif"))
+	for pair in [["등급", str(data.get("subtitle", ""))], ["형상", str(data.get("shapeFootprintText", ""))], ["점유", str(data.get("shapeCellCountText", ""))], ["쿨다운", "%d ticks" % int(data.get("baseCooldownTicks", 0))], ["피해", "%.1f" % float(data.get("baseDamage", 0.0))], ["분류", str(data.get("shapeItemType", ""))]]:
+		facts_box.add_child(_fact_row(str(pair[0]), str(pair[1])))
 
-# 실행: resize cards after the safe-area math changes with the book rect.
-func _resize_grid_cards(card_size: Vector2) -> void:
-	for child in grid.get_children():
-		if child is Button:
-			child.custom_minimum_size = card_size
+func _style_scrollbar(bar: VScrollBar) -> void:
+	bar.custom_minimum_size.x = 6.0
+	bar.add_theme_stylebox_override("scroll", _flat(Color.TRANSPARENT))
+	bar.add_theme_stylebox_override("scroll_focus", _flat(Color.TRANSPARENT))
+	var grabber := _flat(Color("827767"), Color.TRANSPARENT, 0, 3, 3, 3); grabber.content_margin_left = 0; grabber.content_margin_right = 0
+	bar.add_theme_stylebox_override("grabber", grabber); bar.add_theme_stylebox_override("grabber_highlight", _flat(Color("5d744d"), Color.TRANSPARENT, 0, 3, 3, 3)); bar.add_theme_stylebox_override("grabber_pressed", _flat(Color("3b692a"), Color.TRANSPARENT, 0, 3, 3, 3))
 
-# 실행: route section-button presses back to the runtime owner.
-func _on_section_button_pressed(section_id: String) -> void:
-	section_selected.emit(section_id)
+func _fact_row(label_text: String, value_text: String) -> HBoxContainer:
+	var row := HBoxContainer.new(); row.custom_minimum_size = Vector2(455, 18); row.add_theme_constant_override("separation", 10)
+	var label := _label(label_text, 12, Color("75664f")); label.custom_minimum_size = Vector2(132, 18); row.add_child(label)
+	var value := _label(value_text, 12, Color("3b2918")); value.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(value)
+	return row
 
-# 실행: route card selection presses back to the runtime owner.
-func _on_entry_card_pressed(entry_id: String) -> void:
-	entry_selected.emit(entry_id)
+func _apply_canvas_layout() -> void:
+	if design_canvas == null: return
+	var fitted := Layout.canvas_transform_for_viewport(size); design_canvas.position = fitted["position"]; design_canvas.scale = Vector2.ONE * float(fitted["scale"]); design_canvas.size = Layout.DESIGN_SIZE
 
-# 실행: remove all previous child nodes from a container before rerendering.
-func _clear_children(node: Node) -> void:
-	for child in node.get_children():
-		node.remove_child(child)
-		child.queue_free()
+func _texture(file: String) -> Texture2D:
+	var path := "%s/%s" % [V5_ROOT, file]
+	if ResourceLoader.exists(path):
+		return load(path) as Texture2D
+	var image := Image.load_from_file(ProjectSettings.globalize_path(path))
+	return ImageTexture.create_from_image(image) if image != null and not image.is_empty() else null
 
-# 실행: fit the native book surface inside the current viewport and return the top-left plus scale.
-func _book_transform_for_viewport(view_size: Vector2) -> Dictionary:
-	return ArtifactCodexLayoutPolicyScript.book_transform_for_viewport(view_size)
+func _art_texture(descriptor: Dictionary) -> Texture2D:
+	var path := str(descriptor.get("path", "")); return load(path) as Texture2D if not path.is_empty() and ResourceLoader.exists(path) else null
 
-# 실행: style the top-right close button to match the book brass language.
-func _style_small_action_button(button: Button) -> void:
-	ArtifactCodexBookVisualFactoryScript.style_small_action_button(button)
+func _label(text: String, font_size: int, color: Color, role := "ui") -> Label:
+	var node := Label.new(); node.text = text; node.add_theme_font_size_override("font_size", font_size); node.add_theme_color_override("font_color", color)
+	if role == "serif": node.add_theme_font_override("font", Typography.korean_serif_font())
+	else: node.add_theme_font_override("font", Typography.ui_font())
+	node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; return node
 
-# 실행: style a section tab for active and inactive states.
-func _style_section_button(button: Button, active: bool) -> void:
-	ArtifactCodexBookVisualFactoryScript.style_section_button(button, active)
+func _text_button(text: String, active: bool, minimum: Vector2) -> Button:
+	var node := Button.new(); node.text = text; node.custom_minimum_size = minimum; node.add_theme_font_override("font", Typography.ui_font()); node.add_theme_font_size_override("font_size", 12); node.add_theme_color_override("font_color", Color("285322") if active else Color("292f29"))
+	if minimum.x >= 80.0:
+		var chip_style := _texture_style("codex_v5_chip_active_240x56.png" if active else "codex_v5_chip_inactive_240x56.png")
+		node.add_theme_stylebox_override("normal", chip_style); node.add_theme_stylebox_override("hover", chip_style); node.add_theme_stylebox_override("pressed", chip_style); node.add_theme_stylebox_override("focus", chip_style)
+	else:
+		node.add_theme_stylebox_override("normal", _flat(Color.TRANSPARENT, Color("183a1f") if active else Color.TRANSPARENT, 0, 0, 0, 3 if active else 0))
+	return node
 
-# 실행: build the hero-frame style used on the detailed left page.
-func _hero_frame_style() -> StyleBoxFlat:
-	return ArtifactCodexBookVisualFactoryScript.hero_frame_style()
+func _texture_style(file: String) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new(); style.texture = _texture(file); return style
 
-# 실행: return a transparent root panel style because the book art supplies the visible frame.
-func _transparent_panel_style() -> StyleBoxFlat:
-	return ArtifactCodexBookVisualFactoryScript.transparent_panel_style()
+func _flat(bg: Color, border := Color.TRANSPARENT, top := 0, left := 0, right := 0, bottom := 0) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new(); style.bg_color = bg; style.border_color = border; style.border_width_top = top; style.border_width_left = left; style.border_width_right = right; style.border_width_bottom = bottom; style.corner_radius_top_left = 5; style.corner_radius_top_right = 5; style.corner_radius_bottom_left = 5; style.corner_radius_bottom_right = 5; return style
+
+func _clear(node: Node) -> void:
+	for child in node.get_children(): node.remove_child(child); child.queue_free()

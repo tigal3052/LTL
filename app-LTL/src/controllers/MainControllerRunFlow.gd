@@ -32,10 +32,15 @@ static func commit_start_pressed_transition(controller) -> void:
 static func perform_start_pressed_transition(controller) -> void:
 	if not controller.page_override_id.is_empty():
 		return
+	# 전투 리디자인: 배틀 페이지 CTA '굴착 시작' — 시작 홀드 중이면 홀드를 풀고 전투를 개시한다.
+	if controller.battle_start_hold_active and str(controller.current_scene.get("phase", "")) == "combat":
+		release_battle_start_hold(controller)
+		return
 	if not controller._selected_node_start_enabled(controller.current_scene):
 		controller._render_scene(controller.current_scene)
 		return
 	controller._clear_reward_ceremony_state()
+	controller.battle_start_hold_active = false
 	controller._set_battle_pause_active(false)
 	controller._disabled_tile_release_queue.clear()
 	controller.disabled_tiles.clear()
@@ -53,10 +58,26 @@ static func perform_start_pressed_transition(controller) -> void:
 			MainControllerCombatFlowScript.active_queue_color(controller.current_scene)
 		)
 	)
+	# 전투 리디자인: 배틀 진입 직후에는 타이머/지형 시프트/입력을 멈추고 '굴착 시작'을 기다린다.
+	if str(controller.current_scene.get("phase", "")) == "combat":
+		controller.battle_start_hold_active = true
+		MainControllerCombatFlowScript.set_battle_pause_active(controller, true)
+	controller._render_scene(controller.current_scene)
+
+# ?ㅽ뻾: '굴착 시작' — 시작 홀드를 해제하고 전투 진행(타이머/시프트/입력)을 개시한다.
+static func release_battle_start_hold(controller) -> void:
+	if not controller.battle_start_hold_active:
+		return
+	controller.battle_start_hold_active = false
+	MainControllerCombatFlowScript.sync_battle_pause_from_overlay_visibility(controller)
+	if controller.view != null and controller.view.has_method("play_interaction_sfx"):
+		controller.view.play_interaction_sfx("battle_start")
+	controller._append_localized_log("#ffd766", "log.phase.combat")
 	controller._render_scene(controller.current_scene)
 # ?ㅽ뻾: reset run state to the character-select entry point.
 static func on_reset_pressed(controller) -> void:
 	controller._clear_reward_ceremony_state()
+	controller.battle_start_hold_active = false
 	controller._set_battle_pause_active(false)
 	controller.page_override_id = "character_select"
 	controller.selected_node_index = -1
@@ -115,6 +136,7 @@ static func on_confirm_cancel_pressed(controller) -> void:
 static func proceed_to_node_select(controller) -> void:
 	controller.current_scene = controller.preview_controller.claim_rewards()
 	controller._clear_reward_ceremony_state()
+	controller.battle_start_hold_active = false
 	controller._set_battle_pause_active(false)
 	controller._disabled_tile_release_queue.clear()
 	controller.disabled_tiles.clear()

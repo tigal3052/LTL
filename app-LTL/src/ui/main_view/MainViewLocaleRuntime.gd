@@ -18,7 +18,7 @@ static func apply_locale(view) -> void:
 		var bundle_status_panel = bundle.get("statusPanel", null)
 		if bundle_status_panel != null and bundle_status_panel.has_method("apply_locale"):
 			bundle_status_panel.apply_locale()
-		set_bundle_label_text(bundle, "TopContent/BackpackContainer/BackpackEnginePanel/Margin/EngineBox/EngineTitle", TextCatalogScript.t("panel.backpack"))
+		set_bundle_label_text(bundle, "TopContent/BoardPanel/BoardMargin/BoardBox/BoardTitleRow/BoardTitle", TextCatalogScript.t("panel.backpack"))
 		if bundle.get("rightSidebar", null) != null and bundle.get("rightSidebar").has_method("apply_locale"):
 			bundle.get("rightSidebar").apply_locale()
 		if bundle.get("battlefieldUI", null) != null:
@@ -108,10 +108,11 @@ static func _apply_action_bar_locale(view) -> void:
 		var reset_btn := bundle.get("resetButton", null) as Button
 		var start_btn := bundle.get("startButton", null) as Button
 		var claim_btn := bundle.get("claimRewardsButton", null) as Button
+		var battle_cta := str(page_id) in ["battle", "boss_battle"]
 		if reset_btn != null:
-			reset_btn.text = TextCatalogScript.t("action.reset")
+			reset_btn.text = TextCatalogScript.t("action.abort_dig" if battle_cta else "action.reset")
 		if start_btn != null:
-			start_btn.text = TextCatalogScript.t("action.start")
+			start_btn.text = TextCatalogScript.t("action.start_dig" if battle_cta else "action.start")
 		if claim_btn != null:
 			claim_btn.text = TextCatalogScript.t("action.claim_rewards")
 		_apply_optional_action_buttons(bundle)

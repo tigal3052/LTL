@@ -25,6 +25,10 @@ const ICON_PATHS := {
 	"boss": "res://resources/node_select/atlas/icon_boss_crest.png"
 }
 
+# ?ㅽ뻾: resolve a runtime icon texture for a candidate/entry icon kind.
+static func icon_texture(icon_kind: String) -> Texture2D:
+	return _load_runtime_texture(str(ICON_PATHS.get(icon_kind, ICON_PATHS.get("normal"))))
+
 # ?ㅽ뻾: create the transparent route button style used by roadmap markers.
 static func route_button_style(_candidate: Dictionary = {}, _selected := false, _hovered := false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

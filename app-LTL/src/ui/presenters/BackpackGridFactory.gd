@@ -29,7 +29,7 @@ static func inner_slot(texture: Texture2D) -> Panel:
 	slot.custom_minimum_size = Vector2(16, 16)
 	slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	slot.self_modulate = Color(0.95, 0.90, 0.82, 0.65)
+	slot.self_modulate = Color(1.0, 1.0, 1.0, 0.92)
 	var bg_style := StyleBoxTexture.new()
 	bg_style.texture = texture
 	slot.add_theme_stylebox_override("panel", bg_style)
@@ -104,14 +104,15 @@ static func drop_cue_style(valid: bool, edges := {}) -> StyleBoxFlat:
 	return style
 
 # 실행: return which sides of a shape cell are on the artifact perimeter.
+# 전투 리디자인: 라이트 석재 슬롯 위에서 판독되도록 영향 범위 하이라이트를 연한 초록으로 사용한다.
 static func influence_range_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.82, 0.16, 0.18)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.border_color = Color(1.0, 0.90, 0.25, 0.36)
+	style.bg_color = Color(0.62, 0.90, 0.52, 0.30)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(0.38, 0.76, 0.33, 0.80)
 	return style
 
 static func artifact_edge_mask(shape: Array, row: int, column: int) -> Dictionary:

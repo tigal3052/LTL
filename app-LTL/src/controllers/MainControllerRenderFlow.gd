@@ -64,6 +64,7 @@ static func render_scene(controller, scene: Dictionary) -> void:
 		controller.prev_phase = phase
 	controller.current_scene["show_victory_overlay"] = controller.show_victory_overlay
 	controller.current_scene["is_reveal_vfx_running"] = controller.is_reveal_vfx_running
+	controller.current_scene["battleStartHoldActive"] = controller.battle_start_hold_active
 	controller.current_scene["rewardPresentationStep"] = controller.reward_presentation_step
 	controller.current_scene["selectedNodeIndex"] = controller.selected_node_index
 	controller.current_scene["selectedStartColor"] = controller.selected_start_color

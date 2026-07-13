@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ltl-godot",
+      "runtimeExecutable": "D:/Programming/godot_workspace/bin/Godot_v4.3-stable_win64_console.exe",
+      "runtimeArgs": ["--path", "D:/Programming/ex_workspace/LootingTheLeviathan/app-LTL"],
+      "port": 0
+    },
+    {
+      "name": "mockup-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8931", "--bind", "127.0.0.1"],
+      "port": 8931
+    },
+    {
+      "name": "mockup-static-2",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8932", "--bind", "127.0.0.1"],
+      "port": 8932
+    }
+  ]
+}

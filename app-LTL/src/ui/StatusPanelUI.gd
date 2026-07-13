@@ -25,14 +25,18 @@ const STATUS_ROW_LABEL_WIDTH := 76.0
 @onready var extractor_visual: Panel = $Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox/NodeRow/ExtractorVisual
 @onready var extractor_label: Label = $Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox/NodeRow/ExtractorLabel
 @onready var node_meta_label: Label = $Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard/Margin/NodeInfoBox/NodeMetaLabel
-@onready var health_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/HealthLabel
+@onready var health_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/Head/HealthLabel
+@onready var health_value_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/Head/HealthValue
 @onready var health_bar: ProgressBar = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/HealthBar
-@onready var shield_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/ShieldLabel
+@onready var shield_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/Head/ShieldLabel
+@onready var shield_value_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/Head/ShieldValue
 @onready var shield_bar: ProgressBar = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/ShieldBar
-@onready var queue_row: HBoxContainer = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow
-@onready var queue_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueLabel
-@onready var visual_queue_box: GridContainer = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/QueueShell/QueueMargin/VisualQueueBox
-@onready var pin_title_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/PinLabel
+@onready var queue_row: VBoxContainer = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow
+@onready var queue_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/Head/QueueLabel
+@onready var queue_value_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/Head/QueueValue
+@onready var visual_queue_box: GridContainer = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/VisualQueueBox
+@onready var pin_title_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/Head/PinLabel
+@onready var pin_value_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/Head/PinValue
 @onready var pin_progress_bar: ProgressBar = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/PinProgressBar
 @onready var drill_status_title: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/DrillStatusRow/DrillStatusLabel
 @onready var repair_status_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/DrillStatusRow/RepairStatusLabel
@@ -43,14 +47,12 @@ const STATUS_ROW_LABEL_WIDTH := 76.0
 @onready var combat_timer_label: Label = $Margin/StatusBox/OpsShell/OpsMargin/OpsBox/CombatTimerFooterMargin/CombatTimerFooter/CombatTimerLabel
 
 var queue_hint_label: Label
-var pin_value_label: Label
 var info_details_expanded := false
 
 func _ready() -> void:
 	_apply_shell_theme()
 	_connect_info_toggle()
 	_install_queue_hint_label()
-	_install_pin_value_label()
 	_apply_row_alignment()
 	_configure_visual_queue_grid()
 	_configure_purple_status_overlay()
@@ -77,8 +79,8 @@ func render_target_bars(scene: Dictionary) -> void:
 	if not _is_status_scene(scene):
 		return
 	var target: Dictionary = scene.get("targetPanel", {})
-	_apply_value_bar(health_bar, float(target.get("health", 0.0)), float(target.get("maxHealth", 100.0)))
-	_apply_value_bar(shield_bar, float(target.get("shield", 0.0)), float(target.get("maxShield", 2.4)))
+	_apply_value_bar(health_bar, health_value_label, float(target.get("health", 0.0)), float(target.get("maxHealth", 100.0)))
+	_apply_value_bar(shield_bar, shield_value_label, float(target.get("shield", 0.0)), float(target.get("maxShield", 2.4)))
 
 func render_extractor_label(scene: Dictionary) -> void:
 	var context: Dictionary = scene.get("selectedNodeContext", {})
@@ -139,6 +141,8 @@ func render_hud_projection(model: Dictionary) -> void:
 		_render_pin_projection({})
 		_render_repair_projection({})
 		_render_status_footer({})
+		if queue_value_label != null:
+			queue_value_label.text = ""
 		if queue_hint_label != null:
 			queue_hint_label.text = ""
 		return
@@ -154,6 +158,8 @@ func render_hud_projection(model: Dictionary) -> void:
 		var slot_color := str(slot_colors[index]) if loaded else ""
 		slot.configure(slot_color, loaded, enabled, index == 0 and loaded)
 		visual_queue_box.add_child(slot)
+	if queue_value_label != null:
+		queue_value_label.text = "%d / %d" % [mini(slot_colors.size(), ENERGY_QUEUE_MAX_SLOTS), ENERGY_QUEUE_MAX_SLOTS]
 	if queue_hint_label != null:
 		queue_hint_label.text = _queue_hint_text(queue, model.get("feedback", {}))
 	_render_pin_projection(model.get("pin", {}))
@@ -233,29 +239,22 @@ static func should_render_status_scene(scene: Dictionary) -> bool:
 	var phase := str(scene.get("phase", ""))
 	return phase == "combat" or RewardCeremonyPolicyScript.is_active_scene(scene) or (phase == "reward_loot" and bool(scene.get("show_victory_overlay", false)))
 
-func _apply_value_bar(bar: ProgressBar, value: float, max_value: float) -> void:
+# 목업 .stat-row 준거: 수치 텍스트는 바 위 헤드 라인의 우측 라벨에 병기하고 바는 순수 게이지로 남긴다.
+func _apply_value_bar(bar: ProgressBar, value_label: Label, value: float, max_value: float) -> void:
 	bar.max_value = max_value
 	bar.value = value
 	bar.show_percentage = false
-	var label := bar.get_node_or_null("ValLabel") as Label
-	if label == null:
-		label = Label.new()
-		label.name = "ValLabel"
-		label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		label.add_theme_font_size_override("font_size", 10)
-		label.add_theme_color_override("font_color", Color.WHITE)
-		bar.add_child(label)
+	if value_label == null:
+		return
 	var pct := (value / max_value) * 100.0 if max_value > 0.0 else 0.0
-	label.text = "%.1f / %.1f (%.0f%%)" % [value, max_value, pct]
+	value_label.text = "%.1f / %.1f (%.0f%%)" % [value, max_value, pct]
 
 func _configure_visual_queue_grid() -> void:
 	if visual_queue_box == null:
 		return
 	visual_queue_box.columns = ENERGY_QUEUE_COLUMNS
-	visual_queue_box.add_theme_constant_override("h_separation", 6)
-	visual_queue_box.add_theme_constant_override("v_separation", 8)
+	visual_queue_box.add_theme_constant_override("h_separation", 4)
+	visual_queue_box.add_theme_constant_override("v_separation", 4)
 
 func _clear_visual_queue_box() -> void:
 	for child in visual_queue_box.get_children():
@@ -305,48 +304,38 @@ func _layout_purple_status_overlay() -> void:
 	purple_status_row.size = Vector2(maxf(0.0, status_footer_spacer.size.x), row_height)
 
 func _apply_shell_theme() -> void:
-	add_theme_stylebox_override("panel", LTLThemeScript.surface_style(LTLThemeScript.SURFACE_DARK))
-	info_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.09, 0.12, 0.16, 0.98),
-		Color(0.26, 0.34, 0.44, 1.0),
-		16,
-		1,
-		0.12
-	))
+	# 전투 리디자인: 좌측 '연구원 노트' 양피지 시트 + 원장(ledger) 카드 스타일
+	add_theme_stylebox_override("panel", LTLThemeScript.parchment_style())
+	info_shell.add_theme_stylebox_override("panel", LTLThemeScript.ledger_card_style(LTLThemeScript.OUTLINE_VARIANT, 10))
 	_style_info_toggle()
-	info_detail_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.07, 0.10, 0.14, 0.94),
-		Color(0.38, 0.47, 0.56, 0.72),
-		12,
-		1,
-		0.10
-	))
-	ops_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.08, 0.10, 0.14, 0.98),
-		Color(0.22, 0.30, 0.40, 1.0),
-		16,
-		1,
-		0.12
-	))
-	node_card.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-		Color(0.09, 0.12, 0.16, 0.98),
-		Color(0.25, 0.35, 0.44, 1.0),
-		14,
-		1,
-		0.12
-	))
-	_style_metric_bar(health_bar, Color(0.82, 0.24, 0.24), Color(0.17, 0.08, 0.08))
-	_style_metric_bar(shield_bar, Color(0.30, 0.56, 0.96), Color(0.08, 0.11, 0.18))
-	_style_metric_bar(pin_progress_bar, Color(0.91, 0.66, 0.18), Color(0.18, 0.13, 0.07))
-	extractor_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-	node_meta_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
-	terrain_copy.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
-	pin_title_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-	repair_status_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
-	purple_status_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
-	purple_status_value.add_theme_color_override("font_color", LTLThemeScript.TEXT_PURPLE)
-	combat_timer_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_WARNING)
-	extractor_visual.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(LTLThemeScript.SURFACE_MID, Color(0.35, 0.46, 0.58, 1.0), 10))
+	info_detail_shell.add_theme_stylebox_override("panel", LTLThemeScript.ledger_card_style(LTLThemeScript.OUTLINE_VARIANT, 8))
+	ops_shell.add_theme_stylebox_override("panel", LTLThemeScript.ledger_card_style(Color(0.231, 0.412, 0.165, 0.35), 10))
+	node_card.add_theme_stylebox_override("panel", LTLThemeScript.ledger_card_style(LTLThemeScript.OUTLINE_VARIANT, 8))
+	_style_metric_bar(health_bar, LTLThemeScript.ERROR, Color(0.851, 0.824, 0.765, 1.0))
+	_style_metric_bar(shield_bar, LTLThemeScript.energy_deep_color("blue"), Color(0.851, 0.824, 0.765, 1.0))
+	_style_metric_bar(pin_progress_bar, LTLThemeScript.WARNING_GOLD, Color(0.851, 0.824, 0.765, 1.0))
+	extractor_label.add_theme_color_override("font_color", LTLThemeScript.INK_PRIMARY)
+	node_meta_label.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
+	terrain_copy.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
+	pin_title_label.add_theme_color_override("font_color", LTLThemeScript.INK_PRIMARY)
+	# 목업 .stat-row .num: 수치 라벨은 게이지와 같은 색으로 병기한다.
+	if health_value_label != null:
+		health_value_label.add_theme_color_override("font_color", LTLThemeScript.ERROR)
+	if shield_value_label != null:
+		shield_value_label.add_theme_color_override("font_color", LTLThemeScript.energy_deep_color("blue"))
+	if pin_value_label != null:
+		pin_value_label.add_theme_color_override("font_color", Color(0.604, 0.435, 0.113, 1.0))
+	if queue_value_label != null:
+		queue_value_label.add_theme_color_override("font_color", LTLThemeScript.SECONDARY)
+	repair_status_label.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
+	purple_status_label.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
+	purple_status_value.add_theme_color_override("font_color", Color(0.482, 0.29, 0.62, 1.0))
+	combat_timer_label.add_theme_color_override("font_color", Color(0.604, 0.435, 0.113, 1.0))
+	status_title.add_theme_color_override("font_color", LTLThemeScript.PRIMARY)
+	for row_label in [health_label, shield_label, queue_label, drill_status_title]:
+		if row_label != null:
+			row_label.add_theme_color_override("font_color", LTLThemeScript.INK_PRIMARY)
+	extractor_visual.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(LTLThemeScript.TERTIARY_CONTAINER, Color(1.0, 1.0, 1.0, 1.0), 10, 2, 0.0))
 
 func _style_info_toggle() -> void:
 	if info_title == null:
@@ -354,13 +343,13 @@ func _style_info_toggle() -> void:
 	info_title.flat = false
 	info_title.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	info_title.add_theme_font_size_override("font_size", 13)
-	info_title.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-	info_title.add_theme_color_override("font_hover_color", LTLThemeScript.TEXT_PRIMARY)
-	info_title.add_theme_color_override("font_pressed_color", LTLThemeScript.TEXT_PRIMARY)
-	info_title.add_theme_color_override("font_focus_color", LTLThemeScript.TEXT_PRIMARY)
-	var normal := LTLThemeScript.surface_style(Color(0.10, 0.14, 0.19, 0.92), Color(0.33, 0.42, 0.52, 0.86), 12, 1, 0.10)
-	var hover := LTLThemeScript.surface_style(Color(0.12, 0.16, 0.21, 0.96), Color(0.56, 0.45, 0.24, 0.96), 12, 1, 0.16)
-	var pressed := LTLThemeScript.surface_style(Color(0.11, 0.15, 0.20, 0.98), LTLThemeScript.BORDER_WARM, 12, 1, 0.18)
+	info_title.add_theme_color_override("font_color", LTLThemeScript.PRIMARY)
+	info_title.add_theme_color_override("font_hover_color", LTLThemeScript.SECONDARY)
+	info_title.add_theme_color_override("font_pressed_color", LTLThemeScript.PRIMARY)
+	info_title.add_theme_color_override("font_focus_color", LTLThemeScript.PRIMARY)
+	var normal := LTLThemeScript.ledger_card_style(Color(0.231, 0.412, 0.165, 0.30), 8)
+	var hover := LTLThemeScript.ledger_card_style(Color(0.231, 0.412, 0.165, 0.65), 8)
+	var pressed := LTLThemeScript.ledger_card_style(LTLThemeScript.WARNING_GOLD, 8)
 	for style in [normal, hover, pressed]:
 		style.content_margin_left = 10
 		style.content_margin_right = 10
@@ -372,12 +361,14 @@ func _style_info_toggle() -> void:
 	info_title.add_theme_stylebox_override("focus", hover)
 
 func _apply_row_alignment() -> void:
+	# 목업 .stat-row: 헤드 라벨(좌)·수치(우) + 아래 순수 게이지 — 고정 라벨 폭 없이 헤드가 폭을 나눈다.
 	for label in [health_label, shield_label, queue_label, pin_title_label, drill_status_title]:
 		if label == null:
 			continue
-		label.custom_minimum_size = Vector2(STATUS_ROW_LABEL_WIDTH, 0.0)
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	for control in [health_bar, shield_bar, visual_queue_box.get_parent().get_parent() if visual_queue_box != null else null, pin_progress_bar, repair_status_label]:
+	if drill_status_title != null:
+		drill_status_title.custom_minimum_size = Vector2(STATUS_ROW_LABEL_WIDTH, 0.0)
+	for control in [health_bar, shield_bar, visual_queue_box.get_parent() if visual_queue_box != null else null, pin_progress_bar, repair_status_label]:
 		var row_value = control as Control
 		if row_value == null:
 			continue
@@ -396,7 +387,7 @@ func _install_queue_hint_label() -> void:
 	queue_hint_label = Label.new()
 	queue_hint_label.name = "QueueHintLabel"
 	queue_hint_label.add_theme_font_size_override("font_size", 11)
-	queue_hint_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
+	queue_hint_label.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
 	queue_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	queue_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	queue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -404,18 +395,6 @@ func _install_queue_hint_label() -> void:
 	if ops_box != null and queue_row != null:
 		ops_box.add_child(queue_hint_label)
 		ops_box.move_child(queue_hint_label, queue_row.get_index() + 1)
-
-func _install_pin_value_label() -> void:
-	if pin_progress_bar == null or pin_value_label != null:
-		return
-	pin_value_label = Label.new()
-	pin_value_label.name = "PinValueLabel"
-	pin_value_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	pin_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pin_value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	pin_value_label.add_theme_font_size_override("font_size", 10)
-	pin_value_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
-	pin_progress_bar.add_child(pin_value_label)
 
 func _queue_hint_text(queue: Dictionary, feedback: Dictionary) -> String:
 	if bool(feedback.get("isEmptyQueue", false)):
@@ -431,13 +410,13 @@ func _render_repair_projection(repair: Dictionary) -> void:
 	repair_status_label.text = str(repair.get("label", TextCatalogScript.t("hud.repair.stable")))
 	match stage:
 		"stable":
-			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_SUCCESS)
+			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.SECONDARY)
 		"strained":
-			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_WARNING)
+			repair_status_label.add_theme_color_override("font_color", Color(0.604, 0.435, 0.113, 1.0))
 		"critical", "repair_required":
-			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_DANGER)
+			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.ERROR)
 		_:
-			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
+			repair_status_label.add_theme_color_override("font_color", LTLThemeScript.INK_MUTED)
 
 func _render_status_footer(model: Dictionary) -> void:
 	var parts: Array[String] = []
@@ -457,9 +436,9 @@ func _render_status_footer(model: Dictionary) -> void:
 		return
 	purple_status_label.text = TextCatalogScript.t("status.field")
 	purple_status_value.text = " | ".join(parts)
-	var font_color := LTLThemeScript.TEXT_PURPLE
+	var font_color := Color(0.482, 0.29, 0.62, 1.0)
 	if bool(hazard.get("active", false)):
-		font_color = LTLThemeScript.TEXT_DANGER if str(hazard.get("severity", "stable")) == "critical" else LTLThemeScript.TEXT_WARNING
+		font_color = LTLThemeScript.ERROR if str(hazard.get("severity", "stable")) == "critical" else Color(0.604, 0.435, 0.113, 1.0)
 	purple_status_value.add_theme_color_override("font_color", font_color)
 	_layout_purple_status_overlay()
 

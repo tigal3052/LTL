@@ -183,13 +183,13 @@
     "panel.profile": "[Miner Profile]",
     "panel.loadout": "Loadout:\n- Basic drill set\n- Auto-repair core\n- Leviathan surface scanner",
     "panel.drill_node_status": "Drill Info",
-    "panel.health": "Leviathan Health:",
-    "panel.shield": "Shield:",
-    "panel.queue": "Energy Queue:",
+    "panel.health": "Leviathan Health (HP)",
+    "panel.shield": "Shield",
+    "panel.queue": "Energy Queue",
     "panel.stage_timer": "Stage Time Limit:",
-    "panel.pin_status": "Node Pinning:",
-    "panel.drill_status": "Drill Status:",
-    "panel.backpack": "Backpack Engine Space (8x8 Grid)",
+    "panel.pin_status": "Node Pinning (PIN)",
+    "panel.drill_status": "Drill Status",
+    "panel.backpack": "Foraging Satchel — Resonance Organ",
     "panel.log": "System Log and Info",
     "panel.log.ready": "System ready.\nSelect a node and start combat.",
     "panel.tab.explorer": "Explorer Status",
@@ -346,6 +346,16 @@
     "node_runtime.board_label": "Selected Leviathan",
     "node_runtime.info_name_label": "Node Name",
     "node_runtime.info_body_label": "Node Description",
+    "node_runtime.cleared": "CLEARED",
+    "node_runtime.analysis_label": "NODE ANALYSIS",
+    "node_runtime.panel.weakness": "Weakness",
+    "node_runtime.panel.obstruction": "Obstruction",
+    "node_runtime.panel.lore": "Notes",
+    "node_runtime.panel.status": "Status",
+    "node_runtime.status.candidate": "Selectable",
+    "node_runtime.status.cleared": "Cleared",
+    "node_runtime.status.locked": "Unexplored",
+    "node_runtime.status.boss": "Final Target",
     "node_runtime.stage_marker.hull": "HULL",
     "node_runtime.stage_marker.spine": "SPINE",
     "node_runtime.stage_marker.pockets": "POCKETS",
@@ -405,7 +415,10 @@
     "log.debug.codex_discovery_toggle": "Debug: artifact codex full-discovery toggle: {0} (F8)",
     "log.shop.passive_purchased": "Shop: passive purchased: {0} (Lv {1})",
     "log.shop.base_purchase_failed": "Shop: unlock purchase failed: {0}",
-    "log.shop.base_purchase_complete": "Shop: unlock purchased: {0}"
+    "log.shop.base_purchase_complete": "Shop: unlock purchased: {0}",
+    "action.abort_dig": "Abandon Dig",
+    "action.start_dig": "Begin Excavation",
+    "panel.pin_stock": "Backpack Pin Stock"
   },
   "displayNames": {},
   "displayDescriptions": {},
@@ -418,7 +431,11 @@
       "description": "A frontline miner with a large readable hero image and short copy. The red artifact line gives the most direct launch rhythm.",
       "heroLine": "Read the first wave, then break the thickest surface first.",
       "summary": "Players skim the narrow left roster first, confirm the main visual and summary in the center, then move into artifact colors and launch prep on the right.",
-      "tags": ["Large character art", "Short direct copy", "Links into color artifacts"]
+      "tags": [
+        "Large character art",
+        "Short direct copy",
+        "Links into color artifacts"
+      ]
     },
     "engineer": {
       "name": "Pulse Engineer",
@@ -428,7 +445,11 @@
       "description": "A design-focused operator built around blue artifact loops and beacon routing. Even while locked, the roster keeps the next unlock target visible.",
       "heroLine": "Measure the surge, then route the cleanest answer through it.",
       "summary": "Unavailable characters still preview the next unlock route through the same compact roster card pattern.",
-      "tags": ["Locked candidate", "Precision control", "Beacon amplification"]
+      "tags": [
+        "Locked candidate",
+        "Precision control",
+        "Beacon amplification"
+      ]
     },
     "mechanic": {
       "name": "Hull Mechanic",
@@ -438,7 +459,11 @@
       "description": "A support character centered on repair and recovery. Even while locked, the roster and main board keep the same language pattern.",
       "heroLine": "Patch the breach, keep the frame true, and the run keeps moving.",
       "summary": "Locked characters still share the same board grammar so the UI language does not shift when the roster expands.",
-      "tags": ["Support", "Repair focus", "Late-run stability"]
+      "tags": [
+        "Support",
+        "Repair focus",
+        "Late-run stability"
+      ]
     },
     "future_trawler": {
       "name": "Future Trawler",
@@ -448,7 +473,11 @@
       "description": "Additional character slot",
       "heroLine": "Future slot.",
       "summary": "Future slot",
-      "tags": ["Future", "Slot", "Planned"]
+      "tags": [
+        "Future",
+        "Slot",
+        "Planned"
+      ]
     },
     "bulk_diver": {
       "name": "Bulk Diver",
@@ -458,7 +487,11 @@
       "description": "Additional character slot",
       "heroLine": "Future slot.",
       "summary": "Future slot",
-      "tags": ["Future", "Slot", "Planned"]
+      "tags": [
+        "Future",
+        "Slot",
+        "Planned"
+      ]
     },
     "pressure_cartographer": {
       "name": "Pressure Cartographer",
@@ -468,7 +501,11 @@
       "description": "Additional character slot",
       "heroLine": "Future slot.",
       "summary": "Future slot",
-      "tags": ["Future", "Slot", "Planned"]
+      "tags": [
+        "Future",
+        "Slot",
+        "Planned"
+      ]
     }
   },
   "leviathans": {

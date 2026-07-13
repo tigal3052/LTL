@@ -108,6 +108,32 @@ static func candidate_lore_text(candidate: Dictionary) -> String:
 static func candidate_panel_body(candidate: Dictionary) -> String:
 	return "약점\n%s\n\n방해요소\n%s\n\n노드 설명\n%s" % [weakness_text(candidate), candidate_obstruction_text(candidate), candidate_lore_text(candidate)]
 
+static func candidate_panel_components(candidate: Dictionary) -> Dictionary:
+	return {
+		"weakness": weakness_text(candidate),
+		"obstruction": candidate_obstruction_text(candidate),
+		"lore": candidate_lore_text(candidate),
+		"status": TextCatalogScript.t("node_runtime.status.candidate"),
+		"icon": candidate_icon_kind(candidate)
+	}
+
+static func history_entry_components(entry: Dictionary) -> Dictionary:
+	if int(entry.get("stageIndex", -1)) == 0:
+		return {
+			"weakness": "", "obstruction": "",
+			"lore": TextCatalogScript.t("node_runtime.fixed_entry.body"),
+			"status": TextCatalogScript.t("node_runtime.status.cleared"),
+			"icon": "start"
+		}
+	var components := candidate_panel_components(entry)
+	components["status"] = TextCatalogScript.t("node_runtime.status.cleared")
+	return components
+
+static func chips_visible(state: Dictionary) -> bool:
+	return not selected_leviathan(state).is_empty() \
+		and not bool(state.get("runComplete", false)) \
+		and str(state.get("phase", "")) != "run_complete"
+
 # ?ㅽ뻾: build compact hover tooltip copy for a candidate.
 static func candidate_tooltip(candidate: Dictionary) -> String:
 	var label := TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?"))))

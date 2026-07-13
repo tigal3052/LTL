@@ -25,7 +25,12 @@ static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) ->
 		view._activate_surface_bundle(page_id)
 	if page_id in META_PAGE_IDS:
 		overlay_model["visible"] = false
+	var node_map_full_page := bool(layout.get("nodeMapFullPage", false))
 	view.header_panel.visible = bool(layout.get("headerVisible", true))
+	var chrome_margin := 0 if node_map_full_page else 16
+	for margin_side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		view.root_margin.add_theme_constant_override(margin_side, chrome_margin)
+	_apply_page_chrome_backdrop(view, page_id)
 	if view.header_title_label != null:
 		view.header_title_label.text = view._resolved_header_title(scene)
 	view.phase_label.text = str(layout.get("phaseText", TextCatalogScript.t("phase.label", [TextCatalogScript.t("phase.unknown")])))
@@ -33,7 +38,6 @@ static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) ->
 	view.stage_label.visible = not view.stage_label.text.is_empty()
 	if view.action_bar != null:
 		view.action_bar.visible = bool(layout.get("actionBarVisible", true))
-	var node_map_full_page := bool(layout.get("nodeMapFullPage", false))
 	var reward_backpack_dock := bool(layout.get("rewardBackpackDock", false))
 	view._apply_node_select_backpack_dock(str(layout.get("nodeSelectBackpackDock", "top")), float(layout.get("nodeMapStretchRatio", 2.1)), float(layout.get("backpackStretchRatio", 1.0)))
 	view._apply_top_content_stretch(float(layout.get("leftColumnTopStretchRatio", 3.5)), float(layout.get("backpackTopStretchRatio", 6.0)), float(layout.get("rightSidebarTopStretchRatio", 2.5)))
@@ -89,7 +93,8 @@ static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) ->
 	if view.status_panel.has_method("render_node_info"):
 		view.status_panel.render_node_info(scene)
 	view.status_panel.render_hud_projection(hud_model)
-	view.status_panel.render_combat_timer(str(layout.get("timerText", "00:00")), bool(layout.get("combatTimeActive", false)))
+	var cta_timer_present := _render_battle_cta_timer(view, layout)
+	view.status_panel.render_combat_timer(str(layout.get("timerText", "00:00")), bool(layout.get("combatTimeActive", false)) and not cta_timer_present)
 	view.status_panel.render_repair_overlay(scene, view.repair_overlay, overlay_model)
 	if view.right_sidebar != null and view.right_sidebar.has_method("render_scene"):
 		view.right_sidebar.render_scene(scene)
@@ -100,6 +105,45 @@ static func render_scene(view, scene: Dictionary, show_victory_overlay: bool) ->
 	view._defer_interaction_fx_install()
 	view._queue_shared_backpack_layout_sync()
 	view.call_deferred("_sync_page_scene_bounds")
+
+# 전투 리디자인: 전투/보상 페이지는 소프트 포커스 숲 배경(bg_canopy_ruins) 라이트 크롬,
+# 그 외 페이지는 기존 다크 크롬을 유지한다.
+static func _apply_page_chrome_backdrop(view, page_id: String) -> void:
+	if page_id in SURFACE_PAGE_IDS:
+		var texture := load("res://resources/UI/battle_redesign/bg_canopy_ruins.png") as Texture2D
+		if texture != null:
+			var style := StyleBoxTexture.new()
+			style.texture = texture
+			style.modulate_color = Color(0.96, 0.98, 0.96, 1.0)
+			view.add_theme_stylebox_override("panel", style)
+			return
+	var dark := StyleBoxFlat.new()
+	dark.bg_color = Color(0.0627, 0.0784, 0.1098, 1.0)
+	view.add_theme_stylebox_override("panel", dark)
+
+# 전투 리디자인: 보드 우측 CTA 기둥의 전투 타이머 칩을 갱신한다. 칩이 존재하면 true를 돌려
+# 좌측 상태 패널 footer 타이머의 중복 표시를 막는다.
+static func _render_battle_cta_timer(view, layout: Dictionary) -> bool:
+	var found := false
+	for page_id in ["battle", "boss_battle"]:
+		var bundle: Dictionary = view._page_bundle(page_id)
+		if bundle.is_empty():
+			continue
+		var chip := bundle.get("ctaTimerChip", null) as PanelContainer
+		var label := bundle.get("ctaTimerLabel", null) as Label
+		if label == null:
+			continue
+		found = true
+		var timer_active := bool(layout.get("combatTimeActive", false))
+		if chip != null:
+			chip.visible = timer_active
+		label.text = str(layout.get("timerText", "00:00"))
+		var critical := bool(layout.get("vignetteVisible", false))
+		label.add_theme_color_override(
+			"font_color",
+			Color(1.0, 0.42, 0.37, 1.0) if critical else Color(0.85, 0.643, 0.255, 1.0)
+		)
+	return found
 
 static func update_battlefield_disabled(view, scene: Dictionary, disabled_tiles: Array) -> void:
 	view.battlefield_ui.render_battlefield(scene, disabled_tiles)
@@ -154,14 +198,21 @@ static func update_action_state(view, scene: Dictionary, show_victory_overlay: b
 	var page_id := str(scene.get("pageId", phase))
 	var reward_ceremony_active := RewardCeremonyPolicyScript.is_active_scene(scene)
 	var narrative_blocked := bool(scene.get("narrativeBlocksInput", false))
+	# 전투 리디자인: 배틀 진입 직후 시작 홀드 동안 CTA 기둥의 '굴착 시작' 버튼을 노출한다.
+	var battle_start_hold := page_id in ["battle", "boss_battle"] and bool(scene.get("battleStartHoldActive", false))
 	if view.reset_button != null:
 		view.reset_button.visible = page_id not in META_PAGE_IDS
 	if view.start_button != null:
-		view.start_button.visible = page_id == "node_select"
+		view.start_button.visible = page_id == "node_select" or battle_start_hold
 	if view.claim_rewards_button != null:
 		view.claim_rewards_button.visible = page_id in ["reward", "boss_reward"]
 	if view.start_button != null:
-		view.start_button.disabled = not (page_id == "node_select" and node_select_start_ready(scene))
+		var start_ready := battle_start_hold or (page_id == "node_select" and node_select_start_ready(scene))
+		var next_disabled := not start_ready
+		if view.start_button.disabled != next_disabled:
+			view.start_button.disabled = next_disabled
+			if page_id == "node_select" and view.node_select_runtime_page != null and view.node_select_runtime_page.has_method("refresh_start_button_state"):
+				view.node_select_runtime_page.refresh_start_button_state()
 	var claim_disabled := (narrative_blocked or page_id not in ["reward", "boss_reward"] or show_victory_overlay or reward_ceremony_active or bool(scene.get("is_reveal_vfx_running", false)))
 	if view.claim_rewards_button != null:
 		view.claim_rewards_button.disabled = claim_disabled

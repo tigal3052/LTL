@@ -19,6 +19,8 @@ const META_PAGE_IDS := ["character_select", "leviathan_select", "story_scene", "
 const SURFACE_PAGE_IDS := ["battle", "boss_battle", "reward", "boss_reward"]
 const ACTION_BAR_PAGE_IDS := ["node_select", "battle", "boss_battle", "reward", "boss_reward"]
 const CHARACTER_PORTRAIT_PATH := "res://resources/charactor/charactor1.png"
+# 전투 리디자인 2차: 채집낭 보드 패널(제목 행 + 보드 + CTA 기둥)이 top-content 중앙 컬럼을 감싼다.
+const BOARD_AREA_PATH := "TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea"
 
 static func create_page_scenes(view) -> void:
 	view.meta_page_shell_host = PageSceneRegistryScript.build_shell_host("MetaPageShellHost")
@@ -138,6 +140,13 @@ static func cache_page_shell_bundles(view) -> void:
 	if view.page_shell_bundles.has("battle"):
 		assign_battle_bundle_refs(view, page_bundle(view, "battle"))
 
+static func _first_node(page_root: Control, paths: Array) -> Node:
+	for path in paths:
+		var node := page_root.get_node_or_null(str(path))
+		if node != null:
+			return node
+	return null
+
 static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Dictionary:
 	var bundle := {"pageId": page_id, "pageRoot": page_root}
 	var action_bar_path := "ActionBar"
@@ -145,7 +154,17 @@ static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Di
 		action_bar_path = "Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/RoadmapCanvas/ActionBar"
 		if page_root.get_node_or_null(action_bar_path) == null:
 			action_bar_path = "Margin/VStack/ActionBar"
-	bundle["actionBar"] = page_root.get_node_or_null(action_bar_path) as HBoxContainer
+	elif page_id in ["battle", "boss_battle"]:
+		# 전투 리디자인: 하단 액션 바 행 폐지 → 채집낭 보드 패널 내부 세로 CTA 기둥
+		if page_root.get_node_or_null("%s/CtaColumn/ActionBar" % BOARD_AREA_PATH) != null:
+			action_bar_path = "%s/CtaColumn/ActionBar" % BOARD_AREA_PATH
+		elif page_root.get_node_or_null("TopContent/CtaColumn/ActionBar") != null:
+			action_bar_path = "TopContent/CtaColumn/ActionBar"
+	bundle["actionBar"] = page_root.get_node_or_null(action_bar_path) as BoxContainer
+	if page_id in ["battle", "boss_battle"]:
+		bundle["ctaColumn"] = _first_node(page_root, ["%s/CtaColumn" % BOARD_AREA_PATH, "TopContent/CtaColumn"]) as Control
+		bundle["ctaTimerChip"] = page_root.get_node_or_null("%s/TimerChip" % action_bar_path) as PanelContainer
+		bundle["ctaTimerLabel"] = page_root.get_node_or_null("%s/TimerChip/CombatTimerLabel" % action_bar_path) as Label
 	bundle["resetButton"] = page_root.get_node_or_null("%s/ResetButton" % action_bar_path) as Button
 	bundle["startButton"] = page_root.get_node_or_null("%s/StartButton" % action_bar_path) as Button
 	bundle["claimRewardsButton"] = page_root.get_node_or_null("%s/ClaimRewardsButton" % action_bar_path) as Button
@@ -158,7 +177,10 @@ static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Di
 		bundle["leftColumn"] = page_root.get_node_or_null("TopContent/LeftColumn") as VBoxContainer
 		bundle["portraitPlaceholder"] = page_root.get_node_or_null("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/PortraitPlaceholder") as Panel
 		bundle["portraitLabel"] = page_root.get_node_or_null("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/PortraitPlaceholder/PortraitLabel") as Label
-		bundle["backpackHost"] = page_root.get_node_or_null("TopContent/BackpackContainer") as AspectRatioContainer
+		bundle["backpackHost"] = _first_node(page_root, ["%s/BackpackContainer" % BOARD_AREA_PATH, "TopContent/BackpackContainer"]) as AspectRatioContainer
+		bundle["boardPanel"] = page_root.get_node_or_null("TopContent/BoardPanel") as PanelContainer
+		bundle["boardTitleRow"] = page_root.get_node_or_null("TopContent/BoardPanel/BoardMargin/BoardBox/BoardTitleRow") as HBoxContainer
+		bundle["boardTitle"] = page_root.get_node_or_null("TopContent/BoardPanel/BoardMargin/BoardBox/BoardTitleRow/BoardTitle") as Label
 		bundle["rightSidebar"] = page_root.get_node_or_null("TopContent/RightSidebar") as PanelContainer
 		bundle["statusPanel"] = page_root.get_node_or_null("TopContent/LeftColumn/StatusPanel")
 		bundle["logConsole"] = page_root.get_node_or_null("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/LogContent/Margin/LogBox/InspectorText")
@@ -245,7 +267,7 @@ static func activate_action_bar_bundle(view, page_id: String) -> void:
 	if bundle.is_empty():
 		return
 	view._active_action_bar_bundle_id = page_id
-	view.action_bar = bundle.get("actionBar", null) as HBoxContainer
+	view.action_bar = bundle.get("actionBar", null) as BoxContainer
 	view.reset_button = bundle.get("resetButton", null) as Button
 	view.start_button = bundle.get("startButton", null) as Button
 	view.claim_rewards_button = bundle.get("claimRewardsButton", null) as Button
@@ -273,6 +295,10 @@ static func activate_surface_bundle(view, page_id: String) -> void:
 		assign_battle_bundle_refs(view, bundle)
 	if bundle.get("rewardPanel", null) != null:
 		assign_reward_bundle_refs(view, bundle)
+	# 전투 보드 패널 제목 행을 영향 미리보기 토글 앵커로 사용 (mockup .board-title-row 우측 배치)
+	var board_title_row := bundle.get("boardTitleRow", null) as Control
+	if board_title_row != null and bundle.get("battlefieldUI", null) != null and view.backpack_ui != null and view.backpack_ui.has_method("set_influence_preview_toggle_anchor"):
+		view.backpack_ui.set_influence_preview_toggle_anchor(board_title_row)
 	view._install_character_presentation()
 	if view.reward_panel != null:
 		view._install_reward_backdrop()

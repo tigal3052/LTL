@@ -113,6 +113,10 @@ static func create_artifact_codex_panel(view) -> void:
 	view.codex_panel.debug_toggled.connect(view._on_codex_debug_toggled)
 	view.codex_panel.entry_selected.connect(view._on_codex_entry_selected)
 	view.codex_panel.section_selected.connect(view._on_codex_section_selected)
+	if view.codex_panel.has_signal("taxonomy_selected"):
+		view.codex_panel.taxonomy_selected.connect(view._on_codex_taxonomy_selected)
+	if view.codex_panel.has_signal("sort_selected"):
+		view.codex_panel.sort_selected.connect(view._on_codex_sort_selected)
 	view.codex_panel.visibility_changed.connect(func():
 		view._promote_popup_overlay_when_visible(view.codex_panel)
 		view._emit_combat_overlay_pause_visibility_changed()
@@ -132,16 +136,20 @@ static func render_artifact_codex(view, reward_table: Dictionary, growth_state: 
 	view.current_codex_reward_table = reward_table.duplicate(true)
 	view.current_codex_growth_state = growth_state.duplicate(true)
 	view.current_codex_debug_all = debug_all
-	var model: Dictionary = ArtifactCodexReadModelScript.project(
+	var model: Dictionary = ArtifactCodexReadModelScript.project_v5(
 		view.current_codex_reward_table,
 		view.current_codex_growth_state,
 		view.current_codex_debug_all,
 		"",
 		view.current_codex_selected_entry_id,
-		view.current_codex_active_section
+		view.current_codex_active_section,
+		view.current_codex_active_taxonomy_id,
+		view.current_codex_sort_id
 	)
 	view.current_codex_selected_entry_id = str(model.get("resolvedSelectedEntryId", ""))
 	view.current_codex_active_section = str(model.get("activeSection", "all"))
+	view.current_codex_active_taxonomy_id = str(model.get("activeTaxonomyId", "backpack_items"))
+	view.current_codex_sort_id = str(model.get("activeSortId", "catalog"))
 	view.codex_panel.render_codex(model)
 	view._defer_interaction_fx_install()
 
@@ -162,6 +170,16 @@ static func on_codex_section_selected(view, section_id: String) -> void:
 	if view.current_codex_reward_table.is_empty():
 		return
 	view.call_deferred("_rerender_current_codex")
+
+static func on_codex_taxonomy_selected(view, taxonomy_id: String) -> void:
+	view.current_codex_active_taxonomy_id = taxonomy_id
+	if not view.current_codex_reward_table.is_empty():
+		view.call_deferred("_rerender_current_codex")
+
+static func on_codex_sort_selected(view, sort_id: String) -> void:
+	view.current_codex_sort_id = sort_id
+	if not view.current_codex_reward_table.is_empty():
+		view.call_deferred("_rerender_current_codex")
 
 static func rerender_current_codex(view) -> void:
 	if view.current_codex_reward_table.is_empty():

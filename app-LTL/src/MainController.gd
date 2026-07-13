@@ -69,6 +69,8 @@ var weakness_shift_step: int = 0
 var reward_presentation_step: String = ""
 var _start_transition_pending := false
 var battle_pause_active := false
+# 전투 리디자인: 배틀 진입 직후 '굴착 시작'을 누르기 전까지 전투를 정지 상태로 붙잡는다.
+var battle_start_hold_active := false
 var _disabled_tile_release_queue: Array[Dictionary] = []
 var accessibility_state := {
 	"screenshake": true,

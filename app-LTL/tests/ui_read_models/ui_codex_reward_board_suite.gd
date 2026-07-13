@@ -3,20 +3,55 @@
 func run_all_tests() -> Dictionary:
 	failures.clear()
 	reward_reveal_cancel_done_calls = 0
-	test_codex_panel_extracts_layout_and_book_visual_helpers()
-	test_codex_book_safe_area_uses_ratios_instead_of_fixed_pixels()
-	test_codex_panel_exposes_split_page_scroll_structure()
-	test_codex_header_stays_inside_safe_spread_area()
-	test_codex_entry_cards_keep_decorative_layers_click_through()
+	test_codex_panel_exposes_v5_canvas_regions()
+	test_codex_v5_layout_uniformly_fits_viewport()
+	test_codex_v5_catalog_cards_keep_art_click_through()
 	test_codex_art_renderer_draws_resolved_item_pngs()
-	test_codex_header_controls_use_compact_button_heights()
-	test_codex_left_page_projects_shape_footprint_and_matrix()
+	test_codex_v5_controls_have_compact_runtime_targets()
+
 	test_main_view_panels_runtime_helper_exists()
 	test_main_view_codex_keeps_selected_entry_and_section_state()
 	test_codex_debug_checkbox_projection_marks_all_entries_discovered()
 	test_main_controller_can_force_codex_discovery_state()
 	test_main_controller_maps_starter_color_to_codex_discoveries()
 	return _result()
+
+func test_codex_panel_exposes_v5_canvas_regions() -> void:
+	var panel = ArtifactCodexPanelUIScript.new()
+	panel._ready()
+	_assert(panel.get_node_or_null("CodexViewport/DesignCanvas") != null, "V5 codex exposes the fixed design canvas")
+	_assert(panel.get_node_or_null("CodexViewport/DesignCanvas/CatalogRegion") != null, "V5 codex exposes its catalog region")
+	_assert(panel.get_node_or_null("CodexViewport/DesignCanvas/DetailRegion") != null, "V5 codex exposes its selected-entry detail region")
+	_assert(panel.get_node_or_null("CodexViewport/DesignCanvas/DetailRegion/Facts") != null, "V5 codex exposes its facts region")
+	panel.free()
+
+func test_codex_v5_layout_uniformly_fits_viewport() -> void:
+	var policy = load("res://src/ui/codex/ArtifactCodexLayoutPolicy.gd").new()
+	var transform: Dictionary = policy.canvas_transform_for_viewport(Vector2i(720, 900))
+	_assert_eq(transform.get("scale", 0.0), 0.5, "V5 canvas uses uniform fit scale on a narrow viewport")
+	_assert_eq(transform.get("position", Vector2.ZERO), Vector2(0.0, 225.0), "V5 canvas centers the fitted content vertically")
+	var regions: Dictionary = policy.v5_regions()
+	_assert(regions.has("catalogPanel"), "V5 layout policy owns catalog region metrics")
+	_assert(regions.has("detailPanel"), "V5 layout policy owns detail region metrics")
+
+func test_codex_v5_catalog_cards_keep_art_click_through() -> void:
+	var panel = ArtifactCodexPanelUIScript.new()
+	panel._ready()
+	var entry := {"id":"reward_common_purple_drill_a", "name":"Test Entry", "visible":true, "rarity":"common", "thumbArt":{"state":"discovered"}}
+	var button: Button = panel._build_entry_card(entry, false)
+	var thumb := button.get_child(0) as TextureRect
+	_assert(thumb != null, "V5 catalog card exposes its thumbnail layer")
+	if thumb != null:
+		_assert_eq(thumb.mouse_filter, Control.MOUSE_FILTER_IGNORE, "V5 thumbnail stays click-through so the card is fully tappable")
+	button.free()
+	panel.free()
+
+func test_codex_v5_controls_have_compact_runtime_targets() -> void:
+	var panel = ArtifactCodexPanelUIScript.new()
+	panel._ready()
+	_assert(float(panel.close_button.custom_minimum_size.y) <= 32.0, "V5 close control remains compact")
+	_assert(float(panel.filter_tabs.custom_minimum_size.y) <= 36.0, "V5 filter row remains compact")
+	panel.free()
 
 func test_codex_panel_extracts_layout_and_book_visual_helpers() -> void:
 	var layout_helper_path := "res://src/ui/codex/ArtifactCodexLayoutPolicy.gd"

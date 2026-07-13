@@ -125,11 +125,12 @@ static func render_character_status(view, scene: Dictionary) -> void:
 	)))
 	var portrait_path := str(selected_character.get("portraitPath", CHARACTER_PORTRAIT_PATH))
 	view.portrait_art.texture = LTLThemeScript.art_texture(portrait_path)
-	view._set_rich_text(
-		"RootMargin/AppShell/TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/InventorySummaryLabel",
-		("[b]%s[/b]\n%s\n%s" % [
+	# 전투 리디자인: 요약 라벨은 페이지 셸 번들 경로로 찾는다 (구 RootMargin 경로는 폐기됨).
+	var summary_label := view.current_surface_node("TopContent/RightSidebar/Margin/SidebarBox/TabViewport/ExplorerContent/Margin/CharacterBox/InventorySummaryLabel") as RichTextLabel
+	if summary_label != null:
+		summary_label.add_theme_color_override("default_color", LTLThemeScript.INK_PRIMARY)
+		summary_label.text = "[b]%s[/b]\n%s\n%s" % [
 			TextCatalogScript.display_name(character_name),
 			stage_label_text,
 			TextCatalogScript.t("character.front_color", [TextCatalogScript.color_label(selected_color)])
-		])
-	)
+		]

@@ -10,6 +10,8 @@ extends RefCounted
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
 const NodeSelectLayoutPolicyScript = preload("res://src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd")
+const NodeSelectContentModelScript = preload("res://src/scenes/pages/node_select/NodeSelectContentModel.gd")
+const NodeSelectClearStampScript = preload("res://src/scenes/pages/node_select/NodeSelectClearStamp.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 
 const ROUTE_RED := Color(0.28, 0.37, 0.24, 0.62)
@@ -52,10 +54,26 @@ static func rebuild_canvas(page) -> void:
 	var fixed_stage: bool = page._is_fixed_stage()
 	var boss_stage: bool = page._is_boss_stage()
 
-	page._register_panel_model("start", TextCatalogScript.t("node_runtime.start_mark.name"), TextCatalogScript.t("node_runtime.start_mark.body"))
-	page._register_panel_model("fixed", TextCatalogScript.t("node_runtime.fixed_entry.name"), TextCatalogScript.t("node_runtime.fixed_entry.body"))
-	page._register_panel_model("future", TextCatalogScript.t("node_runtime.future.name"), TextCatalogScript.t("node_runtime.future.body"))
-	page._register_panel_model("boss", TextCatalogScript.t("node_runtime.boss.name"), TextCatalogScript.t("node_runtime.boss.body"))
+	page._register_panel_model("start", TextCatalogScript.t("node_runtime.start_mark.name"), TextCatalogScript.t("node_runtime.start_mark.body"), {
+		"lore": TextCatalogScript.t("node_runtime.start_mark.body"),
+		"status": TextCatalogScript.t("node_runtime.status.candidate" if page._is_fixed_stage() else "node_runtime.status.cleared"),
+		"icon": "start"
+	})
+	page._register_panel_model("fixed", TextCatalogScript.t("node_runtime.fixed_entry.name"), TextCatalogScript.t("node_runtime.fixed_entry.body"), {
+		"lore": TextCatalogScript.t("node_runtime.fixed_entry.body"),
+		"status": TextCatalogScript.t("node_runtime.status.candidate"),
+		"icon": "start"
+	})
+	page._register_panel_model("future", TextCatalogScript.t("node_runtime.future.name"), TextCatalogScript.t("node_runtime.future.body"), {
+		"lore": TextCatalogScript.t("node_runtime.future.body"),
+		"status": TextCatalogScript.t("node_runtime.status.locked"),
+		"icon": "future"
+	})
+	page._register_panel_model("boss", TextCatalogScript.t("node_runtime.boss.name"), TextCatalogScript.t("node_runtime.boss.body"), {
+		"lore": TextCatalogScript.t("node_runtime.boss.body"),
+		"status": TextCatalogScript.t("node_runtime.status.boss"),
+		"icon": "boss"
+	})
 
 	if fixed_stage or route_history.is_empty():
 		var start_selected: bool = fixed_stage and selected_index == 0
@@ -91,7 +109,7 @@ static func rebuild_canvas(page) -> void:
 			var candidate: Dictionary = candidates[index]
 			var center: Vector2 = route_centers[index]
 			var panel_key := "route_%d" % index
-			page._register_panel_model(panel_key, TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?")))), page._candidate_panel_body(candidate))
+			page._register_panel_model(panel_key, TextCatalogScript.display_name(str(candidate.get("label", candidate.get("id", "?")))), page._candidate_panel_body(candidate), NodeSelectContentModelScript.candidate_panel_components(candidate))
 			page._add_dotted_route("PastRoute%d" % index, history_anchor, center, ROUTE_RED, 4.8, -0.12 + (0.08 * float(index)), 0.86)
 			if index == selected_index:
 				page._add_forecast_route("SelectedRoute%d" % index, history_anchor, center, ROUTE_GOLD, 3.2, -0.08 + (0.05 * float(index)))
@@ -109,6 +127,8 @@ static func rebuild_canvas(page) -> void:
 		boss_hotspot.pressed.connect(func() -> void:
 			page._toggle_node_selection(0, "boss")
 		)
+	else:
+		boss_hotspot.modulate = Color(1, 1, 1, 0.55)
 	page._boss_hotspots.append(boss_hotspot)
 	page._show_panel(page._default_panel_key)
 
@@ -125,7 +145,7 @@ static func build_history_chain(page, start_pos: Vector2, route_history: Array) 
 			page._add_dotted_route("HistoryPath%d" % history_index, previous_point, stage_slot, ROUTE_RED, 4.8, 0.08, 0.84)
 			page._add_forecast_route("HistoryPathSelected%d" % history_index, previous_point, stage_slot, ROUTE_GOLD, 3.0, 0.06)
 		var panel_key := "history_%d" % history_index
-		page._register_panel_model(panel_key, page._history_entry_name(entry), page._history_entry_body(entry))
+		page._register_panel_model(panel_key, page._history_entry_name(entry), page._history_entry_body(entry), NodeSelectContentModelScript.history_entry_components(entry))
 		var history_palette: Dictionary = page._muted_palette(page._tone_palette("start") if int(entry.get("stageIndex", -1)) == 0 else page._candidate_palette(entry))
 		var hotspot := add_hover_hotspot(
 			page,
@@ -138,12 +158,10 @@ static func build_history_chain(page, start_pos: Vector2, route_history: Array) 
 			false,
 			false,
 			page._history_entry_name(entry),
-			"?꾨즺"
+			TextCatalogScript.t("node_runtime.cleared")
 		)
 		page._history_hotspots.append(hotspot)
-		var history_sub_label := hotspot.get_node_or_null("SubLabel") as Label
-		if history_sub_label != null:
-			history_sub_label.text = "Cleared"
+		NodeSelectClearStampScript.attach(hotspot)
 		if int(entry.get("stageIndex", -1)) == 0:
 			page._start_hotspots.append(hotspot)
 		previous_point = stage_slot
@@ -175,6 +193,7 @@ static func build_future_chain(page, from_point: Vector2) -> void:
 		)
 		if future_index == 0:
 			hotspot.name = "FuturePreviewHotspot"
+		hotspot.modulate = Color(1, 1, 1, 0.50)
 		page._future_hotspots.append(hotspot)
 		previous_point = marker_point
 	if not page._is_boss_stage():

@@ -55,13 +55,13 @@ func _run() -> void:
 	await process_frame
 	_assert_eq(str(main_instance.get("active_page_id")), "battle", "normal route enters battle before reward handoff checks")
 	var battle_backpack_container = main_instance.get("backpack_container") as Control
-	var battle_backpack_host = main_instance.call("current_surface_node", "TopContent/BackpackContainer") as Control
+	var battle_backpack_host = main_instance.call("current_surface_node", "TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea/BackpackContainer") as Control
 	var battle_backpack_instance_id := int(battle_backpack_container.get_instance_id()) if battle_backpack_container != null else -1
 	_assert(battle_backpack_container != null, "battle page exposes the shared backpack container before reward handoff")
 	_assert(battle_backpack_host != null, "battle page exposes the top shared-backpack host before reward handoff")
 	if battle_backpack_container != null and battle_backpack_host != null:
 		_assert(battle_backpack_container.get_parent() == battle_backpack_host, "battle page hosts the shared backpack instance before reward handoff")
-		_assert(main_instance.call("current_surface_node", "TopContent/BackpackContainer/BackpackEnginePanel") == null, "battle page does not expose a page-local backpack panel before reward handoff")
+		_assert(main_instance.call("current_surface_node", "TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea/BackpackContainer/BackpackEnginePanel") == null, "battle page does not expose a page-local backpack panel before reward handoff")
 	print("REWARD_HANDOFF_STEP: battle_ready")
 
 	controller.preview_controller.run.apply_combat_input({"type": "resolve", "outcome": "clear"})

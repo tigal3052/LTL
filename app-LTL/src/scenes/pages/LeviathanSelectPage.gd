@@ -7,6 +7,12 @@ const ViewBitsScript = preload("res://src/scenes/pages/leviathan_select/Leviatha
 const RailCardFactoryScript = preload("res://src/scenes/pages/leviathan_select/LeviathanSelectRailCardFactory.gd")
 const RailScrollControllerScript = preload("res://src/scenes/pages/leviathan_select/LeviathanSelectRailScrollController.gd")
 
+## ROLLBACK SWITCH: flip to false to restore the pre-fullscreen-hero layout
+## (left GlobalRail visible, hero copy bottom-left). When this slice is
+## confirmed good, delete this flag and the `_LEGACY_` / old-path branches
+## below in one pass.
+const FULLSCREEN_HERO_LAYOUT_ENABLED := true
+
 const LEVIATHAN_TABLE_PATH := "res://src/data/leviathan-table.json"
 const GLOBAL_RAIL_WIDTH_RATIO := 0.165
 const GLOBAL_RAIL_WIDTH_MIN := 208.0
@@ -169,6 +175,17 @@ func _apply_theme() -> void:
 	_apply_hero_theme()
 	_apply_cards_scroll_theme()
 	_apply_cta_theme()
+	if FULLSCREEN_HERO_LAYOUT_ENABLED:
+		_apply_fullscreen_hero_layout()
+	else:
+		global_rail.visible = true
+
+## New layout path (rollback: set FULLSCREEN_HERO_LAYOUT_ENABLED = false).
+## Hides the left GlobalRail so HeroShell (the leviathan art) fills the
+## whole workspace width; hero copy repositioning happens in
+## _sync_hero_copy_margin via the same flag.
+func _apply_fullscreen_hero_layout() -> void:
+	global_rail.visible = false
 
 func _apply_locale() -> void:
 	brand_label.text = "Looting The Leviathan"
@@ -353,9 +370,25 @@ func _sync_responsive_layout() -> void:
 		cards_scroll.scroll_vertical = 0
 
 func _sync_hero_copy_margin(rail_width: float) -> void:
+	if FULLSCREEN_HERO_LAYOUT_ENABLED:
+		_sync_hero_copy_margin_fullscreen(rail_width)
+		return
+	_sync_hero_copy_margin_legacy(rail_width)
+
+func _sync_hero_copy_margin_legacy(rail_width: float) -> void:
+	hero_copy_margin.add_theme_constant_override("margin_left", 28)
 	hero_copy_margin.add_theme_constant_override("margin_top", int(round(clampf(hero_shell.size.y * 0.30, 136.0, 212.0))))
 	hero_copy_margin.add_theme_constant_override("margin_right", int(round(rail_width + 34.0)))
 	hero_copy_margin.add_theme_constant_override("margin_bottom", int(round(clampf(hero_shell.size.y * 0.16, 78.0, 126.0))))
+
+## New layout path (rollback: set FULLSCREEN_HERO_LAYOUT_ENABLED = false).
+## Pins the hero copy box (name/summary/tags) to the top-left of the now
+## fullscreen hero art, clear of the OverlayRail card list on the right.
+func _sync_hero_copy_margin_fullscreen(rail_width: float) -> void:
+	hero_copy_margin.add_theme_constant_override("margin_left", 28)
+	hero_copy_margin.add_theme_constant_override("margin_top", 28)
+	hero_copy_margin.add_theme_constant_override("margin_right", int(round(rail_width + 34.0)))
+	hero_copy_margin.add_theme_constant_override("margin_bottom", int(round(hero_shell.size.y - 28.0 - clampf(hero_shell.size.y * 0.42, 220.0, 340.0))))
 
 func _ensure_overlay_rail_blend() -> void:
 	if overlay_rail == null:

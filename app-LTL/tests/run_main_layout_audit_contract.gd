@@ -343,7 +343,7 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	var active_phase_container = main_instance.get("active_phase_container") as Control
 	var action_bar = main_instance.get("action_bar") as Control
 	var battlefield_panel = main_instance.call("current_surface_node", "BattlefieldPanel") as Control
-	var visual_queue_box = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/QueueShell/QueueMargin/VisualQueueBox") as GridContainer
+	var visual_queue_box = main_instance.call("current_surface_node", "TopContent/LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueStack/VisualQueueBox") as GridContainer
 	var queue_hint_label = main_instance.find_child("QueueHintLabel", true, false) as Label
 	var explorer_tab_button = main_instance.call("current_surface_node", "TopContent/RightSidebar/Margin/SidebarBox/TabRow/ExplorerTabButton") as Button
 	var log_tab_button = main_instance.call("current_surface_node", "TopContent/RightSidebar/Margin/SidebarBox/TabRow/LogInfoTabButton") as Button
@@ -367,23 +367,31 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	_assert(battlefield_panel != null, "combat battlefield tile strip exists for floor adjacency audit")
 	_assert(visual_queue_box != null, "combat status panel exposes the two-row FIFO energy queue grid")
 	var backpack_slot: Control = backpack_host if backpack_host != null else backpack_container
-	if top_content != null and left_column != null and backpack_slot != null and backpack_container != null and right_sidebar != null:
+	var board_panel = main_instance.call("current_surface_node", "TopContent/BoardPanel") as Control
+	var board_title = main_instance.call("current_surface_node", "TopContent/BoardPanel/BoardMargin/BoardBox/BoardTitleRow/BoardTitle") as Label
+	_assert(board_panel != null, "combat board panel wraps the shared backpack board and CTA column (mockup .board-wrap)")
+	_assert(board_title != null and not board_title.text.is_empty(), "combat board panel shows the satchel title row (mockup .board-title-row)")
+	if top_content != null and left_column != null and backpack_slot != null and backpack_container != null and right_sidebar != null and board_panel != null:
 		_assert(bool(top_content.visible), "combat keeps the top-content row visible")
 		_assert(float(top_content.size.y) >= 510.0, "combat top row consumes the remaining vertical budget so the lower HUD band can sit on the floor (height=%.2f)" % top_content.size.y)
 		_assert(absf(float(left_column.size.y) - float(top_content.size.y)) <= 0.5, "combat left status panel matches the top-row height (left=%.2f top=%.2f)" % [left_column.size.y, top_content.size.y])
-		_assert(absf(float(backpack_slot.size.y) - float(top_content.size.y)) <= 0.5, "combat backpack host matches the top-row height (backpack=%.2f top=%.2f)" % [backpack_slot.size.y, top_content.size.y])
+		_assert(absf(float(board_panel.size.y) - float(top_content.size.y)) <= 0.5, "combat board panel matches the top-row height (board=%.2f top=%.2f)" % [board_panel.size.y, top_content.size.y])
+		_assert(board_panel.is_ancestor_of(backpack_slot), "combat backpack host lives inside the board panel")
 		_assert(backpack_container.get_parent() == backpack_slot, "combat shared backpack instance lives under the top-content backpack host")
 		_assert(absf(float(right_sidebar.size.y) - float(top_content.size.y)) <= 0.5, "combat right panel matches the top-row height (right=%.2f top=%.2f)" % [right_sidebar.size.y, top_content.size.y])
 		_assert(float(left_column.position.x) >= -0.5, "combat left column stays inside the top-content row")
-		_assert(float(left_column.position.x + left_column.size.x) <= float(backpack_slot.position.x) + 1.0, "combat left column stays left of the backpack slot")
-		_assert(float(backpack_slot.position.x + backpack_slot.size.x) <= float(right_sidebar.position.x) + 1.0, "combat backpack stays left of the log sidebar")
+		_assert(float(left_column.get_global_rect().end.x) <= float(backpack_slot.get_global_rect().position.x) + 1.0, "combat left column stays left of the backpack slot")
+		_assert(float(backpack_slot.get_global_rect().end.x) <= float(right_sidebar.get_global_rect().position.x) + 1.0, "combat backpack stays left of the log sidebar")
 		_assert(float(right_sidebar.position.x + right_sidebar.size.x) <= float(top_content.size.x) + 1.0, "combat right sidebar stays inside the top-content row")
 		var MainViewRuntimeScript = load("res://src/ui/MainViewRuntime.gd")
 		if MainViewRuntimeScript != null:
 			var expected_backpack_width := float(MainViewRuntimeScript.top_content_backpack_width_for_height(backpack_slot.size.y))
-			_assert(absf(float(backpack_slot.size.x) - expected_backpack_width) <= 8.0, "combat backpack keeps the priority height-derived width instead of being clamped first (actual=%.2f expected=%.2f)" % [backpack_slot.size.x, expected_backpack_width])
-		_assert(float(backpack_slot.size.x) >= 590.0, "combat backpack expands to the largest floor-aligned 8x8 ratio panel at the canonical viewport (width=%.2f)" % backpack_slot.size.x)
-		_assert(float(left_column.size.x) >= 440.0 and float(left_column.size.x) <= 460.0, "combat left status column stays at the readable minimum before trimming the right rail (width=%.2f)" % left_column.size.x)
+			# 전투 리디자인: 보드 우측 CTA 기둥이 가로 예산을 나눠 가지므로 높이 유도 폭이
+			# 예산을 넘으면 폭 캡 클램프가 정상 동작이다 (클램프 시에도 아래 하한 유지).
+			_assert(float(backpack_slot.size.x) <= expected_backpack_width + 8.0, "combat backpack never exceeds the height-derived priority width (actual=%.2f cap=%.2f)" % [backpack_slot.size.x, expected_backpack_width])
+		# 보드 패널(제목 행 + 마진)이 세로 크롬을 차지한 뒤에도 8x8 보드가 주역 폭을 유지한다.
+		_assert(float(backpack_slot.size.x) >= 540.0, "combat backpack expands to the largest board-panel 8x8 ratio panel at the canonical viewport (width=%.2f)" % backpack_slot.size.x)
+		_assert(float(left_column.size.x) >= 300.0 and float(left_column.size.x) <= 440.0, "combat left status column stays at the redesigned parchment-note minimum before trimming the right rail (width=%.2f)" % left_column.size.x)
 		_assert(float(right_sidebar.size.x) >= 300.0 and float(right_sidebar.size.x) <= 330.0, "combat right sidebar absorbs the remaining side budget while keeping tab controls usable (width=%.2f)" % right_sidebar.size.x)
 	if visual_queue_box != null:
 		_assert_eq(int(visual_queue_box.columns), 8, "combat energy queue keeps eight columns per row for the two-row FIFO layout")
@@ -402,18 +410,17 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 	_assert(log_tab_button != null, "combat right sidebar keeps the log tab button mounted")
 	_assert(explorer_content != null and explorer_content.visible, "combat defaults the right sidebar to explorer status")
 	_assert(log_content != null and not log_content.visible, "combat keeps the log body hidden until the tab is pressed")
-	if active_phase_container != null and action_bar != null:
-		_assert(absf(float(action_bar.get_global_rect().end.y) - float(active_phase_container.get_global_rect().end.y)) <= 1.0, "combat action bar sits on the active phase floor instead of leaving a large bottom gap (action=%.2f active=%.2f)" % [action_bar.get_global_rect().end.y, active_phase_container.get_global_rect().end.y])
-		_assert(float(action_bar.size.y) <= 64.0, "combat action bar remains button-height instead of becoming a spacer (height=%.2f)" % action_bar.size.y)
-	if battlefield_panel != null and action_bar != null:
-		var battle_page = action_bar.get_parent() as VBoxContainer
-		var page_gap := float(battle_page.get_theme_constant("separation")) if battle_page != null else 0.0
-		var expected_action_y := float(battlefield_panel.get_global_rect().end.y) + page_gap
-		_assert(absf(expected_action_y - float(action_bar.global_position.y)) <= 1.0, "combat battlefield tile strip stays directly above the action bar (expected_y=%.2f action_y=%.2f)" % [expected_action_y, action_bar.global_position.y])
-	if top_content != null and active_phase_container != null and action_bar != null and log_tab_button != null and explorer_content != null and log_content != null:
+	if active_phase_container != null and battlefield_panel != null:
+		_assert(absf(float(battlefield_panel.get_global_rect().end.y) - float(active_phase_container.get_global_rect().end.y)) <= 1.0, "combat battlefield tile strip sits on the active phase floor now that the bottom action bar row is retired (strip=%.2f active=%.2f)" % [battlefield_panel.get_global_rect().end.y, active_phase_container.get_global_rect().end.y])
+		_assert(float(battlefield_panel.size.y) <= 170.0, "combat battlefield tile strip keeps the compact 154px redesign budget (height=%.2f)" % battlefield_panel.size.y)
+	if top_content != null and action_bar != null and backpack_slot != null and right_sidebar != null:
+		_assert(top_content.is_ancestor_of(action_bar), "combat action bar lives in the board-side CTA column inside the top-content row")
+		_assert(float(action_bar.get_global_rect().position.x) >= float(backpack_slot.get_global_rect().end.x) - 1.0, "combat CTA column sits to the right of the backpack board")
+		_assert(float(action_bar.get_global_rect().end.x) <= float(right_sidebar.get_global_rect().position.x) + 1.0, "combat CTA column stays left of the log sidebar")
+	if top_content != null and active_phase_container != null and battlefield_panel != null and log_tab_button != null and explorer_content != null and log_content != null:
 		var base_top_height := float(top_content.size.y)
 		var base_active_phase_y := float(active_phase_container.global_position.y)
-		var base_action_bar_y := float(action_bar.global_position.y)
+		var base_strip_y := float(battlefield_panel.global_position.y)
 		log_tab_button.pressed.emit()
 		await process_frame
 		await process_frame
@@ -421,16 +428,16 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 		_assert(not explorer_content.visible, "log tab hides the explorer-status body instead of stacking another layout row")
 		_assert(absf(float(top_content.size.y) - base_top_height) <= 0.5, "switching the right sidebar tab keeps the top-content row height stable")
 		_assert(absf(float(active_phase_container.global_position.y) - base_active_phase_y) <= 0.5, "switching the right sidebar tab keeps the battlefield row anchored")
-		_assert(absf(float(action_bar.global_position.y) - base_action_bar_y) <= 0.5, "switching the right sidebar tab keeps the action bar floor anchored")
+		_assert(absf(float(battlefield_panel.global_position.y) - base_strip_y) <= 0.5, "switching the right sidebar tab keeps the battlefield tile strip anchored")
 		explorer_tab_button.pressed.emit()
 		await process_frame
 		await process_frame
 		_assert(explorer_content.visible, "explorer tab restores the default right-sidebar body")
 		_assert(not log_content.visible, "explorer tab hides the log body again without changing layout ownership")
-	if top_content != null and active_phase_container != null and action_bar != null and info_toggle_button != null and info_detail_shell != null:
+	if top_content != null and active_phase_container != null and battlefield_panel != null and info_toggle_button != null and info_detail_shell != null:
 		var base_toggle_top_height := float(top_content.size.y)
-		var base_toggle_action_bar_y := float(action_bar.global_position.y)
-		var base_toggle_action_bar_floor := float(action_bar.get_global_rect().end.y)
+		var base_toggle_strip_y := float(battlefield_panel.global_position.y)
+		var base_toggle_strip_floor := float(battlefield_panel.get_global_rect().end.y)
 		info_toggle_button.pressed.emit()
 		await process_frame
 		await process_frame
@@ -439,8 +446,8 @@ func _assert_combat_layout(MainScene: PackedScene) -> void:
 		_assert(node_card != null and node_card.visible, "expanded node info reveals the moved node status card")
 		_assert(ops_shell != null and not ops_shell.visible, "expanded node info covers the drill info area instead of stacking above it")
 		_assert(absf(float(top_content.size.y) - base_toggle_top_height) <= 0.5, "opening the combat info dropdown keeps the equal-height top row stable")
-		_assert(absf(float(action_bar.global_position.y) - base_toggle_action_bar_y) <= 0.5, "opening the combat info dropdown keeps the action bar anchored")
-		_assert(absf(float(action_bar.get_global_rect().end.y) - base_toggle_action_bar_floor) <= 0.5, "opening the combat info dropdown keeps the action bar floor fixed")
+		_assert(absf(float(battlefield_panel.global_position.y) - base_toggle_strip_y) <= 0.5, "opening the combat info dropdown keeps the battlefield tile strip anchored")
+		_assert(absf(float(battlefield_panel.get_global_rect().end.y) - base_toggle_strip_floor) <= 0.5, "opening the combat info dropdown keeps the battlefield floor fixed")
 		info_toggle_button.pressed.emit()
 		await process_frame
 		await process_frame
@@ -483,6 +490,8 @@ func _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene: PackedScen
 	var base_top_height := float(top_content.size.y)
 	var base_active_phase_y := float(active_phase_container.global_position.y)
 	var base_action_bar_y := float(action_bar.global_position.y)
+	var battlefield_strip = main_instance.call("current_surface_node", "BattlefieldPanel") as Control
+	var base_strip_y := float(battlefield_strip.global_position.y) if battlefield_strip != null else 0.0
 	var purple_scene: Dictionary = controller.get("current_scene").duplicate(true)
 	var hud: Dictionary = purple_scene.get("hud", {}).duplicate(true)
 	hud["purplePressure"] = {"stackCount": 0, "buffCount": 2, "active": true}
@@ -493,7 +502,9 @@ func _assert_combat_purple_status_overlay_keeps_bottom_gap(MainScene: PackedScen
 	_assert(bool(purple_row.visible), "combat purple-status layout audit triggers the purple status row")
 	_assert(absf(float(top_content.size.y) - base_top_height) <= 0.5, "purple status overlay keeps the top-content row height stable instead of pushing the bottom panel down (before=%.2f after=%.2f)" % [base_top_height, top_content.size.y])
 	_assert(absf(float(active_phase_container.global_position.y) - base_active_phase_y) <= 0.5, "purple status overlay keeps the active phase container anchored instead of lowering the battlefield (before=%.2f after=%.2f)" % [base_active_phase_y, active_phase_container.global_position.y])
-	_assert(absf(float(action_bar.global_position.y) - base_action_bar_y) <= 0.5, "purple status overlay keeps the action bar floor position stable after the first purple-state update (before=%.2f after=%.2f)" % [base_action_bar_y, action_bar.global_position.y])
+	_assert(absf(float(action_bar.global_position.y) - base_action_bar_y) <= 0.5, "purple status overlay keeps the CTA column position stable after the first purple-state update (before=%.2f after=%.2f)" % [base_action_bar_y, action_bar.global_position.y])
+	if battlefield_strip != null:
+		_assert(absf(float(battlefield_strip.global_position.y) - base_strip_y) <= 0.5, "purple status overlay keeps the battlefield tile strip anchored (before=%.2f after=%.2f)" % [base_strip_y, battlefield_strip.global_position.y])
 	main_instance.queue_free()
 	await process_frame
 func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
@@ -519,6 +530,16 @@ func _assert_combat_overlay_pause_behavior(MainScene: PackedScene) -> void:
 	start_button.pressed.emit()
 	await process_frame
 	await process_frame
+	# 전투 리디자인: 배틀 진입 직후에는 '굴착 시작' 홀드가 전투를 정지시킨다.
+	_assert(bool(controller.get("battle_start_hold_active")), "combat entry keeps the dig-start hold engaged until the CTA is pressed")
+	_assert(bool(controller.call("is_battle_pause_active")), "combat entry pauses combat while the dig-start hold is engaged")
+	start_button.pressed.emit()
+	await process_frame
+	await process_frame
+	_assert(not bool(controller.get("battle_start_hold_active")), "pressing the dig-start CTA releases the battle start hold")
+	if controller.has_method("_on_narrative_continue_requested"):
+		controller.call("_on_narrative_continue_requested", "")
+		await process_frame
 	main_instance.call("set_settings_visible", true)
 	await process_frame
 	_assert(bool(controller.call("is_battle_pause_active")), "opening settings during combat enables battle-only overlay pause")

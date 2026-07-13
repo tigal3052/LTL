@@ -7,12 +7,14 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: a245330ede595a97c796e673195934df186e6712ffd2385b9854bf9b465a5b63
+- Source fingerprint: 740da7bd3291e9c7e7b137021d0467e69d2d16ab065d05263054376a3a075192
 
 ## File Map
 
 - `.agent-harness.json`
   - Configures the project-specific bridge to the generic agent-harness, including worklog paths, token policy, validation commands, and manual checks.
+- `.claude/launch.json`
+  - launch is a project component with a tracked responsibility.
 - `.cursor/hooks.json`
   - hooks is a project component with a tracked responsibility.
 - `.cursorrules`
@@ -56,6 +58,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `.hermes/plans/2026-07-03_165111-leviathan-top-origin-root-cause-plan.md`
   - This document explains project design or implementation criteria.
 - `.hermes/plans/2026-07-03_172419-leviathan-black-gap-input-owner-replan.md`
+  - This document explains project design or implementation criteria.
+- `.hermes/plans/2026-07-07-character-select-glassmorphism-redesign.md`
   - This document explains project design or implementation criteria.
 - `.hermes/plans/ltl-google-stitch-page-prompts.ko.md`
   - This document explains project design or implementation criteria.
@@ -739,6 +743,70 @@ This file is the live implementation map for AI agents. It records each current 
   - Leviathan full-body art used for node-map route briefing and early-stage presentation.
 - `app-LTL/resources/Leviathan/Leviathan_turtle.png.import`
   - Godot import metadata for the early-stage leviathan full-body art.
+- `app-LTL/resources/node_select/atlas/btn_folio_secondary.png`
+  - btn folio secondary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/btn_folio_secondary.png.import`
+  - btn folio secondary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/btn_parchment_secondary.png`
+  - btn parchment secondary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/btn_parchment_secondary.png.import`
+  - btn parchment secondary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/btn_stone_leaf_primary.png`
+  - btn stone leaf primary is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/btn_stone_leaf_primary.png.import`
+  - btn stone leaf primary.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/chip_ruin_tablet.png`
+  - chip ruin tablet is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/chip_ruin_tablet.png.import`
+  - chip ruin tablet.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_battle_gate.png`
+  - icon battle gate is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_battle_gate.png.import`
+  - icon battle gate.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_boss_crest.png`
+  - icon boss crest is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_boss_crest.png.import`
+  - icon boss crest.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_camp_seed.png`
+  - icon camp seed is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_camp_seed.png.import`
+  - icon camp seed.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_event_leaf.png`
+  - icon event leaf is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_event_leaf.png.import`
+  - icon event leaf.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_locked_roots.png`
+  - icon locked roots is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_locked_roots.png.import`
+  - icon locked roots.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_reward_geode.png`
+  - icon reward geode is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/icon_reward_geode.png.import`
+  - icon reward geode.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/panel_atlas.png`
+  - panel atlas is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/panel_atlas.png.import`
+  - panel atlas.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/variant_a_bg_topographic_leviathan_atlas.png`
+  - variant a bg topographic leviathan atlas is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/atlas/variant_a_bg_topographic_leviathan_atlas.png.import`
+  - variant a bg topographic leviathan atlas.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/cta_button_styles_ltl_route_select.png`
+  - cta button styles ltl route select is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/cta_button_styles_ltl_route_select.png.import`
+  - cta button styles ltl route select.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/inspector_panel_styles_ltl_field_notes.png`
+  - inspector panel styles ltl field notes is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/inspector_panel_styles_ltl_field_notes.png.import`
+  - inspector panel styles ltl field notes.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/node_icon_sheet_ltl_ruin_biome.png`
+  - node icon sheet ltl ruin biome is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/node_icon_sheet_ltl_ruin_biome.png.import`
+  - node icon sheet ltl ruin biome.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/panel_UI_sheet.png`
+  - panel UI sheet is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/node_select/panel_UI_sheet.png.import`
+  - panel UI sheet.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/sound/reward_open.wav`
   - Reward ceremony lid-open audio used for the fullscreen reveal transition.
 - `app-LTL/resources/sound/reward_open.wav.import`
@@ -791,6 +859,10 @@ This file is the live implementation map for AI agents. It records each current 
   - backpack 4 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_4.png.import`
   - backpack 4.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_4_2.png`
+  - backpack 4 2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_4_2.png.import`
+  - backpack 4 2.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_5.png`
   - backpack 5 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_5.png.import`
@@ -799,6 +871,10 @@ This file is the live implementation map for AI agents. It records each current 
   - backpack 6 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_6.png.import`
   - backpack 6.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_6_2.png`
+  - backpack 6 2 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/backpack_6_2.png.import`
+  - backpack 6 2.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_7.png`
   - backpack 7 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_7.png.import`
@@ -811,6 +887,18 @@ This file is the live implementation map for AI agents. It records each current 
   - backpack 9 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/backpack_9.png.import`
   - backpack 9.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/battle_redesign/bg_canopy_ruins.png`
+  - bg canopy ruins is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/battle_redesign/bg_canopy_ruins.png.import`
+  - bg canopy ruins.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/battle_redesign/panel_parchment.png`
+  - panel parchment is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/battle_redesign/panel_parchment.png.import`
+  - panel parchment.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/cta/expedition_cta_button.png`
+  - expedition cta button is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/cta/expedition_cta_button.png.import`
+  - expedition cta button.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/ItemBook.png`
   - ItemBook is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/ItemBook.png.import`
@@ -847,6 +935,54 @@ This file is the live implementation map for AI agents. It records each current 
   - pin 4 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/pin/pin_4.png.import`
   - pin 4.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_blue.png`
+  - starter beacon card blue is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_blue.png.import`
+  - starter beacon card blue.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_blue_preview.png`
+  - starter beacon card blue preview is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_blue_preview.png.import`
+  - starter beacon card blue preview.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_green.png`
+  - starter beacon card green is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_green.png.import`
+  - starter beacon card green.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_green_preview.png`
+  - starter beacon card green preview is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_green_preview.png.import`
+  - starter beacon card green preview.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_purple.png`
+  - starter beacon card purple is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_purple.png.import`
+  - starter beacon card purple.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_purple_preview.png`
+  - starter beacon card purple preview is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_purple_preview.png.import`
+  - starter beacon card purple preview.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_red.png`
+  - starter beacon card red is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_red.png.import`
+  - starter beacon card red.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_red_preview.png`
+  - starter beacon card red preview is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_beacon_card_red_preview.png.import`
+  - starter beacon card red preview.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_blue.png`
+  - starter drill card blue is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_blue.png.import`
+  - starter drill card blue.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_green.png`
+  - starter drill card green is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_green.png.import`
+  - starter drill card green.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_purple.png`
+  - starter drill card purple is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_purple.png.import`
+  - starter drill card purple.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_red.png`
+  - starter drill card red is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/starter/starter_drill_card_red.png.import`
+  - starter drill card red.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/blue_tile.png`
   - blue tile is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/blue_tile.png.import`
@@ -1070,8 +1206,16 @@ This file is the live implementation map for AI agents. It records each current 
   - Draws the dotted future-route marker art used by the node-select roadmap canvas.
 - `app-LTL/src/scenes/pages/node_select/GlyphIcon.gd`
   - Draws node-select route glyph icons for start, repair, unknown, danger, harpoon, reef, and boss markers.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectClearStamp.gd`
+  - Node Select Clear Stamp defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/node_select/NodeSelectContentModel.gd`
   - Projects node-select page copy, stage status, candidate card data, and route-history labels.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectCtaDecor.gd`
+  - Node Select Cta Decor defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectHeaderChrome.gd`
+  - Node Select Header Chrome defines a Godot scene or scene controller.
+- `app-LTL/src/scenes/pages/node_select/NodeSelectInfoPanelForm.gd`
+  - Node Select Info Panel Form defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/node_select/NodeSelectLayoutPolicy.gd`
   - Owns responsive node-select board, hero, route, and stage-detail sizing metrics.
 - `app-LTL/src/scenes/pages/node_select/NodeSelectRoadmapComposer.gd`
@@ -1476,6 +1620,8 @@ This file is the live implementation map for AI agents. It records each current 
   - run character select cleanup contract verifies the simplified character-select shell copy and hover-detail behavior.
 - `app-LTL/tests/run_character_select_interaction_contract.gd`
   - run character select interaction contract verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_character_select_visual_style_contract.gd`
+  - run character select visual style contract verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_codex_pause_timing_contract.gd`
   - Verifies codex pause/resume preserves the steady battle terrain timer interval and saved remaining countdown.
 - `app-LTL/tests/run_combat_layout_containment_contract.gd`
@@ -1518,6 +1664,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the M6 page flow from character select through leviathan select, node select, combat, reward, boss clear, defeat, and return-to-character-select routes.
 - `app-LTL/tests/run_main_viewport_probe.gd`
   - run main viewport probe verifies Godot contracts and regression behavior.
+- `app-LTL/tests/run_node_select_atlas_style_audit.gd`
+  - run node select atlas style audit verifies Godot contracts and regression behavior.
 - `app-LTL/tests/run_node_select_runtime_contract.gd`
   - Verifies the dedicated node-select runtime page wiring, layout model, and page-shell interaction contract.
 - `app-LTL/tests/run_node_select_start_gate_contract.gd`
@@ -1596,12 +1744,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Verifies the M8 headless full clear, defeat, retry seed modes, reward reflection, and starter unlocks.
 - `app-LTL/tests/test_vertical_slice_replay_batch.gd`
   - Verifies the M8 three-seed replay batch and telemetry manifest schema.
-- `app-LTL/tests/tmp_capture_leviathan_fix4.gd`
-  - tmp capture leviathan fix4 verifies Godot contracts and regression behavior.
-- `app-LTL/tests/tmp_dump_leviathan_scrollbar.gd`
-  - tmp dump leviathan scrollbar verifies Godot contracts and regression behavior.
-- `app-LTL/tests/tmp_inspect_leviathan_layout.gd`
-  - tmp inspect leviathan layout verifies Godot contracts and regression behavior.
 - `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_influence_suite.gd`
   - ui backpack influence suite verifies Godot contracts and regression behavior.
 - `app-LTL/tests/ui_read_models/backpack_layout/ui_backpack_runtime_suite.gd`
@@ -1724,40 +1866,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Large-format review artifact for battle HUD energy queue directions and FIFO examples.
 - `docs/mockups/2026-06-13-battle-hud-info-panel-variants.html`
   - Large-format review artifact for battle HUD information-panel directions.
-- `docs/mockups/2026-07-01-leviathan-raycast-fit-audit-v1.html`
-  - 2026 07 01 leviathan raycast fit audit v1 documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-raycast-fit-audit-v1.png`
-  - 2026 07 01 leviathan raycast fit audit v1 documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-5up.html`
-  - 2026 07 01 leviathan start button 5up documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-5up.png`
-  - 2026 07 01 leviathan start button 5up documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-5up-v2-open-rail.html`
-  - 2026 07 01 leviathan start button 5up v2 open rail documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-5up-v2-open-rail.png`
-  - 2026 07 01 leviathan start button 5up v2 open rail documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-5up-v3-reference-locked.html`
-  - 2026 07 01 leviathan start button 5up v3 reference locked documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-5up-v3-reference-locked.png`
-  - 2026 07 01 leviathan start button 5up v3 reference locked documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v1-moss-strike.html`
-  - 2026 07 01 leviathan start button final v1 moss strike documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v1-moss-strike.png`
-  - 2026 07 01 leviathan start button final v1 moss strike documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v2-fixed-dock.html`
-  - 2026 07 01 leviathan start button final v2 fixed dock documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v3-fixed-dock-scroll.html`
-  - 2026 07 01 leviathan start button final v3 fixed dock scroll documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v3-fixed-dock-scroll.png`
-  - 2026 07 01 leviathan start button final v3 fixed dock scroll documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v4-edge-bleed.html`
-  - 2026 07 01 leviathan start button final v4 edge bleed documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v4-edge-bleed.png`
-  - 2026 07 01 leviathan start button final v4 edge bleed documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v5-edge-flush.html`
-  - 2026 07 01 leviathan start button final v5 edge flush documents project decisions, verification, or work history.
-- `docs/mockups/2026-07-01-leviathan-start-button-final-v5-edge-flush.png`
-  - 2026 07 01 leviathan start button final v5 edge flush documents project decisions, verification, or work history.
 - `docs/mockups/2026-07-01-leviathan-start-button-final-v6-edge-flush-tight.html`
   - 2026 07 01 leviathan start button final v6 edge flush tight documents project decisions, verification, or work history.
 - `docs/mockups/2026-07-01-leviathan-start-button-final-v6-edge-flush-tight.png`
@@ -1788,36 +1896,6 @@ This file is the live implementation map for AI agents. It records each current 
   - Comparison mockup that proposes the simplified run-start shell after copy and helper cleanup.
 - `docs/mockups/m6-run-start-wireframe-compare-2026-06-07.html`
   - Review mockup that compares the June 7 run-start CTA direction against the prior wireframe shell.
-- `docs/mockups/reference-captures/autodesk-home.png`
-  - autodesk home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/bmw-home.png`
-  - bmw home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/carbon-button.png`
-  - carbon button documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/crops/bmw-hero-buttons.png`
-  - bmw hero buttons documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/crops/carbon-primary-button.png`
-  - carbon primary button documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/crops/raycast-download-buttons.png`
-  - raycast download buttons documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/crops/riot-watch-now.png`
-  - riot watch now documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/crops/spacex-watch.png`
-  - spacex watch documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/framer-home.png`
-  - framer home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/ibm-home.png`
-  - ibm home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/nvidia-home.png`
-  - nvidia home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/raycast-home.png`
-  - raycast home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/riot-home.png`
-  - riot home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/spacex-home.png`
-  - spacex home documents project decisions, verification, or work history.
-- `docs/mockups/reference-captures/vercel-home.png`
-  - vercel home documents project decisions, verification, or work history.
 - `docs/mockups/render-terrain-panel-before-after.ps1`
   - render terrain panel before after documents project decisions, verification, or work history.
 - `docs/mockups/terrain-panel-before-after.html`
@@ -2012,6 +2090,328 @@ This file is the live implementation map for AI agents. It records each current 
   - Documents the transition-safety gate contract, including allowed page and phase handoff sequences plus failure semantics.
 - `LTL-harness/docs/worklog-token-policy.md`
   - Defines the LTL child-harness policy for using compact agent worklog summaries instead of raw transcript history as default context.
+- `LTL-harness/new_design/ltl_battle_redesign/APPLY_PLAN.md`
+  - APPLY PLAN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_1.png`
+  - backpack 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_2.png`
+  - backpack 2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_3.png`
+  - backpack 3 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_4-1.png`
+  - backpack 4 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_4-2.png`
+  - backpack 4 2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_6-1.png`
+  - backpack 6 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_6-2.png`
+  - backpack 6 2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_7.png`
+  - backpack 7 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_8.png`
+  - backpack 8 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/backpack_9.png`
+  - backpack 9 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/bg_canopy_ruins.png`
+  - bg canopy ruins provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/chip_ruin_tablet.png`
+  - chip ruin tablet provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/frame_board_9slice.png`
+  - frame board 9slice provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/icon_pin_stone.png`
+  - icon pin stone provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/miner_pose_45.png`
+  - miner pose 45 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/miner_pose_60.png`
+  - miner pose 60 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/miner_pose_90.png`
+  - miner pose 90 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_1.png`
+  - backpack 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_2.png`
+  - backpack 2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_3.png`
+  - backpack 3 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_4.png`
+  - backpack 4 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_6.png`
+  - backpack 6 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_7.png`
+  - backpack 7 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_8.png`
+  - backpack 8 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/backpack_9.png`
+  - backpack 9 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/bp_frame_corner.png`
+  - bp frame corner provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/bp_frame_edge.png`
+  - bp frame edge provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/diff_4_6.png`
+  - diff 4 6 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/tile_blue_hazard.png`
+  - tile blue hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/tile_green_hazard.png`
+  - tile green hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/old_backpack/tile_purple_hazard.png`
+  - tile purple hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/panel_parchment.png`
+  - panel parchment provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/bpb_FannyPack.png`
+  - bpb Fanny Pack provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/bpb_Holdall.png`
+  - bpb Holdall provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/bpb_LeatherBag.png`
+  - bpb Leather Bag provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/bpb_VineweaveBasket.png`
+  - bpb Vineweave Basket provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/bph_grid_1.png`
+  - bph grid 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/dredge_cargo_grid2.png`
+  - dredge cargo grid2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/real_tornister.jpg`
+  - real tornister provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/source_backpack_1.png`
+  - source backpack 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/source_backpack_5.png`
+  - source backpack 5 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/refs/source_backpack_8.png`
+  - source backpack 8 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/slot_stone.png`
+  - slot stone provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_blue.png`
+  - tile blue provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_blue_hazard.png`
+  - tile blue hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_green.png`
+  - tile green provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_green_hazard.png`
+  - tile green hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_hazard_overlay.png`
+  - tile hazard overlay provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_panel_frame.png`
+  - tile panel frame provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_purple.png`
+  - tile purple provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_purple_hazard.png`
+  - tile purple hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_red.png`
+  - tile red provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/assets/tile_red_hazard.png`
+  - tile red hazard provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/IMAGE_PROMPTS.md`
+  - IMAGE PROMPTS provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/IMAGE_PROMPTS_BACKPACK_RIM.md`
+  - IMAGE PROMPTS BACKPACK RIM provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/index.html`
+  - index provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/PIN_CORNER_QUALITY_PLAN.md`
+  - PIN CORNER QUALITY PLAN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_battle_redesign/README.md`
+  - README provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/APPLY_PLAN.md`
+  - APPLY PLAN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/blue_becon_rare.png`
+  - blue becon rare provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/blue_drill_rare.png`
+  - blue drill rare provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/green_becon_epic.png`
+  - green becon epic provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/green_drill_epic.png`
+  - green drill epic provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/item_book_runtime.png`
+  - item book runtime provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/purple_becon_epic.png`
+  - purple becon epic provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/purple_drill_legendary.png`
+  - purple drill legendary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/red_becon_common.png`
+  - red becon common provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/red_drill_common.png`
+  - red drill common provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/backpack_hero_grid_1.png`
+  - backpack hero grid 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/dredge_cargo_grid2.png`
+  - dredge cargo grid2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/panel_parchment_runtime.png`
+  - panel parchment runtime provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/runtime_backpack_grid_component.png`
+  - runtime backpack grid component provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/runtime_battle_book_overlay_backdrop.png`
+  - runtime battle book overlay backdrop provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/runtime_header_codex_context.png`
+  - runtime header codex context provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/runtime_left_status_panel.png`
+  - runtime left status panel provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/runtime_pin_1.png`
+  - runtime pin 1 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/runtime_tile_panel_nobg.png`
+  - runtime tile panel nobg provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/stitch_codex_screen.png`
+  - stitch codex screen provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/stitch_codex_screen_thumb.png`
+  - stitch codex screen thumb provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/refs/stitch_lead_researcher_portrait.png`
+  - stitch lead researcher portrait provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/assets/runtime_battle_1440x900.png`
+  - runtime battle 1440x900 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/back/codex_book_overlay_backdrop_1440x900.png`
+  - codex book overlay backdrop 1440x900 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/back/codex_detail_hero_frame.png`
+  - codex detail hero frame provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/back/codex_entry_card_sheet_2x.png`
+  - codex entry card sheet 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/back/codex_locked_art_plate.png`
+  - codex locked art plate provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/back/codex_page_parchment_spread_2x.png`
+  - codex page parchment spread 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_card_locked_608x204.png`
+  - codex v5 card locked 608x204 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_card_normal_608x204.png`
+  - codex v5 card normal 608x204 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_card_selected_608x204.png`
+  - codex v5 card selected 608x204 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_chip_active_240x56.png`
+  - codex v5 chip active 240x56 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_chip_inactive_240x56.png`
+  - codex v5 chip inactive 240x56 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_contact_sheet.png`
+  - codex v5 contact sheet provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_detail_panel_bg_1192x1448.png`
+  - codex v5 detail panel bg 1192x1448 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_facts_panel_bg_1080x428.png`
+  - codex v5 facts panel bg 1080x428 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_list_panel_bg_1480x1216.png`
+  - codex v5 list panel bg 1480x1216 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_locked_thumb_152x152.png`
+  - codex v5 locked thumb 152x152 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_observation_note_296x140.png`
+  - codex v5 observation note 296x140 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_screen_parchment_bg_1440x900.png`
+  - codex v5 screen parchment bg 1440x900 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_sort_dropdown_280x64.png`
+  - codex v5 sort dropdown 280x64 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_thumb_slot_152x152.png`
+  - codex v5 thumb slot 152x152 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/codex_v5_topbar_bg_2880x160.png`
+  - codex v5 topbar bg 2880x160 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_annotation_badges.png`
+  - codex annotation badges provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_annotation_badges_2x.png`
+  - codex annotation badges 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_book_overlay_backdrop_1440x900.png`
+  - codex book overlay backdrop 1440x900 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_detail_hero_frame_2x.png`
+  - codex detail hero frame 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_entry_card_sheet_2x.png`
+  - codex entry card sheet 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_locked_art_plate_2x.png`
+  - codex locked art plate 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/codex_page_parchment_spread_2x.png`
+  - codex page parchment spread 2x provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_cataloged.png`
+  - badge cataloged provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_cataloged_live.png`
+  - badge cataloged live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_locked.png`
+  - badge locked provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_locked_live.png`
+  - badge locked live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_observation.png`
+  - badge observation provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_observation_live.png`
+  - badge observation live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_shape.png`
+  - badge shape provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/badge_shape_live.png`
+  - badge shape live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_common.png`
+  - card discovered common provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_common_live.png`
+  - card discovered common live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_epic.png`
+  - card discovered epic provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_epic_live.png`
+  - card discovered epic live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_rare.png`
+  - card discovered rare provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_discovered_rare_live.png`
+  - card discovered rare live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_empty_placeholder.png`
+  - card empty placeholder provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_empty_placeholder_live.png`
+  - card empty placeholder live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_locked_fogged.png`
+  - card locked fogged provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_locked_fogged_live.png`
+  - card locked fogged live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_locked_roots.png`
+  - card locked roots provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_locked_roots_live.png`
+  - card locked roots live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_selected_common.png`
+  - card selected common provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_selected_common_live.png`
+  - card selected common live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_selected_legendary.png`
+  - card selected legendary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_selected_legendary_live.png`
+  - card selected legendary live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_selected_rare.png`
+  - card selected rare provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/card_selected_rare_live.png`
+  - card selected rare live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_common.png`
+  - chip common provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_common_live.png`
+  - chip common live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_epic.png`
+  - chip epic provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_epic_live.png`
+  - chip epic live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_legendary.png`
+  - chip legendary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_legendary_live.png`
+  - chip legendary live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_rare.png`
+  - chip rare provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/crops/chip_rare_live.png`
+  - chip rare live provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_card_locked_608x204.png`
+  - codex v5 card locked 608x204 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_card_normal_608x204.png`
+  - codex v5 card normal 608x204 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_card_selected_608x204.png`
+  - codex v5 card selected 608x204 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_chip_active_240x56.png`
+  - codex v5 chip active 240x56 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_chip_inactive_240x56.png`
+  - codex v5 chip inactive 240x56 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_detail_hero_frame_1080x584.png`
+  - codex v5 detail hero frame 1080x584 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_detail_panel_bg_1192x1448.png`
+  - codex v5 detail panel bg 1192x1448 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_facts_panel_bg_1080x428.png`
+  - codex v5 facts panel bg 1080x428 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_list_panel_bg_1480x1216.png`
+  - codex v5 list panel bg 1480x1216 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_locked_thumb_152x152.png`
+  - codex v5 locked thumb 152x152 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_observation_note_296x140.png`
+  - codex v5 observation note 296x140 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_screen_parchment_bg_1440x900.png`
+  - codex v5 screen parchment bg 1440x900 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_sort_dropdown_280x64.png`
+  - codex v5 sort dropdown 280x64 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/generated/processed/v5/codex_v5_thumb_slot_152x152.png`
+  - codex v5 thumb slot 152x152 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/IMAGE_PROMPTS.md`
+  - IMAGE PROMPTS provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/IMAGE_PROMPTS_VARIANT5.md`
+  - IMAGE PROMPTS VARIANT5 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/index.html`
+  - index provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_codex_redesign/V5_ASSET_MATCH_REPORT.md`
+  - V5 ASSET MATCH REPORT provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_battle/code.html`
   - code provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_battle/DESIGN.md`
@@ -2050,6 +2450,54 @@ This file is the live implementation map for AI agents. It records each current 
   - code provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_node_select/DESIGN.md`
   - DESIGN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/btn_folio_secondary.png`
+  - btn folio secondary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/btn_living_ridge_primary.png`
+  - btn living ridge primary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/btn_parchment_secondary.png`
+  - btn parchment secondary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/btn_ruin_tablet_primary.png`
+  - btn ruin tablet primary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/btn_stone_leaf_primary.png`
+  - btn stone leaf primary provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/icon_battle_gate.png`
+  - icon battle gate provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/icon_boss_crest.png`
+  - icon boss crest provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/icon_camp_seed.png`
+  - icon camp seed provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/icon_event_leaf.png`
+  - icon event leaf provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/icon_locked_roots.png`
+  - icon locked roots provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/icon_reward_geode.png`
+  - icon reward geode provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/panel_atlas.png`
+  - panel atlas provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/panel_biologist.png`
+  - panel biologist provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/crops/panel_rubbing.png`
+  - panel rubbing provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/cta_button_styles_ltl_route_select.png`
+  - cta button styles ltl route select provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/inspector_panel_styles_ltl_field_notes.png`
+  - inspector panel styles ltl field notes provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/node_icon_sheet_ltl_ruin_biome.png`
+  - node icon sheet ltl ruin biome provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/variant_a_bg_topographic_leviathan_atlas.png`
+  - variant a bg topographic leviathan atlas provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/variant_b_bg_living_leviathan_biome.png`
+  - variant b bg living leviathan biome provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/generated_assets/variant_c_bg_root_carved_ruin_relief.png`
+  - variant c bg root carved ruin relief provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/IMPLEMENTATION_PLAN.md`
+  - IMPLEMENTATION PLAN provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/IMPLEMENTATION_PLAN_V2.md`
+  - IMPLEMENTATION PLAN V2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/node_select_mockup_v2.html`
+  - node select mockup v2 provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/stitch_ltl_node_select/node_select_reference_variants.html`
+  - node select reference variants provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_node_select/screen.png`
   - screen provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/stitch_ltl_reward/code.html`
@@ -2158,8 +2606,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Runs the fast local verification path, including source-map, test-size, runtime-size, page-contract, and Godot smoke checks.
 - `tools/run-ltl-quality-gate.ps1`
   - Runs the consolidated LTL source, harness, request-analysis, test-size, runtime-size, architecture, and Godot contract quality gate.
-- `tools/tmp_run_ui_issue6_verify.ps1`
-  - tmp run ui issue6 verify runs local verification or workflow automation.
+- `tools/slice-node-select-atlas.py`
+  - slice node select atlas runs local verification or workflow automation.
 - `tools/watch-compile.ps1`
   - watch compile runs local verification or workflow automation.
 - `구현기획서_Godot_TDD.md`

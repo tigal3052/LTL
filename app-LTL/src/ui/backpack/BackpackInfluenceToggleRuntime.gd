@@ -15,6 +15,9 @@ static func setup(owner) -> void:
 	toggle.custom_minimum_size = Vector2(72, 28)
 	toggle.size = toggle.custom_minimum_size
 	toggle.z_index = 32
+	# 전투 리디자인: 라이트 석회암 보드 위 가독용 잉크 컬러
+	for color_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		toggle.add_theme_color_override(color_key, Color(0.17, 0.09, 0.02, 1.0))
 	toggle.visible = owner.influence_preview_toggle_visible
 	toggle.toggled.connect(func(enabled: bool): owner.set_influence_preview_enabled(enabled))
 	owner.add_child(toggle)

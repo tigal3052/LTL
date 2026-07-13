@@ -2,8 +2,14 @@ extends RefCounted
 
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
 
-static func apply_button(button: Button, header_actions: HBoxContainer, action_bar: HBoxContainer) -> void:
+static func apply_button(button: Button, header_actions: HBoxContainer, action_bar: BoxContainer) -> void:
 	if button == null:
+		return
+	if _is_battle_cta(button):
+		_apply_battle_cta_button(button)
+		return
+	if header_actions != null and button.get_parent() == header_actions:
+		_apply_header_util_button(button)
 		return
 	var accent := _accent(button)
 	var normal := _style(accent, "normal")
@@ -27,6 +33,57 @@ static func apply_button(button: Button, header_actions: HBoxContainer, action_b
 	button.add_theme_color_override("font_disabled_color", _disabled_text_color(accent))
 	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, _min_width(button, header_actions, action_bar))
 	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 42.0 if accent == "utility" else 52.0)
+
+# 전투 리디자인: 보드 우측 세로 CTA 기둥 소속 버튼 판별 (VBoxContainer ActionBar 하위)
+static func _is_battle_cta(button: Button) -> bool:
+	var parent := button.get_parent()
+	return parent is VBoxContainer and parent.name == "ActionBar"
+
+# 전투 리디자인: 굴착 포기 = error 톤 / 굴착 시작·보상 = Hero 톤 세로 CTA 스타일
+static func _apply_battle_cta_button(button: Button) -> void:
+	var is_danger := button.name == "ResetButton"
+	for state in ["normal", "hover", "pressed", "disabled"]:
+		var style := LTLThemeScript.danger_button_style(state) if is_danger else LTLThemeScript.hero_button_style(state)
+		style.content_margin_left = 12
+		style.content_margin_right = 12
+		style.content_margin_top = 9
+		style.content_margin_bottom = 9
+		button.add_theme_stylebox_override(state, style)
+	button.add_theme_stylebox_override("focus", LTLThemeScript.danger_button_style("hover") if is_danger else LTLThemeScript.hero_button_style("hover"))
+	var font_color := LTLThemeScript.ERROR if is_danger else LTLThemeScript.ON_PRIMARY
+	button.add_theme_font_size_override("font_size", 14)
+	for color_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(color_key, font_color)
+	button.add_theme_color_override("font_disabled_color", Color(font_color.r, font_color.g, font_color.b, 0.55))
+	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, 96.0)
+	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 46.0)
+
+# 전투 리디자인: 헤더 유틸 버튼 = variant05 언더라인 스타일 (라이트 스트립 위 투명 버튼)
+static func _apply_header_util_button(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0, 0, 0, 0)
+	normal.border_width_bottom = 2
+	normal.border_color = Color(0.153, 0.278, 0.208, 0.30)
+	normal.content_margin_left = 14
+	normal.content_margin_right = 14
+	normal.content_margin_top = 6
+	normal.content_margin_bottom = 6
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.border_width_bottom = 3
+	hover.border_color = Color(0.176, 0.373, 0.267, 0.88)
+	var pressed := hover.duplicate() as StyleBoxFlat
+	pressed.bg_color = Color(0.153, 0.278, 0.208, 0.08)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", hover)
+	button.add_theme_stylebox_override("disabled", normal)
+	button.add_theme_font_size_override("font_size", 14)
+	for color_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(color_key, Color(0.153, 0.278, 0.212, 1.0))
+	button.add_theme_color_override("font_disabled_color", Color(0.153, 0.278, 0.212, 0.45))
+	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, 108.0)
+	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 40.0)
 
 static func _accent(button: Button) -> String:
 	if button.name == "ResetButton":
@@ -71,7 +128,7 @@ static func _set_margin(style: StyleBoxFlat) -> void:
 	style.content_margin_left = 16
 	style.content_margin_right = 16
 
-static func _min_width(button: Button, header_actions: HBoxContainer, action_bar: HBoxContainer) -> float:
+static func _min_width(button: Button, header_actions: HBoxContainer, action_bar: BoxContainer) -> float:
 	if button.get_parent() == header_actions:
 		return 108.0
 	if button.get_parent() == action_bar:

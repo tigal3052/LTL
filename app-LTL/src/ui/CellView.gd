@@ -23,6 +23,33 @@ signal cell_held(cell_id, weakness_color)
 signal cell_pressed(cell_id, weakness_color)
 signal cell_released()
 
+# 방해요소 아트의 '줄기 프레임'(덩굴/가시 사각형) 중심선이 원본 이미지에서 차지하는 비율 rect.
+# 각 hazard PNG(1132x348)의 알파 밴드 중앙값으로 측정 — 코너 화염/결정/버섯이 프레임 위로 솟아 있어
+# 프레임 중심선을 타일 테두리에 정렬하면 이미지 전체가 타일 위쪽으로 상승한다.
+const HAZARD_FRAME_FRACTIONS := {
+	"red": Rect2(0.0420, 0.2500, 0.9134, 0.5891),
+	"blue": Rect2(0.0477, 0.2342, 0.9006, 0.5675),
+	"green": Rect2(0.0769, 0.1868, 0.8582, 0.6365),
+	"purple": Rect2(0.0671, 0.2687, 0.8653, 0.5316)
+}
+const HAZARD_FRAME_FRACTION_FALLBACK := Rect2(0.05, 0.24, 0.90, 0.56)
+
+# mockup .cell.c-* 그라디언트 틴트 페어 (상단 라이트 → 하단 딥, 알파 0.45 계열)
+const TILE_TINT_LIGHT := {
+	"red": Color("#e5989b"),
+	"blue": Color("#a2d2ff"),
+	"green": Color("#a7c957"),
+	"purple": Color("#cdb4db")
+}
+const TILE_TINT_DEEP := {
+	"red": Color("#b85667"),
+	"blue": Color("#6290c8"),
+	"green": Color("#6a994e"),
+	"purple": Color("#b5838d")
+}
+const TILE_BORDER_COLOR := Color(0.173, 0.086, 0.02, 0.20)
+const TILE_EMPTY_FILL := Color(0.118, 0.149, 0.118, 0.35)
+
 var cell_id: String = ""
 var row: int = 0
 var column: int = 0
@@ -36,10 +63,12 @@ var press_active: bool = false
 var obstacle: Dictionary = {}
 var obstacle_anim_time: float = 0.0
 var battle_pause_active: bool = false
+var hazard_overlay: TextureRect
+var hazard_topfx: Control
 
 # 실행: initialize the compact non-square tile button shell and interaction hooks.
 func _ready() -> void:
-	custom_minimum_size = Vector2(41, 36)
+	custom_minimum_size = Vector2(41, 26)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mouse_filter = MouseFilter.MOUSE_FILTER_PASS
@@ -54,7 +83,32 @@ func _ready() -> void:
 
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	_install_hazard_layers()
 	set_process(true)
+
+# 실행: 셀보다 사방으로 크게 그려지는 hazard 텍스처 레이어와 그 위 진행 바 레이어를 설치한다.
+# 오버레이는 z_index 상향으로 인접 타일 기본면 위에 그려지고(목업 DOM 후순위 등가),
+# 진행 바는 더 높은 z로 인접 hazard 오버레이에도 가려지지 않는다.
+func _install_hazard_layers() -> void:
+	if hazard_overlay != null:
+		return
+	hazard_overlay = TextureRect.new()
+	hazard_overlay.name = "HazardOverlay"
+	hazard_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hazard_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	hazard_overlay.stretch_mode = TextureRect.STRETCH_SCALE
+	hazard_overlay.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	hazard_overlay.z_index = 2
+	hazard_overlay.visible = false
+	add_child(hazard_overlay)
+	hazard_topfx = Control.new()
+	hazard_topfx.name = "HazardTopFx"
+	hazard_topfx.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hazard_topfx.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hazard_topfx.z_index = 5
+	hazard_topfx.visible = false
+	hazard_topfx.draw.connect(_draw_hazard_topfx)
+	add_child(hazard_topfx)
 
 func _process(delta: float) -> void:
 	if not obstacle.is_empty() and not battle_pause_active:
@@ -84,6 +138,7 @@ func _gui_input(event: InputEvent) -> void:
 
 # 실행: draw the real tile art plus queue, hover, aim, and disabled overlays.
 func _draw() -> void:
+	_sync_hazard_overlay()
 	var tile_rect := Rect2(Vector2.ZERO, size)
 	var display_color := _display_tile_color()
 	var tile_texture := _tile_texture_for_color(display_color)
@@ -92,21 +147,13 @@ func _draw() -> void:
 		var tile_modulate := Color(1.0, 1.0, 1.0, base_alpha)
 		if is_disabled_tile:
 			tile_modulate = Color(0.42, 0.42, 0.42, maxf(0.72, base_alpha))
-		draw_texture_rect(tile_texture, tile_rect, false, tile_modulate)
+		_draw_tile_texture_cover(tile_texture, tile_rect, tile_modulate)
+		_draw_tile_chrome(tile_rect, display_color, base_alpha)
 	else:
-		var fill_alpha := 0.20 + base_alpha * 0.24
-		if is_disabled_tile:
-			fill_alpha = 0.28
-		draw_rect(tile_rect, Color(0.12, 0.16, 0.2, fill_alpha), true)
+		_draw_empty_tile(tile_rect)
 
 	if not obstacle.is_empty():
-		_draw_obstacle_overlay(tile_rect)
-
-	if not active_queue_color.is_empty() and weakness != null and not str(weakness).is_empty() and not is_disabled_tile:
-		if queue_match:
-			_draw_match_frame(tile_rect, active_queue_color)
-		else:
-			_draw_mismatch_frame(tile_rect)
+		_draw_obstacle_underlay(tile_rect)
 
 	if hover_active and not is_disabled_tile:
 		draw_rect(tile_rect.grow(-4.0), Color(1.0, 1.0, 1.0, 0.05), true)
@@ -130,6 +177,51 @@ func _draw() -> void:
 		draw_rect(tile_rect, Color(0, 0, 0, 0.35), true)
 		draw_line(Vector2(5, 5), Vector2(15, 15), Color(0.4, 0.1, 0.1, 0.5), 1.5)
 		draw_line(Vector2(size.x - 15, size.y - 15), Vector2(size.x - 5, size.y - 5), Color(0.4, 0.1, 0.1, 0.5), 1.5)
+
+# 실행: mockup background-size: cover 등가 — 정사각 타일 아트를 셀 비율로 중앙 크롭해 그린다.
+# 셀에 맞춰 눌러 그리면 벽돌처럼 보이므로, 위아래를 잘라내고 원본 질감 비율을 유지한다.
+func _draw_tile_texture_cover(texture: Texture2D, rect: Rect2, tile_modulate: Color) -> void:
+	var tex_size := Vector2(texture.get_size())
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0 or rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	var cover_scale := maxf(rect.size.x / tex_size.x, rect.size.y / tex_size.y)
+	var src_size := rect.size / cover_scale
+	var src_pos := (tex_size - src_size) * 0.5
+	draw_texture_rect_region(texture, rect, Rect2(src_pos, src_size), tile_modulate)
+
+# 실행: mockup .cell 크롬 — 색 그라디언트 틴트(상단 라이트→하단 딥) + 1px 다크 보더 + 하단 인셋 음영.
+func _draw_tile_chrome(tile_rect: Rect2, display_color: String, base_alpha: float) -> void:
+	if is_disabled_tile:
+		return
+	var light: Color = TILE_TINT_LIGHT.get(display_color, Color(1, 1, 1))
+	var deep: Color = TILE_TINT_DEEP.get(display_color, Color(0.5, 0.5, 0.5))
+	if TILE_TINT_LIGHT.has(display_color):
+		var tint_alpha := 0.30 * base_alpha
+		var points := PackedVector2Array([
+			tile_rect.position,
+			Vector2(tile_rect.end.x, tile_rect.position.y),
+			tile_rect.end,
+			Vector2(tile_rect.position.x, tile_rect.end.y)
+		])
+		var colors := PackedColorArray([
+			Color(light.r, light.g, light.b, tint_alpha),
+			Color(light.r, light.g, light.b, tint_alpha),
+			Color(deep.r, deep.g, deep.b, tint_alpha),
+			Color(deep.r, deep.g, deep.b, tint_alpha)
+		])
+		draw_polygon(points, colors)
+	# 인셋 음영: 하단 2px 다크 밴드 + 상단 1px 라이트 밴드 (mockup inset box-shadow 등가)
+	draw_rect(Rect2(Vector2(tile_rect.position.x + 1.0, tile_rect.end.y - 3.0), Vector2(tile_rect.size.x - 2.0, 2.0)), Color(0, 0, 0, 0.22 * base_alpha), true)
+	draw_rect(Rect2(tile_rect.position + Vector2(1.0, 1.0), Vector2(tile_rect.size.x - 2.0, 1.0)), Color(1, 1, 1, 0.12 * base_alpha), true)
+	draw_rect(tile_rect.grow(-0.5), TILE_BORDER_COLOR, false, 1.0)
+
+# 실행: 색이 없는 빈 셀 — mockup .cell.c-none (짙은 반투명 + 내부 음영).
+func _draw_empty_tile(tile_rect: Rect2) -> void:
+	var fill := TILE_EMPTY_FILL
+	if is_disabled_tile:
+		fill = Color(fill.r, fill.g, fill.b, 0.28)
+	draw_rect(tile_rect, fill, true)
+	draw_rect(tile_rect.grow(-0.5), Color(0, 0, 0, 0.25), false, 1.0)
 
 # 실행: enable hover state and notify the controller when the cursor enters.
 func _on_mouse_entered() -> void:
@@ -194,12 +286,18 @@ static func hazard_alpha_for(obstacle_data: Dictionary) -> float:
 static func hazard_frame_margin_for(_family: String, _state: String) -> float:
 	return 0.0
 
-static func hazard_texture_margin_for(family: String, state: String) -> float:
-	if state == "active":
-		return 4.0 if family == "green" else 3.25
-	if state == "afterglow_clear":
-		return 1.25
-	return 0.0
+# 실행: hazard 이미지의 줄기 프레임 중심선을 타일 테두리에 정렬한 오버레이 rect(셀 로컬 좌표)를 계산한다.
+# 코너 오브젝트(불/얼음/버섯/연기)는 프레임 위쪽 여백에 있으므로 결과 rect는 타일 위로 더 크게 상승한다.
+static func hazard_overlay_rect_for(family: String, cell_size: Vector2) -> Rect2:
+	var frame_frac: Rect2 = HAZARD_FRAME_FRACTIONS.get(family, HAZARD_FRAME_FRACTION_FALLBACK)
+	if frame_frac.size.x <= 0.0 or frame_frac.size.y <= 0.0:
+		frame_frac = HAZARD_FRAME_FRACTION_FALLBACK
+	var overlay_size := Vector2(cell_size.x / frame_frac.size.x, cell_size.y / frame_frac.size.y)
+	var overlay_position := Vector2(
+		-frame_frac.position.x * overlay_size.x,
+		-frame_frac.position.y * overlay_size.y
+	)
+	return Rect2(overlay_position, overlay_size)
 
 static func active_hazard_fill_alpha_for(family: String, pulse: float) -> float:
 	var alpha := 0.09 + 0.05 * pulse
@@ -254,55 +352,66 @@ func _energy_color(color_name: String, alpha: float) -> Color:
 			return Color(0.72, 0.34, 0.92, alpha)
 	return Color(1.0, 1.0, 1.0, alpha)
 
-func _draw_obstacle_overlay(tile_rect: Rect2) -> void:
+# 실행: hazard 활성 시 타일 내부에 옅은 계열색 필만 깐다(텍스처는 별도 오버레이 레이어).
+func _draw_obstacle_underlay(tile_rect: Rect2) -> void:
+	var state := str(obstacle.get("state", "active"))
+	if state == "warning":
+		state = "active"
+	if state != "active":
+		return
+	var family := str(obstacle.get("family", ""))
+	var base_color := _energy_color(family, 1.0)
+	var pulse: float = 0.55 + 0.45 * abs(sin(obstacle_anim_time * 5.0))
+	var active_fill_alpha := active_hazard_fill_alpha_for(family, pulse)
+	draw_rect(tile_rect.grow(-1.0), Color(base_color.r, base_color.g, base_color.b, active_fill_alpha), true)
+
+# 실행: hazard 텍스처를 줄기 프레임이 타일 테두리를 감싸도록 앵커링된 TextureRect 레이어로 씌운다.
+func _sync_hazard_overlay() -> void:
+	if hazard_overlay == null:
+		return
 	var family := str(obstacle.get("family", ""))
 	var state := str(obstacle.get("state", "active"))
 	if state == "warning":
 		state = "active"
-	var base_color := _energy_color(family, 1.0)
-	var pulse: float = 0.55 + 0.45 * abs(sin(obstacle_anim_time * 5.0))
-	var progress_ratio := 0.0
-	var clear_progress := maxi(1, int(obstacle.get("clearProgress", 2)))
-	progress_ratio = clampf(float(obstacle.get("progress", 0)) / float(clear_progress), 0.0, 1.0)
-	var inner := tile_rect.grow(-5.0)
-	var hazard_alpha := hazard_alpha_for(obstacle)
 	var hazard_texture := _hazard_texture_for_color(family)
-	var hazard_texture_rect := tile_rect.grow(hazard_texture_margin_for(family, state))
-	var hazard_fill_rect := tile_rect.grow(-1.0)
-	var active_fill_alpha := active_hazard_fill_alpha_for(family, pulse)
-	if hazard_texture != null and hazard_alpha > 0.0:
-		var overlay_alpha := hazard_alpha
-		if state == "active":
-			overlay_alpha = clampf(hazard_alpha * (0.93 + 0.07 * pulse), 0.0, 1.0)
-			draw_rect(hazard_fill_rect, Color(base_color.r, base_color.g, base_color.b, active_fill_alpha), true)
-		draw_texture_rect(hazard_texture, hazard_texture_rect, false, Color(1.0, 1.0, 1.0, overlay_alpha))
+	var hazard_alpha := hazard_alpha_for(obstacle)
+	if obstacle.is_empty() or hazard_texture == null or hazard_alpha <= 0.0:
+		hazard_overlay.visible = false
+		if hazard_topfx != null:
+			hazard_topfx.visible = false
+		return
+	var pulse: float = 0.55 + 0.45 * abs(sin(obstacle_anim_time * 5.0))
+	var overlay_alpha := hazard_alpha
 	if state == "active":
-		_draw_obstacle_progress_bar(inner, tile_rect, Color(base_color.r, base_color.g, base_color.b, 0.92), progress_ratio)
+		overlay_alpha = clampf(hazard_alpha * (0.93 + 0.07 * pulse), 0.0, 1.0)
+	var overlay_rect := hazard_overlay_rect_for(family, size)
+	hazard_overlay.texture = hazard_texture
+	hazard_overlay.position = overlay_rect.position
+	hazard_overlay.size = overlay_rect.size
+	hazard_overlay.modulate = Color(1.0, 1.0, 1.0, overlay_alpha)
+	hazard_overlay.visible = true
+	if hazard_topfx != null:
+		hazard_topfx.visible = state == "active"
+		hazard_topfx.queue_redraw()
 
-func _draw_obstacle_progress_bar(inner: Rect2, tile_rect: Rect2, color: Color, progress_ratio: float) -> void:
+# 실행: hazard 진행 바를 오버레이보다 위 레이어에 그린다 (인접 오버레이 겹침에도 판독 유지).
+func _draw_hazard_topfx() -> void:
+	if hazard_topfx == null or obstacle.is_empty():
+		return
+	var state := str(obstacle.get("state", "active"))
+	if state == "warning":
+		state = "active"
+	if state != "active":
+		return
+	var family := str(obstacle.get("family", ""))
+	var base_color := _energy_color(family, 1.0)
+	var clear_progress := maxi(1, int(obstacle.get("clearProgress", 2)))
+	var progress_ratio := clampf(float(obstacle.get("progress", 0)) / float(clear_progress), 0.0, 1.0)
+	var tile_rect := Rect2(Vector2.ZERO, hazard_topfx.size)
+	var inner := tile_rect.grow(-5.0)
 	var full_rect := Rect2(Vector2(inner.position.x, tile_rect.end.y - 6.0), Vector2(inner.size.x, 3.0))
 	var bar_rect := Rect2(full_rect.position, Vector2(inner.size.x * progress_ratio, 3.0))
-	draw_rect(full_rect, Color(0, 0, 0, 0.28), true)
-	draw_rect(bar_rect, color, true)
+	hazard_topfx.draw_rect(full_rect, Color(0, 0, 0, 0.28), true)
+	hazard_topfx.draw_rect(bar_rect, Color(base_color.r, base_color.g, base_color.b, 0.92), true)
 
-func _draw_match_frame(tile_rect: Rect2, color_name: String) -> void:
-	var accent := _energy_color(color_name, 0.95)
-	var inner := tile_rect.grow(-2.5)
-	draw_rect(inner, Color(accent.r, accent.g, accent.b, 0.10), false, 2.0)
-	var notch := 7.0
-	draw_line(inner.position, inner.position + Vector2(notch, 0.0), accent, 2.0)
-	draw_line(inner.position, inner.position + Vector2(0.0, notch), accent, 2.0)
-	draw_line(Vector2(inner.end.x, inner.position.y), Vector2(inner.end.x - notch, inner.position.y), accent, 2.0)
-	draw_line(Vector2(inner.end.x, inner.position.y), Vector2(inner.end.x, inner.position.y + notch), accent, 2.0)
-	draw_line(Vector2(inner.position.x, inner.end.y), Vector2(inner.position.x + notch, inner.end.y), accent, 2.0)
-	draw_line(Vector2(inner.position.x, inner.end.y), Vector2(inner.position.x, inner.end.y - notch), accent, 2.0)
-	draw_line(inner.end, inner.end + Vector2(-notch, 0.0), accent, 2.0)
-	draw_line(inner.end, inner.end + Vector2(0.0, -notch), accent, 2.0)
-
-func _draw_mismatch_frame(tile_rect: Rect2) -> void:
-	var accent := Color(1.0, 0.88, 0.58, 0.70)
-	var inner := tile_rect.grow(-3.0)
-	draw_line(inner.position + Vector2(0.0, 4.0), inner.position + Vector2(10.0, 0.0), accent, 1.6)
-	draw_line(inner.end + Vector2(-10.0, 0.0), inner.end + Vector2(0.0, -4.0), accent, 1.6)
-	draw_line(Vector2(inner.position.x + 4.0, inner.end.y), Vector2(inner.position.x + 12.0, inner.end.y - 4.0), accent, 1.6)
-	draw_line(Vector2(inner.end.x - 12.0, inner.position.y + 4.0), Vector2(inner.end.x - 2.0, inner.position.y), accent, 1.6)
+# 큐 매칭/비매칭 프레임은 제거됨 — 판독은 base_tile_alpha_for의 알파 이분(1.0/0.5)만으로 유지한다.

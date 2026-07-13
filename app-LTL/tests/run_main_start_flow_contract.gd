@@ -86,7 +86,7 @@ func _boot_to_node_select(main_instance: Node, color := "blue", leviathan_id := 
 	_assert(main_instance.get_node_or_null("RootMargin/AppShell/ActionBar") == null, "main scene no longer owns the legacy action bar directly")
 	_assert(battle_page == null or battle_page.get_node_or_null("TopContent") != null, "battle page owns the gameplay top-content shell")
 	_assert(battle_page == null or battle_page.get_node_or_null("BattlefieldPanel") != null, "battle page owns the battlefield panel")
-	_assert(battle_page == null or battle_page.get_node_or_null("ActionBar") != null, "battle page owns the gameplay action bar")
+	_assert(battle_page == null or battle_page.get_node_or_null("TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea/CtaColumn/ActionBar") != null, "battle page owns the board-panel CTA action bar")
 	_assert(reward_page == null or reward_page.get_node_or_null("TopContent") != null, "reward page owns the gameplay top-content shell")
 	_assert(reward_page == null or reward_page.get_node_or_null("RewardPanel") != null, "reward page owns the reward tray panel")
 	_assert(reward_page == null or reward_page.get_node_or_null("ActionBar") != null, "reward page owns the gameplay action bar")

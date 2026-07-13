@@ -3,19 +3,19 @@
 [ext_resource type="Script" path="res://src/ui/BackpackUI.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.109804, 0.137255, 0.180392, 1)
+bg_color = Color(1, 0.945, 0.914, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.184314, 0.223529, 0.290196, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.15)
-shadow_size = 4
-shadow_offset = Vector2(0, 2)
+border_color = Color(0.722, 0.659, 0.459, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.27, 0.16, 0.09, 0.12)
+shadow_size = 8
+shadow_offset = Vector2(0, 3)
 
 [node name="BackpackEnginePanel" type="PanelContainer"]
 custom_minimum_size = Vector2(200, 200)
@@ -37,8 +37,9 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="EngineTitle" type="Label" parent="Margin/EngineBox"]
+visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 14
 
 [node name="GridMock" type="GridContainer" parent="Margin/EngineBox"]

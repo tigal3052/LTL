@@ -136,23 +136,21 @@ static func apply_roster_button_style(button: Button, selectable: bool, is_selec
 	_set_card_inset(button, CARD_HOVER_INSET if is_selected else CARD_NORMAL_INSET)
 
 const STARTER_FRAME_DIR := "res://resources/UI/starter/"
-# Icon slot center/size per frame kind (measured on each unified frame art).
-# Drill art reads smaller at the same box size, so it gets a bigger slot and
-# beacon a smaller one — but both slots share the same right edge (0.2275) so
-# the drill and beacon images line up on their right side across panels.
-const STARTER_SLOT_RIGHT_EDGE := 0.2275
+# Icon slot center/size per frame kind — measured directly on each frame art's
+# dark icon-well (pixel-sampled across all 4 colors). Drill and beacon wells sit
+# at different positions/sizes in their source art, so each kind gets its own slot.
 const STARTER_SLOT_SIZE := {
-	"drill": Vector2(0.185, 0.80),
-	"beacon": Vector2(0.170, 0.70),
+	"drill": Vector2(0.231, 0.873),
+	"beacon": Vector2(0.186, 0.800),
 }
 const STARTER_SLOT_CENTER := {
-	"drill": Vector2(STARTER_SLOT_RIGHT_EDGE - 0.185 * 0.5, 0.5),
-	"beacon": Vector2(STARTER_SLOT_RIGHT_EDGE - 0.170 * 0.5, 0.5),
+	"drill": Vector2(0.174, 0.519),
+	"beacon": Vector2(0.131, 0.521),
 }
 # Text box left anchor per kind — a bit of left padding off the icon slot's right edge.
 const STARTER_TEXT_LEFT := {
-	"drill": STARTER_SLOT_RIGHT_EDGE + 0.03,
-	"beacon": STARTER_SLOT_RIGHT_EDGE + 0.02,
+	"drill": 0.174 + 0.231 * 0.5 + 0.025,
+	"beacon": 0.131 + 0.186 * 0.5 + 0.025,
 }
 # Frame art canvas aspect ratios (width / height), unified per family so both
 # render at the same on-screen width when the card height derives from it.

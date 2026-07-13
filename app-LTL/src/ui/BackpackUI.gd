@@ -79,7 +79,7 @@ func setup_grid_slots() -> void:
 	for row in range(10):
 		for column in range(10):
 			if row == 0 or row == 9 or column == 0 or column == 9:
-				backpack_grid_mock.add_child(GridFactory.border_cell(textures[GridFactory.border_slice(row, column)]))
+				backpack_grid_mock.add_child(GridFactory.border_cell(_rim_texture_for(textures, row, column)))
 			else:
 				backpack_grid_mock.add_child(_interactive_slot(column - 1, row - 1, textures[5]))
 	call_deferred("_install_slot_interactions")
@@ -278,7 +278,23 @@ func _load_textures() -> Dictionary:
 	var textures := {}
 	for i in range(1, 10):
 		textures[i] = load("res://resources/UI/backpack_%d.png" % i)
+	# 좌/우 엣지 하단 반복용 변형(이끼 없는 스트랩) — 없으면 기본 엣지 재사용
+	for variant in ["4_2", "6_2"]:
+		var variant_path := "res://resources/UI/backpack_%s.png" % variant
+		if ResourceLoader.exists(variant_path):
+			textures[variant] = load(variant_path)
 	return textures
+
+# 실행: 림 슬라이스를 셀 위치별 텍스처로 해석한다 — 좌/우 엣지는 코너 바로 아래 첫 행만
+# 이끼 변형(backpack_4/6), 이후 행은 평 스트랩 변형(backpack_4_2/6_2)을 반복한다.
+static func _rim_texture_for(textures: Dictionary, row: int, column: int) -> Texture2D:
+	var slice := GridFactory.border_slice(row, column)
+	if row > 1 and row < 9:
+		if slice == 4 and textures.has("4_2"):
+			return textures["4_2"]
+		if slice == 6 and textures.has("6_2"):
+			return textures["6_2"]
+	return textures[slice]
 
 # 실행: create an input slot and wire signals.
 func _interactive_slot(grid_column: int, grid_row: int, texture: Texture2D) -> Panel:

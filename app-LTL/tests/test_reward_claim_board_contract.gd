@@ -202,7 +202,7 @@ func test_shared_backpack_returns_to_second_battle_after_reward_claim() -> void:
 		start_button.pressed.emit()
 	await _settle_frames(8)
 	_assert_eq(str(main_instance.get("active_page_id")), "battle", "second route enters battle for shared-backpack return contract")
-	var battle_host = main_instance.call("current_surface_node", "TopContent/BackpackContainer") as Control
+	var battle_host = main_instance.call("current_surface_node", "TopContent/BoardPanel/BoardMargin/BoardBox/BoardArea/BackpackContainer") as Control
 	var backpack_panel = backpack_container.get_node_or_null("BackpackEnginePanel") as Control
 	var grid = backpack_panel.get_node_or_null("Margin/EngineBox/GridMock") as Control if backpack_panel != null else null
 	_assert_eq(int(backpack_container.get_instance_id()), first_shared_id, "second battle keeps the same shared backpack instance id")

@@ -179,13 +179,13 @@
     "panel.profile": "[채굴자 프로필]",
     "panel.loadout": "장비 구성:\n- 기본 드릴 세트\n- 자동 수리 코어\n- 레비아탄 표면 스캐너",
     "panel.drill_node_status": "드릴 정보",
-    "panel.health": "레비아탄 체력:",
-    "panel.shield": "보호막:",
-    "panel.queue": "에너지 큐:",
+    "panel.health": "레비아탄 체력 (HP)",
+    "panel.shield": "보호막 (Shield)",
+    "panel.queue": "에너지 큐 (Queue)",
     "panel.stage_timer": "스테이지 제한 시간:",
-    "panel.pin_status": "노드 고정:",
-    "panel.drill_status": "드릴 상태:",
-    "panel.backpack": "백팩 엔진 공간 (8x8 격자)",
+    "panel.pin_status": "노드 고정 (PIN)",
+    "panel.drill_status": "드릴 상태",
+    "panel.backpack": "채집낭 — 공명 기관",
     "panel.log": "시스템 로그와 정보",
     "panel.log.ready": "시스템 준비 완료.\n노드를 선택하고 전투를 시작하세요.",
     "panel.tab.explorer": "탐사자 상태",
@@ -342,6 +342,16 @@
     "node_runtime.board_label": "선택 레비아탄",
     "node_runtime.info_name_label": "노드명",
     "node_runtime.info_body_label": "노드 설명",
+    "node_runtime.cleared": "완료",
+    "node_runtime.analysis_label": "노드 분석",
+    "node_runtime.panel.weakness": "약점",
+    "node_runtime.panel.obstruction": "방해요소",
+    "node_runtime.panel.lore": "설명",
+    "node_runtime.panel.status": "상태",
+    "node_runtime.status.candidate": "진입 가능",
+    "node_runtime.status.cleared": "탐사 완료",
+    "node_runtime.status.locked": "미탐색",
+    "node_runtime.status.boss": "최종 목표",
     "node_runtime.stage_marker.hull": "선체",
     "node_runtime.stage_marker.spine": "척추",
     "node_runtime.stage_marker.pockets": "격실",
@@ -401,7 +411,10 @@
     "log.debug.codex_discovery_toggle": "디버그: 유물 도감 전체 탐사 표기: {0} (F8)",
     "log.shop.passive_purchased": "상점: 패시브 구매 완료: {0} (Lv {1})",
     "log.shop.base_purchase_failed": "상점: 해금 구매 실패: {0}",
-    "log.shop.base_purchase_complete": "상점: 해금 구매 완료: {0}"
+    "log.shop.base_purchase_complete": "상점: 해금 구매 완료: {0}",
+    "action.abort_dig": "굴착 포기",
+    "action.start_dig": "굴착 시작",
+    "panel.pin_stock": "채집낭 고정석 (PIN 재고)"
   },
   "displayNames": {
     "Ruby Drill": "루비 드릴",
@@ -450,7 +463,11 @@
       "description": "큰 이미지와 짧은 설명으로 바로 읽히는 전열형 채굴사다. 붉은 유물과 맞물릴 때 가장 직선적인 출항 감각을 준다.",
       "heroLine": "첫 파도를 읽고, 가장 두꺼운 표면부터 부순다.",
       "summary": "플레이어는 왼쪽 좁은 명단에서 캐릭터를 빠르게 훑고, 가운데 메인 비주얼과 요약을 확인한 뒤 오른쪽 유물 계열과 출항 버튼으로 이동한다.",
-      "tags": ["큰 캐릭터 이미지", "짧고 굵은 설명", "색상 유물로 연결"]
+      "tags": [
+        "큰 캐릭터 이미지",
+        "짧고 굵은 설명",
+        "색상 유물로 연결"
+      ]
     },
     "engineer": {
       "name": "조류 추적자",
@@ -460,7 +477,11 @@
       "description": "파란 유물 루프와 등대 운용을 강조하는 설계형 인물이다. 잠금 상태지만 명단에는 그대로 보여 다음 해금 목표가 되게 한다.",
       "heroLine": "밀려오는 파동을 재고, 가장 깨끗한 해답으로 흘려보낸다.",
       "summary": "선택 불가 캐릭터도 작은 카드로 미리 노출해 앞으로의 해금 동선을 예고한다.",
-      "tags": ["잠금 후보", "정밀 제어", "등대 강화"]
+      "tags": [
+        "잠금 후보",
+        "정밀 제어",
+        "등대 강화"
+      ]
     },
     "mechanic": {
       "name": "항상 사서",
@@ -470,7 +491,11 @@
       "description": "수리와 회복을 앞세운 보조형 캐릭터다. 현재는 잠겨 있지만 명단과 메인 보드 언어는 동일하게 유지한다.",
       "heroLine": "찢어진 틈을 꿰매고, 프레임을 바로 세운 채 항차를 계속 밀어붙인다.",
       "summary": "실제 플레이에서 아직 잠긴 캐릭터라도 같은 보드 규격을 공유해 UI 언어가 흔들리지 않도록 한다.",
-      "tags": ["지원형", "수리 강화", "후반 안정성"]
+      "tags": [
+        "지원형",
+        "수리 강화",
+        "후반 안정성"
+      ]
     },
     "future_trawler": {
       "name": "전향 채굴자",
@@ -480,7 +505,11 @@
       "description": "추가 캐릭터 슬롯",
       "heroLine": "추후 슬롯.",
       "summary": "추후 슬롯",
-      "tags": ["추후", "슬롯", "예정"]
+      "tags": [
+        "추후",
+        "슬롯",
+        "예정"
+      ]
     },
     "bulk_diver": {
       "name": "격벽 잠수사",
@@ -490,7 +519,11 @@
       "description": "추가 캐릭터 슬롯",
       "heroLine": "추후 슬롯.",
       "summary": "추후 슬롯",
-      "tags": ["추후", "슬롯", "예정"]
+      "tags": [
+        "추후",
+        "슬롯",
+        "예정"
+      ]
     },
     "pressure_cartographer": {
       "name": "압력 도해사",
@@ -500,7 +533,11 @@
       "description": "추가 캐릭터 슬롯",
       "heroLine": "추후 슬롯.",
       "summary": "추후 슬롯",
-      "tags": ["추후", "슬롯", "예정"]
+      "tags": [
+        "추후",
+        "슬롯",
+        "예정"
+      ]
     }
   },
   "leviathans": {

@@ -306,9 +306,10 @@ static func set_reward_workspace_title_state(view, dock_to_board: bool) -> void:
 		return
 	if view.backpack_ui.has_method("set_influence_preview_toggle_anchor"):
 		view.backpack_ui.set_influence_preview_toggle_anchor(view.reward_workspace_title if dock_to_board else null)
+	# 백팩 엔진 자체 제목은 폐지 — 전투는 보드 패널 제목 행, 보상은 워크스페이스 헤드가 제목을 담당한다.
 	var backpack_engine_title: Control = view.backpack_ui.get_node_or_null("Margin/EngineBox/EngineTitle") as Control
 	if backpack_engine_title != null:
-		backpack_engine_title.visible = not dock_to_board
+		backpack_engine_title.visible = false
 
 static func apply_reward_backpack_padding_for_workspace(view, dock_to_board: bool) -> void:
 	if view.backpack_ui == null:

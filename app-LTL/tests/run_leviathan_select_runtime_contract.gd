@@ -110,7 +110,11 @@ func _assert_leviathan_select_runtime(main_scene: PackedScene) -> void:
 		var eyebrow_rect := hero_eyebrow_shell.get_global_rect()
 		var name_rect := hero_name.get_global_rect()
 		_assert(eyebrow_rect.end.y <= name_rect.position.y, "target eyebrow shell stays above the leviathan title block")
-		_assert(eyebrow_rect.position.y - hero_rect.position.y >= 120.0, "target eyebrow shell is lowered away from the hero top edge")
+		# NOTE: hero copy moved to the top-right corner of the now-fullscreen
+		# hero art (see LeviathanSelectPage.FULLSCREEN_HERO_LAYOUT_ENABLED).
+		# This replaces the old "lowered away from hero top edge" expectation
+		# from the bottom-anchored layout.
+		_assert(eyebrow_rect.position.y - hero_rect.position.y < 120.0, "target eyebrow shell sits near the hero top edge")
 	var top_character_button := leviathan_page.get_node_or_null("TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow/CharacterTabButton") as Button
 	var top_leviathan_button := leviathan_page.get_node_or_null("TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow/LeviathanTabButton") as Button
 	var codex_action_button := leviathan_page.get_node_or_null("TopBar/TopBarMargin/TopBarRow/BrandRow/TabsRow/CodexActionButton") as Button

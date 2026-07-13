@@ -1,27 +1,35 @@
-[gd_scene load_steps=10 format=3 uid="uid://brhshyaxjxcsr"]
+[gd_scene load_steps=12 format=3 uid="uid://brhshyaxjxcsr"]
 
 [ext_resource type="Script" path="res://src/ui/MainUI.gd" id="1"]
 [ext_resource type="Script" path="res://src/ui/SettingsPanelUI.gd" id="2"]
 [ext_resource type="Script" path="res://src/ui/VFXManager.gd" id="7"]
 [ext_resource type="Script" path="res://src/MainController.gd" id="8"]
+[ext_resource type="Texture2D" uid="uid://7mc0x5l33dj8" path="res://resources/node_select/atlas/chip_ruin_tablet.png" id="9"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.0627451, 0.0784314, 0.109804, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.109804, 0.137255, 0.180392, 1)
+bg_color = Color(0.949, 0.91, 0.82, 0.98)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.184314, 0.223529, 0.290196, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.15)
+border_color = Color(0.47, 0.439, 0.376, 0.28)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.17, 0.09, 0.02, 0.08)
 shadow_size = 4
 shadow_offset = Vector2(0, 2)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ruin_chip"]
+content_margin_left = 22.0
+content_margin_top = 6.0
+content_margin_right = 22.0
+content_margin_bottom = 6.0
+texture = ExtResource("9")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay"]
 bg_color = Color(0.180392, 0.054902, 0.054902, 0.705882)
@@ -82,30 +90,44 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="Margin" type="MarginContainer" parent="RootMargin/AppShell/Header"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
+theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 16
+theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 0
 
 [node name="PhaseRow" type="HBoxContainer" parent="RootMargin/AppShell/Header/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 16
 
 [node name="TitleLabel" type="Label" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.153, 0.278, 0.212, 1)
 theme_override_font_sizes/font_size = 18
 
 [node name="PhaseLabel" type="Label" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
+custom_minimum_size = Vector2(128, 32)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.298039, 0.533333, 0.839216, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.933, 0.953, 0.894, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.55)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxTexture_ruin_chip")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="StageLabel" type="Label" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
+custom_minimum_size = Vector2(128, 32)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.341176, 0.678431, 0.423529, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.933, 0.953, 0.894, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.55)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxTexture_ruin_chip")
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="HeaderActions" type="HBoxContainer" parent="RootMargin/AppShell/Header/Margin/PhaseRow"]
 layout_mode = 2

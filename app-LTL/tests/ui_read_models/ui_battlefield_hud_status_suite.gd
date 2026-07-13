@@ -6,7 +6,7 @@ func run_all_tests() -> Dictionary:
 	test_main_view_feedback_runtime_helper_exists()
 	test_main_scene_uses_header_miner_status_timer_and_tabbed_sidebar()
 	test_status_panel_scene_uses_node_info_and_drill_info_structure()
-	test_status_panel_metric_cards_use_health_before_shield_with_round_dots()
+	test_status_panel_metric_cards_use_health_before_shield_with_accent_bars()
 	test_main_scene_status_panel_uses_fifo_two_row_energy_queue()
 	test_hud_read_model_projects_fifo_queue_slots_and_capacity()
 	test_apply_node_modifiers_keeps_weakness_multiplier_metadata_for_hud()
@@ -112,15 +112,23 @@ func test_status_panel_scene_uses_node_info_and_drill_info_structure() -> void:
 	var node_card = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/NodeCard") as PanelContainer
 	var old_ops_node_card = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/NodeCard")
 	var weakness_card_grid = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/InfoShell/InfoMargin/InfoBox/WeaknessCardGrid") as GridContainer
-	var health_box = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox") as HBoxContainer
-	var shield_box = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox") as HBoxContainer
+	var health_box = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox") as VBoxContainer
+	var shield_box = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox") as VBoxContainer
 	var row_labels := [
-		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/HealthLabel") as Label,
-		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/ShieldLabel") as Label,
-		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/QueueLabel") as Label,
-		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/PinLabel") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/Head/HealthLabel") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/Head/ShieldLabel") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/Head/QueueLabel") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/Head/PinLabel") as Label,
 		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/DrillStatusRow/DrillStatusLabel") as Label
 	]
+	# 목업 .stat-row: 수치 텍스트는 바 위 헤드 우측 라벨로 분리 병기된다.
+	var value_labels := [
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/Head/HealthValue") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/ShieldBox/Head/ShieldValue") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/QueueRow/Head/QueueValue") as Label,
+		gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/TimerRow/Head/PinValue") as Label
+	]
+	var health_bar = gameplay_top_content.get_node_or_null("LeftColumn/StatusPanel/Margin/StatusBox/OpsShell/OpsMargin/OpsBox/HPBox/HealthBar") as ProgressBar
 	_assert(info_box != null, "node info box exists for node-card ownership test")
 	_assert(ops_box != null, "drill info box exists for row ordering test")
 	_assert(node_card != null, "node status card lives under the node info shell")
@@ -130,12 +138,14 @@ func test_status_panel_scene_uses_node_info_and_drill_info_structure() -> void:
 	if health_box != null and shield_box != null:
 		_assert(health_box.get_index() < shield_box.get_index(), "health row is ordered before shield row in the drill info panel")
 	for label in row_labels:
-		_assert(label != null, "drill info row label exists for equal-width alignment")
-		if label != null:
-			_assert_eq(float(label.custom_minimum_size.x), 76.0, "drill info row label uses the shared alignment width")
+		_assert(label != null, "drill info stat-row head label exists")
+	for value_label in value_labels:
+		_assert(value_label != null, "drill info stat-row keeps the value text separated above the bar (mockup .stat-row .num)")
+	_assert(health_bar != null, "drill info health bar exists below the head row")
+	_assert(health_bar != null and health_bar.get_node_or_null("ValLabel") == null, "drill info health bar stays a pure gauge without an in-bar value label")
 	gameplay_top_content.free()
 
-func test_status_panel_metric_cards_use_health_before_shield_with_round_dots() -> void:
+func test_status_panel_metric_cards_use_health_before_shield_with_accent_bars() -> void:
 	var status_panel = StatusPanelUIScript.new()
 	var stack := status_panel.call("_metric_stack", 1.35, 1.25) as GridContainer
 	_assert(stack != null, "status panel builds multiplier card stack for order test")
@@ -147,12 +157,14 @@ func test_status_panel_metric_cards_use_health_before_shield_with_round_dots() -
 	if stack.get_child_count() >= 2:
 		var first_label = stack.get_child(0).find_child("MetricLabel", true, false) as Label
 		var second_label = stack.get_child(1).find_child("MetricLabel", true, false) as Label
-		var first_dot = stack.get_child(0).find_child("MetricDot", true, false) as Panel
-		var second_dot = stack.get_child(1).find_child("MetricDot", true, false) as Panel
+		var first_bar = stack.get_child(0).find_child("MetricAccentBar", true, false) as Panel
+		var second_bar = stack.get_child(1).find_child("MetricAccentBar", true, false) as Panel
+		var first_icon = stack.get_child(0).find_child("MetricTileIcon", true, false)
 		_assert(first_label != null and first_label.text.contains("체력"), "health multiplier card appears before shield")
 		_assert(second_label != null and second_label.text.contains("실드"), "shield multiplier card appears after health")
-		_assert(first_dot != null, "health multiplier card uses a rounded dot marker")
-		_assert(second_dot != null, "shield multiplier card uses a rounded dot marker")
+		_assert(first_bar != null, "health multiplier card marks its text with a red vertical accent bar")
+		_assert(second_bar != null, "shield multiplier card marks its text with a blue vertical accent bar")
+		_assert(first_icon == null, "multiplier cards no longer duplicate the weakness-card tile art")
 	stack.queue_free()
 	status_panel.free()
 
