@@ -1,9 +1,25 @@
 # 계약: 리디자인 비교용 페이지 캡처 러너 — m6 캡처 러너를 상속해 clear/boss_reward/settings/shop/toast 페이지 드라이브를 추가한다.
 # 계약: 출력물은 무시 경로(.tmp-redesign/**)에 저장하는 것을 기본으로 하며, 성공 마커는 M6_INTERNAL_CAPTURED를 그대로 재사용한다.
+# 계약: 캡처 직전 내러티브 토스트의 타자기 연출을 완료 상태로 확정해, 고정 프레임 대기와 벽시계 기반 연출의 경합으로 문장이 잘린 채 찍히는 것을 막는다.
 extends "res://tests/run_m6_visual_capture.gd"
 
-# 실행: 신규 페이지 id를 우선 처리하고, 나머지는 부모 드라이브로 위임한다.
+# 실행: 페이지 도달 후 타자기 연출을 확정하고 부모 캡처 절차를 그대로 수행한다.
 func _drive_to_page(main_instance: Node, page_id: String) -> bool:
+	var reached := await _drive_to_redesign_page(main_instance, page_id)
+	_settle_narrative_typewriter(main_instance)
+	return reached
+
+# 실행: 내러티브 토스트가 타자기 연출 중이면 즉시 완료시켜 캡처가 항상 전문(全文)을 담게 한다.
+func _settle_narrative_typewriter(main_instance: Node) -> void:
+	var narrative_toast = main_instance.get("narrative_toast")
+	if narrative_toast == null:
+		return
+	if not narrative_toast.has_method("_complete_typewriter"):
+		return
+	narrative_toast.call("_complete_typewriter")
+
+# 실행: 신규 페이지 id를 우선 처리하고, 나머지는 부모 드라이브로 위임한다.
+func _drive_to_redesign_page(main_instance: Node, page_id: String) -> bool:
 	match page_id:
 		"boss_battle":
 			return await _go_to_boss_battle(main_instance)

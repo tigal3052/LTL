@@ -7,7 +7,7 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, agent worktrees (`.worktrees`, `.claude/worktrees`), temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: 242d416da2b25976530bf0aa17a6aca5b19c0f1aa65e10e029d7c02c5af793cd
+- Source fingerprint: dd8e658a3bfc9b6ccde1dca72a22de9c2fc1d76e929a13b544066a14bb7ce85b
 
 ## File Map
 
@@ -2298,6 +2298,8 @@ This file is the live implementation map for AI agents. It records each current 
   - PIN CORNER QUALITY PLAN provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_battle_redesign/README.md`
   - README provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_clear_redesign/APPLY_EVAL_LOG.md`
+  - APPLY EVAL LOG provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_clear_redesign/APPLY_PLAN.md`
   - APPLY PLAN provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_clear_redesign/assets/bg_parchment_1440x900.png`
@@ -2600,6 +2602,8 @@ This file is the live implementation map for AI agents. It records each current 
   - generate assets provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_reward_redesign/index.html`
   - index provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_settings_redesign/APPLY_EVAL_LOG.md`
+  - APPLY EVAL LOG provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_settings_redesign/APPLY_PLAN.md`
   - APPLY PLAN provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_settings_redesign/assets/bg_current_settings_1440x900.png`
@@ -2628,6 +2632,8 @@ This file is the live implementation map for AI agents. It records each current 
   - index provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_settings_redesign/README.md`
   - README provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_shop_redesign/APPLY_EVAL_LOG.md`
+  - APPLY EVAL LOG provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_shop_redesign/APPLY_PLAN.md`
   - APPLY PLAN provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_shop_redesign/assets/shop_catalog_panel_380x560.png`
