@@ -177,8 +177,10 @@
     "overlay.overheat.rebuilding": "Core overheated. Energy queue depleted.\nRebuilding drill core automatically ({0}s remaining)...",
     "confirm.unclaimed.title": "Unclaimed Reward Warning",
     "confirm.unclaimed.desc": "Some rewards are still unclaimed. Proceed anyway?",
+    "confirm.unclaimed.title_en": "UNCLAIMED REWARD WARNING",
     "confirm.discard.title": "Discard Artifact?",
     "confirm.discard.desc": "Discard {0}? This cannot be undone.",
+    "confirm.discard.title_en": "DISCARD ARTIFACT",
     "panel.character_status": "Explorer Status",
     "panel.profile": "[Miner Profile]",
     "panel.loadout": "Loadout:\n- Basic drill set\n- Auto-repair core\n- Leviathan surface scanner",
@@ -418,7 +420,8 @@
     "log.shop.base_purchase_complete": "Shop: unlock purchased: {0}",
     "action.abort_dig": "Abandon Dig",
     "action.start_dig": "Begin Excavation",
-    "panel.pin_stock": "Backpack Pin Stock"
+    "panel.pin_stock": "Backpack Pin Stock",
+    "toast.info.auto_dismiss": "Dismissing in {0}s"
   },
   "displayNames": {},
   "displayDescriptions": {},

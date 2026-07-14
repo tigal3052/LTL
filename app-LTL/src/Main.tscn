@@ -1,10 +1,14 @@
-[gd_scene load_steps=12 format=3 uid="uid://brhshyaxjxcsr"]
+[gd_scene load_steps=23 format=3 uid="uid://brhshyaxjxcsr"]
 
 [ext_resource type="Script" path="res://src/ui/MainUI.gd" id="1"]
 [ext_resource type="Script" path="res://src/ui/SettingsPanelUI.gd" id="2"]
 [ext_resource type="Script" path="res://src/ui/VFXManager.gd" id="7"]
 [ext_resource type="Script" path="res://src/MainController.gd" id="8"]
 [ext_resource type="Texture2D" uid="uid://7mc0x5l33dj8" path="res://resources/node_select/atlas/chip_ruin_tablet.png" id="9"]
+[ext_resource type="Texture2D" path="res://resources/UI/toast_redesign/confirm_card_576x352.png" id="20"]
+[ext_resource type="Texture2D" path="res://resources/UI/toast_redesign/badge_warn_96.png" id="21"]
+[ext_resource type="Texture2D" path="res://resources/UI/toast_redesign/coffee_stain_150.png" id="22"]
+[ext_resource type="Texture2D" path="res://resources/UI/toast_redesign/coffee_stain_240.png" id="23"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.0627451, 0.0784314, 0.109804, 1)
@@ -59,6 +63,99 @@ shadow_size = 16
 
 [sub_resource type="Gradient" id="Gradient_particle"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_dim"]
+bg_color = Color(0.0313726, 0.0588235, 0.0392157, 0.82)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_confirm_card"]
+texture = ExtResource("20")
+texture_margin_left = 24.0
+texture_margin_top = 24.0
+texture_margin_right = 24.0
+texture_margin_bottom = 24.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_radiance"]
+bg_color = Color(0.435294, 0.631373, 0.356863, 0.24)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+shadow_color = Color(0.435294, 0.631373, 0.356863, 0.34)
+shadow_size = 48
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_confirm_message"]
+bg_color = Color(0.909804, 0.937255, 0.819608, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.435294, 0.631373, 0.356863, 0.34)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 22.0
+content_margin_top = 20.0
+content_margin_right = 22.0
+content_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_hero"]
+bg_color = Color(0.0941176, 0.227451, 0.121569, 1)
+border_width_bottom = 4
+border_color = Color(0.0705882, 0.156863, 0.101961, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.435294, 0.631373, 0.356863, 0.42)
+shadow_size = 10
+content_margin_left = 26.0
+content_margin_top = 12.0
+content_margin_right = 26.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_hero_pressed"]
+bg_color = Color(0.0941176, 0.227451, 0.121569, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 26.0
+content_margin_top = 12.0
+content_margin_right = 26.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_limestone"]
+bg_color = Color(0.909804, 0.937255, 0.819608, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 4
+border_color = Color(0.607843, 0.690196, 0.470588, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 26.0
+content_margin_top = 12.0
+content_margin_right = 26.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cta_limestone_pressed"]
+bg_color = Color(0.909804, 0.937255, 0.819608, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.607843, 0.690196, 0.470588, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 26.0
+content_margin_top = 12.0
+content_margin_right = 26.0
+content_margin_bottom = 12.0
 
 [node name="Main" type="PanelContainer"]
 anchors_preset = 15
@@ -169,41 +266,146 @@ horizontal_alignment = 1
 [node name="ConfirmOverlay" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_settings")
+theme_override_styles/panel = SubResource("StyleBoxFlat_confirm_dim")
 
 [node name="Center" type="CenterContainer" parent="ConfirmOverlay"]
 layout_mode = 2
 
-[node name="ConfirmBox" type="VBoxContainer" parent="ConfirmOverlay/Center"]
-custom_minimum_size = Vector2(400, 200)
+[node name="ConfirmBox" type="PanelContainer" parent="ConfirmOverlay/Center"]
+custom_minimum_size = Vector2(624, 0)
 layout_mode = 2
-theme_override_constants/separation = 24
-alignment = 1
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_confirm_card")
 
-[node name="WarningTitle" type="Label" parent="ConfirmOverlay/Center/ConfirmBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.972549, 0.878431, 0.878431, 1)
-theme_override_font_sizes/font_size = 20
-horizontal_alignment = 1
+[node name="Radiance" type="Panel" parent="ConfirmOverlay/Center/ConfirmBox"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -28.0
+offset_top = -24.0
+offset_right = 28.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_confirm_radiance")
 
-[node name="WarningDescription" type="Label" parent="ConfirmOverlay/Center/ConfirmBox"]
+[node name="StainSmall" type="TextureRect" parent="ConfirmOverlay/Center/ConfirmBox"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_top = -26.0
+offset_right = 30.0
+offset_bottom = 124.0
+mouse_filter = 2
+texture = ExtResource("22")
+expand_mode = 1
+modulate = Color(1, 1, 1, 0.5)
+
+[node name="StainLarge" type="TextureRect" parent="ConfirmOverlay/Center/ConfirmBox"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -222.0
+offset_right = 246.0
+offset_bottom = 18.0
+mouse_filter = 2
+texture = ExtResource("23")
+expand_mode = 1
+modulate = Color(1, 1, 1, 0.32)
+
+[node name="CardMargin" type="MarginContainer" parent="ConfirmOverlay/Center/ConfirmBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.972549, 0.756863, 0.756863, 1)
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="CardBody" type="VBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="HeaderRow" type="HBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BadgeSlot" type="Control" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/HeaderRow"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Badge" type="TextureRect" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/HeaderRow/BadgeSlot"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 49.0
+offset_bottom = 49.0
+mouse_filter = 2
+texture = ExtResource("21")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleBox" type="VBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 3
+
+[node name="WarningTitle" type="Label" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/HeaderRow/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0941176, 0.227451, 0.121569, 1)
+theme_override_font_sizes/font_size = 27
+
+[node name="WarningTitleEn" type="Label" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/HeaderRow/TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.231373, 0.411765, 0.164706, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="MessagePanel" type="PanelContainer" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_confirm_message")
+
+[node name="WarningDescription" type="Label" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/MessagePanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.215686, 0.250980, 0.184314, 1)
+theme_override_font_sizes/font_size = 18
+autowrap_mode = 3
+
+[node name="ButtonsRow" type="HBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="CancelButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/ButtonsRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0941176, 0.227451, 0.121569, 1)
+theme_override_colors/font_hover_color = Color(0.0941176, 0.227451, 0.121569, 1)
+theme_override_colors/font_pressed_color = Color(0.0941176, 0.227451, 0.121569, 1)
 theme_override_font_sizes/font_size = 14
-horizontal_alignment = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_limestone")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_limestone")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_limestone_pressed")
 
-[node name="ButtonsRow" type="HBoxContainer" parent="ConfirmOverlay/Center/ConfirmBox"]
+[node name="ConfirmButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/ButtonsRow"]
 layout_mode = 2
-theme_override_constants/separation = 24
-alignment = 1
-
-[node name="ConfirmButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/ButtonsRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CancelButton" type="Button" parent="ConfirmOverlay/Center/ConfirmBox/ButtonsRow"]
-layout_mode = 2
-size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_cta_hero")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cta_hero")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_cta_hero_pressed")
 
 [node name="SettingsPanel" type="PanelContainer" parent="."]
 visible = false

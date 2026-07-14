@@ -12,6 +12,7 @@ signal continue_requested(beat_id: String)
 signal interaction_sfx_requested(category: String)
 
 const LTLThemeScript = preload("res://src/ui/theme/LTLTheme.gd")
+const ToastRedesignThemeScript = preload("res://src/ui/theme/ToastRedesignTheme.gd")
 const TYPEWRITER_CHARS_PER_SECOND := 36.0
 
 var speaker_label: Label = null
@@ -21,6 +22,8 @@ var continue_icon_label: Label = null
 var visual_area: PanelContainer = null
 var visual_image: TextureRect = null
 var portrait_image: TextureRect = null
+# 실행: 토스트 리디자인 — 코너 밴드용 화자 원형 배지.
+var speaker_badge: TextureRect = null
 
 var _current_beat_id := ""
 var _dismissed_beat_id := ""
@@ -36,61 +39,143 @@ func _init() -> void:
 	name = "NarrativeToast"
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	z_index = 440
-	custom_minimum_size = Vector2(420.0, 300.0)
+	# 계약: z_index는 소유자(MainViewChromeRuntime)가 토스트 레이어 정책으로 덮어쓴다.
+	z_index = ToastRedesignThemeScript.toast_z_index(440)
+	custom_minimum_size = ToastRedesignThemeScript.NARRATIVE_TOAST_SIZE
 	set_process(false)
 
 # 실행: build the stable child tree once the control enters the scene.
 func _ready() -> void:
 	ensure_built()
 
+# 계약: 코너 밴드(436×112) 안에 화자 배지 + 대사 + 진행 힌트를 가로로 배치한다.
+# - VisualArea/PortraitImage는 read-model 계약(visualPath/portraitPath) 유지를 위해 트리에 남기되
+#   코너 밴드에는 150px 이미지 영역이 들어갈 수 없으므로 기본 숨김이며 화자 배지가 그 역할을 대신한다.
 # 실행: create the visual area, dialogue panel, and continue prompt nodes.
 func ensure_built() -> void:
 	if get_node_or_null("StoryFrame") != null:
 		return
-	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	add_theme_stylebox_override("panel", ToastRedesignThemeScript.narrative_toast_style())
 
-	var story_frame := VBoxContainer.new()
+	var story_frame := HBoxContainer.new()
 	story_frame.name = "StoryFrame"
 	story_frame.mouse_filter = Control.MOUSE_FILTER_PASS
 	story_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	story_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	story_frame.add_theme_constant_override("separation", 10)
+	story_frame.add_theme_constant_override("separation", 14)
 	add_child(story_frame)
 
+	var frame_margin := MarginContainer.new()
+	frame_margin.name = "FrameMargin"
+	frame_margin.mouse_filter = Control.MOUSE_FILTER_PASS
+	frame_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	frame_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	frame_margin.add_theme_constant_override("margin_left", 22)
+	frame_margin.add_theme_constant_override("margin_top", 14)
+	frame_margin.add_theme_constant_override("margin_right", 20)
+	frame_margin.add_theme_constant_override("margin_bottom", 14)
+	story_frame.add_child(frame_margin)
+
+	var content_row := HBoxContainer.new()
+	content_row.name = "ContentRow"
+	content_row.mouse_filter = Control.MOUSE_FILTER_PASS
+	content_row.add_theme_constant_override("separation", 14)
+	frame_margin.add_child(content_row)
+
+	# 실행: 화자 배지 — 가시 원 외곽(알파 경계)이 40px 슬롯과 맞도록 렌더 사각형을 역보정한다.
+	var badge_slot := Control.new()
+	badge_slot.name = "SpeakerBadgeSlot"
+	badge_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge_slot.custom_minimum_size = Vector2(40.0, 40.0)
+	badge_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	content_row.add_child(badge_slot)
+
+	speaker_badge = TextureRect.new()
+	speaker_badge.name = "SpeakerBadge"
+	speaker_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	speaker_badge.texture = ToastRedesignThemeScript.BadgeSpeakerTexture
+	speaker_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	speaker_badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT
+	var badge_rect: Rect2 = ToastRedesignThemeScript.badge_visual_rect(speaker_badge.texture, 40.0)
+	speaker_badge.position = badge_rect.position
+	speaker_badge.size = badge_rect.size
+	badge_slot.add_child(speaker_badge)
+
+	var dialog_box := VBoxContainer.new()
+	dialog_box.name = "DialogBox"
+	dialog_box.mouse_filter = Control.MOUSE_FILTER_PASS
+	dialog_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dialog_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	dialog_box.add_theme_constant_override("separation", 4)
+	content_row.add_child(dialog_box)
+
+	# 실행: 화자 칩 — 림스톤 pill(정원 radius).
+	var speaker_row := HBoxContainer.new()
+	speaker_row.name = "SpeakerRow"
+	speaker_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dialog_box.add_child(speaker_row)
+
+	var speaker_chip := PanelContainer.new()
+	speaker_chip.name = "SpeakerChip"
+	speaker_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	speaker_chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	speaker_chip.add_theme_stylebox_override("panel", ToastRedesignThemeScript.speaker_chip_style())
+	speaker_row.add_child(speaker_chip)
+
+	speaker_label = Label.new()
+	speaker_label.name = "SpeakerLabel"
+	speaker_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	speaker_label.text = ""
+	speaker_label.add_theme_font_size_override("font_size", 10)
+	speaker_label.add_theme_color_override("font_color", ToastRedesignThemeScript.PRIMARY)
+	speaker_chip.add_child(speaker_label)
+
+	body_label = Label.new()
+	body_label.name = "BodyLabel"
+	body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	body_label.text = ""
+	body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_label.add_theme_font_size_override("font_size", 15)
+	body_label.add_theme_color_override("font_color", ToastRedesignThemeScript.SOIL)
+	dialog_box.add_child(body_label)
+
+	var prompt_row := HBoxContainer.new()
+	prompt_row.name = "PromptRow"
+	prompt_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prompt_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	prompt_row.add_theme_constant_override("separation", 5)
+	dialog_box.add_child(prompt_row)
+
+	continue_prompt_label = Label.new()
+	continue_prompt_label.name = "ContinuePrompt"
+	continue_prompt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	continue_prompt_label.text = ""
+	continue_prompt_label.add_theme_font_size_override("font_size", 11)
+	continue_prompt_label.add_theme_color_override("font_color", ToastRedesignThemeScript.SECONDARY)
+	prompt_row.add_child(continue_prompt_label)
+
+	continue_icon_label = Label.new()
+	continue_icon_label.name = "ContinueIcon"
+	continue_icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	continue_icon_label.text = "▶"
+	continue_icon_label.add_theme_font_size_override("font_size", 12)
+	continue_icon_label.add_theme_color_override("font_color", ToastRedesignThemeScript.CARET)
+	prompt_row.add_child(continue_icon_label)
+
+	# 계약: visualPath/portraitPath read-model 계약 유지용 노드 — 코너 밴드에서는 표시하지 않는다.
 	visual_area = PanelContainer.new()
 	visual_area.name = "VisualArea"
 	visual_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	visual_area.custom_minimum_size = Vector2(0.0, 150.0)
-	visual_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	visual_area.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	visual_area.add_theme_stylebox_override("panel", _visual_style())
-	story_frame.add_child(visual_area)
-
-	var visual_margin := MarginContainer.new()
-	visual_margin.name = "VisualMargin"
-	visual_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	visual_margin.add_theme_constant_override("margin_left", 18)
-	visual_margin.add_theme_constant_override("margin_top", 14)
-	visual_margin.add_theme_constant_override("margin_right", 18)
-	visual_margin.add_theme_constant_override("margin_bottom", 14)
-	visual_area.add_child(visual_margin)
-
-	var visual_plate := ColorRect.new()
-	visual_plate.name = "VisualPlate"
-	visual_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	visual_plate.color = Color(0.16, 0.20, 0.21, 0.76)
-	visual_plate.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	visual_plate.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	visual_margin.add_child(visual_plate)
+	visual_area.visible = false
+	add_child(visual_area)
 
 	visual_image = TextureRect.new()
 	visual_image.name = "VisualImage"
 	visual_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	visual_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	visual_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	visual_image.self_modulate = Color(0.82, 0.88, 0.90, 0.30)
-	visual_image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	visual_image.visible = false
 	visual_area.add_child(visual_image)
 
 	portrait_image = TextureRect.new()
@@ -101,77 +186,6 @@ func ensure_built() -> void:
 	portrait_image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	portrait_image.visible = false
 	visual_area.add_child(portrait_image)
-
-	var dialog_panel := PanelContainer.new()
-	dialog_panel.name = "DialogPanel"
-	dialog_panel.mouse_filter = Control.MOUSE_FILTER_PASS
-	dialog_panel.custom_minimum_size = Vector2(0.0, 142.0)
-	dialog_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dialog_panel.add_theme_stylebox_override("panel", _dialog_style())
-	story_frame.add_child(dialog_panel)
-
-	var dialog_margin := MarginContainer.new()
-	dialog_margin.name = "DialogMargin"
-	dialog_margin.mouse_filter = Control.MOUSE_FILTER_PASS
-	dialog_margin.add_theme_constant_override("margin_left", 20)
-	dialog_margin.add_theme_constant_override("margin_top", 16)
-	dialog_margin.add_theme_constant_override("margin_right", 20)
-	dialog_margin.add_theme_constant_override("margin_bottom", 14)
-	dialog_panel.add_child(dialog_margin)
-
-	var dialog_box := VBoxContainer.new()
-	dialog_box.name = "DialogBox"
-	dialog_box.mouse_filter = Control.MOUSE_FILTER_PASS
-	dialog_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dialog_box.add_theme_constant_override("separation", 7)
-	dialog_margin.add_child(dialog_box)
-
-	speaker_label = Label.new()
-	speaker_label.name = "SpeakerLabel"
-	speaker_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	speaker_label.text = ""
-	speaker_label.add_theme_font_size_override("font_size", 13)
-	speaker_label.add_theme_color_override("font_color", Color(0.75, 0.89, 0.90, 1.0))
-	dialog_box.add_child(speaker_label)
-
-	body_label = Label.new()
-	body_label.name = "BodyLabel"
-	body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	body_label.text = ""
-	body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body_label.add_theme_font_size_override("font_size", 18)
-	body_label.add_theme_color_override("font_color", Color(0.97, 0.96, 0.89, 1.0))
-	dialog_box.add_child(body_label)
-
-	var prompt_row := HBoxContainer.new()
-	prompt_row.name = "PromptRow"
-	prompt_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	prompt_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	prompt_row.add_theme_constant_override("separation", 8)
-	dialog_box.add_child(prompt_row)
-
-	var prompt_spacer := Control.new()
-	prompt_spacer.name = "PromptSpacer"
-	prompt_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	prompt_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	prompt_row.add_child(prompt_spacer)
-
-	continue_prompt_label = Label.new()
-	continue_prompt_label.name = "ContinuePrompt"
-	continue_prompt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	continue_prompt_label.text = ""
-	continue_prompt_label.add_theme_font_size_override("font_size", 13)
-	continue_prompt_label.add_theme_color_override("font_color", Color(0.80, 0.86, 0.82, 0.88))
-	prompt_row.add_child(continue_prompt_label)
-
-	continue_icon_label = Label.new()
-	continue_icon_label.name = "ContinueIcon"
-	continue_icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	continue_icon_label.text = "▶"
-	continue_icon_label.add_theme_font_size_override("font_size", 16)
-	continue_icon_label.add_theme_color_override("font_color", Color(0.98, 0.82, 0.45, 1.0))
-	prompt_row.add_child(continue_icon_label)
 
 # 실행: apply one narrative read model without reallocating the story tree.
 func render(model: Dictionary) -> void:
@@ -285,51 +299,23 @@ func _gui_input(event: InputEvent) -> void:
 	if consume_continue_input(event):
 		accept_event()
 
-static func _visual_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.08, 0.09, 0.88)
-	style.border_color = Color(0.45, 0.62, 0.66, 0.42)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	return style
-
-static func _dialog_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.07, 0.08, 0.09, 0.96)
-	style.border_color = Color(0.62, 0.74, 0.72, 0.56)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	return style
-
+# 계약: visualPath/portraitPath 계약은 유지하되 코너 밴드에서는 표면을 표시하지 않는다.
+# - 근거: 436×112 코너 밴드에 150px 비주얼 영역을 넣으면 페이지 비침범 규칙이 깨진다.
+# - 텍스처는 계속 로드해 read-model 계약(경로 유효성)을 지키고, 화자 배지가 시각 역할을 대신한다.
 # 실행: load optional visual and portrait textures for the enhanced toast surface.
 func _apply_visuals(visual_path: String, portrait_path: String, portrait_side: String) -> void:
 	if visual_image != null:
 		visual_image.texture = LTLThemeScript.art_texture(visual_path) if not visual_path.is_empty() else null
-		visual_image.visible = visual_image.texture != null
+		visual_image.visible = false
 	if portrait_image != null:
 		portrait_image.texture = LTLThemeScript.art_texture(portrait_path) if not portrait_path.is_empty() else null
-		portrait_image.visible = portrait_image.texture != null and portrait_side in ["left", "right"]
-		call_deferred("_layout_portrait_image")
+		portrait_image.visible = false
+	if visual_area != null:
+		visual_area.visible = false
+	_portrait_side = portrait_side
 
+# 계약: 기존 호출자를 위한 no-op 방어 — 코너 밴드에서는 초상 배치가 없다.
 # 실행: position the optional portrait inside the upper visual area.
 func _layout_portrait_image() -> void:
 	if portrait_image == null or visual_area == null or not portrait_image.visible:
 		return
-	var area_size := visual_area.size
-	var portrait_width := clampf(area_size.x * 0.32, 120.0, 240.0)
-	var portrait_height := maxf(120.0, area_size.y - 18.0)
-	var x := 14.0 if _portrait_side == "left" else area_size.x - portrait_width - 14.0
-	portrait_image.position = Vector2(x, 9.0)
-	portrait_image.size = Vector2(portrait_width, portrait_height)
