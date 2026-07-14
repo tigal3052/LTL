@@ -915,6 +915,30 @@ This file is the live implementation map for AI agents. It records each current 
   - panel parchment is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/battle_redesign/panel_parchment.png.import`
   - panel parchment.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/dropdown_pill.png`
+  - dropdown pill is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/dropdown_pill.png.import`
+  - dropdown pill.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/folio_card_9slice.png`
+  - folio card 9slice is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/folio_card_9slice.png.import`
+  - folio card 9slice.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/icon_leaf_sprig.png`
+  - icon leaf sprig is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/icon_leaf_sprig.png.import`
+  - icon leaf sprig.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/slider_thumb.png`
+  - slider thumb is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/slider_thumb.png.import`
+  - slider thumb.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_off.png`
+  - toggle off is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_off.png.import`
+  - toggle off.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_on.png`
+  - toggle on is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_on.png.import`
+  - toggle on.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/codex/v5/codex_v5_card_locked_608x204.png`
   - codex v5 card locked 608x204 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/codex/v5/codex_v5_card_locked_608x204.png.import`
