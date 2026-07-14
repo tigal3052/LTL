@@ -6,8 +6,8 @@ This file is the live implementation map for AI agents. It records each current 
 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
-- Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: fc24d7d619a95c8127319fbbc7bf8784ad65db125d02be4e96e3bdba961eb4c4
+- Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, agent worktrees (`.worktrees`, `.claude/worktrees`), temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
+- Source fingerprint: b52eca10ab4f3014045f0d9087445163c280a752181b454f9b14266d8ce4c5a2
 
 ## File Map
 

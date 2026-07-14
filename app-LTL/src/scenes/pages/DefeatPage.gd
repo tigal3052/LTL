@@ -27,6 +27,24 @@ const LANTERN_LEFT_X := 164.0
 const POLAROID_HOLE := Rect2(26.0, 26.0, 708.0, 358.0) # 프레임 내부 구멍(가시 픽셀)
 const POLAROID_BOX := Vector2(760.0, 480.0)
 
+# 계약: 내러티브 토스트(top_left 프리셋) rect를 페이지가 침범하지 않도록 하는 회피 상수.
+# 실행: MainViewChromeRuntime.layout_narrative_toast()의 top_left 분기 수치를 그대로 반영한다.
+# 토스트 컴포넌트 자체는 다른 담당 범위라 건드리지 않고, 페이지가 그 영역을 비켜 앉는다.
+const TOAST_LEFT := 32.0
+const TOAST_WIDTH_RATIO := 0.38
+const TOAST_WIDTH_MIN := 420.0
+const TOAST_WIDTH_MAX := 620.0
+const BOARD_TOAST_GAP := 24.0
+const BOARD_RIGHT_MARGIN := 24.0
+const BOARD_WIDTH_MIN := 640.0
+const BOARD_TILT_DEGREES := -0.6
+
+# 계약: 폴라로이드 사진의 세로 크롭 기준점.
+# 실행: KEEP_ASPECT_COVERED는 중앙 크롭이라 세로 포트레이트(887x1774)에서 얼굴이 잘린다.
+# 목업 CSS의 object-position 등가를 AtlasTexture region 상단 바이어스로 재현한다.
+# 0.0 = 최상단, 1.0 = 최하단. 0.20은 머리 위 여백만 덜어내고 얼굴을 남기는 값이다.
+const POLAROID_CROP_BIAS := 0.20
+
 signal return_requested
 signal same_seed_retry_requested
 signal new_seed_retry_requested
@@ -106,7 +124,25 @@ func _apply(state: Dictionary) -> void:
 	hero_subtitle_label.visible = not hero_subtitle_label.text.is_empty()
 
 	var character_art_path := str(state.get("pageCharacterArtPath", default_character_art_path))
-	polaroid_photo.texture = LTLThemeScript.art_texture(character_art_path) if not character_art_path.is_empty() else null
+	var portrait := LTLThemeScript.art_texture(character_art_path) if not character_art_path.is_empty() else null
+	polaroid_photo.texture = _polaroid_crop_texture(portrait)
+
+# 계약: 폴라로이드 구멍 비율에 맞춰 인물 사진을 상단 바이어스로 크롭한 텍스처를 돌려준다.
+# 실행: 원본이 구멍보다 세로로 길 때만 잘라내고, 가로가 더 길면 중앙 크롭으로 둔다.
+# 크롭이 불필요하면 원본을 그대로 반환한다.
+func _polaroid_crop_texture(portrait: Texture2D) -> Texture2D:
+	if portrait == null:
+		return null
+	var src := Vector2(portrait.get_width(), portrait.get_height())
+	if src.x <= 0.0 or src.y <= 0.0:
+		return portrait
+	var hole_aspect := POLAROID_HOLE.size.x / POLAROID_HOLE.size.y
+	var src_aspect := src.x / src.y
+	if src_aspect >= hole_aspect:
+		return portrait
+	var region_size := Vector2(src.x, src.x / hole_aspect)
+	var top := (src.y - region_size.y) * POLAROID_CROP_BIAS
+	return LTLThemeScript.atlas_frame(portrait, Rect2(Vector2(0.0, top), region_size))
 
 # 계약: 목업이 고정 자산으로 쓰는 정적 요소(배경/랜턴/포자/헤더 아이콘/보드 핀/프레임/캡션/원장 라벨/인용)를 채운다.
 # 실행: read-model이 매 프레임 갱신하지 않는 장식 자산은 _ready에서 1회 로드한다.
@@ -130,16 +166,29 @@ func _load_static_art() -> void:
 		default_title = TextCatalogScript.t("main.page.title.defeat_halted")
 
 # 계약: 보드/핀/랜턴/폴라로이드의 알파 경계 정렬을 뷰포트 크기 변화에도 재계산한다.
-# 실행: APPLY_PLAN.md 4절 공식을 그대로 이식 — 폭 고정 892px 보드를 뷰포트 우측에 배치.
+# 실행: APPLY_PLAN.md 4절 공식을 이식하되, 보드 좌측 경계만 실측치로 교정한다.
+# 목업(index.html)은 내러티브 토스트 우측 끝을 452px으로 보고 보드를 left:500px에 뒀으나,
+# 실제 런타임 MainViewChromeRuntime.layout_narrative_toast()의 top_left 프리셋은
+# width = clamp(viewport.x * 0.38, 420, 620)이라 1440px에서 547.2px가 되어
+# 토스트 우측 끝이 32 + 547.2 = 579.2px이다(목업은 클램프 하한 420을 실제값으로 오인).
+# 따라서 목업 좌표를 그대로 쓰면 보드 좌측 79px이 토스트 rect 아래로 들어간다.
+# 토스트 폭 공식을 그대로 재현해 보드 좌측을 유도하고, 24px 간격을 띄운다.
 func _layout_alpha_bounds() -> void:
 	var viewport_size := get_viewport_rect().size
-	var board_width := 892.0
-	var board_left := 500.0
+	var toast_width := clampf(viewport_size.x * TOAST_WIDTH_RATIO, TOAST_WIDTH_MIN, TOAST_WIDTH_MAX)
+	var board_left := TOAST_LEFT + toast_width + BOARD_TOAST_GAP
 	var board_top := 34.0
+	# 회전 -0.6°로 우상단 모서리가 보드 높이만큼 바깥으로 밀리므로 우측 여백에서 상쇄한다.
+	var board_height := viewport_size.y - board_top
+	var tilt_overhang := board_height * sin(deg_to_rad(abs(BOARD_TILT_DEGREES)))
+	var board_width := maxf(
+		BOARD_WIDTH_MIN,
+		viewport_size.x - board_left - BOARD_RIGHT_MARGIN - tilt_overhang
+	)
 
 	board_rig.position = Vector2(board_left, board_top)
-	board_rig.size = Vector2(board_width, viewport_size.y - board_top)
-	board_tilt.rotation = deg_to_rad(-0.6)
+	board_rig.size = Vector2(board_width, board_height)
+	board_tilt.rotation = deg_to_rad(BOARD_TILT_DEGREES)
 
 	# 핀: 가시 중심을 보드 상단면 6px 아래에 박아 "관통" 표현.
 	pin.size = PIN_BOX
