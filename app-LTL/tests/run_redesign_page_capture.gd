@@ -85,13 +85,20 @@ func _go_to_boss_reward(main_instance: Node) -> bool:
 	return _expect_active(main_instance, "boss_reward", "boss_reward")
 
 # 실행: 보스 보상 이후 진행을 트리거해 런 클리어 페이지에 도달한다.
+# 실행: 도착 직후 뜨는 내러티브 토스트는 클릭 1회로 소멸하는 정상 진행 흐름이므로, 캡처 전에 소비해 페이지 본문을 노출한다.
 func _go_to_clear(main_instance: Node) -> bool:
 	if not await _go_to_boss_reward(main_instance):
 		return false
 	var controller = main_instance.get_node_or_null("MainController")
 	controller.call("_proceed_to_node_select")
 	await _settle_frames(8)
-	return _expect_active(main_instance, "clear", "clear")
+	if not _expect_active(main_instance, "clear", "clear"):
+		return false
+	var narrative_toast = main_instance.get("narrative_toast")
+	if narrative_toast != null and narrative_toast.has_method("dismiss"):
+		narrative_toast.call("dismiss", false)
+		await _settle_frames(4)
+	return true
 
 # 실행: 노드 선택 배경 위에서 설정 오버레이를 연다.
 func _go_to_settings_overlay(main_instance: Node) -> bool:
