@@ -20,6 +20,9 @@ const Typography = preload("res://src/ui/codex/CodexTypography.gd")
 const V5_ROOT := "res://resources/UI/codex/v5"
 const SORT_CONTROL_SIZE := Vector2(126, 28)
 const SORT_POPUP_SIZE := Vector2i(126, 92)
+const DETAIL_OBSERVATION_POS := Vector2(364, 323)
+const DETAIL_OBSERVATION_SIZE := Vector2(168, 76)
+const DETAIL_FACT_LABEL_WIDTH := 132.0
 
 var design_canvas: Control
 var catalog_region: Control
@@ -141,8 +144,8 @@ func _build_detail() -> void:
 	detail_subtitle = _label("", 16, Color("4d3218")); detail_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; detail_subtitle.position = Vector2(45, 115); detail_subtitle.size = Vector2(510, 25); detail_region.add_child(detail_subtitle)
 	var hero_frame := TextureRect.new(); hero_frame.texture = _texture("codex_v5_detail_hero_frame_1080x584.png"); hero_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; hero_frame.stretch_mode = TextureRect.STRETCH_SCALE; hero_frame.position = Vector2(28, 145); hero_frame.size = Vector2(540, 292); hero_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(hero_frame)
 	hero_art_host = Control.new(); hero_art_host.name = "HeroArtHost"; hero_art_host.position = Vector2(150, 175); hero_art_host.size = Vector2(280, 230); detail_region.add_child(hero_art_host)
-	var observation_note := TextureRect.new(); observation_note.name = "ObservationNote"; observation_note.texture = _texture("codex_v5_observation_note_296x140.png"); observation_note.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; observation_note.stretch_mode = TextureRect.STRETCH_SCALE; observation_note.position = Vector2(382, 340); observation_note.size = Vector2(148, 70); observation_note.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(observation_note)
-	observation_label = _label("", 10, Color("4f3929")); observation_label.name = "ObservationText"; observation_label.position = Vector2(394, 348); observation_label.size = Vector2(125, 54); observation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; observation_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP; observation_label.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(observation_label)
+	var observation_note := TextureRect.new(); observation_note.name = "ObservationNote"; observation_note.texture = _texture("codex_v5_observation_note_296x140.png"); observation_note.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; observation_note.stretch_mode = TextureRect.STRETCH_SCALE; observation_note.position = DETAIL_OBSERVATION_POS; observation_note.size = DETAIL_OBSERVATION_SIZE; observation_note.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(observation_note)
+	observation_label = _label("", 11, Color("4f3929")); observation_label.name = "ObservationText"; observation_label.position = Vector2(376, 331); observation_label.size = Vector2(145, 60); observation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; observation_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP; observation_label.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(observation_label)
 	var facts_frame := TextureRect.new(); facts_frame.texture = _texture("codex_v5_facts_panel_bg_1080x428.png"); facts_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; facts_frame.stretch_mode = TextureRect.STRETCH_SCALE; facts_frame.position = Vector2(28, 440); facts_frame.size = Vector2(540, 214); facts_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE; detail_region.add_child(facts_frame)
 	facts_box = VBoxContainer.new(); facts_box.name = "Facts"; facts_box.position = Vector2(70, 462); facts_box.size = Vector2(455, 174); facts_box.add_theme_constant_override("separation", 3); detail_region.add_child(facts_box)
 	description_label = RichTextLabel.new(); description_label.name = "FlavorText"; description_label.bbcode_enabled = false; description_label.fit_content = false; description_label.scroll_active = true; description_label.position = Vector2(78, 670); description_label.size = Vector2(438, 54); description_label.add_theme_font_override("normal_font", Typography.korean_serif_font()); description_label.add_theme_font_size_override("normal_font_size", 13); description_label.add_theme_color_override("default_color", Color("564334")); description_label.add_theme_stylebox_override("normal", _flat(Color.TRANSPARENT)); _style_scrollbar(description_label.get_v_scroll_bar()); detail_region.add_child(description_label)
@@ -207,21 +210,27 @@ func _render_detail(data: Dictionary) -> void:
 	detail_title.text = str(data.get("title", TextCatalog.t("codex.title"))); detail_subtitle.text = str(data.get("subtitle", "")); detail_status.text = "CATALOGED" if not bool(data.get("empty", true)) else ""; description_label.text = str(data.get("body", "")); observation_label.text = "Observations:\n피해 %.1f / 쿨타임 %d" % [float(data.get("baseDamage", 0.0)), int(data.get("baseCooldownTicks", 0))]; _clear(hero_art_host); _clear(facts_box)
 	var art := _art_texture(data.get("heroArt", {})); if art != null:
 		var image := TextureRect.new(); image.texture = art; image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED; image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); hero_art_host.add_child(image)
-	facts_box.add_child(_label("유물 세부 정보", 15, Color("183a1f"), "serif"))
-	for pair in [["등급", str(data.get("subtitle", ""))], ["형상", str(data.get("shapeFootprintText", ""))], ["점유", str(data.get("shapeCellCountText", ""))], ["쿨다운", "%d ticks" % int(data.get("baseCooldownTicks", 0))], ["피해", "%.1f" % float(data.get("baseDamage", 0.0))], ["분류", str(data.get("shapeItemType", ""))]]:
+	facts_box.add_child(_label("▣ Physical Properties", 15, Color("183a1f"), "serif"))
+	for pair in [["Class", str(data.get("subtitle", ""))], ["Type", str(data.get("shapeItemType", ""))], ["Shape Configuration", str(data.get("shapeFootprintText", ""))], ["Occupancy Matrix", str(data.get("shapeCellCountText", ""))], ["Cooldown", "%d ticks" % int(data.get("baseCooldownTicks", 0))], ["Base Damage", "%.1f" % float(data.get("baseDamage", 0.0))]]:
 		facts_box.add_child(_fact_row(str(pair[0]), str(pair[1])))
 
 func _style_scrollbar(bar: VScrollBar) -> void:
-	bar.custom_minimum_size.x = 6.0
-	bar.add_theme_stylebox_override("scroll", _flat(Color.TRANSPARENT))
-	bar.add_theme_stylebox_override("scroll_focus", _flat(Color.TRANSPARENT))
-	var grabber := _flat(Color("827767"), Color.TRANSPARENT, 0, 3, 3, 3); grabber.content_margin_left = 0; grabber.content_margin_right = 0
-	bar.add_theme_stylebox_override("grabber", grabber); bar.add_theme_stylebox_override("grabber_highlight", _flat(Color("5d744d"), Color.TRANSPARENT, 0, 3, 3, 3)); bar.add_theme_stylebox_override("grabber_pressed", _flat(Color("3b692a"), Color.TRANSPARENT, 0, 3, 3, 3))
+	bar.custom_minimum_size.x = 16.0; bar.add_theme_constant_override("grabber_min_size", 46)
+	var invisible := _flat(Color.TRANSPARENT); bar.add_theme_stylebox_override("scroll", invisible); bar.add_theme_stylebox_override("scroll_focus", invisible); bar.add_theme_stylebox_override("grabber", invisible); bar.add_theme_stylebox_override("grabber_highlight", invisible); bar.add_theme_stylebox_override("grabber_pressed", invisible)
+	var token := TextureRect.new(); token.name = "CodexScrollToken"; token.texture = _texture("codex_v5_scroll_relic_token.png"); token.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; token.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED; token.size = Vector2(18, 48); token.position.x = -1.0; token.mouse_filter = Control.MOUSE_FILTER_IGNORE; bar.add_child(token)
+	bar.value_changed.connect(func(_value: float): _position_scroll_token(bar, token)); bar.resized.connect(func(): _position_scroll_token(bar, token)); bar.changed.connect(func(): _position_scroll_token(bar, token)); call_deferred("_position_scroll_token", bar, token)
+
+func _position_scroll_token(bar: VScrollBar, token: TextureRect) -> void:
+	if not is_instance_valid(bar) or not is_instance_valid(token): return
+	var available := maxf(0.0, bar.size.y - token.size.y); var span := maxf(0.0, bar.max_value - bar.page); token.position.y = available * (bar.value / span) if span > 0.0 else 0.0
+
+func _scroll_token_style() -> StyleBoxTexture:
+	var style := StyleBoxTexture.new(); style.texture = _texture("codex_v5_scroll_relic_token.png"); return style
 
 func _fact_row(label_text: String, value_text: String) -> HBoxContainer:
 	var row := HBoxContainer.new(); row.custom_minimum_size = Vector2(455, 18); row.add_theme_constant_override("separation", 10)
-	var label := _label(label_text, 12, Color("75664f")); label.custom_minimum_size = Vector2(132, 18); row.add_child(label)
-	var value := _label(value_text, 12, Color("3b2918")); value.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(value)
+	var label := _label(label_text, 12, Color("75664f")); label.custom_minimum_size = Vector2(DETAIL_FACT_LABEL_WIDTH, 18); row.add_child(label)
+	var value := _label(value_text, 12, Color("3b2918")); value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; value.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(value)
 	return row
 
 func _apply_canvas_layout() -> void:

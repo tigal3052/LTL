@@ -111,7 +111,7 @@ var reward_footprint_grid: GridContainer
 var reset_button: Button
 var start_button: Button
 var claim_rewards_button: Button
-var action_bar: HBoxContainer
+var action_bar: BoxContainer
 var backpack_ui
 var battlefield_ui
 var status_panel
