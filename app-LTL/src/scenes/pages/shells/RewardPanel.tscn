@@ -1,31 +1,41 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://resources/UI/reward_redesign/seal_sanctum.png" id="1_boss_seal"]
+[ext_resource type="Texture2D" path="res://resources/UI/reward_redesign/boss_relic_circle.png" id="2_boss_relic"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.109804, 0.137255, 0.180392, 1)
+bg_color = Color(0.969, 0.945, 0.855, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.184314, 0.223529, 0.290196, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0, 0, 0.15)
-shadow_size = 4
-shadow_offset = Vector2(0, 2)
+border_color = Color(0.231, 0.412, 0.165, 0.45)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.17, 0.09, 0.02, 0.10)
+shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay"]
-bg_color = Color(0.180392, 0.054902, 0.054902, 0.705882)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.858824, 0.266667, 0.266667, 1)
+bg_color = Color(1, 0.855, 0.839, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.729, 0.102, 0.102, 0.45)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+shadow_color = Color(0.17, 0.09, 0.02, 0.08)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_ledger"]
+bg_color = Color(0, 0, 0, 0.035)
+border_width_top = 2
+border_width_bottom = 2
+border_color = Color(0.722, 0.659, 0.459, 1)
 
 [node name="RewardPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 360)
@@ -52,6 +62,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 
+[node name="BossSeal" type="TextureRect" parent="Margin/RewardBox/BoardHead"]
+visible = false
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("1_boss_seal")
+expand_mode = 1
+stretch_mode = 4
+
 [node name="BoardTitleBox" type="VBoxContainer" parent="Margin/RewardBox/BoardHead"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -59,21 +78,21 @@ theme_override_constants/separation = 4
 
 [node name="RewardTitle" type="Label" parent="Margin/RewardBox/BoardHead/BoardTitleBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 16
 
 [node name="RewardSubtitle" type="Label" parent="Margin/RewardBox/BoardHead/BoardTitleBox"]
 custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 12
 autowrap_mode = 3
 
 [node name="ModePill" type="Label" parent="Margin/RewardBox/BoardHead"]
 custom_minimum_size = Vector2(176, 40)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.972549, 0.894118, 0.709804, 1)
+theme_override_colors/font_color = Color(0.231, 0.412, 0.165, 1)
 theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -123,12 +142,12 @@ theme_override_constants/separation = 4
 
 [node name="ZoneTitle" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="ZoneHint" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/ZoneHead"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -162,7 +181,7 @@ size_flags_vertical = 3
 [node name="CloudNote" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone/Margin/ZoneBox/RewardCloudBox/CloudMargin/CloudVBox"]
 custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -193,13 +212,13 @@ theme_override_constants/separation = 4
 
 [node name="ZoneTitle" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="ZoneHint" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone/Margin/ZoneBox/ZoneHead"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -242,13 +261,13 @@ theme_override_constants/separation = 4
 
 [node name="ZoneTitle" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="ZoneHint" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/ZoneHead"]
 custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -258,15 +277,37 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
+[node name="BossHeroRelic" type="VBoxContainer" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="RelicArt" type="TextureRect" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/BossHeroRelic"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("2_boss_relic")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RelicBadge" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/BossHeroRelic"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.231, 0.412, 0.165, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
 [node name="InspectorKicker" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.972549, 0.772549, 0.423529, 1)
+theme_override_colors/font_color = Color(0.231, 0.412, 0.165, 1)
 theme_override_font_sizes/font_size = 11
 
 [node name="InspectorName" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.945098, 0.956863, 0.980392, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 20
 autowrap_mode = 3
 
@@ -305,13 +346,13 @@ theme_override_constants/separation = 10
 
 [node name="FootprintTitle" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 13
 
 [node name="FootprintInfo" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/FootprintCard/Margin/FootprintBox"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -352,13 +393,13 @@ theme_override_constants/separation = 4
 
 [node name="ZoneTitle" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="ZoneHint" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/ZoneHead"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.733333, 0.568627, 0.568627, 1)
+theme_override_colors/font_color = Color(0.58, 0.15, 0.15, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -387,7 +428,7 @@ offset_left = 22.0
 offset_top = 13.0
 offset_right = 50.0
 offset_bottom = 32.0
-color = Color(0.784314, 0.819608, 0.87451, 0.82)
+color = Color(0.259, 0.282, 0.255, 0.82)
 
 [node name="CanLid" type="ColorRect" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/TrashIconStage"]
 layout_mode = 0
@@ -395,7 +436,7 @@ offset_left = 18.0
 offset_top = 8.0
 offset_right = 54.0
 offset_bottom = 12.0
-color = Color(0.972549, 0.756863, 0.756863, 0.92)
+color = Color(0.729, 0.102, 0.102, 0.75)
 
 [node name="CanHandle" type="ColorRect" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/TrashIconStage"]
 layout_mode = 0
@@ -403,7 +444,7 @@ offset_left = 31.0
 offset_top = 4.0
 offset_right = 41.0
 offset_bottom = 8.0
-color = Color(0.972549, 0.756863, 0.756863, 0.92)
+color = Color(0.729, 0.102, 0.102, 0.75)
 
 [node name="CanStripeLeft" type="ColorRect" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/TrashIconStage"]
 layout_mode = 0
@@ -411,7 +452,7 @@ offset_left = 29.0
 offset_top = 16.0
 offset_right = 32.0
 offset_bottom = 29.0
-color = Color(0.109804, 0.137255, 0.180392, 0.72)
+color = Color(0.969, 0.945, 0.855, 0.85)
 
 [node name="CanStripeRight" type="ColorRect" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard/Margin/TrashIconStage"]
 layout_mode = 0
@@ -419,12 +460,12 @@ offset_left = 40.0
 offset_top = 16.0
 offset_right = 43.0
 offset_bottom = 29.0
-color = Color(0.109804, 0.137255, 0.180392, 0.72)
+color = Color(0.969, 0.945, 0.855, 0.85)
 
 [node name="DiscardLabel" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.784314, 0.819608, 0.87451, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -449,19 +490,47 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
+[node name="BossLedger" type="PanelContainer" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_boss_ledger")
+
+[node name="LedgerMargin" type="MarginContainer" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="LedgerBox" type="HBoxContainer" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger/LedgerMargin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LedgerZoneLabel" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger/LedgerMargin/LedgerBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
+theme_override_font_sizes/font_size = 11
+
+[node name="LedgerValueLabel" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger/LedgerMargin/LedgerBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 2
+
 [node name="ZoneHead" type="VBoxContainer" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="ZoneTitle" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.878431, 0.901961, 0.941176, 1)
+theme_override_colors/font_color = Color(0.094, 0.227, 0.122, 1)
 theme_override_font_sizes/font_size = 15
 
 [node name="ZoneHint" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ZoneHead"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.584314, 0.65098, 0.717647, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
@@ -477,7 +546,7 @@ size_flags_horizontal = 3
 [node name="ClaimCardBody" type="Label" parent="Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.784314, 0.819608, 0.87451, 1)
+theme_override_colors/font_color = Color(0.259, 0.282, 0.255, 1)
 theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 autowrap_mode = 3

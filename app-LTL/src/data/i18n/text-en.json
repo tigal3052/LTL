@@ -72,6 +72,7 @@
     "reward.board.shape_title": "Backpack footprint",
     "reward.board.shape_cells": "{0} occupied cells",
     "reward.board.footprint_value": "{0}x{1} footprint / {2} cells",
+    "reward.board.boss_ledger.zone": "Expedition Zone",
     "codex.title": "Artifact Codex",
     "codex.undiscovered": "Undiscovered artifact",
     "codex.empty": "No artifacts to display.",

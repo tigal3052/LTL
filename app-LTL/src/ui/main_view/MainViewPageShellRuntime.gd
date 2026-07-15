@@ -225,6 +225,12 @@ static func capture_page_shell_bundle(page_id: String, page_root: Control) -> Di
 			bundle["discardLabel"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardLabel") as Label
 			bundle["claimCardBody"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/ClaimCardBody") as Label
 			bundle["claimInlineButton"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/ClaimCard/ClaimInlineButton") as Button
+			# 보스 보상 전용 오버레이 (reward 인스턴스에서도 동일 트리 존재, 항상 hidden 유지)
+			bundle["bossSeal"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/BoardHead/BossSeal") as TextureRect
+			bundle["bossHeroRelic"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone/Margin/ZoneBox/InspectorStage/BossHeroRelic") as VBoxContainer
+			bundle["bossLedger"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger") as PanelContainer
+			bundle["bossLedgerZoneLabel"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger/LedgerMargin/LedgerBox/LedgerZoneLabel") as Label
+			bundle["bossLedgerValueLabel"] = page_root.get_node_or_null("RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/ConfirmZone/Margin/ZoneBox/BossLedger/LedgerMargin/LedgerBox/LedgerValueLabel") as Label
 	return bundle
 
 static func connect_page_shell_bundle_signals(view) -> void:
@@ -346,6 +352,12 @@ static func assign_reward_bundle_refs(view, bundle: Dictionary) -> void:
 	view.discard_label = bundle.get("discardLabel", view.discard_label) as Label
 	view.claim_card_body = bundle.get("claimCardBody", view.claim_card_body) as Label
 	view.claim_inline_button = bundle.get("claimInlineButton", view.claim_inline_button) as Button
+	view.boss_seal = bundle.get("bossSeal", view.boss_seal) as TextureRect
+	view.boss_hero_relic = bundle.get("bossHeroRelic", view.boss_hero_relic) as VBoxContainer
+	view.boss_ledger = bundle.get("bossLedger", view.boss_ledger) as PanelContainer
+	view.boss_ledger_zone_label = bundle.get("bossLedgerZoneLabel", view.boss_ledger_zone_label) as Label
+	view.boss_ledger_value_label = bundle.get("bossLedgerValueLabel", view.boss_ledger_value_label) as Label
+	apply_boss_reward_overlay_visibility(view, str(bundle.get("pageId", "")) == "boss_reward")
 	view.reward_cloud_scroll = bundle.get("rewardCloudScroll", view.reward_cloud_scroll) as ScrollContainer
 	view.discard_card_scroll = bundle.get("discardCardScroll", view.discard_card_scroll) as ScrollContainer
 	view.claim_card_scroll = bundle.get("claimCardScroll", view.claim_card_scroll) as ScrollContainer
@@ -357,6 +369,16 @@ static func assign_reward_bundle_refs(view, bundle: Dictionary) -> void:
 	bundle["claimCardScroll"] = view.claim_card_scroll
 	bundle["rewardInspectorScroll"] = view.reward_inspector_scroll
 	view._apply_shared_split_layout_text_policies()
+
+# 실행: 보스 보상 전용 오버레이(시일/히어로 유물/원장)를 boss_reward 인스턴스에서만 노출한다.
+# 텍스트 내용은 MainViewRewardRuntime.render_reward_tray가 매 렌더마다 채운다 (여기서는 visible만 제어).
+static func apply_boss_reward_overlay_visibility(view, is_boss: bool) -> void:
+	if view.boss_seal != null:
+		view.boss_seal.visible = is_boss
+	if view.boss_hero_relic != null:
+		view.boss_hero_relic.visible = is_boss
+	if view.boss_ledger != null:
+		view.boss_ledger.visible = is_boss
 
 static func register_page_scene(view, page_id: String, page_scene: Node) -> void:
 	PageSceneRegistryScript.register_page_scene(view.page_scenes, page_id, page_scene, view.page_shell_host, view.meta_page_shell_host, META_PAGE_IDS)
