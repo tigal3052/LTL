@@ -7,7 +7,7 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, agent worktrees (`.worktrees`, `.claude/worktrees`), temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: 8018b4ee19246ef7496df205bb106feb0d91bc99070bca18896065b3e838bef6
+- Source fingerprint: 96d1467d3ff587a2a3da6626cac7309f9c310703f70bcdeeb89485c8cdfd8bf5
 
 ## File Map
 
@@ -915,30 +915,14 @@ This file is the live implementation map for AI agents. It records each current 
   - panel parchment is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/battle_redesign/panel_parchment.png.import`
   - panel parchment.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/dropdown_pill.png`
-  - dropdown pill is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/dropdown_pill.png.import`
-  - dropdown pill.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/folio_card_9slice.png`
-  - folio card 9slice is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/folio_card_9slice.png.import`
-  - folio card 9slice.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/icon_leaf_sprig.png`
-  - icon leaf sprig is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/icon_leaf_sprig.png.import`
-  - icon leaf sprig.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/slider_thumb.png`
-  - slider thumb is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/slider_thumb.png.import`
-  - slider thumb.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/toggle_off.png`
-  - toggle off is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/toggle_off.png.import`
-  - toggle off.png is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/toggle_on.png`
-  - toggle on is a UI art resource or Godot import metadata file.
-- `app-LTL/resources/UI/settings_redesign/toggle_on.png.import`
-  - toggle on.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/clear_redesign/radiance_glow_green.png`
+  - radiance glow green is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/clear_redesign/radiance_glow_green.png.import`
+  - radiance glow green.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/clear_redesign/stamp_investigation_complete.png`
+  - stamp investigation complete is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/clear_redesign/stamp_investigation_complete.png.import`
+  - stamp investigation complete.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/codex/v5/codex_v5_card_locked_608x204.png`
   - codex v5 card locked 608x204 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/codex/v5/codex_v5_card_locked_608x204.png.import`
@@ -1003,6 +987,26 @@ This file is the live implementation map for AI agents. It records each current 
   - expedition cta button is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/cta/expedition_cta_button.png.import`
   - expedition cta button.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/board_pin.png`
+  - board pin is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/board_pin.png.import`
+  - board pin.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/dark_forest_bg.png`
+  - dark forest bg is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/dark_forest_bg.png.import`
+  - dark forest bg.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/lantern.png`
+  - lantern is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/lantern.png.import`
+  - lantern.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/polaroid_frame.png`
+  - polaroid frame is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/polaroid_frame.png.import`
+  - polaroid frame.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/spore_dust.png`
+  - spore dust is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/fail_redesign/spore_dust.png.import`
+  - spore dust.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/ItemBook.png`
   - ItemBook is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/ItemBook.png.import`
@@ -1039,6 +1043,118 @@ This file is the live implementation map for AI agents. It records each current 
   - pin 4 is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/pin/pin_4.png.import`
   - pin 4.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/reward_redesign/boss_relic_circle.png`
+  - boss relic circle is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/reward_redesign/boss_relic_circle.png.import`
+  - boss relic circle.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/reward_redesign/seal_sanctum.png`
+  - seal sanctum is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/reward_redesign/seal_sanctum.png.import`
+  - seal sanctum.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/dropdown_pill.png`
+  - dropdown pill is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/dropdown_pill.png.import`
+  - dropdown pill.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/folio_card_9slice.png`
+  - folio card 9slice is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/folio_card_9slice.png.import`
+  - folio card 9slice.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/icon_leaf_sprig.png`
+  - icon leaf sprig is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/icon_leaf_sprig.png.import`
+  - icon leaf sprig.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/slider_thumb.png`
+  - slider thumb is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/slider_thumb.png.import`
+  - slider thumb.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_off.png`
+  - toggle off is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_off.png.import`
+  - toggle off.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_on.png`
+  - toggle on is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/settings_redesign/toggle_on.png.import`
+  - toggle on.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_catalog_panel_380x560.png`
+  - shop catalog panel 380x560 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_catalog_panel_380x560.png.import`
+  - shop catalog panel 380x560.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_cta_ghost_100x24.png`
+  - shop cta ghost 100x24 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_cta_ghost_100x24.png.import`
+  - shop cta ghost 100x24.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_cta_hero_120x28.png`
+  - shop cta hero 120x28 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_cta_hero_120x28.png.import`
+  - shop cta hero 120x28.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_cta_limestone_120x28.png`
+  - shop cta limestone 120x28 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_cta_limestone_120x28.png.import`
+  - shop cta limestone 120x28.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_detail_panel_560x740.png`
+  - shop detail panel 560x740 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_detail_panel_560x740.png.import`
+  - shop detail panel 560x740.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_dim_backdrop_1440x900.png`
+  - shop dim backdrop 1440x900 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_dim_backdrop_1440x900.png.import`
+  - shop dim backdrop 1440x900.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_hero_fallback_280x210.png`
+  - shop hero fallback 280x210 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_hero_fallback_280x210.png.import`
+  - shop hero fallback 280x210.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_hero_seed_280x280.png`
+  - shop hero seed 280x280 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_hero_seed_280x280.png.import`
+  - shop hero seed 280x280.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_icon_gold_24.png`
+  - shop icon gold 24 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_icon_gold_24.png.import`
+  - shop icon gold 24.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_icon_xp_24.png`
+  - shop icon xp 24 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_icon_xp_24.png.import`
+  - shop icon xp 24.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_item_card_normal_320x76.png`
+  - shop item card normal 320x76 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_item_card_normal_320x76.png.import`
+  - shop item card normal 320x76.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_item_card_owned_320x76.png`
+  - shop item card owned 320x76 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_item_card_owned_320x76.png.import`
+  - shop item card owned 320x76.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_item_card_selected_320x76.png`
+  - shop item card selected 320x76 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_item_card_selected_320x76.png.import`
+  - shop item card selected 320x76.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_leaf_watermark_150.png`
+  - shop leaf watermark 150 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_leaf_watermark_150.png.import`
+  - shop leaf watermark 150.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_overlay_card_640x800.png`
+  - shop overlay card 640x800 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_overlay_card_640x800.png.import`
+  - shop overlay card 640x800.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_price_badge_gold_80x20.png`
+  - shop price badge gold 80x20 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_price_badge_gold_80x20.png.import`
+  - shop price badge gold 80x20.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_price_badge_xp_80x20.png`
+  - shop price badge xp 80x20 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_price_badge_xp_80x20.png.import`
+  - shop price badge xp 80x20.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_sold_seal_48.png`
+  - shop sold seal 48 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_sold_seal_48.png.import`
+  - shop sold seal 48.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_tab_active_120x28.png`
+  - shop tab active 120x28 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_tab_active_120x28.png.import`
+  - shop tab active 120x28.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_tab_inactive_120x28.png`
+  - shop tab inactive 120x28 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/shop_redesign/shop_tab_inactive_120x28.png.import`
+  - shop tab inactive 120x28.png is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/starter/starter_beacon_card_blue.png`
   - starter beacon card blue is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/starter/starter_beacon_card_blue.png.import`
@@ -1127,6 +1243,38 @@ This file is the live implementation map for AI agents. It records each current 
   - tile panel nobg is a UI art resource or Godot import metadata file.
 - `app-LTL/resources/UI/tile/tile_panel_nobg.png.import`
   - tile panel nobg.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/badge_speaker_72.png`
+  - badge speaker 72 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/badge_speaker_72.png.import`
+  - badge speaker 72.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/badge_trace_72.png`
+  - badge trace 72 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/badge_trace_72.png.import`
+  - badge trace 72.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/badge_warn_96.png`
+  - badge warn 96 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/badge_warn_96.png.import`
+  - badge warn 96.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/coffee_stain_150.png`
+  - coffee stain 150 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/coffee_stain_150.png.import`
+  - coffee stain 150.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/coffee_stain_240.png`
+  - coffee stain 240 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/coffee_stain_240.png.import`
+  - coffee stain 240.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/confirm_card_576x352.png`
+  - confirm card 576x352 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/confirm_card_576x352.png.import`
+  - confirm card 576x352.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/toast_card_info_372x84.png`
+  - toast card info 372x84 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/toast_card_info_372x84.png.import`
+  - toast card info 372x84.png is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/toast_card_narrative_436x112.png`
+  - toast card narrative 436x112 is a UI art resource or Godot import metadata file.
+- `app-LTL/resources/UI/toast_redesign/toast_card_narrative_436x112.png.import`
+  - toast card narrative 436x112.png is a UI art resource or Godot import metadata file.
 - `app-LTL/src/balance/EnergyTempoBalance.gd`
   - EnergyTempoBalance owns queue tempo constants, cooldown scaling, and terrain energy marker palette generation.
 - `app-LTL/src/controllers/MainControllerBootstrapFlow.gd`
@@ -1286,6 +1434,8 @@ This file is the live implementation map for AI agents. It records each current 
   - Renders the character selection page, starter-color buttons, and continue CTA.
 - `app-LTL/src/scenes/pages/CharacterSelectPage.tscn`
   - Character selection page scene matching the M6 run-start wireframe intent.
+- `app-LTL/src/scenes/pages/ClearPage.gd`
+  - Clear Page defines a Godot scene or scene controller.
 - `app-LTL/src/scenes/pages/ClearPage.tscn`
   - Temporary clear page scene with only clear copy and a return-to-character-select CTA.
 - `app-LTL/src/scenes/pages/DefeatPage.gd`
@@ -1533,6 +1683,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/read_models/RewardReadModel.gd`
   - Converts a single reward into UI-facing summary data.
   - Builds reward tray, held reward, and discard zone display contracts.
+- `app-LTL/src/ui/read_models/ShopReadModel.gd`
+  - Shop Read Model builds UI-facing read models.
 - `app-LTL/src/ui/read_models/StorySceneReadModel.gd`
   - Projects selected story scenes into locale-specific full VN page step models.
 - `app-LTL/src/ui/read_models/TooltipReadModel.gd`
@@ -1570,6 +1722,10 @@ This file is the live implementation map for AI agents. It records each current 
   - Emits locale and settings change signals to the external controller.
 - `app-LTL/src/ui/SharedBackpackHostCoordinator.gd`
   - Centralizes shared backpack docking, host-specific layout sync, and deferred reparent follow-up helpers for MainViewRuntime.
+- `app-LTL/src/ui/shop/ShopLayoutPolicy.gd`
+  - Shop Layout Policy owns Godot UI rendering and interaction behavior.
+- `app-LTL/src/ui/shop/ShopVisualFactory.gd`
+  - Shop Visual Factory owns Godot UI rendering and interaction behavior.
 - `app-LTL/src/ui/ShopPanelUI.gd`
   - Creates the shop panel and passive purchase row UI.
   - Renders release base-shop rows for character, starter item, and leviathan scan unlocks.
@@ -1590,6 +1746,8 @@ This file is the live implementation map for AI agents. It records each current 
 - `app-LTL/src/ui/theme/LTLTheme.gd`
   - Centralizes shared panel, overlay, queue, and art-loading theme helpers for M6 presentation surfaces.
   - Provides style-box and texture helpers that let runtime UI layers share release-grade art direction.
+- `app-LTL/src/ui/theme/ToastRedesignTheme.gd`
+  - Toast Redesign Theme owns Godot UI rendering and interaction behavior.
 - `app-LTL/src/ui/VFXManager.gd`
   - Creates resonance beam and hit particle VFX.
   - Applies and recovers screenshake offsets during frame updates.
