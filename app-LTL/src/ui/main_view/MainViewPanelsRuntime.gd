@@ -102,6 +102,10 @@ static func create_shop_panel(view) -> void:
 	view.shop_panel = ShopPanelUIScript.new()
 	view.shop_panel.buy_passive.connect(func(passive_id, cost): view.buy_passive.emit(passive_id, cost))
 	view.shop_panel.buy_base_item.connect(func(item_id): view.buy_base_item.emit(item_id))
+	# 계약: 상점 항목 선택은 표시 전용 상태이며 ShopPanelUI 내부에서 자족한다.
+	# view가 선택 훅을 제공할 때만 배선해 기존 시그니처 계약을 깨지 않는다.
+	if view.shop_panel.has_signal("entry_selected") and view.has_method("_on_shop_entry_selected"):
+		view.shop_panel.entry_selected.connect(view._on_shop_entry_selected)
 	view.shop_panel.visibility_changed.connect(func():
 		view._promote_popup_overlay_when_visible(view.shop_panel)
 		_play_menu_visibility_sfx(view, view.shop_panel)
