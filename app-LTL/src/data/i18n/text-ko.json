@@ -44,6 +44,8 @@
     "action.proceed": "진행하기",
     "action.confirm": "확인",
     "action.cancel": "취소",
+    "settings.journal.title": "탐험 수첩",
+    "settings.volume.master": "주 음량",
     "settings.title": "시스템 설정",
     "settings.gameplay": "플레이 설정",
     "settings.screenshake": "화면 흔들림과 피격 섬광",

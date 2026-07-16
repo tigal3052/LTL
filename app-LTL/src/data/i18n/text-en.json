@@ -13,6 +13,8 @@
     "action.proceed": "Proceed",
     "action.confirm": "Confirm",
     "action.cancel": "Cancel",
+    "settings.journal.title": "Expedition Journal",
+    "settings.volume.master": "Master Volume",
     "settings.title": "System Calibration",
     "settings.gameplay": "Gameplay Settings",
     "settings.screenshake": "Screenshake & Hit Flash",
