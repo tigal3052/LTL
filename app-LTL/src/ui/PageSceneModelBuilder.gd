@@ -68,13 +68,33 @@ static func project(page_id: String, scene: Dictionary, character_portrait_path:
 				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_turtle.png"))
 			}, scene)
 		"clear":
-			return _with_narrative({
-				"pageTitle": TextCatalogScript.t("main.page.title.clear"),
-				"pageSubtitle": TextCatalogScript.t("main.page.subtitle.clear"),
-				"pageButtonText": TextCatalogScript.t("main.page.button.return_character"),
-				"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_lizard.png"))
-			}, scene)
+			return _with_narrative(_clear_page_model(scene, selected_leviathan, stage_index, max_stages), scene)
 	return scene
+
+# 실행: project the run-clear folio model from existing run state values (no new gameplay data).
+static func _clear_page_model(scene: Dictionary, selected_leviathan: Dictionary, stage_index: int, max_stages: int) -> Dictionary:
+	var target_name := str(selected_leviathan.get("name", TextCatalogScript.t("failure.run_failed.target_default")))
+	var run_number := maxi(1, int(scene.get("runIndex", 0)) + 1)
+	return {
+		"pageEyebrow": TextCatalogScript.t("main.page.eyebrow.clear"),
+		"pageTitle": TextCatalogScript.t("main.page.title.clear"),
+		"pageSubtitle": TextCatalogScript.t("main.page.subtitle.clear"),
+		"pageButtonText": TextCatalogScript.t("main.page.button.return_character"),
+		"pageHeroPath": str(selected_leviathan.get("artPath", "res://resources/Leviathan/Leviathan_lizard.png")),
+		"pageHeroCaption": TextCatalogScript.t("main.page.clear.hero_caption"),
+		"pageLedgerPanelTitle": TextCatalogScript.t("main.page.clear.ledger.panel_title"),
+		"pageLedgerTargetLabel": TextCatalogScript.t("main.page.clear.ledger.target"),
+		"pageLedgerTarget": target_name,
+		"pageLedgerStageLabel": TextCatalogScript.t("main.page.clear.ledger.stage"),
+		"pageLedgerStage": TextCatalogScript.t("main.page.clear.ledger.stage_value", [stage_index, max_stages]),
+		"pageLedgerRunLabel": TextCatalogScript.t("main.page.clear.ledger.run"),
+		"pageLedgerRun": TextCatalogScript.t("main.page.clear.ledger.run_value", [run_number]),
+		"pageLedgerContractLabel": TextCatalogScript.t("main.page.clear.ledger.contract"),
+		"pageLedgerContract": TextCatalogScript.t("main.page.clear.ledger.contract_value"),
+		"pageSealKicker": TextCatalogScript.t("main.page.clear.seal.kicker"),
+		"pageSealTitle": TextCatalogScript.t("main.page.clear.seal.title"),
+		"pageSealNote": TextCatalogScript.t("main.page.clear.seal.note")
+	}
 
 static func refresh_inactive_meta_page_models(page_scenes: Dictionary, meta_page_ids: Array, active_id: String, scene: Dictionary, character_portrait_path: String) -> void:
 	for page_id in meta_page_ids:

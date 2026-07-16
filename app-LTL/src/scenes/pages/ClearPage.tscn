@@ -1,9 +1,334 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://src/scenes/pages/OutcomePage.tscn" id="1"]
+[ext_resource type="Script" path="res://src/scenes/pages/ClearPage.gd" id="1"]
 
-[node name="ClearPage" instance=ExtResource("1")]
-default_title = ""
-default_description = ""
-default_button_text = ""
+[node name="ClearPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
 default_art_path = "res://resources/Leviathan/Leviathan_lizard.png"
+
+[node name="Backdrop" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
+[node name="Folio" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Header" type="VBoxContainer" parent="Folio"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -588.0
+offset_top = 34.0
+offset_right = 588.0
+offset_bottom = 147.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Eyebrow" type="Label" parent="Folio/Header"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Folio/Header"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Folio/Header"]
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+horizontal_alignment = 1
+
+[node name="Bento" type="HBoxContainer" parent="Folio"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -588.0
+offset_top = 172.0
+offset_right = 588.0
+offset_bottom = 408.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 24
+
+[node name="LedgerPanel" type="PanelContainer" parent="Folio/Bento"]
+custom_minimum_size = Vector2(760, 236)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Folio/Bento/LedgerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 20
+
+[node name="LedgerBox" type="VBoxContainer" parent="Folio/Bento/LedgerPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PanelHead" type="HBoxContainer" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PanelTitle" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/PanelHead"]
+layout_mode = 2
+text = ""
+
+[node name="PanelEnSub" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/PanelHead"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "EXPEDITION LEDGER"
+
+[node name="LedgerRows" type="VBoxContainer" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="Row0" type="HBoxContainer" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RowKey" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row0"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = ""
+
+[node name="RowValue" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row0"]
+layout_mode = 2
+size_flags_vertical = 4
+text = ""
+horizontal_alignment = 2
+
+[node name="Sep0" type="HSeparator" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+
+[node name="Row1" type="HBoxContainer" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RowKey" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row1"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = ""
+
+[node name="RowValue" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row1"]
+layout_mode = 2
+size_flags_vertical = 4
+text = ""
+horizontal_alignment = 2
+
+[node name="Sep1" type="HSeparator" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+
+[node name="Row2" type="HBoxContainer" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RowKey" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = ""
+
+[node name="RowValue" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row2"]
+layout_mode = 2
+size_flags_vertical = 4
+text = ""
+horizontal_alignment = 2
+
+[node name="Sep2" type="HSeparator" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+
+[node name="Row3" type="HBoxContainer" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RowKey" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = ""
+
+[node name="RowValue" type="Label" parent="Folio/Bento/LedgerPanel/Margin/LedgerBox/LedgerRows/Row3"]
+layout_mode = 2
+size_flags_vertical = 4
+text = ""
+horizontal_alignment = 2
+
+[node name="SealPanel" type="PanelContainer" parent="Folio/Bento"]
+custom_minimum_size = Vector2(392, 236)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Folio/Bento/SealPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="SealBox" type="VBoxContainer" parent="Folio/Bento/SealPanel/Margin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="SealStage" type="Control" parent="Folio/Bento/SealPanel/Margin/SealBox"]
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="SealGlow" type="TextureRect" parent="Folio/Bento/SealPanel/Margin/SealBox/SealStage"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -84.0
+offset_top = -84.0
+offset_right = 84.0
+offset_bottom = 84.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="SealCircle" type="Panel" parent="Folio/Bento/SealPanel/Margin/SealBox/SealStage"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SealCheck" type="Label" parent="Folio/Bento/SealPanel/Margin/SealBox/SealStage/SealCircle"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+text = "✓"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SealKicker" type="Label" parent="Folio/Bento/SealPanel/Margin/SealBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="SealTitle" type="Label" parent="Folio/Bento/SealPanel/Margin/SealBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="SealNote" type="Label" parent="Folio/Bento/SealPanel/Margin/SealBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+horizontal_alignment = 1
+
+[node name="HeroBand" type="PanelContainer" parent="Folio"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -588.0
+offset_top = 448.0
+offset_right = 588.0
+offset_bottom = 684.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="BandClip" type="Control" parent="Folio/HeroBand"]
+layout_mode = 2
+clip_contents = true
+mouse_filter = 2
+
+[node name="HeroArt" type="TextureRect" parent="Folio/HeroBand/BandClip"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
+[node name="HeroCaption" type="Label" parent="Folio/HeroBand/BandClip"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -46.0
+offset_right = 260.0
+offset_bottom = -18.0
+grow_vertical = 0
+mouse_filter = 2
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stamp" type="TextureRect" parent="Folio/HeroBand/BandClip"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -250.0
+offset_top = -10.0
+offset_right = -30.0
+offset_bottom = 210.0
+grow_horizontal = 0
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="CtaRow" type="HBoxContainer" parent="Folio"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -588.0
+offset_top = 736.0
+offset_right = 588.0
+offset_bottom = 798.0
+grow_horizontal = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="ReturnButton" type="Button" parent="Folio/CtaRow"]
+custom_minimum_size = Vector2(248, 62)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = ""
