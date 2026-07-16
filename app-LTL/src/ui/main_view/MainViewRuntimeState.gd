@@ -123,6 +123,12 @@ var claim_card: Control
 var discard_label: Label
 var claim_card_body: Label
 var claim_inline_button: Button
+# 보스 보상 전용 오버레이 참조 (reward 인스턴스에서는 항상 hidden)
+var boss_seal: TextureRect
+var boss_hero_relic: VBoxContainer
+var boss_ledger: PanelContainer
+var boss_ledger_zone_label: Label
+var boss_ledger_value_label: Label
 var info_toast_panel: Panel = null
 var info_toast_label: Label = null
 var info_toast_hint_label: Label = null

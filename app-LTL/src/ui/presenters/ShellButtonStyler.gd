@@ -11,6 +11,9 @@ static func apply_button(button: Button, header_actions: HBoxContainer, action_b
 	if header_actions != null and button.get_parent() == header_actions:
 		_apply_header_util_button(button)
 		return
+	if button.name == "ClaimInlineButton":
+		_apply_reward_claim_button(button)
+		return
 	var accent := _accent(button)
 	var normal := _style(accent, "normal")
 	var hover := _style(accent, "hover")
@@ -57,6 +60,23 @@ static func _apply_battle_cta_button(button: Button) -> void:
 	button.add_theme_color_override("font_disabled_color", Color(font_color.r, font_color.g, font_color.b, 0.55))
 	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, 96.0)
 	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 46.0)
+
+# 보상 리디자인: 기록 완료(획득 확정) CTA = Hero 톤 (전투 CTA 기둥의 굴착 시작 버튼과 동일한 라이트 팔레트)
+static func _apply_reward_claim_button(button: Button) -> void:
+	for state in ["normal", "hover", "pressed", "disabled"]:
+		var style := LTLThemeScript.hero_button_style(state)
+		style.content_margin_left = 20
+		style.content_margin_right = 20
+		style.content_margin_top = 12
+		style.content_margin_bottom = 12
+		button.add_theme_stylebox_override(state, style)
+	button.add_theme_stylebox_override("focus", LTLThemeScript.hero_button_style("hover"))
+	button.add_theme_font_size_override("font_size", 14)
+	for color_key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(color_key, LTLThemeScript.ON_PRIMARY)
+	button.add_theme_color_override("font_disabled_color", Color(LTLThemeScript.ON_PRIMARY.r, LTLThemeScript.ON_PRIMARY.g, LTLThemeScript.ON_PRIMARY.b, 0.55))
+	button.custom_minimum_size.x = maxf(button.custom_minimum_size.x, 156.0)
+	button.custom_minimum_size.y = maxf(button.custom_minimum_size.y, 42.0)
 
 # 전투 리디자인: 헤더 유틸 버튼 = variant05 언더라인 스타일 (라이트 스트립 위 투명 버튼)
 static func _apply_header_util_button(button: Button) -> void:

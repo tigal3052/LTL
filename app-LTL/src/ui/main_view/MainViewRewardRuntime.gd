@@ -12,9 +12,11 @@ const REWARD_FOOTPRINT_CELL_SIZE := 20.0
 const REWARD_FOOTPRINT_CELL_GAP := 6.0
 
 static func render_reward_tray(view, model: Dictionary) -> void:
+	var is_boss_reward := str(view._active_surface_bundle_id) == "boss_reward"
 	var title_text := str(model.get("title", TextCatalogScript.t("panel.rewards")))
 	var subtitle_text := str(model.get("subtitle", ""))
-	var mode_pill_text := str(model.get("modePill", ""))
+	# [분기] boss_reward 는 modePill 을 강조 배지로 오버라이드한다 (reward.board.mode_pill 원본 값은 변경하지 않음).
+	var mode_pill_text := TextCatalogScript.t("main.page.badge.boss_reward") if is_boss_reward else str(model.get("modePill", ""))
 	var cloud_note_text := str(model.get("cloudNote", ""))
 	var workspace_note_text := str(model.get("workspaceNote", ""))
 	view.reward_title.text = title_text
@@ -28,6 +30,13 @@ static func render_reward_tray(view, model: Dictionary) -> void:
 	view.claim_card_body.text = str(model.get("claimBody", ""))
 	view.claim_inline_button.text = str(model.get("claimButtonText", TextCatalogScript.t("action.claim_rewards")))
 	view.update_discard_zone(str(model.get("discardText", "")), bool(model.get("discardActive", false)))
+	if is_boss_reward and view.boss_ledger_zone_label != null and view.boss_ledger_value_label != null:
+		view.boss_ledger_zone_label.text = TextCatalogScript.t("reward.board.boss_ledger.zone")
+		view.boss_ledger_value_label.text = TextCatalogScript.t("main.page.subtitle.boss_reward")
+	if is_boss_reward and view.boss_hero_relic != null:
+		var relic_badge_label: Label = view.boss_hero_relic.get_node_or_null("RelicBadge") as Label
+		if relic_badge_label != null:
+			relic_badge_label.text = TextCatalogScript.t("item.relic")
 	prune_reward_card_manual_anchors(view, model.get("cards", []))
 	render_reward_cards(view, model.get("cards", []))
 	render_reward_inspector(view, model.get("inspector", {}))
@@ -187,7 +196,7 @@ static func build_reward_fact_tile(fact: Dictionary) -> PanelContainer:
 	var tile := PanelContainer.new()
 	tile.custom_minimum_size.y = REWARD_INSPECTOR_FACT_MIN_HEIGHT
 	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tile.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.13, 0.16, 0.20, 0.96), Color(0.28, 0.34, 0.40, 1.0), 14, 1, 0.12))
+	tile.add_theme_stylebox_override("panel", LTLThemeScript.ledger_card_style())
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
 	margin.add_theme_constant_override("margin_top", 10)
@@ -200,14 +209,14 @@ static func build_reward_fact_tile(fact: Dictionary) -> PanelContainer:
 	var label := Label.new()
 	label.text = str(fact.get("label", ""))
 	label.add_theme_font_size_override("font_size", 10)
-	label.add_theme_color_override("font_color", LTLThemeScript.TEXT_MUTED)
+	label.add_theme_color_override("font_color", LTLThemeScript.ON_SURFACE_VARIANT)
 	box.add_child(label)
 	var value := Label.new()
 	value.text = str(fact.get("value", ""))
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value.add_theme_font_size_override("font_size", 12)
-	value.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	value.add_theme_color_override("font_color", LTLThemeScript.ON_SURFACE)
 	box.add_child(value)
 	return tile
 
@@ -234,8 +243,8 @@ static func render_reward_footprint(view, shape_matrix: Array, energy_type: Stri
 			tile.custom_minimum_size = Vector2(REWARD_FOOTPRINT_CELL_SIZE, REWARD_FOOTPRINT_CELL_SIZE)
 			var active := column_index < row_data.size() and int(row_data[column_index]) != 0
 			tile.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(
-				fill_color if active else Color(0.12, 0.15, 0.19, 0.95),
-				Color(0.30, 0.36, 0.42, 1.0),
+				fill_color if active else LTLThemeScript.SURFACE_CONTAINER_LOW,
+				LTLThemeScript.OUTLINE_VARIANT,
 				6,
 				1,
 				0.0

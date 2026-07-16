@@ -30,6 +30,7 @@
     "reward.board.shape_title": "백팩 배치 형태",
     "reward.board.shape_cells": "점유 칸 {0}",
     "reward.board.footprint_value": "{0}x{1} 형태 / {2}칸",
+    "reward.board.boss_ledger.zone": "탐사 구역",
     "app.title": "레비아탄 채굴 작전",
     "action.start": "채굴 시작",
     "action.reset": "탐사 초기화",

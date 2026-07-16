@@ -411,7 +411,8 @@ static func _apply_surface_bundle_theme(view, page_id: String, bundle: Dictionar
 	var reward_surface = bundle.get("rewardPanel", null) as PanelContainer
 	if reward_surface == null:
 		return
-	reward_surface.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.10, 0.11, 0.13, 0.98), LTLThemeScript.BORDER_WARM, 12))
+	# 보상 리디자인: 표본 분류 목업 — 양피지 셸(RewardPanel.tscn StyleBoxFlat_panel)과 동일 톤 유지.
+	reward_surface.add_theme_stylebox_override("panel", LTLThemeScript.parchment_style())
 	for zone_path in [
 		"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/RewardsZone",
 		"RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/WorkspaceZone",
@@ -421,17 +422,20 @@ static func _apply_surface_bundle_theme(view, page_id: String, bundle: Dictionar
 	]:
 		var zone = view._bundle_node(page_id, zone_path) as PanelContainer
 		if zone != null:
-			zone.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.11, 0.14, 0.18, 0.98), LTLThemeScript.BORDER_COLD, 18, 1, 0.18))
+			zone.add_theme_stylebox_override("panel", LTLThemeScript.parchment_style())
 	var inspector_zone = view._bundle_node(page_id, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/RewardGrid/InspectorZone") as PanelContainer
 	if inspector_zone != null:
 		inspector_zone.z_index = REWARD_INSPECTOR_PANEL_Z_INDEX
-		inspector_zone.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.11, 0.14, 0.18, 1.0), LTLThemeScript.BORDER_COLD, 18, 1, 0.18))
+		# 인스펙터는 백팩 유물 이미지 레이어보다 위에 그려지므로 완전 불투명이어야 한다(alpha=1.0, 반투명 양피지 유리 효과 예외).
+		var inspector_style := LTLThemeScript.surface_style(LTLThemeScript.SURFACE_CONTAINER_LOW, Color(LTLThemeScript.SECONDARY.r, LTLThemeScript.SECONDARY.g, LTLThemeScript.SECONDARY.b, 0.45), 12, 1, 0.10)
+		inspector_style.shadow_size = 10
+		inspector_zone.add_theme_stylebox_override("panel", inspector_style)
 	var discard_shell = view._bundle_node(page_id, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone") as PanelContainer
 	if discard_shell != null:
-		discard_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.14, 0.08, 0.09, 0.98), Color(0.68, 0.28, 0.28, 1.0), 18, 1, 0.20))
+		discard_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(1.0, 0.855, 0.839, 0.9), Color(LTLThemeScript.ERROR.r, LTLThemeScript.ERROR.g, LTLThemeScript.ERROR.b, 0.45), 8, 2, 0.08))
 	var discard_card_panel = view._bundle_node(page_id, "RewardPanel/Margin/RewardBox/RewardBoardScroll/RewardBoard/BottomRow/DiscardZone/Margin/ZoneBox/DiscardCard") as PanelContainer
 	if discard_card_panel != null:
-		discard_card_panel.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.18, 0.09, 0.10, 0.98), Color(0.78, 0.34, 0.34, 1.0), 16, 1, 0.16))
+		discard_card_panel.add_theme_stylebox_override("panel", LTLThemeScript.parchment_style())
 
 static func _style_shell_buttons(view) -> void:
 	for button in [view.settings_open_button, view.claim_inline_button, view.shop_open_button, view.codex_open_button]:

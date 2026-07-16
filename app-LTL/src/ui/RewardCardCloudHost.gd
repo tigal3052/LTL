@@ -171,13 +171,15 @@ static func _build_reward_card_button(card: Dictionary, on_wire_card_interaction
 	button.set_meta(InteractionFXScript.META_SKIP, true)
 	var rarity := str(card.get("rarity", "common"))
 	var selected := bool(card.get("selected", false))
-	var normal := LTLThemeScript.surface_style(Color(0.22, 0.28, 0.36, 0.98), _reward_rarity_border_color(rarity), 24, 1, 0.30)
+	var normal := LTLThemeScript.surface_style(LTLThemeScript.SURFACE_CONTAINER_LOW, _reward_rarity_border_color(rarity), 24, 1, 0.10)
 	if selected:
 		normal.border_width_left = 2
 		normal.border_width_top = 2
 		normal.border_width_right = 2
 		normal.border_width_bottom = 2
-		normal.bg_color = Color(0.24, 0.20, 0.11, 0.98)
+		normal.bg_color = LTLThemeScript.SURFACE_CONTAINER_LOWEST
+		normal.shadow_color = Color(LTLThemeScript.SECONDARY.r, LTLThemeScript.SECONDARY.g, LTLThemeScript.SECONDARY.b, 0.35)
+		normal.shadow_size = 6
 	var hover = normal.duplicate()
 	var pressed = normal.duplicate()
 	button.add_theme_stylebox_override("normal", normal)
@@ -219,7 +221,7 @@ static func _build_reward_card_button(card: Dictionary, on_wire_card_interaction
 		icon_shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon_shell.custom_minimum_size = Vector2(0, 62)
 		icon_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		icon_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(Color(0.29, 0.34, 0.41, 0.92), Color(0.44, 0.50, 0.58, 1.0), 18, 1, 0.12))
+		icon_shell.add_theme_stylebox_override("panel", LTLThemeScript.surface_style(LTLThemeScript.SURFACE_CONTAINER_LOWEST, LTLThemeScript.OUTLINE_VARIANT, 18, 1, 0.06))
 		body.add_child(icon_shell)
 		icon_shell.add_child(icon_center)
 	var icon_texture := TextureRect.new()
@@ -237,7 +239,7 @@ static func _build_reward_card_button(card: Dictionary, on_wire_card_interaction
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.add_theme_font_size_override("font_size", 11)
-	name_label.add_theme_color_override("font_color", LTLThemeScript.TEXT_PRIMARY)
+	name_label.add_theme_color_override("font_color", LTLThemeScript.ON_SURFACE)
 	body.add_child(name_label)
 	return button
 

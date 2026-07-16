@@ -21,6 +21,8 @@ func _settle_narrative_typewriter(main_instance: Node) -> void:
 # 실행: 신규 페이지 id를 우선 처리하고, 나머지는 부모 드라이브로 위임한다.
 func _drive_to_redesign_page(main_instance: Node, page_id: String) -> bool:
 	match page_id:
+		"reward":
+			return await _go_to_reward_and_dismiss_toast(main_instance)
 		"boss_battle":
 			return await _go_to_boss_battle(main_instance)
 		"boss_reward":
@@ -35,6 +37,13 @@ func _drive_to_redesign_page(main_instance: Node, page_id: String) -> bool:
 			return await _go_to_toast_overlay(main_instance)
 		_:
 			return await super._drive_to_page(main_instance, page_id)
+
+# 실행: reward 페이지 리디자인 검증 캡처 전용 — 부모 드라이브 도달 후 서사 토스트를 닫는다.
+func _go_to_reward_and_dismiss_toast(main_instance: Node) -> bool:
+	if not await super._go_to_reward(main_instance):
+		return false
+	await _dismiss_narrative_toast_if_present(main_instance)
+	return _expect_active(main_instance, "reward", "reward")
 
 # 실행: 리디자인 캡처 체인은 단일 런 레비아탄(ossuary_tortoise)을 선택해 보스/클리어 도달 경로를 짧게 유지한다.
 func _go_to_node_select(main_instance: Node) -> bool:
@@ -98,7 +107,21 @@ func _go_to_boss_reward(main_instance: Node) -> bool:
 	if reward_reveal_overlay != null:
 		await _finish_reward_ceremony(controller, reward_reveal_overlay)
 	await _settle_frames(24)
+	await _dismiss_narrative_toast_if_present(main_instance)
 	return _expect_active(main_instance, "boss_reward", "boss_reward")
+
+# 실행: reward/boss_reward 페이지 진입 시 뜨는 서사 토스트(대사창)를 리디자인 검증 캡처를 가리지 않도록
+# 클릭 2회를 시뮬레이션해 닫는다(1회: 타자기 완료, 2회: dismiss). 실제 유저 입력과 동일한 경로만 사용한다.
+func _dismiss_narrative_toast_if_present(main_instance: Node) -> void:
+	var toast = main_instance.get("narrative_toast")
+	if toast == null or not is_instance_valid(toast) or not toast.visible:
+		return
+	if toast.has_method("_handle_continue_input"):
+		toast.call("_handle_continue_input")
+		await _settle_frames(2)
+		if is_instance_valid(toast) and toast.visible:
+			toast.call("_handle_continue_input")
+			await _settle_frames(4)
 
 # 실행: 보스 보상 이후 진행을 트리거해 런 클리어 페이지에 도달한다.
 # 실행: 도착 직후 뜨는 내러티브 토스트는 클릭 1회로 소멸하는 정상 진행 흐름이므로, 캡처 전에 소비해 페이지 본문을 노출한다.
