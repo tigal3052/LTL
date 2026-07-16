@@ -64,8 +64,8 @@ signal narrative_continue_requested(beat_id: String)
 @onready var settings_open_button: Button = $RootMargin/AppShell/Header/Margin/PhaseRow/HeaderActions/SettingsOpenButton
 @onready var repair_overlay: PanelContainer = $RepairOverlay
 @onready var confirm_overlay: PanelContainer = $ConfirmOverlay
-@onready var confirm_proceed_button: Button = $ConfirmOverlay/Center/ConfirmBox/ButtonsRow/ConfirmButton
-@onready var confirm_cancel_button: Button = $ConfirmOverlay/Center/ConfirmBox/ButtonsRow/CancelButton
+@onready var confirm_proceed_button: Button = $ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/ButtonsRow/ConfirmButton
+@onready var confirm_cancel_button: Button = $ConfirmOverlay/Center/ConfirmBox/CardMargin/CardBody/ButtonsRow/CancelButton
 @onready var settings_panel = $SettingsPanel
 @onready var vfx_manager = $VFXManager
 
@@ -132,6 +132,10 @@ var boss_ledger_value_label: Label
 var info_toast_panel: Panel = null
 var info_toast_label: Label = null
 var info_toast_hint_label: Label = null
+# 실행: 토스트 리디자인 — 원형 아이콘 배지와 자동 소멸 진행 바 노드.
+var info_toast_badge: TextureRect = null
+var info_toast_progress_track: Panel = null
+var info_toast_progress_fill: Panel = null
 var info_toast_timer: Timer = null
 var confirm_overlay_mode := "unclaimed"
 var confirm_overlay_subject := ""

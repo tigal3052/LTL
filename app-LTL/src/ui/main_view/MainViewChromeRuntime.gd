@@ -10,6 +10,7 @@ const GiantTimerUIScript = preload("res://src/ui/GiantTimerUI.gd")
 const RewardRevealOverlayScript = preload("res://src/ui/RewardRevealOverlay.gd")
 const InteractionFXScript = preload("res://src/ui/InteractionFX.gd")
 const NarrativeToastScript = preload("res://src/scenes/narrative/NarrativeToast.gd")
+const ToastRedesignThemeScript = preload("res://src/ui/theme/ToastRedesignTheme.gd")
 const InteractionSfxSynthScript = preload("res://src/ui/presenters/InteractionSfxSynth.gd")
 const TileHitStream = preload("res://resources/sound/tile_hit.wav")
 const TileStrongHitStream = preload("res://resources/sound/tile_hit2.wav")
@@ -103,6 +104,8 @@ static func create_narrative_toast(view) -> void:
 			view.play_interaction_sfx(category)
 		)
 	view.narrative_toast.set_as_top_level(true)
+	# 실행: 토스트는 팝업 오버레이보다 아래, 게임플레이보다 위 레이어를 일관 사용한다.
+	view.narrative_toast.z_index = ToastRedesignThemeScript.toast_z_index(view.popup_overlay_z_index())
 	layout_narrative_toast(view)
 
 static func render_narrative(view, model: Dictionary) -> void:
@@ -113,6 +116,10 @@ static func render_narrative(view, model: Dictionary) -> void:
 		view.narrative_toast.render(model)
 		layout_narrative_toast(view)
 
+# 계약: 내러티브 토스트는 코너 밴드(우하단)에 앉아 어떤 페이지 콘텐츠도 덮지 않는다.
+# - 근거: 기존 560~860 × 320~420 대형 박스가 clear/defeat/reward 페이지 중앙을 가리던 것이 근본 원인.
+# - 예외: combat_right 프리셋만 우측 중앙 유지(전투 중 백팩 보드 회피 목적의 기존 의도).
+# - anchorPreset은 read-model 계약이므로 키는 유지하고 배치 결과만 코너 밴드로 수렴시킨다.
 # 실행: position the story surface outside PanelContainer layout ownership.
 static func layout_narrative_toast(view) -> void:
 	if view.narrative_toast == null or not view.is_inside_tree():
@@ -122,27 +129,25 @@ static func layout_narrative_toast(view) -> void:
 	var viewport_size: Vector2 = Vector2(view.get_tree().root.size)
 	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
 		viewport_size = view.size
-	var view_origin: Vector2 = view.get_global_rect().position
-	var story_width := clampf(viewport_size.x * 0.58, 560.0, 860.0)
-	var story_height := clampf(viewport_size.y * 0.42, 320.0, 420.0)
-	var story_pos := Vector2((viewport_size.x - story_width) * 0.5, viewport_size.y - story_height - clampf(viewport_size.y * 0.09, 64.0, 96.0))
-	match anchor_preset:
-		"top_left":
-			story_width = clampf(viewport_size.x * 0.38, 420.0, 620.0)
-			story_height = clampf(viewport_size.y * 0.34, 260.0, 340.0)
-			story_pos = Vector2(32.0, clampf(viewport_size.y * 0.10, 58.0, 92.0))
-		"combat_right":
-			story_width = clampf(viewport_size.x * 0.34, 420.0, 560.0)
-			story_height = clampf(viewport_size.y * 0.38, 280.0, 380.0)
-			story_pos = Vector2(viewport_size.x - story_width - 32.0, (viewport_size.y - story_height) * 0.52)
-		"boss_bottom":
-			story_width = clampf(viewport_size.x * 0.72, 680.0, 1000.0)
-			story_height = clampf(viewport_size.y * 0.44, 330.0, 440.0)
-			story_pos = Vector2((viewport_size.x - story_width) * 0.5, viewport_size.y - story_height - 42.0)
-	story_pos.x = clampf(story_pos.x, 24.0, maxf(24.0, viewport_size.x - story_width - 24.0))
-	story_pos.y = clampf(story_pos.y, 24.0, maxf(24.0, viewport_size.y - story_height - 24.0))
-	view.narrative_toast.global_position = view_origin + story_pos
-	view.narrative_toast.size = Vector2(story_width, story_height)
+	# 계약: 토스트는 set_as_top_level(true)이므로 뷰포트 좌표계를 그대로 쓴다.
+	# - 주의: Main PanelContainer가 자식 최소 높이로 늘어나 get_global_rect()가 화면 밖을 가리킬 수 있어
+	#   view_origin을 더하면 토스트가 화면 아래로 밀린다.
+	var story_size: Vector2 = ToastRedesignThemeScript.NARRATIVE_TOAST_SIZE
+	var corner: Vector2 = ToastRedesignThemeScript.CORNER_MARGIN
+	# 실행: 기본은 우하단 코너 밴드 최하단 칸(info 토스트가 그 위 칸을 쓴다).
+	var story_pos := Vector2(
+		viewport_size.x - story_size.x - corner.x,
+		viewport_size.y - story_size.y - corner.y
+	)
+	if anchor_preset == "combat_right":
+		story_pos = Vector2(
+			viewport_size.x - story_size.x - corner.x,
+			(viewport_size.y - story_size.y) * 0.52
+		)
+	story_pos.x = clampf(story_pos.x, 24.0, maxf(24.0, viewport_size.x - story_size.x - 24.0))
+	story_pos.y = clampf(story_pos.y, 24.0, maxf(24.0, viewport_size.y - story_size.y - 24.0))
+	view.narrative_toast.global_position = story_pos
+	view.narrative_toast.size = story_size
 
 static func show_artifact_tooltip(view, art) -> void:
 	if view.tooltip_panel == null:

@@ -2,6 +2,7 @@ class_name MainViewLocaleRuntime
 extends RefCounted
 
 const TextCatalogScript = preload("res://src/ui/TextCatalog.gd")
+const MainViewFeedbackRuntimeScript = preload("res://src/ui/main_view/MainViewFeedbackRuntime.gd")
 
 static func apply_locale(view) -> void:
 	if view.reset_button == null:
@@ -25,15 +26,17 @@ static func apply_locale(view) -> void:
 			set_bundle_label_text(bundle, "BattlefieldPanel/Margin/BattlefieldBox/BattlefieldTitle", "")
 		if bundle.get("rewardPanel", null) != null:
 			_apply_reward_bundle_locale(bundle)
+	# 실행: 확인 카드 라벨 경로는 MainViewFeedbackRuntime의 상수를 SoT로 재사용한다.
 	var confirm_title := TextCatalogScript.t("confirm.unclaimed.title")
+	var confirm_title_en := TextCatalogScript.t("confirm.unclaimed.title_en")
 	var confirm_desc := TextCatalogScript.t("confirm.unclaimed.desc")
 	if str(view.confirm_overlay_mode) == "discard":
 		confirm_title = TextCatalogScript.t("confirm.discard.title")
+		confirm_title_en = TextCatalogScript.t("confirm.discard.title_en")
 		confirm_desc = TextCatalogScript.t("confirm.discard.desc", [str(view.confirm_overlay_subject)])
-	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningTitle", confirm_title)
-	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningLabel", confirm_title)
-	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/WarningDescription", confirm_desc)
-	set_label_text(view, "ConfirmOverlay/Center/ConfirmBox/DescriptionLabel", confirm_desc)
+	set_label_text(view, "ConfirmOverlay/%s" % MainViewFeedbackRuntimeScript.CONFIRM_TITLE_PATH, confirm_title)
+	set_label_text(view, "ConfirmOverlay/%s" % MainViewFeedbackRuntimeScript.CONFIRM_TITLE_EN_PATH, confirm_title_en)
+	set_label_text(view, "ConfirmOverlay/%s" % MainViewFeedbackRuntimeScript.CONFIRM_DESC_PATH, confirm_desc)
 	view.confirm_proceed_button.text = TextCatalogScript.t("action.confirm" if str(view.confirm_overlay_mode) == "discard" else "action.proceed")
 	view.confirm_cancel_button.text = TextCatalogScript.t("action.cancel")
 	view.settings_open_button.text = TextCatalogScript.t("action.settings")

@@ -180,8 +180,10 @@
     "overlay.overheat.rebuilding": "Core overheated. Energy queue depleted.\nRebuilding drill core automatically ({0}s remaining)...",
     "confirm.unclaimed.title": "Unclaimed Reward Warning",
     "confirm.unclaimed.desc": "Some rewards are still unclaimed. Proceed anyway?",
+    "confirm.unclaimed.title_en": "UNCLAIMED REWARD WARNING",
     "confirm.discard.title": "Discard Artifact?",
     "confirm.discard.desc": "Discard {0}? This cannot be undone.",
+    "confirm.discard.title_en": "DISCARD ARTIFACT",
     "panel.character_status": "Explorer Status",
     "panel.profile": "[Miner Profile]",
     "panel.loadout": "Loadout:\n- Basic drill set\n- Auto-repair core\n- Leviathan surface scanner",
@@ -484,7 +486,8 @@
     "shop.field_notes.starter_beacon_blue": "\"One beacon lights a narrow circle. That narrow circle shapes the first decision.\" — Equipment list",
     "shop.field_notes.starter_repair_kit": "\"The repair kit is heaviest when unused, lightest when needed.\" — Safety code",
     "shop.field_notes.leviathan_scan_storm": "\"Read the storm wyvern's arc before it arrives. Reading it after is too late.\" — Observation report",
-    "shop.detail.cta_buy": "Purchase"
+    "shop.detail.cta_buy": "Purchase",
+    "toast.info.auto_dismiss": "Dismissing in {0}s"
   },
   "displayNames": {},
   "displayDescriptions": {},

@@ -176,8 +176,10 @@
     "overlay.overheat.rebuilding": "코어가 과열되어 에너지 큐가 비었습니다.\n드릴 코어를 자동 재구축합니다. ({0}초 남음)",
     "confirm.unclaimed.title": "미획득 보상 경고",
     "confirm.unclaimed.desc": "아직 남은 보상이 있습니다. 그래도 진행하시겠습니까?",
+    "confirm.unclaimed.title_en": "UNCLAIMED REWARD WARNING",
     "confirm.discard.title": "유물을 버릴까요?",
     "confirm.discard.desc": "{0}을(를) 버립니다. 이 작업은 되돌릴 수 없습니다.",
+    "confirm.discard.title_en": "DISCARD ARTIFACT",
     "panel.character_status": "탐사자 상태",
     "panel.profile": "[채굴자 프로필]",
     "panel.loadout": "장비 구성:\n- 기본 드릴 세트\n- 자동 수리 코어\n- 레비아탄 표면 스캐너",
@@ -480,7 +482,8 @@
     "shop.field_notes.starter_beacon_blue": "\"비콘 하나가 밝히는 범위는 좁다. 그러나 그 좁은 원이 첫 판단을 만든다.\" — 장비 목록",
     "shop.field_notes.starter_repair_kit": "\"수리 키트는 쓰지 않을 때 가장 무겁고, 필요할 때 가장 가볍다.\" — 안전 수칙",
     "shop.field_notes.leviathan_scan_storm": "\"폭풍 와이번의 궤적은 미리 읽어야 한다. 마주친 뒤에 읽으면 늦다.\" — 관측 보고",
-    "shop.detail.cta_buy": "구매하기"
+    "shop.detail.cta_buy": "구매하기",
+    "toast.info.auto_dismiss": "{0}초 뒤 사라집니다"
   },
   "displayNames": {
     "Ruby Drill": "루비 드릴",
