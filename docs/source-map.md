@@ -7,7 +7,7 @@ This file is the live implementation map for AI agents. It records each current 
 - Generated/refreshed/verified by `LTL-harness/tools/source-map-gate.ps1`.
 - Normal verification fails when an implementation file is missing from this map, when a mapped file no longer exists, when the source fingerprint is stale, or when an entry has an empty/TODO-style responsibility.
 - Excluded from per-file enforcement: VCS/editor caches, Godot caches, `.superpowers`, agent worktrees (`.worktrees`, `.claude/worktrees`), temporary `.tmp-*` folders, log files, generated artifact folders, `docs/agent-worklog`, `docs/artifact-ledgers`, `docs/codex-worklog`, `docs/comment-gates/backups`, `docs/evidence`, `docs/request-ledgers`, and `docs/superpowers/plans`.
-- Source fingerprint: dd8e658a3bfc9b6ccde1dca72a22de9c2fc1d76e929a13b544066a14bb7ce85b
+- Source fingerprint: 8018b4ee19246ef7496df205bb106feb0d91bc99070bca18896065b3e838bef6
 
 ## File Map
 
@@ -2558,6 +2558,8 @@ This file is the live implementation map for AI agents. It records each current 
   - README provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_reward_redesign/_shared.css`
   - shared provides an LTL harness entrypoint or agent rule set.
+- `LTL-harness/new_design/ltl_reward_redesign/APPLY_PLAN.md`
+  - APPLY PLAN provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_reward_redesign/assets/_contact_sheet.png`
   - contact sheet provides an LTL harness entrypoint or agent rule set.
 - `LTL-harness/new_design/ltl_reward_redesign/assets/backpack_board_runtime.png`

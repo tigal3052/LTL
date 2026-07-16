@@ -36,9 +36,19 @@
 
 - Observed symptom: clear/defeat/settings/shop/toast 화면이 무테마 다크 플레이스홀더이고, reward/boss_reward는 백팩 보드 외 크롬이 다크 남색으로 테마 불일치. 내러티브 토스트가 페이지 콘텐츠를 가림.
 - Evidence: `.tmp-redesign/captures/current/*_1440x900.png` 7종 vs `LTL-harness/new_design/stitch_ltl_*/screen.png` 비교(`LTL-harness/new_design/REDESIGN_2026W29_ANALYSIS.md`).
-- Root cause target: 각 페이지 씬/오버레이 UI 계층(위 Mutable Scope)의 스타일 미구현 — 도메인 규칙은 정상.
+- Root cause target: `app-LTL/src/ui/main_view/MainViewChromeRuntime.gd`
+- Root cause target detail: 위 소유자가 reward 패널을 런타임마다 다크로 재오버라이드하던 것이 대표 근본 원인이며, 나머지 페이지는 각자의 씬/오버레이 UI 계층에 스타일이 미구현된 상태다 — `app-LTL/src/scenes/pages/shells/RewardPanel.tscn`, `ClearPage.tscn`, `DefeatPage.tscn`, `app-LTL/src/Main.tscn`, `app-LTL/src/ui/SettingsPanelUI.gd`, `app-LTL/src/ui/ShopPanelUI.gd`, `app-LTL/src/scenes/narrative/NarrativeToast.gd`. 도메인 규칙은 정상.
 - Rejected workaround: 색상만 바꾸는 표면 패치, 목업 없이 즉흥 스타일링, 스티치 원안의 기능 불일치 요소(존재하지 않는 네비/기능) 복제.
 - Chosen fix: 승인된 목업(평가 기준 통과) 기반으로 씬 구조·스타일박스·생성 자산을 이식하고, 런타임 캡처 평가 루프로 수렴시킨다.
+
+## Refactor/Delete Disposition
+
+- **Delete 없음**: 페이지 씬/오버레이의 기존 노드를 삭제하지 않았다. 스타일박스·텍스처·색상 오버라이드 교체와 노드 추가(보스 오버레이 3종, SettingsDim, 토스트 코너 밴드)만 수행했다.
+- **Refactor 유지**: `MainViewChromeRuntime._apply_surface_bundle_theme`의 다크 재오버라이드 로직은 삭제가 아니라 라이트 팔레트로 **교체**했다(호출 계약·시그니처 불변).
+- **신규 추출**: `app-LTL/src/ui/theme/ToastRedesignTheme.gd`(토스트 시각 토큰 SoT), `app-LTL/src/ui/read_models/ShopReadModel.gd`, `app-LTL/src/ui/shop/ShopLayoutPolicy.gd`, `ShopVisualFactory.gd` — 기존 런타임 파일 비대화를 피하기 위한 캡슐 분리.
+- **공유 리소스 보존**: `Main.tscn`의 `StyleBoxFlat_settings`는 ConfirmOverlay가 참조하므로 삭제하지 않고 유지, ConfirmOverlay 전용 sub_resource를 신설해 참조를 분리했다.
+- **테스트 갱신(삭제 아님)**: `run_page_scene_mapping_contract.gd`, `ui_defeat_visual_suite.gd`의 노드 경로 어서션을 신규 트리 기준으로 갱신했다. 검증 의도는 동일하게 유지했다.
+- **prototype 미변경**: `app-LTL/prototype/**`는 읽기 전용 아카이브로 두었다.
 
 ## Transition Safety Review
 
@@ -60,11 +70,11 @@
 
 ## Verification Checklist
 
-- [ ] 페이지별 목업 평가 A항목 전부 PASS (`LTL-harness/docs/mockup-evaluation-criteria.md`, EVAL_LOG.md 증빙)
-- [ ] 페이지별 적용 평가 A항목 전부 PASS (`LTL-harness/docs/mockup-apply-evaluation-criteria.md`, APPLY_EVAL_LOG.md 증빙)
-- [ ] `tools/run-compile-check.ps1` 통과(브랜치 기존 실패 목록 대조, 신규 실패 0)
-- [ ] 소스맵 refresh OK, i18n 게이트 신규 위반 0
-- [ ] 팝업 레이어링 검증(settings/shop/confirm 전투 중 최상위)
+- [x] 페이지별 목업 평가 A항목 전부 PASS (`LTL-harness/docs/mockup-evaluation-criteria.md`, EVAL_LOG.md 증빙)
+- [x] 페이지별 적용 평가 A항목 전부 PASS (`LTL-harness/docs/mockup-apply-evaluation-criteria.md`, APPLY_EVAL_LOG.md 증빙)
+- [x] `tools/run-compile-check.ps1`: source-map/request-analysis/test-size 게이트 통과. runtime-size 게이트는 `app-LTL/src/scenes/pages/CharacterSelectPage.gd`(703줄)에서 실패하나, 이 파일은 본 작업 6개 브랜치 어디서도 미변경이고 작업 시작 전 커밋(63bc346)에서도 703줄로 동일 — 기존 부채이며 신규 회귀 아님.
+- [x] 소스맵 refresh OK, i18n 게이트 신규 위반 0
+- [x] 팝업 레이어링 검증(settings/shop/confirm 전투 중 최상위)
 
 ## Artifact Ledger
 
@@ -73,10 +83,31 @@
 
 ## Verification Notes
 
-- (완료 시 기록)
+페이지별 브랜치(전부 origin 푸시 완료):
+
+| 페이지 | 브랜치 | 최종 커밋 | 적용 평가 |
+|---|---|---|---|
+| clear | `claude/redesign-clear` | `0d29b09` | r4, A항목 PASS |
+| defeat(fail) | `claude/redesign-fail` | `88a3970` | r4 + 목업 상수 교정 r5, A 4/4 PASS |
+| reward + boss_reward | `claude/redesign-reward` | `15dd17a` | r_final + 대비 수정 r6, A항목 PASS |
+| settings | `claude/redesign-settings` | `fbabe22` | r8, A항목 PASS |
+| shop | `claude/redesign-shop` | `54e4363` | r11, A항목 PASS |
+| toast/confirm | `claude/redesign-toast` | `f9dcc50` | r4, A항목 PASS |
+| 공용 기반 | `claude/redesign-base` | `8c00a60` | 캡처 러너·분석·평가 기준·원장 |
+
+하네스 자체 결함 2건을 작업 중 발견해 base에서 수정:
+- `3918084` — 소스맵 게이트가 `.claude/worktrees`를 제외하지 않아 에이전트 worktree가 맵에 유입(가짜 app-LTL 항목 4851개, ~14000줄). 제외 규칙 추가로 맵 2936줄 안정화.
+- `8c00a60` — 캡처 러너가 내러티브 타자기 연출(36자/초, 벽시계)을 고정 프레임으로 대기해 문장이 잘린 채 캡처됨. `_complete_typewriter()` 확정 호출 추가.
 
 ## Resolution Proof
 
-- RED proof: 기준선 캡처 7종이 스티치 원안과의 구조적 불일치를 증명(분석 문서 §1).
-- Root-cause proof: (구현 후 페이지별 APPLY_EVAL_LOG 최종 회차로 기록)
-- Workaround-guard evidence: (완료 시 기록 — 평가 기준 A항목 체크리스트가 표면 패치 완료 선언을 차단)
+- RED proof: 기준선 캡처 7종(`.tmp-redesign/captures/current/*_1440x900.png`)이 스티치 원안과의 구조적 불일치를 증명했다(분석 문서 §1). clear/defeat/settings/shop/toast는 무테마 다크 플레이스홀더였고, reward/boss_reward는 백팩 보드 외 크롬이 다크 남색이었다.
+- Root-cause proof: 아래 3건의 근본 원인을 소스 수준에서 각각 규명하고 수정했다(상세는 하위 항목).
+- Workaround guard: 평가 기준 A항목이 표면 패치 완료 선언을 실제로 차단했다 — defeat 2회차와 reward 최종본이 "A항목 PASS"로 보고됐으나 캡처 검증에서 반려되어 재작업했다. 게이트가 red라 못 믿는 reward tray 오버플로는 `git stash` 기준선 실측으로 대조해 회귀 0을 증명했다(기준선 bottom=906 vs 적용후 906).
+- Root-cause proof 상세:
+  - reward 다크 잔존의 근본 원인은 `MainViewChromeRuntime._apply_surface_bundle_theme`가 런타임마다 reward 패널을 다크로 **재오버라이드**하던 전투 리디자인 시절 레거시 코드였다. 스타일박스만 바꾸는 표면 패치로는 재발했을 문제이며, 해당 소유자를 라이트 팔레트로 교체해 해결(`claude/redesign-reward`).
+  - defeat 보드 105px 편차의 근본 원인은 목업이 런타임 상수를 잘못 인코딩한 것(`layout_narrative_toast()`의 `clamp(x*0.38, 420, 620)`에서 클램프 하한 420을 실제값으로 오인, 1440에서 실제 547.2px). 목업 상수를 실제 공식에 맞춰 교정해 해결(실측: 목업 607-1415 vs 런타임 605-1410).
+  - reward 인스펙터 텍스트 불가시의 근본 원인은 다크→라이트 전환 시 `InspectorSummary`(RichTextLabel)에 색상 오버라이드가 누락되어 Godot 기본 근백색으로 폴백된 것. RichTextLabel은 `font_color`가 아니라 `default_color`가 필요하며, 테마 흙갈색으로 지정해 해결(`15dd17a`).
+- Workaround guard 상세:
+  - reward tray 6px 오버플로는 `run_main_layout_audit`가 이미 red라 게이트로 회귀를 증명할 수 없었다. 게이트 대신 `git stash` 기준선 실측으로 대조: **기준선 bottom=906 vs 적용후 bottom=906, 회귀 0**. 최초 적용본이 확정 버튼 높이로 907(1px 회귀)이었던 것을 42px 조정으로 기준선과 일치시켰다.
+  - 실측 우선 원칙(A0)을 평가 기준에 하드 룰로 추가했다 — 구현자와 검토자가 각각 육안 판정으로 오판한 사례(토스트 rect 79px 침범을 "겹침 없음"으로 PASS, 목업 중앙 아님을 "우측 쏠림"으로 반려)를 근거로 기록.
