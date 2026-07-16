@@ -75,12 +75,15 @@ func test_defeat_page_scene_uses_dedicated_wireframe_layout() -> void:
 	_assert_eq(str(defeat_page.get("default_subtitle")), "", "defeat page no longer keeps a fallback explanatory subtitle")
 	_assert_eq(str(defeat_page.get("default_board_title")), "", "defeat page no longer keeps a fallback board title")
 	_assert_eq(str(defeat_page.get("default_board_hint")), "", "defeat page no longer keeps a fallback board hint")
-	_assert(defeat_page.get_node_or_null("Margin/VStack/HeroSection") != null, "defeat page exposes the wireframe hero section")
-	_assert(defeat_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead") != null, "defeat page exposes the board header")
-	_assert(defeat_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/HeroFrame") != null, "defeat page exposes the character hero frame")
-	_assert(defeat_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FailureCauseLabel") != null, "defeat page exposes the dedicated failure cause label")
-	_assert(defeat_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FailureTipLabel") != null, "defeat page exposes the dedicated retry hint label")
-	_assert(defeat_page.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RetryButton") != null, "defeat page exposes the centered retry CTA inside the board body")
+	# 실행: fail_r4 목업(hanging parchment board) 적용으로 노드 트리가 BoardRig/BoardTilt/BoardShell
+	# 구도로 재구성됨(APPLY_PLAN.md 3절). 아래 경로는 신규 트리 기준이다.
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Head") != null, "defeat page exposes the hanging board head section")
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Body/PolaroidSlot") != null, "defeat page exposes the polaroid failure-scene frame")
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Body/LedgerColumn/CauseRow/FailureCauseLabel") != null, "defeat page exposes the dedicated failure cause label")
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Body/LedgerColumn/TipRow/FailureTipLabel") != null, "defeat page exposes the dedicated retry hint label")
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/CtaColumn/RetryButton") != null, "defeat page exposes the same-seed retry CTA inside the board CTA column")
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/CtaColumn/NewSeedRetryButton") != null, "defeat page exposes the new-seed retry CTA inside the board CTA column")
+	_assert(defeat_page.get_node_or_null("BoardRig/BoardTilt/Pin") != null, "defeat page exposes the board pin sharing the board's tilt coordinate space")
 	defeat_page.queue_free()
 func test_main_view_presentation_runtime_helper_exists() -> void:
 	var helper_path := "res://src/ui/main_view/MainViewPresentationRuntime.gd"

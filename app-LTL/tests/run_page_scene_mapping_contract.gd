@@ -78,13 +78,14 @@ func _run() -> void:
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RoadmapFrame/FrameMargin/FrameVBox/MapTitle") == null, "node-select scene removes the retired roadmap title band")
 				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/RouteSplit") == null, "node-select scene removes the retired split map/backpack shell")
 			elif mockup_name == "m6-defeat-page-wireframe.html":
-				_assert(instance.get_node_or_null("Margin/VStack/HeroSection") != null, "defeat scene exposes the wireframe hero section")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell") != null, "defeat scene exposes the dedicated board shell")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardHead") != null, "defeat scene exposes the board header")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/HeroFrame") != null, "defeat scene exposes the character-centered hero frame")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FailureCauseLabel") != null, "defeat scene exposes the failure cause line")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/FailureTipLabel") != null, "defeat scene exposes the retry hint line")
-				_assert(instance.get_node_or_null("Margin/VStack/BoardShell/ShellMargin/ShellVBox/BoardBody/RetryButton") != null, "defeat scene exposes the centered retry CTA")
+				# 실행: fail_r4 목업(hanging parchment board) 적용으로 노드 트리가
+				# BoardRig/BoardTilt/BoardShell 구도로 재구성됨(APPLY_PLAN.md 3절).
+				_assert(instance.get_node_or_null("BoardRig/BoardTilt/BoardShell") != null, "defeat scene exposes the dedicated hanging board shell")
+				_assert(instance.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Head") != null, "defeat scene exposes the board head")
+				_assert(instance.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Body/PolaroidSlot") != null, "defeat scene exposes the character-centered polaroid frame")
+				_assert(instance.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Body/LedgerColumn/CauseRow/FailureCauseLabel") != null, "defeat scene exposes the failure cause line")
+				_assert(instance.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/Body/LedgerColumn/TipRow/FailureTipLabel") != null, "defeat scene exposes the retry hint line")
+				_assert(instance.get_node_or_null("BoardRig/BoardTilt/BoardShell/ShellMargin/ShellVBox/CtaColumn/RetryButton") != null, "defeat scene exposes the centered retry CTA")
 			instance.queue_free()
 	_finish()
 
